@@ -8,6 +8,24 @@ import { Event } from '../../../common/event.js';
 import { IDisposable } from '../../../common/lifecycle.js';
 import { IMessagePassingProtocol, IPCClient } from './ipc.js';
 
+/** Scope supplied by Electron main when transferring a renderer connection to a utility. */
+export interface IMessagePortConnectionScope {
+	readonly role: 'project' | 'agents' | 'auxiliary';
+	readonly workbench: number;
+	readonly generation: number;
+	readonly workspaceId?: string;
+	readonly remoteAuthority?: string;
+	/** Provider correlation only; this never grants native authority. */
+	readonly clientId?: string;
+}
+
+export interface ITrustedMessagePortConnection {
+	readonly type: 'vscode:ipc-connection';
+	readonly context: string;
+	readonly scope: IMessagePortConnectionScope;
+	readonly payload?: unknown;
+}
+
 /**
  * Declare minimal `MessageEvent` and `MessagePort` interfaces here
  * so that this utility can be used both from `browser` and
