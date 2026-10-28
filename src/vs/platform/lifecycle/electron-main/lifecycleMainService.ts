@@ -250,6 +250,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	private readonly closingProjects = new Set<number>();
 	private readonly closeTargets = new Map<number, ICodeWindow>();
 	private readonly pendingProjectCloses = new Map<number, DeferredPromise<void>>();
+	private readonly pendingProjectReloads = new Map<number, Promise<void>>();
 	private readonly completedHostCleanup = new Map<number, electron.WebContents>();
 	private windowCounter = 0;
 
@@ -600,7 +601,17 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		}));
 	}
 
-	async reload(window: ICodeWindow, cli?: NativeParsedArgs): Promise<void> {
+	reload(window: ICodeWindow, cli?: NativeParsedArgs): Promise<void> {
+		const existing = this.pendingProjectReloads.get(window.id);
+		if (existing) { return existing; }
+
+		// Publish the attempt before dispatch so reentrant callers cannot replace twice.
+		const pending = Promise.resolve().then(() => this.doReload(window, cli)).finally(() => this.pendingProjectReloads.delete(window.id));
+		this.pendingProjectReloads.set(window.id, pending);
+		return pending;
+	}
+
+	private async doReload(window: ICodeWindow, cli?: NativeParsedArgs): Promise<void> {
 		if (prototypeHostClosing || this.pendingProjectCloses.has(window.id)) { return; }
 
 		// Only reload when the window has not vetoed this

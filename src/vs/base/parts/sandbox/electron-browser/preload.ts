@@ -118,6 +118,11 @@
 
 			send(channel: string, ...args: unknown[]): void {
 				if (validateIPC(channel)) {
+					if (channel === 'vscode:reloadWindow') {
+						// Never queue a reload for later bootstrap/readiness.
+						ipcRenderer.send(channel, ...args, documentNonce);
+						return;
+					}
 					if ((['vscode:hello', 'vscode:message', 'vscode:disconnect'].includes(channel) || /^vscode:(ok|cancel|reply)/.test(channel))) {
 						if (!documentNonce) { pendingTransport.push([channel, args]); }
 						else { ipcRenderer.send(channel, ...args, documentNonce); }

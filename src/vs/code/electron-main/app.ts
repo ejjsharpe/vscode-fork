@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { bindPrototypeConnection } from '../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { bindPrototypeConnection, prototypeDocumentGeneration, prototypeDocumentOwnsReply } from '../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { prototypeNativeChannel, prototypeExtensionChannel, prototypeWorkerChannel } from '../../platform/windows/electron-main/prototypeNativeChannel.js';
 
 
@@ -693,7 +693,17 @@ export class CodeApplication extends Disposable {
 		validatedIpcMain.on('vscode:toggleDevTools', event => event.sender.toggleDevTools());
 		validatedIpcMain.on('vscode:openDevTools', event => event.sender.openDevTools());
 
-		validatedIpcMain.on('vscode:reloadWindow', event => event.sender.reload());
+		validatedIpcMain.on('vscode:reloadWindow', (event, ...args: unknown[]) => {
+			const window = this.windowsMainService?.getWindowByWebContents(event.sender);
+			const generation = prototypeDocumentGeneration(event.sender);
+			if (!window || generation === undefined || args.length !== 1 || !prototypeDocumentOwnsReply(window.webContents, generation, event, args[0])) {
+				this.logService.warn('Rejected stale or unauthorized developer reload');
+				return;
+			}
+
+			// The bootstrap shortcut must use the same safeguards as workbench reload.
+			void this.lifecycleMainService.reload(window).catch(error => this.logService.error(error));
+		});
 
 		validatedIpcMain.handle('vscode:notifyZoomLevel', async (event, zoomLevel: number | undefined) => {
 			const window = this.windowsMainService?.getWindowByWebContents(event.sender);
