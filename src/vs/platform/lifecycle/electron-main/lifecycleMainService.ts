@@ -6,7 +6,7 @@
 import electron from 'electron';
 import { randomUUID } from 'node:crypto';
 import { prototypeHostClosing, setPrototypeHostClosing, reportPrototypeCloseFailure } from '../../windows/electron-main/prototypeWorkbenchHost.js';
-import { onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply, revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { prototypeLifecycleReady, onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply, revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { validatedIpcMain } from '../../../base/parts/ipc/electron-main/ipcMain.js';
 import { Barrier, DeferredPromise, Promises, timeout } from '../../../base/common/async.js';
 import { Emitter, Event } from '../../../base/common/event.js';
@@ -508,12 +508,12 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 			// Ask every live project before any cleanup; a veto must leave neighbours usable.
 			for (const window of windows) {
 				if (this.completedHostCleanup.get(window.id) === window.webContents) { continue; }
-				if (this.closingProjects.has(window.id) || this.mapWindowIdToPendingUnload.has(window.id) || !window.isReady) {
+				if (this.closingProjects.has(window.id) || this.mapWindowIdToPendingUnload.has(window.id)) {
 					this.handleWindowUnloadVeto(true);
 					return;
 				}
 				const generation = prototypeDocumentGeneration(window.webContents);
-				const outcome = generation === undefined ? 'interrupted' : await this.onBeforeUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE);
+				const outcome = !prototypeLifecycleReady(window.webContents) || generation === undefined ? 'interrupted' : await this.onBeforeUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE);
 				if (outcome !== false || generation === undefined) {
 					interrupted = outcome === 'interrupted';
 					this.handleWindowUnloadVeto(true);
@@ -630,9 +630,10 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 
 	private async doUnload(window: ICodeWindow, reason: UnloadReason): Promise<boolean | 'interrupted'> {
 
-		// Always allow to unload a window that is not yet ready
-		if (!window.isReady) {
-			return false;
+		// Bootstrap authorization is not evidence that lifecycle safeguards can receive requests.
+		if (!prototypeLifecycleReady(window.webContents)) {
+			this.handleWindowUnloadVeto(true);
+			return 'interrupted';
 		}
 
 		this.trace(`Lifecycle#unload() - window ID ${window.id}`);
@@ -690,7 +691,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	private waitForPrototypeLifecycle(window: ICodeWindow, requestChannel: string, reason: UnloadReason, before: boolean): Promise<'ok' | 'cancel' | 'interrupted'> {
 		const contents = window.webContents;
 		const generation = prototypeDocumentGeneration(contents);
-		if (generation === undefined) { return Promise.resolve('interrupted'); }
+		if (generation === undefined || !prototypeLifecycleReady(contents)) { return Promise.resolve('interrupted'); }
 		return new Promise(resolve => {
 			const token = randomUUID();
 			const channels = before ? [`vscode:ok${token}`, `vscode:cancel${token}`] : [`vscode:reply${token}`];
@@ -714,6 +715,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 				if (event.contents === contents && event.generation === generation) { finish('interrupted'); }
 			});
 			for (let i = 0; i < channels.length; i++) { validatedIpcMain.on(channels[i], listeners[i]); }
+			console.log('[readiness-probe] dispatch', Date.now(), window.id, generation, requestChannel);
 			window.send(requestChannel, before ? { okChannel: channels[0], cancelChannel: channels[1], reason } : { replyChannel: channels[0], reason });
 		});
 	}

@@ -10,7 +10,7 @@ import { Emitter } from '../../../common/event.js';
 
 let generation = 0;
 let connection = 0;
-const documents = new Map<number, { generation: number; nonce?: string; workbench: number; retired?: boolean }>();
+const documents = new Map<number, { generation: number; nonce?: string; workbench: number; retired?: boolean; lifecycleReady?: boolean }>();
 const bindings = new Map<string, { contents: WebContents; generation: number; workbench: number }>();
 const revoked = new Emitter<string>();
 export const onPrototypeConnectionRevoked = revoked.event;
@@ -26,6 +26,7 @@ export function revokePrototypeDocument(contents: WebContents, reason: string): 
 	if (!document) { return; }
 	const wasLive = document.nonce !== undefined;
 	document.nonce = undefined;
+	document.lifecycleReady = false;
 	if (wasLive) { documentRevoked.fire({ contents, generation: document.generation, reason }); }
 	for (const [context, binding] of bindings) {
 		if (binding.contents === contents) { revokePrototypeConnection(context); }
@@ -88,4 +89,16 @@ export function prototypeDocumentOwnsReply(contents: WebContents, generation: nu
 	const document = documents.get(contents.id);
 	return event.sender === contents && !contents.isDestroyed() && event.senderFrame === contents.mainFrame &&
 		document?.generation === generation && !!document.nonce && nonce === document.nonce;
+}
+
+// Readiness is accepted only through the authenticated current document connection.
+export function markPrototypeLifecycleReady(context: string): void {
+	const binding = prototypeBinding(context);
+	documents.get(binding.contents.id)!.lifecycleReady = true;
+	console.log('[readiness-probe] ready', Date.now(), binding.workbench, binding.generation);
+}
+
+export function prototypeLifecycleReady(contents: WebContents): boolean {
+	const document = documents.get(contents.id);
+	return !contents.isDestroyed() && !!document?.nonce && document.lifecycleReady === true;
 }

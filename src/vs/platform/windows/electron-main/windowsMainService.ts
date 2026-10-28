@@ -1671,7 +1671,8 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 		// If the window was already loaded, make sure to unload it
 		// first and only load the new configuration if that was
 		// not vetoed
-		if (window.isReady) {
+		// An existing document still owns safeguards while its replacement is starting.
+		if (window.config) {
 			this.lifecycleMainService.unload(window, UnloadReason.LOAD).then(async veto => {
 				if (!veto) {
 					await this.doOpenInBrowserWindow(window, configuration, options, defaultProfile);

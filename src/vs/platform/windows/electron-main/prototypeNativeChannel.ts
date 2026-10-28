@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 // THROWAWAY: explicit native-service scopes for the live hosting experiment.
-import { onPrototypeConnectionRevoked, prototypeBinding } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { onPrototypeConnectionRevoked, prototypeBinding, markPrototypeLifecycleReady } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { CancellationToken } from '../../../base/common/cancellation.js';
 import { Event } from '../../../base/common/event.js';
 import { IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
@@ -39,6 +39,7 @@ export function prototypeNativeChannel(channel: IServerChannel<string>, windows:
 			if (!ownMethods.has(command) && !appMethods.has(command)) { throw new Error(`Unclassified/coordinator-only native operation: ${command}`); }
 			checkTargets(args.slice(1), window.id);
 			if (command === 'getNativeWindowHandle' && args[1] !== window.id) { throw new Error('Rejected explicit target'); }
+			if (command === 'notifyReady') { markPrototypeLifecycleReady(context); }
 			const result = await channel.call<T>(context, command, args, token);
 			prototypeBinding(context);
 			return result;

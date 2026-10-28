@@ -28,6 +28,7 @@ export class NativeLifecycleService extends AbstractLifecycleService {
 		super(logService, storageService);
 
 		this.registerListeners();
+		console.log('[readiness-probe] receivers-installed', Date.now(), this.nativeHostService.windowId);
 	}
 
 	private registerListeners(): void {
@@ -35,6 +36,7 @@ export class NativeLifecycleService extends AbstractLifecycleService {
 
 		// Main side indicates that window is about to unload, check for vetos
 		ipcRenderer.on('vscode:onBeforeUnload', async (event: unknown, ...args: unknown[]) => {
+			console.log('[readiness-probe] received', Date.now(), windowId);
 			const reply = args[0] as { okChannel: string; cancelChannel: string; reason: ShutdownReason };
 			this.logService.trace(`[lifecycle] onBeforeUnload (reason: ${reply.reason})`);
 
@@ -62,6 +64,7 @@ export class NativeLifecycleService extends AbstractLifecycleService {
 
 		// Main side indicates that we will indeed shutdown
 		ipcRenderer.on('vscode:onWillUnload', async (event: unknown, ...args: unknown[]) => {
+			console.log('[readiness-probe] received', Date.now(), windowId);
 			const reply = args[0] as { replyChannel: string; reason: ShutdownReason };
 			this.logService.trace(`[lifecycle] onWillUnload (reason: ${reply.reason})`);
 
