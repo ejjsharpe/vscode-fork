@@ -137,6 +137,8 @@ import { IUtilityProcessWorkerMainService, UtilityProcessWorkerMainService } fro
 import { ipcUtilityProcessWorkerChannelName } from '../../platform/utilityProcess/common/utilityProcessWorkerService.js';
 import { ILocalPtyService, LocalReconnectConstants, TerminalIpcChannels, TerminalSettingId } from '../../platform/terminal/common/terminal.js';
 import { createLocalPtyChannel } from '../../platform/terminal/common/localPtyChannel.js';
+import { PtyHostRestartMainService } from '../../platform/terminal/electron-main/ptyHostRestartMainService.js';
+import { prototypeHostClosing } from '../../platform/windows/electron-main/prototypeWorkbenchHost.js';
 import { ElectronPtyHostStarter } from '../../platform/terminal/electron-main/electronPtyHostStarter.js';
 import { PtyHostService } from '../../platform/terminal/node/ptyHostService.js';
 import { parseExternalOpenSessionLinkUri } from '../../platform/agentHost/common/openSessionLink.js';
@@ -1548,7 +1550,9 @@ export class CodeApplication extends Disposable {
 		sharedProcessClient.then(client => client.registerChannel('profileStorageListener', profileStorageListener));
 
 		// Terminal
-		const ptyHostChannel = createLocalPtyChannel(accessor.get(ILocalPtyService), disposables, resolveNativeScope, onPrototypeConnectionRevoked);
+		const localPtyService = accessor.get(ILocalPtyService);
+		const ptyRestart = new PtyHostRestartMainService(hostedWindowsMainService, accessor.get(IDialogMainService), () => localPtyService.restartPtyHost(), () => this.lifecycleMainService.quitRequested || prototypeHostClosing);
+		const ptyHostChannel = createLocalPtyChannel(localPtyService, disposables, resolveNativeScope, onPrototypeConnectionRevoked, false, undefined, context => ptyRestart.request(context));
 		mainProcessElectronServer.registerChannel(TerminalIpcChannels.LocalPty, ptyHostChannel);
 
 		// External Terminal

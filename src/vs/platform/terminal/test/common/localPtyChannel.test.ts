@@ -158,6 +158,17 @@ suite('LocalPtyChannel', () => {
 		deepStrictEqual(own, '/one');
 	});
 
+	test('the renderer recovery control requests the named main coordinator while direct raw restart stays rejected', async () => {
+		const requests: string[] = [];
+		const scope = () => ({ role: 'project' as const, workbench: 51, generation: 1, workspaceId: 'one' });
+		const service = upcastPartial<ILocalPtyService>({});
+		const channel = createLocalPtyChannel(service, store.add(new DisposableStore()), scope, Event.None, false, undefined, async context => { requests.push(context); });
+		await channel.call('main-issued', 'restartPtyHost', []);
+		const direct = createLocalPtyChannel(service, store.add(new DisposableStore()), scope, Event.None, true);
+		await rejects(direct.call('main-issued', 'restartPtyHost', []), /coordinator/);
+		deepStrictEqual(requests, ['main-issued']);
+	});
+
 	test('delivers the final owned exit after the native process registry removes its handle', async () => {
 		const exits = store.add(new Emitter<{ id: number; event: number; owner: { workbench: number; workspaceId: string } }>());
 		const received: number[] = [];
