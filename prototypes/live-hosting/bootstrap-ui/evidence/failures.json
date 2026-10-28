@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "setup",
+    "failure": "Detached launch inspector unavailable after launch command exited",
+    "repair": "Fresh launch in retained terminal",
+    "rerun": "Inspector and all candidate probes succeeded"
+  },
+  {
+    "kind": "harness",
+    "failure": "Inherited screenshot helper used absent multi-folder target before startup completed (baseline and candidate)",
+    "repair": "Bounded wait for target and lifecycle readiness in capture.js",
+    "rerun": "Capture succeeded and visually inspected"
+  },
+  {
+    "kind": "edit script",
+    "failure": "Assertion assumed onUnexpectedError import existed; caller file was not written",
+    "repair": "Use existing logService.error catch",
+    "rerun": "Client build and typecheck exited 0"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "realWireAgentsAndProjects": 3,
+  "realDevToolsOpenAndToggle": true,
+  "realZoomNumberAndUndefined": true,
+  "realInvalidZoomRejected": 5,
+  "realExtraArgumentsRejected": true,
+  "realUnregisteredAuxiliaryRejected": true,
+  "injectedMissingGuessedForeignFrameRejected": true,
+  "unauthorizedDevToolsEffects": 0
+}

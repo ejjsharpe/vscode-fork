@@ -1,0 +1,8 @@
+{
+  "realWireOwnProjectsAndAgents": 3,
+  "ownConfigurationAndEnvironment": true,
+  "realWireUnregisteredAuxiliaryRejected": true,
+  "realWireExtraArgumentRejected": true,
+  "injectedMissingGuessedForeignFrameRejected": true,
+  "noUnauthorizedResolverCalls": true
+}

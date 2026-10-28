@@ -1,0 +1,9 @@
+{
+  "actualReplacement": true,
+  "realPrebootstrapRequestsRejected": true,
+  "noAutomaticReplay": true,
+  "injectedExpiredCredentialsRejected": true,
+  "freshExplicitCallsSucceeded": true,
+  "neighbourGenerationUnchanged": true,
+  "controlledDevToolsEffectCounter": true
+}
