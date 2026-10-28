@@ -1,0 +1,21 @@
+[
+  {
+    "phase": "before",
+    "foreignRejected": true,
+    "wrongIdRejected": true,
+    "authorized": true,
+    "duplicateDidNotSettleNext": true
+  },
+  {
+    "phase": "will",
+    "foreignRejected": true,
+    "wrongIdRejected": true,
+    "authorized": true,
+    "duplicateDidNotSettleNext": true
+  },
+  {
+    "phase": "will",
+    "unexpectedReplacement": "interrupted",
+    "generation": 5
+  }
+]

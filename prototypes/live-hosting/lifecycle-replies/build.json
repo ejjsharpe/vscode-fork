@@ -1,0 +1,10 @@
+{
+  "source": "df8a96ab0c2e2741880109070995c0855b416682",
+  "base": "1c66e15dd5364d4aefc0e7f011c513567f9817d9",
+  "node": "v24.22.1",
+  "os": "macOS-26.3.1-arm64-arm-64bit-Mach-O",
+  "build": "npm run build-fast (full successful retry outside sandbox)",
+  "typecheck": "npm run typecheck-client passed",
+  "firstBuild": "Client passed; full Copilot build failed at tsx local socket EPERM under sandbox; successful full retry",
+  "dependencySetup": "Independent APFS copy of preceding checkout including dependencies and Electron; no shared node_modules symlinks"
+}

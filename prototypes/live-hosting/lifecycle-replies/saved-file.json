@@ -1,0 +1,6 @@
+{
+  "path": "scratch/multi-a/saved.txt",
+  "contents": "Disposable lifecycle reply test",
+  "savedDuringBeforeUnload": true,
+  "verification": "Filesystem read after native Save then Save As confirmation"
+}

@@ -1,0 +1,4 @@
+main.log: 2026-10-28 11:22:57.961 [info] Extension host with pid 4691 exited with code: 0, signal: unknown.
+main.log: 2026-10-28 11:22:57.974 [info] Extension host with pid 4759 exited with code: 0, signal: unknown.
+window100000/renderer.log: 2026-10-28 11:17:05.701 [info] Started local extension host with pid 4691.
+window100001/renderer.log: 2026-10-28 11:17:13.211 [info] Started local extension host with pid 4759.

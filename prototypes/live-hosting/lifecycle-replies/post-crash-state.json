@@ -1,0 +1,139 @@
+{
+  "requests": [
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onWillUnload",
+      "before": false
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onWillUnload",
+      "before": false
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:probeBefore",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:probeBefore",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:probeWill",
+      "before": false
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:probeWill",
+      "before": false
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:probeWill",
+      "before": false
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:probeBefore",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:probeWill",
+      "before": false
+    }
+  ],
+  "results": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "cancel"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:probeBefore",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:probeBefore",
+      "result": "cancel"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:probeWill",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:probeWill",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:probeWill",
+      "result": "interrupted"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:probeBefore",
+      "result": "interrupted"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:probeWill",
+      "result": "interrupted"
+    }
+  ],
+  "title": "saved.txt — multi (Workspace)"
+}

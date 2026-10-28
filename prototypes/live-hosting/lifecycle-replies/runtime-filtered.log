@@ -1,0 +1,99 @@
+13:[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+14:[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"approved-load"}
+15:[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"navigation"}
+20:[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"bootstrap"}
+21:[lifetime-probe] bootstrap {"workbench":100000,"generation":1,"webContents":2}
+22:[hosting-probe] loaded {"id":100000,"nativeHost":1,"webContents":2,"pid":4664,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/sessions/electron-browser/sessions-dev.html"}
+23:[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+24:[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"approved-load"}
+25:[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"navigation"}
+26:[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+27:[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"approved-load"}
+28:[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"navigation"}
+29:[lifetime-probe] connection window:100000:document:1:connection:1
+30:[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"bootstrap"}
+31:[lifetime-probe] bootstrap {"workbench":100001,"generation":2,"webContents":3}
+32:[hosting-probe] loaded {"id":100001,"nativeHost":1,"webContents":3,"pid":4670,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+33:[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"bootstrap"}
+34:[lifetime-probe] bootstrap {"workbench":100002,"generation":3,"webContents":4}
+35:[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":4684,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+40:[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+44:[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:startExtensionHostMessagePortResult"}
+47:[4638:1028/111705.701921:INFO:CONSOLE:116] "%c INFO color: #33f Started local extension host with pid 4691.", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/platform/log/common/log.js (116)
+61:[lifetime-probe] connection window:100002:document:3:connection:2
+62:[lifetime-probe] connection window:100001:document:2:connection:3
+70:[hosting-probe] port {"workbench":100001,"webContents":3,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+71:[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+76:[hosting-probe] port {"workbench":100001,"webContents":3,"channel":"vscode:startExtensionHostMessagePortResult"}
+79:[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:startExtensionHostMessagePortResult"}
+80:[4638:1028/111713.211833:INFO:CONSOLE:116] "%c INFO color: #33f Started local extension host with pid 4759.", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/platform/log/common/log.js (116)
+176:[4638:1028/111713.414691:INFO:CONSOLE:116] "%c INFO color: #33f [AgentHost] No signed-in session resolved for resource: https://api.github.com/repos", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/platform/log/common/log.js (116)
+469:[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onBeforeUnload","result":"ok"}
+470:[90m[main 2026-10-28T11:18:00.596Z][0m Extension host with pid 4760 exited with code: 0, signal: unknown.
+471:[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onWillUnload","result":"ok"}
+472:[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"acknowledged-unload"}
+473:[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"approved-reload"}
+474:[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"approved-load"}
+475:[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"navigation"}
+476:[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"bootstrap"}
+477:[lifetime-probe] bootstrap {"workbench":100002,"generation":4,"webContents":4}
+478:[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":4684,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+487:[lifetime-probe] connection window:100002:document:4:connection:4
+491:[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+495:[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:startExtensionHostMessagePortResult"}
+590:[lifecycle-reply-probe] rejected {"channel":"vscode:ok5a3d9eb1-e507-43f2-8805-05c807e42b06","sender":3,"expected":4,"generation":4}
+591:[lifecycle-reply-probe] rejected {"channel":"vscode:cancel5a3d9eb1-e507-43f2-8805-05c807e42b06","sender":3,"expected":4,"generation":4}
+595:[lifecycle-reply-probe] {"workbench":100002,"generation":4,"phase":"vscode:onBeforeUnload","result":"cancel"}
+608:[lifecycle-reply-probe] {"workbench":100002,"generation":4,"phase":"vscode:onBeforeUnload","result":"ok"}
+609:[90m[main 2026-10-28T11:19:48.850Z][0m Extension host with pid 5368 exited with code: 0, signal: unknown.
+610:[lifecycle-reply-probe] {"workbench":100002,"generation":4,"phase":"vscode:onWillUnload","result":"ok"}
+611:[lifetime-probe] revoke {"workbench":100002,"generation":4,"reason":"acknowledged-unload"}
+612:[lifetime-probe] revoke {"workbench":100002,"generation":4,"reason":"approved-reload"}
+613:[lifetime-probe] revoke {"workbench":100002,"generation":4,"reason":"approved-load"}
+614:[lifetime-probe] revoke {"workbench":100002,"generation":4,"reason":"navigation"}
+615:[lifetime-probe] revoke {"workbench":100002,"generation":4,"reason":"bootstrap"}
+616:[lifetime-probe] bootstrap {"workbench":100002,"generation":5,"webContents":4}
+617:[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":4684,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+621:[lifetime-probe] connection window:100002:document:5:connection:5
+628:[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:startExtensionHostMessagePortResult"}
+634:[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+705:[lifecycle-reply-probe] rejected {"channel":"vscode:ok01cb1a6b-4c1c-4707-b89c-42bc13cd8cec","sender":3,"expected":4,"generation":5}
+706:[lifecycle-reply-probe] rejected {"channel":"vscode:ok01cb1a6b-4c1c-4707-b89c-42bc13cd8cec","sender":4,"expected":4,"generation":5}
+707:[lifecycle-reply-probe] {"workbench":100002,"generation":5,"phase":"vscode:probeBefore","result":"ok"}
+708:[lifecycle-reply-probe] {"workbench":100002,"generation":5,"phase":"vscode:probeBefore","result":"cancel"}
+709:[lifecycle-reply-probe] rejected {"channel":"vscode:reply2ff76d0a-67a7-49ec-90da-5f68d8bc2fa8","sender":3,"expected":4,"generation":5}
+710:[lifecycle-reply-probe] rejected {"channel":"vscode:reply2ff76d0a-67a7-49ec-90da-5f68d8bc2fa8","sender":4,"expected":4,"generation":5}
+711:[lifecycle-reply-probe] {"workbench":100002,"generation":5,"phase":"vscode:probeWill","result":"ok"}
+712:[lifecycle-reply-probe] {"workbench":100002,"generation":5,"phase":"vscode:probeWill","result":"ok"}
+713:[lifecycle-reply-probe] {"workbench":100002,"generation":5,"phase":"vscode:probeWill","result":"interrupted"}
+714:[lifetime-probe] revoke {"workbench":100002,"generation":5,"reason":"navigation"}
+717:[lifetime-probe] revoke {"workbench":100002,"generation":5,"reason":"bootstrap"}
+718:[lifetime-probe] bootstrap {"workbench":100002,"generation":6,"webContents":4}
+719:[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":4684,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+720:[lifetime-probe] connection window:100002:document:6:connection:6
+727:[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:startExtensionHostMessagePortResult"}
+732:[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+803:[lifecycle-reply-probe] {"workbench":100002,"generation":6,"phase":"vscode:probeBefore","result":"interrupted"}
+804:[lifetime-probe] revoke {"workbench":100002,"generation":6,"reason":"navigation"}
+807:[lifetime-probe] revoke {"workbench":100002,"generation":6,"reason":"bootstrap"}
+808:[lifetime-probe] bootstrap {"workbench":100002,"generation":7,"webContents":4}
+809:[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":4684,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+810:[lifetime-probe] connection window:100002:document:7:connection:7
+817:[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:startExtensionHostMessagePortResult"}
+820:[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+906:[90m[main 2026-10-28T11:22:42.794Z][0m Extension host with pid 5887 exited with code: 0, signal: unknown.
+925:[lifecycle-reply-probe] {"workbench":100002,"generation":7,"phase":"vscode:probeWill","result":"interrupted"}
+926:[lifetime-probe] revoke {"workbench":100002,"generation":7,"reason":"crash"}
+930:[hosting-probe] selected {"id":100003,"nativeHost":1,"webContents":5}
+931:[lifetime-probe] revoke {"workbench":100003,"generation":0,"reason":"approved-load"}
+932:[lifetime-probe] revoke {"workbench":100003,"generation":0,"reason":"navigation"}
+933:[hosting-probe] selected {"id":100003,"nativeHost":1,"webContents":5}
+939:[lifetime-probe] revoke {"workbench":100003,"generation":0,"reason":"bootstrap"}
+940:[lifetime-probe] bootstrap {"workbench":100003,"generation":8,"webContents":5}
+941:[hosting-probe] loaded {"id":100003,"nativeHost":1,"webContents":5,"pid":5924,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+953:[90m[main 2026-10-28T11:22:57.961Z][0m Extension host with pid 4691 exited with code: 0, signal: unknown.
+954:[90m[main 2026-10-28T11:22:57.974Z][0m Extension host with pid 4759 exited with code: 0, signal: unknown.
+955:[4638:1028/112257.975194:INFO:CONSOLE:710] "Extension host (LocalProcess pid: 4691) terminated unexpectedly. Code: 0, Signal: unknown", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/workbench/services/extensions/common/abstractExtensionService.js (710)
+956:[4638:1028/112257.975494:INFO:CONSOLE:116] "%c  ERR color: #f33 Extension host (LocalProcess pid: 4691) terminated unexpectedly. The following extensions were running: vscode.github-authentication, vscode.emmet, vscode.git-base, vscode.git, vscode.github, GitHub.copilot-chat, vscode.microsoft-authentication, vscode.debug-auto-launch, vscode.merge-conflict", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/platform/log/common/log.js (116)
+958:[4638:1028/112257.976269:INFO:CONSOLE:710] "Extension host (LocalProcess pid: 4759) terminated unexpectedly. Code: 0, Signal: unknown", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/workbench/services/extensions/common/abstractExtensionService.js (710)
+959:[4638:1028/112257.976667:INFO:CONSOLE:116] "%c  ERR color: #f33 Extension host (LocalProcess pid: 4759) terminated unexpectedly. The following extensions were running: vscode.github-authentication, vscode.emmet, vscode.git-base, vscode.github, vscode.debug-auto-launch, vscode.merge-conflict", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-3/work/escode-prototype/out/vs/platform/log/common/log.js (116)

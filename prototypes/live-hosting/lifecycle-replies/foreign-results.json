@@ -1,0 +1,48 @@
+{
+  "target": 4,
+  "source": 3,
+  "request": {
+    "channel": "vscode:onBeforeUnload",
+    "okChannel": "vscode:ok5a3d9eb1-e507-43f2-8805-05c807e42b06",
+    "cancelChannel": "vscode:cancel5a3d9eb1-e507-43f2-8805-05c807e42b06",
+    "reason": 3
+  },
+  "results": [
+    {
+      "channel": "vscode:ok5a3d9eb1-e507-43f2-8805-05c807e42b06",
+      "sender": 3,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "channel": "vscode:cancel5a3d9eb1-e507-43f2-8805-05c807e42b06",
+      "sender": 3,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "channel": "vscode:ok0",
+      "sender": 3,
+      "before": 1,
+      "after": 1
+    },
+    {
+      "channel": "vscode:reply0",
+      "sender": 3,
+      "before": 1,
+      "after": 1
+    }
+  ],
+  "lifecycleResults": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    }
+  ]
+}
