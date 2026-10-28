@@ -146,7 +146,7 @@ export class PtyService extends Disposable implements IPtyService {
 	readonly onProcessReplay = this._traceEvent('_onProcessReplay', this._onProcessReplay.event);
 	private readonly _onProcessReady = this._register(new Emitter<{ id: number; event: IProcessReadyEvent }>());
 	readonly onProcessReady = this._traceEvent('_onProcessReady', this._onProcessReady.event);
-	private readonly _onProcessExit = this._register(new Emitter<{ id: number; event: number | undefined }>());
+	private readonly _onProcessExit = this._register(new Emitter<{ id: number; event: number | undefined; owner?: IPtyProcessOwner }>());
 	readonly onProcessExit = this._traceEvent('_onProcessExit', this._onProcessExit.event);
 	private readonly _onProcessOrphanQuestion = this._register(new Emitter<{ id: number }>());
 	readonly onProcessOrphanQuestion = this._traceEvent('_onProcessOrphanQuestion', this._onProcessOrphanQuestion.event);
@@ -380,7 +380,7 @@ export class PtyService extends Disposable implements IPtyService {
 			}
 			persistentProcess.dispose();
 			this._ptys.delete(id);
-			this._onProcessExit.fire({ id, event });
+			this._onProcessExit.fire({ id, event, owner: this._processOwners.get(id) });
 			this._processOwners.delete(id);
 		});
 		persistentProcess.onProcessData(event => this._onProcessData.fire({ id, event }));
@@ -428,7 +428,8 @@ export class PtyService extends Disposable implements IPtyService {
 	}
 
 	@traceRpc
-	async setParentWindow(id: number, handle: VSBuffer): Promise<void> {
+	async setParentWindow(id: number, handle: VSBuffer, _windowId?: number, resolveNativeParent?: () => Promise<VSBuffer>): Promise<void> {
+		if (resolveNativeParent) { handle = await resolveNativeParent(); }
 		this._throwIfNoPty(id).setParentWindow(handle);
 	}
 

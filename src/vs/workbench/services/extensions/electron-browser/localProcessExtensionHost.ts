@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { IV8Profile } from '../../../../platform/profiling/common/profiling.js';
 import { timeout } from '../../../../base/common/async.js';
 import { encodeBase64, VSBuffer } from '../../../../base/common/buffer.js';
 import { CancellationError } from '../../../../base/common/errors.js';
@@ -34,7 +35,7 @@ import { IShellEnvironmentService } from '../../environment/electron-browser/she
 import { MessagePortExtHostConnection, writeExtHostConnection } from '../common/extensionHostEnv.js';
 import { createMessageOfType, IExtensionHostInitData, MessageType, NativeLogMarkers, UIKind, isMessageOfType } from '../common/extensionHostProtocol.js';
 import { LocalProcessRunningLocation } from '../common/extensionRunningLocation.js';
-import { ExtensionHostExtensions, ExtensionHostStartup, IExtensionHost, IExtensionInspectInfo } from '../common/extensions.js';
+import { IExtensionHostRawProfileSession, ExtensionHostExtensions, ExtensionHostStartup, IExtensionHost, IExtensionInspectInfo } from '../common/extensions.js';
 import { IHostService } from '../../host/browser/host.js';
 import { ILifecycleService, WillShutdownEvent } from '../../lifecycle/common/lifecycle.js';
 import { parseExtensionDevOptions } from '../common/extensionDevOptions.js';
@@ -78,6 +79,9 @@ export class ExtensionHostProcess {
 	public start(opts: IExtensionHostProcessOptions): Promise<{ pid: number | undefined }> {
 		return this._extensionHostStarter.start(this._id, opts);
 	}
+
+	public startCpuProfile(): Promise<string> { return this._extensionHostStarter.startCpuProfile(this._id); }
+	public stopCpuProfile(id: string): Promise<IV8Profile> { return this._extensionHostStarter.stopCpuProfile(this._id, id); }
 
 	public enableInspectPort(): Promise<boolean> {
 		return this._extensionHostStarter.enableInspectPort(this._id);
@@ -618,6 +622,24 @@ export class NativeLocalProcessExtensionHost extends Disposable implements IExte
 		}, undefined, this._store);
 
 		return event;
+	}
+
+	public async startProfile(): Promise<IExtensionHostRawProfileSession> {
+		if (this._terminating || this._store.isDisposed) { throw new Error('Extension host expired'); }
+		await this.start();
+		const owner = this._extensionHostProcess;
+		if (!owner || this._terminating || this._store.isDisposed) { throw new Error('Extension host expired'); }
+		const id = await owner.startCpuProfile();
+		const validate = () => {
+			if (this._terminating || this._store.isDisposed || this._extensionHostProcess !== owner) { throw new Error('Extension host expired'); }
+		};
+		try { validate(); } catch (error) { await owner.stopCpuProfile(id).catch(() => undefined); throw error; }
+		return { stop: async () => {
+			validate();
+			const result = await owner.stopCpuProfile(id);
+			validate();
+			return result;
+		} };
 	}
 
 	public async enableInspectPort(): Promise<boolean> {

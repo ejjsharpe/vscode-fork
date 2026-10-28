@@ -16,6 +16,7 @@ const FULL_COMMIT_SHA_PATTERN = /^[0-9a-f]{40}$/i;
 export class LocalGitService implements ILocalGitService {
 	declare readonly _serviceBrand: undefined;
 
+	private readonly _operationAuthorities = new Map<string, () => void>();
 	private _runningProcesses = new Map<string, cp.ChildProcess>();
 	private _supportsAuthenticationEnvironment = false;
 
@@ -24,7 +25,15 @@ export class LocalGitService implements ILocalGitService {
 		private readonly _execFile: typeof cp.execFile = cp.execFile,
 	) { }
 
+	/** Main-owned channel boundary; authority is never accepted from an IPC argument. */
+	async runWithAuthority<T>(operationId: string, validate: () => void, run: () => Promise<T>): Promise<T> {
+		this._operationAuthorities.set(operationId, validate);
+		try { validate(); return await run(); }
+		finally { this._operationAuthorities.delete(operationId); }
+	}
+
 	private async _exec(operationId: string, args: string[], cwd?: string, options?: IGitNetworkOptions): Promise<string> {
+		this._operationAuthorities.get(operationId)?.();
 		if (options?.authentication && !this._supportsAuthenticationEnvironment) {
 			const version = await this._exec(operationId, ['--version']);
 			const match = /^git version (?<major>\d+)\.(?<minor>\d+)/.exec(version);
@@ -35,6 +44,7 @@ export class LocalGitService implements ILocalGitService {
 			}
 			this._supportsAuthenticationEnvironment = true;
 		}
+		this._operationAuthorities.get(operationId)?.();
 		return new Promise((resolve, reject) => {
 			this._logService.trace(`[LocalGitService] git ${args.join(' ')}${cwd ? ` (cwd: ${cwd})` : ''}`);
 			const proc = this._execFile('git', args, { cwd, encoding: 'utf8', env: this._getEnvironment(options) }, (err, stdout, stderr) => {
@@ -42,6 +52,7 @@ export class LocalGitService implements ILocalGitService {
 					reject(new CancellationError());
 					return;
 				}
+				try { this._operationAuthorities.get(operationId)?.(); } catch (error) { reject(error); return; }
 				if (err) {
 					const gitError = err as cp.ExecFileException & { stderr?: string };
 					gitError.stderr ??= stderr;
@@ -260,8 +271,8 @@ export class LocalGitService implements ILocalGitService {
 		}
 	}
 
-	async revParse(repoPath: string, ref: string): Promise<string> {
-		return (await this._exec(generateUuid(), ['rev-parse', ref], repoPath)).trim();
+	async revParse(repoPath: string, ref: string, operationId: string = generateUuid()): Promise<string> {
+		return (await this._exec(operationId, ['rev-parse', ref], repoPath)).trim();
 	}
 
 	async getRemoteUrl(operationId: string, repoPath: string, options?: IGitNetworkOptions): Promise<string> {
@@ -272,8 +283,8 @@ export class LocalGitService implements ILocalGitService {
 		await this._exec(operationId, ['fetch'], repoPath, options);
 	}
 
-	async revListCount(repoPath: string, fromRef: string, toRef: string): Promise<number> {
-		const result = await this._exec(generateUuid(), ['rev-list', '--count', `${fromRef}..${toRef}`], repoPath);
+	async revListCount(repoPath: string, fromRef: string, toRef: string, operationId: string = generateUuid()): Promise<number> {
+		const result = await this._exec(operationId, ['rev-list', '--count', `${fromRef}..${toRef}`], repoPath);
 		return Number(result.trim()) || 0;
 	}
 

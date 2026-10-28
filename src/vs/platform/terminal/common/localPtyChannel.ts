@@ -7,10 +7,13 @@ import { combinedDisposable, DisposableStore, toDisposable } from '../../../base
 import { IServerChannel, ProxyChannel } from '../../../base/parts/ipc/common/ipc.js';
 import { IMessagePortConnectionScope } from '../../../base/parts/ipc/common/ipc.mp.js';
 import { Event } from '../../../base/common/event.js';
-import { ILocalPtyService, IPtyService, ISerializedTerminalState } from './terminal.js';
+import { ILocalPtyService, IPtyProcessOwner, IPtyService, ISerializedTerminalState } from './terminal.js';
 import { IProcessDetails, ISetTerminalLayoutInfoArgs } from './terminalProcess.js';
+import { VSBuffer } from '../../../base/common/buffer.js';
 
-export function createLocalPtyChannel(service: IPtyService | ILocalPtyService, disposables: DisposableStore, getScope?: (context: string) => IMessagePortConnectionScope | undefined, onRevoked: Event<string> = Event.None, nativeService = false): IServerChannel {
+export const ptyNativeParentChannelName = 'ptyNativeParent';
+
+export function createLocalPtyChannel(service: IPtyService | ILocalPtyService, disposables: DisposableStore, getScope?: (context: string) => IMessagePortConnectionScope | undefined, onRevoked: Event<string> = Event.None, nativeService = false, resolveNativeParent?: (context: string, handle: VSBuffer, targetWindowId: number) => Promise<VSBuffer>): IServerChannel {
 	const channel = ProxyChannel.fromService(service, disposables, {
 		// Process events use the direct pty host connection; keep management-event buffering unchanged on this channel.
 		unbufferedEvents: [
@@ -54,6 +57,18 @@ export function createLocalPtyChannel(service: IPtyService | ILocalPtyService, d
 			if (processMethods.has(command)) {
 				if (typeof args[0] !== 'number') { throw new Error('Rejected PTY process handle'); }
 				await ownProcess(context, args[0]);
+				if (command === 'setParentWindow') {
+					if (!nativeService || !resolveNativeParent || !(args[1] instanceof VSBuffer) || typeof args[2] !== 'number') { throw new Error('PTY native parent requires a direct authenticated target'); }
+					const requestedHandle = args[1];
+					const targetWindowId = args[2];
+					await service.setParentWindow(args[0], requestedHandle, targetWindowId, async () => {
+						const handle = await resolveNativeParent(context, requestedHandle, targetWindowId);
+						getScope(context);
+						return handle;
+					});
+					getScope(context);
+					return undefined as T;
+				}
 			} else if (command === 'reduceConnectionGraceTime') {
 				args = [scope.workbench];
 			} else if (command === 'requestDetachInstance') {
@@ -130,8 +145,12 @@ export function createLocalPtyChannel(service: IPtyService | ILocalPtyService, d
 			return (listener, thisArgs, eventDisposables) => {
 				let active = true;
 				const source = channel.listen<T>(context, event, arg)(value => {
-				const process = value as { id?: number; workspaceId?: string; requestId?: number };
-				const authorized = typeof process?.id === 'number' ? ownProcess(context, process.id) : Promise.resolve().then(() => {
+				const process = value as { id?: number; workspaceId?: string; requestId?: number; owner?: IPtyProcessOwner };
+				// The trusted source snapshots exit ownership before deleting its registry entry.
+				const authorized = event === 'onProcessExit' && process?.owner ? Promise.resolve().then(() => {
+					getScope(context);
+					if (process.owner!.workbench !== scope.workbench || process.owner!.workspaceId !== scope.workspaceId) { throw new Error('Rejected foreign PTY exit'); }
+				}) : typeof process?.id === 'number' ? ownProcess(context, process.id) : Promise.resolve().then(() => {
 					getScope(context);
 					if (process?.workspaceId !== undefined) { ownWorkspace(scope, process.workspaceId); }
 				});
@@ -145,8 +164,8 @@ export function createLocalPtyChannel(service: IPtyService | ILocalPtyService, d
 				});
 				const subscription = combinedDisposable(source, toDisposable(() => {
 					active = false;
-					for (const [id, owner] of variableRequests) { if (owner === context) { variableRequests.delete(id); } }
-					for (const [id, owner] of detachRequests) { if (owner === context) { detachRequests.delete(id); } }
+					if (event === 'onPtyHostRequestResolveVariables') { for (const [id, owner] of variableRequests) { if (owner === context) { variableRequests.delete(id); } } }
+					if (event === 'onDidRequestDetach') { for (const [id, owner] of detachRequests) { if (owner === context) { detachRequests.delete(id); } } }
 				}));
 				if (eventDisposables instanceof DisposableStore) { eventDisposables.add(subscription); } else { eventDisposables?.push(subscription); }
 				return subscription;

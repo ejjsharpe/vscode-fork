@@ -19,13 +19,13 @@ import { parseClientResponse, serializeGitHubError } from './serialization.js';
 import { parseMissionControlOptions, MissionControlClient } from '../missionControl/missionControlClient.js';
 
 /** Registers a separate lease owner for each physical connection, even when connection contexts repeat. */
-export function registerGitHubChannel(server: IPCServer<string>, service: IGitHubService): IDisposable {
+export function registerGitHubChannel(server: IPCServer<string>, service: IGitHubService, wrapChannel: (channel: IServerChannel<string>) => IServerChannel<string> = channel => channel): IDisposable {
 	const lifetime = new DisposableStore();
 	const channels = lifetime.add(new DisposableMap<ChannelServer<string>, GitHubChannel>());
 	const register = (connection: IPCServer<string>['connections'][number]) => {
 		const channel = new GitHubChannel(connection.channelClient.getChannel(GITHUB_CREDENTIALS_CHANNEL_NAME), service);
 		channels.set(connection.channelServer, channel);
-		connection.channelServer.registerChannel(GITHUB_CHANNEL_NAME, channel);
+		connection.channelServer.registerChannel(GITHUB_CHANNEL_NAME, wrapChannel(channel));
 	};
 	lifetime.add(server.onDidAddConnection(register));
 	lifetime.add(server.onDidRemoveConnection(connection => channels.deleteAndDispose(connection.channelServer)));
