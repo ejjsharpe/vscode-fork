@@ -1824,7 +1824,8 @@ export class AgentHostSessionAdapter extends Disposable implements ISession {
 			workspace: defaultChatWorkspace,
 			homeWorkspace: derived(this, reader => {
 				const chat = this._defaultChatBackendUri.read(reader);
-				return chat ? readChatHomeWorkspaceFromMeta(this._metaObs.read(reader), chat.toString()) : undefined;
+				const recorded = chat ? readChatHomeWorkspaceFromMeta(this._metaObs.read(reader), chat.toString()) : undefined;
+				return recorded !== undefined ? recorded : this.isQuickChat.read(reader) ? null : undefined;
 			}),
 			title: this._options.useSessionTitleForDefaultChat ? this.title : derived(this, reader => this._defaultChatTitleOverride.read(reader) ?? this.title.read(reader)),
 			updatedAt: this._withChatDetails(this._defaultChatUpdatedAt),
@@ -1946,6 +1947,25 @@ export class AgentHostSessionAdapter extends Disposable implements ISession {
 		if (!chats) {
 			return this._markSessionUnreadForUnreadChat(tx);
 		}
+		let meta = this._meta;
+		const candidates = new Map<string, ChatHomeWorkspace | undefined>();
+		for (const chat of chats) {
+			const home = readChatHomeWorkspace(chat.homeWorkspace);
+			const key = chat.chat.toString();
+			if (home !== undefined) {
+				candidates.set(key, !candidates.has(key) || equals(candidates.get(key), home) ? home : undefined);
+			}
+		}
+		const workspaceLessMain = this.isQuickChat.get() ? chats.find(chat => chat.kind === 'default') : undefined;
+		if (workspaceLessMain && !candidates.has(workspaceLessMain.chat.toString())) {
+			candidates.set(workspaceLessMain.chat.toString(), null);
+		}
+		for (const [chat, home] of candidates) {
+			if (home !== undefined && readChatHomeWorkspaceFromMeta(meta, chat) === undefined) {
+				meta = withChatHomeWorkspace(meta, chat, home);
+			}
+		}
+		const homeChanged = meta !== this._meta && this.setMeta(meta, tx);
 		this._aggregateChatResources.clear();
 		for (const chat of chats) {
 			if (!isChatInSessionReadAggregate(chat.chat.toString(), chat.origin, chat.interactivity)) {
@@ -2057,7 +2077,7 @@ export class AgentHostSessionAdapter extends Disposable implements ISession {
 		this._chatsObs.set(nextChats, tx);
 		this._mainChatObs.set(this._defaultChat, tx);
 		const sessionReadChanged = this._markSessionUnreadForUnreadChat(tx);
-		return !arrayEquals(previousChats, nextChats) || sessionReadChanged;
+		return homeChanged || !arrayEquals(previousChats, nextChats) || sessionReadChanged;
 	}
 
 	supportsChatReadState(): boolean {
@@ -2119,7 +2139,7 @@ export class AgentHostSessionAdapter extends Disposable implements ISession {
 		if (currentDefaultMetadata && !result.includes(currentDefaultMetadata)) {
 			result.unshift(currentDefaultMetadata);
 		}
-		return result;
+		return result.map(chat => ({ ...chat, homeWorkspace: readChatHomeWorkspaceFromMeta(this._meta, chat.chat.toString()) }));
 	}
 
 	private _updateChatOutputResources(resources: ResourceSet): void {
@@ -8016,6 +8036,13 @@ export abstract class BaseAgentHostSessionsProvider extends Disposable implement
 			throw new Error(localize('chatHomeAssignmentUnavailable', "This provider cannot change the chat's project."));
 		}
 		await connection.setChatHomeWorkspace(target.chat, home);
+		const rawId = this._sessionKeyFromChatId(sessionId);
+		const cached = rawId ? this._sessionCache.get(rawId) : undefined;
+		if (cached?.ownsBackendChat(target.chat.toString())) {
+			cached.setMeta(withChatHomeWorkspace(cached.sessionMeta, target.chat.toString(), home));
+			this._persistCache();
+			this._onDidChangeSessions.fire({ added: [], removed: [], changed: [cached] });
+		}
 	}
 
 	async createNewChat(chatId: string, _prompt?: string, options?: ICreateNewChatOptions): Promise<IChat> {

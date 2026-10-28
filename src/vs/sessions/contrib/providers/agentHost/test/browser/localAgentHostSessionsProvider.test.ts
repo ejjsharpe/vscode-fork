@@ -32,6 +32,7 @@ import { AgentHostCodexAgentEnabledSettingId, AgentHostPrewarmSessionsSettingId,
 import { getAgentHostExtensionInitializeResultMeta } from '../../../../../../platform/agentHost/common/agentHostExtensionProtocol.js';
 import { AgentHostAutonomousAutomationsCapabilityMetaKey } from '../../../../../../platform/agentHost/common/meta/agentHostAutomationsMeta.js';
 import { AgentHostCreateChatWorkspaceCapabilityMetaKey } from '../../../../../../platform/agentHost/common/meta/agentHostCreateChatWorkspaceMeta.js';
+import { ChatHomeWorkspace } from '../../../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { CODEX_ACCOUNT_META_KEY } from '../../../../../../platform/agentHost/common/codexAccount.js';
 import type { IAgentSubscription } from '../../../../../../platform/agentHost/common/state/agentSubscription.js';
 import type { InitializeResult } from '../../../../../../platform/agentHost/common/state/protocol/common/commands.js';
@@ -3144,6 +3145,92 @@ suite('LocalAgentHostSessionsProvider', () => {
 		const before = session.mainChat.get().homeWorkspace?.get();
 		fireSessionSummaryChanged(nextHost, 'home-cached', { _meta: {} });
 		assert.deepStrictEqual([before, session.mainChat.get().homeWorkspace?.get()], [home, home]);
+	}));
+
+	test('discovers only exact per-chat homes without borrowing session folders or another chat home', () => runWithFakedTimers<void>({ useFakeTimers: true }, async () => {
+		const host = new MockAgentHostService();
+		disposables.add(toDisposable(() => host.dispose()));
+		const home = { kind: 'workspace' as const, uri: 'file:///projects/shared.code-workspace', remoteAuthority: 'ssh-remote+build' };
+		host.addSession(createSession('exact-homes', {
+			workingDirectory: URI.file('/projects/repository'),
+			chats: [
+				{ chat: URI.parse('agent-host-chat:/exact-homes/default'), kind: 'default', homeWorkspace: home },
+				{ chat: URI.parse('agent-host-chat:/exact-homes/no-workspace'), kind: 'peer', homeWorkspace: null },
+				{ chat: URI.parse('agent-host-chat:/exact-homes/unresolved'), kind: 'peer', workingDirectories: ['file:///projects/repository/nested'] },
+			],
+		}));
+		const provider = createProvider(disposables, host);
+		await timeout(0);
+		assert.deepStrictEqual(provider.getSessions()[0].chats.get().map(chat => chat.homeWorkspace?.get()), [home, null, undefined]);
+	}));
+
+	test('conflicting exact homes remain unresolved during discovery', () => runWithFakedTimers<void>({ useFakeTimers: true }, async () => {
+		const host = new MockAgentHostService();
+		disposables.add(toDisposable(() => host.dispose()));
+		const chat = URI.parse('agent-host-chat:/ambiguous-home/default');
+		host.addSession(createSession('ambiguous-home', {
+			chats: [
+				{ chat, kind: 'default', homeWorkspace: { kind: 'workspace', uri: 'file:///overlap/one.code-workspace' } },
+				{ chat, kind: 'default', homeWorkspace: { kind: 'workspace', uri: 'file:///overlap/two.code-workspace' } },
+			],
+		}));
+		const provider = createProvider(disposables, host);
+		await timeout(0);
+		assert.strictEqual(provider.getSessions()[0].mainChat.get().homeWorkspace?.get(), undefined);
+	}));
+
+	test('legacy intentional No Workspace applies only to its main chat despite a scratch folder', () => runWithFakedTimers<void>({ useFakeTimers: true }, async () => {
+		const host = new MockAgentHostService();
+		disposables.add(toDisposable(() => host.dispose()));
+		host.addSession(createSession('intentional-no-workspace', {
+			quickChat: true,
+			workingDirectory: URI.file('/tmp/scratch'),
+			chats: [
+				{ chat: URI.parse('agent-host-chat:/intentional-no-workspace/default'), kind: 'default' },
+				{ chat: URI.parse('agent-host-chat:/intentional-no-workspace/peer'), kind: 'peer' },
+			],
+		}));
+		const provider = createProvider(disposables, host);
+		await timeout(0);
+		const session = provider.getSessions()[0];
+		const before = session.chats.get().map(chat => chat.homeWorkspace?.get());
+		fireSessionSummaryChanged(host, 'intentional-no-workspace', { _meta: {} });
+		assert.deepStrictEqual({ before, after: session.chats.get().map(chat => chat.homeWorkspace?.get()) }, { before: [null, undefined], after: [null, undefined] });
+	}));
+
+	test('explicit home assignment updates the existing chat only after durable success and survives weaker discovery and cached restart', () => runWithFakedTimers<void>({ useFakeTimers: true }, async () => {
+		const storageService = disposables.add(new InMemoryStorageService());
+		const committed = new DeferredPromise<void>();
+		const assigned: string[] = [];
+		const host = new class extends MockAgentHostService {
+			override async setChatHomeWorkspace(chat: URI, _home: ChatHomeWorkspace): Promise<void> {
+				await committed.p;
+				assigned.push(chat.toString());
+			}
+		}();
+		disposables.add(toDisposable(() => host.dispose()));
+		const backendChat = URI.parse('agent-host-chat:/assigned-home/default');
+		host.addSession(createSession('assigned-home', { chats: [{ chat: backendChat, kind: 'default' }] }));
+		const provider = createProvider(disposables, host, undefined, { storageService });
+		await timeout(0);
+		const session = provider.getSessions()[0];
+		const chat = session.mainChat.get();
+		const home = { kind: 'workspace' as const, uri: 'file:///projects/chosen.code-workspace', remoteAuthority: 'ssh-remote+chosen' };
+		const assignment = provider.setChatHomeWorkspace(session.sessionId, chat.resource, home);
+		const beforeCommit = chat.homeWorkspace?.get();
+		await committed.complete();
+		await assignment;
+		const afterCommit = chat.homeWorkspace?.get();
+		host.addSession(createSession('assigned-home', { _meta: {}, chats: [{ chat: backendChat, kind: 'default', homeWorkspace: null }] }));
+		await provider.resolveCreatedSession(session.resource);
+		await storageService.flush();
+		const nextHost = new MockAgentHostService();
+		disposables.add(toDisposable(() => nextHost.dispose()));
+		nextHost.setAuthenticationPending(true);
+		const restored = createProvider(disposables, nextHost, undefined, { storageService }).getSessions()[0];
+		assert.deepStrictEqual({ beforeCommit, afterCommit, later: chat.homeWorkspace?.get(), restored: restored.mainChat.get().homeWorkspace?.get(), assigned, sameChat: session.mainChat.get() === chat, imported: host.importedSessions, dispatched: host.dispatchedActions }, {
+			beforeCommit: undefined, afterCommit: home, later: home, restored: home, assigned: ['agent-host-chat:/assigned-home/default'], sameChat: true, imported: [], dispatched: [],
+		});
 	}));
 
 	test('hydrated quick chat stays workspace-less after reload despite a scratch working directory', () => runWithFakedTimers<void>({ useFakeTimers: true }, async () => {
