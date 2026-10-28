@@ -5,7 +5,7 @@
 
 import { Event } from '../../../base/common/event.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
-import { ProxyChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { IChannel, ProxyChannel } from '../../../base/parts/ipc/common/ipc.js';
 import { IMainProcessService } from '../../ipc/common/mainProcessService.js';
 import { IBrowserViewGroup, IBrowserViewGroupFilter, IBrowserViewGroupService, ipcBrowserViewGroupChannelName } from '../common/browserViewGroup.js';
 import { IBrowserViewCreationContext } from '../common/browserView.js';
@@ -36,6 +36,7 @@ class RemoteBrowserViewGroup extends Disposable implements IBrowserViewGroup {
 	constructor(
 		readonly id: string,
 		private readonly groupService: IBrowserViewGroupService,
+		private readonly validateOwner: () => void,
 	) {
 		super();
 
@@ -59,7 +60,9 @@ class RemoteBrowserViewGroup extends Disposable implements IBrowserViewGroup {
 
 	override dispose(fromService = false): void {
 		if (!fromService) {
-			this.groupService.destroyGroup(this.id);
+			try { this.validateOwner(); }
+			catch { super.dispose(); return; } // Main releases groups when their original authority expires.
+			void this.groupService.destroyGroup(this.id);
 		}
 		super.dispose();
 	}
@@ -71,8 +74,21 @@ export class BrowserViewGroupRemoteService implements IBrowserViewGroupRemoteSer
 
 	constructor(
 		mainProcessService: IMainProcessService,
+		nativeConnectionContext?: string,
+		private readonly validateOwner: () => void = () => {},
 	) {
-		const channel = mainProcessService.getChannel(ipcBrowserViewGroupChannelName);
+		const source = mainProcessService.getChannel(ipcBrowserViewGroupChannelName);
+		const channel: IChannel = nativeConnectionContext ? {
+			call: async (command, args, token) => {
+				this.validateOwner();
+				const result = await source.call(command, [...(Array.isArray(args) ? args : []), { nativeConnectionContext }], token);
+				this.validateOwner();
+				return result as never;
+			},
+			listen: (event, id) => Event.filter(source.listen(event, { id, nativeConnectionContext }), () => {
+				try { this.validateOwner(); return true; } catch { return false; }
+			})
+		} : source;
 		this._groupService = ProxyChannel.toService<IBrowserViewGroupService>(channel);
 	}
 
@@ -86,7 +102,7 @@ export class BrowserViewGroupRemoteService implements IBrowserViewGroupRemoteSer
 	}
 
 	private _wrap(id: string): IBrowserViewGroup {
-		const group = new RemoteBrowserViewGroup(id, this._groupService);
+		const group = new RemoteBrowserViewGroup(id, this._groupService, this.validateOwner);
 		this._groups.set(id, group);
 
 		Event.once(group.onDidDestroy)(() => {

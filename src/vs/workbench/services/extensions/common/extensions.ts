@@ -121,6 +121,7 @@ export interface IExtensionInspectInfo {
 }
 
 export interface IExtensionHost {
+	startProfile?(): Promise<IExtensionHostRawProfileSession>;
 	readonly pid: number | null;
 	readonly runningLocation: ExtensionRunningLocation;
 	readonly remoteAuthority: string | null;
@@ -377,6 +378,7 @@ export interface IWillActivateEvent {
 export interface IResponsiveStateChangeEvent {
 	extensionHostKind: ExtensionHostKind;
 	isResponsive: boolean;
+	startProfile(): Promise<IExtensionHostRawProfileSession>;
 	/**
 	 * Return the inspect port or `0`. `0` means inspection is not possible.
 	 */
@@ -410,6 +412,10 @@ export interface WillStopExtensionHostsEvent {
 	 * where the resolved `value: true`.
 	 */
 	veto(value: boolean | Promise<boolean>, reason: string): void;
+}
+
+export interface IExtensionHostRawProfileSession {
+	stop(): Promise<IV8Profile>;
 }
 
 export interface IExtensionService {
@@ -520,6 +526,9 @@ export interface IExtensionService {
 	 */
 	getExtensionsStatus(): { [id: string]: IExtensionsStatus };
 
+	/** Start a profile of this workbench's existing local extension host. */
+	startExtensionHostProfile(): Promise<IExtensionHostRawProfileSession>;
+
 	/**
 	 * Return the inspect ports (if inspection is possible) for extension hosts of kind `extensionHostKind`.
 	 */
@@ -611,6 +620,7 @@ export class NullExtensionService implements IExtensionService {
 	getExtension() { return Promise.resolve(undefined); }
 	readExtensionPointContributions<T>(_extPoint: IExtensionPoint<T>): Promise<ExtensionPointContribution<T>[]> { return Promise.resolve(Object.create(null)); }
 	getExtensionsStatus(): { [id: string]: IExtensionsStatus } { return Object.create(null); }
+	startExtensionHostProfile(): Promise<IExtensionHostRawProfileSession> { return Promise.reject(new Error('No local extension host')); }
 	getInspectPorts(_extensionHostKind: ExtensionHostKind, _tryEnableInspector: boolean): Promise<IExtensionInspectInfo[]> { return Promise.resolve([]); }
 	async stopExtensionHosts(): Promise<boolean> { return true; }
 	async startExtensionHosts(): Promise<void> { }

@@ -79,12 +79,6 @@ export class ExtensionsAutoProfiler implements IWorkbenchContribution {
 			return;
 		}
 
-		const listener = await event.getInspectListener(true);
-
-		if (!listener) {
-			return;
-		}
-
 		if (event.isResponsive && this._session) {
 			// stop profiling when responsive again
 			this._session.cancel();
@@ -99,7 +93,7 @@ export class ExtensionsAutoProfiler implements IWorkbenchContribution {
 
 			let session: ProfileSession;
 			try {
-				session = await this._instantiationService.createInstance(ExtensionHostProfiler, listener.host, listener.port).start();
+				session = await this._instantiationService.createInstance(ExtensionHostProfiler).start(() => event.startProfile());
 
 			} catch (err) {
 				this._session = undefined;

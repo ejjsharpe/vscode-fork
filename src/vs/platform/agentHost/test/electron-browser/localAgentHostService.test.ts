@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { DeferredPromise } from '../../../../base/common/async.js';
 import assert from 'assert';
 import sinon from 'sinon';
 import { Emitter, Event } from '../../../../base/common/event.js';
@@ -10,7 +11,7 @@ import { Disposable, DisposableStore } from '../../../../base/common/lifecycle.j
 import { constObservable, autorun, observableValue } from '../../../../base/common/observable.js';
 import { URI } from '../../../../base/common/uri.js';
 import { IChannel, IChannelClient, IChannelServer, IServerChannel, ProxyChannel } from '../../../../base/parts/ipc/common/ipc.js';
-import { mock } from '../../../../base/test/common/mock.js';
+import { mock, upcastPartial } from '../../../../base/test/common/mock.js';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/common/utils.js';
 import { ConfigurationTarget, IConfigurationService, IConfigurationValue } from '../../../configuration/common/configuration.js';
 import { TestConfigurationService } from '../../../configuration/test/common/testConfigurationService.js';
@@ -33,7 +34,7 @@ import { AgentHostOTelEnabledSettingId, AgentHostOTelOtlpEndpointSettingId, Agen
 import { ActionEnvelope, ActionType, INotification, NotificationType } from '../../common/state/sessionActions.js';
 import { ProtocolError } from '../../common/state/sessionProtocol.js';
 import { MessageAttachmentKind, MessageKind, ROOT_STATE_URI } from '../../common/state/sessionState.js';
-import { LocalAgentHostManagementConnection, LocalAgentHostServiceClient, registerAgentHostClientChannels } from '../../electron-browser/localAgentHostService.js';
+import { LocalAgentHostProfilingConnection, LocalAgentHostManagementConnection, LocalAgentHostServiceClient, registerAgentHostClientChannels } from '../../electron-browser/localAgentHostService.js';
 
 class CapturingNotificationService extends TestNotificationService {
 	readonly errors: (string | Error)[] = [];
@@ -697,5 +698,29 @@ suite('AgentHostStartupTelemetry', () => {
 		tracker.connectionFailed();
 
 		assert.deepStrictEqual(telemetryService.events, []);
+	});
+});
+
+
+suite('LocalAgentHostProfilingConnection', () => {
+	const store = ensureNoDisposablesAreLeakedInTestSuite();
+	test('restart discards a late diagnostic port and retains the replacement acquisition', async () => {
+		const oldPort = new DeferredPromise<MessagePort>();
+		const newPort = new DeferredPromise<MessagePort>();
+		let acquisitions = 0;
+		let oldClosed = 0;
+		let newClosed = 0;
+		const port = (close: () => void) => upcastPartial<MessagePort>({ close, addEventListener: () => {}, removeEventListener: () => {}, start: () => {}, postMessage: () => {} });
+		const connection = store.add(new LocalAgentHostProfilingConnection(() => ++acquisitions === 1 ? oldPort.p : newPort.p));
+		const expired = connection.client();
+		connection.reset();
+		const current = connection.client();
+		const rejected = assert.rejects(expired, /expired/);
+		await oldPort.complete(port(() => oldClosed++));
+		await rejected;
+		await newPort.complete(port(() => newClosed++));
+		assert.strictEqual(await connection.client(), await current);
+		connection.reset();
+		assert.deepStrictEqual({ acquisitions, oldClosed, newClosed }, { acquisitions: 2, oldClosed: 1, newClosed: 1 });
 	});
 });

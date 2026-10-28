@@ -124,6 +124,39 @@ function notifyOnFatalAgentHostStartError(notificationService: INotificationServ
 	));
 }
 
+/** Keeps diagnostics independent of provider startup and retires late ports on restart. */
+export class LocalAgentHostProfilingConnection extends Disposable {
+	private readonly transport = this._register(new MutableDisposable<DisposableStore>());
+	private pending: Promise<MessagePortClient> | undefined;
+
+	constructor(private readonly acquire: () => Promise<MessagePort>) { super(); }
+
+	async client(): Promise<MessagePortClient> {
+		if (this._store.isDisposed) { throw new Error('Profiling presentation expired'); }
+		if (!this.pending) {
+			const pending = this.acquire().then(port => {
+				if (this._store.isDisposed || this.pending !== pending) { port.close(); throw new Error('Profiling presentation expired'); }
+				const store = new DisposableStore();
+				const client = store.add(new MessagePortClient(port, generateUuid()));
+				const closed = () => { if (this.transport.value === store) { this.reset(); } };
+				port.addEventListener('close', closed);
+				store.add(toDisposable(() => port.removeEventListener('close', closed)));
+				this.transport.value = store;
+				return client;
+			});
+			this.pending = pending;
+			void pending.catch(() => { if (this.pending === pending) { this.reset(); } });
+		}
+		const pending = this.pending;
+		const client = await pending;
+		if (this.pending !== pending || this._store.isDisposed) { throw new Error('Profiling presentation expired'); }
+		return client;
+	}
+
+	reset(): void { this.pending = undefined; this.transport.clear(); }
+	override dispose(): void { this.reset(); super.dispose(); }
+}
+
 /**
  * Keeps management-channel calls on the same MessagePort generation as the
  * connected AHP transport.
@@ -197,8 +230,7 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 
 	private readonly _clientStore = this._register(new MutableDisposable<DisposableStore>());
 	private readonly _managementConnection = this._register(new LocalAgentHostManagementConnection());
-	private readonly _profilingClientStore = this._register(new MutableDisposable<DisposableStore>());
-	private _profilingClient: Promise<MessagePortClient> | undefined;
+	private readonly _profilingConnection = this._register(new LocalAgentHostProfilingConnection(() => acquirePort('vscode:createAgentHostProfilingMessageChannel', 'vscode:createAgentHostProfilingMessageChannelResult')));
 	private readonly _ahpLogger: AhpJsonlLogger | undefined;
 	private _protocolClient: AgentHostProtocolClient | undefined;
 	private _mcpAuthenticationHandler: ((request: IAgentHostMcpAuthenticationRequest) => Promise<boolean>) | undefined;
@@ -271,6 +303,7 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 		// current transport eagerly so the protocol client reconnects instead of
 		// treating the port going away as an unexpected failure.
 		const onWillRestart = () => {
+			this._profilingConnection.reset();
 			if (!this._protocolClient?.reconnectFromClosed()) {
 				this._protocolClient?.notifyTransportClosed();
 			}
@@ -881,23 +914,7 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 	}
 
 	private async _getProfilingManagement(): Promise<IAgentHostManagementService> {
-		if (!this._profilingClient) {
-			const pending = acquirePort('vscode:createAgentHostProfilingMessageChannel', 'vscode:createAgentHostProfilingMessageChannelResult').then(port => {
-				if (this._store.isDisposed) { port.close(); throw new Error('Profiling presentation expired'); }
-				const store = new DisposableStore();
-				const client = store.add(new MessagePortClient(port, generateUuid()));
-				const closed = () => {
-					if (this._profilingClientStore.value === store) { this._profilingClient = undefined; this._profilingClientStore.clear(); }
-				};
-				port.addEventListener('close', closed);
-				store.add(toDisposable(() => port.removeEventListener('close', closed)));
-				this._profilingClientStore.value = store;
-				return client;
-			});
-			this._profilingClient = pending;
-			void pending.catch(() => { if (this._profilingClient === pending) { this._profilingClient = undefined; } });
-		}
-		const client = await this._profilingClient;
+		const client = await this._profilingConnection.client();
 		return ProxyChannel.toService<IAgentHostManagementService>(client.getChannel(AgentHostIpcChannels.Management));
 	}
 
