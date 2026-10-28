@@ -229,4 +229,25 @@ suite('Remote Agent Host ownership IPC', () => {
 		assert.deepStrictEqual({ effects, seen }, { effects: ['connect', 'disconnect:dev'], seen: ['a:progress'] });
 	});
 
+	test('an old disconnect cannot erase a new owner that reuses the closed Dev Container ID', async () => {
+		const closed = disposables.add(new Emitter<string>());
+		const released = new DeferredPromise<void>();
+		const sent: string[] = [];
+		const service = new class extends mock<IDevContainerAgentHostMainService>() {
+			override readonly onDidCloseConnection = closed.event;
+			override async connect() { return { connectionId: 'dev', address: 'devcontainer:container', name: 'Project', remoteWorkspaceFolder: '/workspace' }; }
+			override async disconnect(id: string) { closed.fire(id); await released.p; }
+			override async relaySend(id: string) { sent.push(id); }
+		}();
+		const channel = createOwnedDevContainerAgentHostChannel(service, disposables.add(new DisposableStore()), authority());
+		const configuration = { connectionId: 'dev', workspaceFolder: '/project', name: 'Project' };
+		await channel.call('a', 'connect', [configuration]);
+		const disconnecting = channel.call('a', 'disconnect', ['dev']);
+		await channel.call('b', 'connect', [configuration]);
+		await released.complete();
+		await disconnecting;
+		await channel.call('b', 'relaySend', ['dev', 'data']);
+		assert.deepStrictEqual(sent, ['dev']);
+	});
+
 });
