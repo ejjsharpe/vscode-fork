@@ -1210,7 +1210,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		return super.disposePrototypeWorkbench();
 	}
 
-	setPrototypeClosePending(pending: boolean, failed = false): void {
+	setPrototypeClosePending(pending: boolean, failed: boolean | 'interrupted' = false): void {
 		this.closePending = pending;
 		if (pending) {
 			this.recoverySerial++;
@@ -1222,7 +1222,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 			this.recoveryContents = undefined;
 			setPrototypeRecovery(this.id, localize('projectClosePending', "Close pending"));
 		} else if (!this.logicallyClosed) {
-			setPrototypeRecovery(this.id, failed ? localize('projectCloseFailed', "Close failed") : localize('projectCloseCancelled', "Close cancelled"),
+			setPrototypeRecovery(this.id, failed === 'interrupted' ? localize('projectCloseInterrupted', "Close interrupted") : failed ? localize('projectCloseFailed', "Close failed") : localize('projectCloseCancelled', "Close cancelled"),
 				this.isReady ? undefined : () => { void this.destroyWindow(true, false); }, () => this.close());
 		}
 	}

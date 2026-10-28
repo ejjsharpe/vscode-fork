@@ -150,7 +150,7 @@ export interface ILifecycleMainService {
 	/**
 	 * Unload a window for the provided reason. All lifecycle event handlers are triggered.
 	 */
-	unload(window: ICodeWindow, reason: UnloadReason): Promise<boolean /* veto */>;
+	unload(window: ICodeWindow, reason: UnloadReason): Promise<boolean | 'interrupted'>;
 
 	/**
 	 * Restart the application with optional arguments (CLI). All lifecycle event handlers are triggered.
@@ -214,6 +214,10 @@ export const enum LifecycleMainPhase {
 	Eventually = 4
 }
 
+class PrototypeCloseInterrupted extends Error {
+	constructor() { super('Close interrupted'); }
+}
+
 export class LifecycleMainService extends Disposable implements ILifecycleMainService {
 
 	declare readonly _serviceBrand: undefined;
@@ -254,7 +258,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 
 	private pendingWillShutdownPromise: Promise<void> | undefined = undefined;
 
-	private readonly mapWindowIdToPendingUnload = new Map<number, Promise<boolean>>();
+	private readonly mapWindowIdToPendingUnload = new Map<number, Promise<boolean | 'interrupted'>>();
 
 	private readonly phaseWhen = new Map<LifecycleMainPhase, Barrier>();
 
@@ -468,16 +472,20 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		const pending = this.pendingProjectCloses.get(window.id);
 		if (!pending) { return; }
 		this.closingProjects.add(window.id);
-		let failed = false;
+		let failed: boolean | 'interrupted' = false;
 		try {
 			if (this.prototypeWindows.has(window.id)) {
-				if (this.completedHostCleanup.get(window.id) !== window.webContents && await this.unload(window, UnloadReason.CLOSE)) { return; }
+				if (this.completedHostCleanup.get(window.id) !== window.webContents) {
+					const outcome = await this.unload(window, UnloadReason.CLOSE);
+					if (outcome === 'interrupted') { throw new PrototypeCloseInterrupted(); }
+					if (outcome) { return; }
+				}
 				this._onBeforeCloseWindow.fire(window);
 			}
 			await window.disposePrototypeWorkbench(true);
 		} catch (error) {
-			failed = true;
-			reportPrototypeCloseFailure(window.id);
+			failed = error instanceof PrototypeCloseInterrupted ? 'interrupted' : true;
+			if (failed === true) { reportPrototypeCloseFailure(window.id); }
 			this.logService.error(error);
 			await pending.error(error);
 		} finally {
@@ -495,15 +503,19 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		const windows = [...this.prototypeWindows.values()].filter(window => window.win === host);
 		const authorized = new Map<ICodeWindow, number>();
 		const cleanupStarted = new Set<ICodeWindow>();
+		let interrupted = false;
 		try {
 			// Ask every live project before any cleanup; a veto must leave neighbours usable.
 			for (const window of windows) {
+				if (this.completedHostCleanup.get(window.id) === window.webContents) { continue; }
 				if (this.closingProjects.has(window.id) || this.mapWindowIdToPendingUnload.has(window.id) || !window.isReady) {
 					this.handleWindowUnloadVeto(true);
 					return;
 				}
 				const generation = prototypeDocumentGeneration(window.webContents);
-				if (generation === undefined || await this.onBeforeUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE) !== false) {
+				const outcome = generation === undefined ? 'interrupted' : await this.onBeforeUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE);
+				if (outcome !== false || generation === undefined) {
+					interrupted = outcome === 'interrupted';
 					this.handleWindowUnloadVeto(true);
 					return;
 				}
@@ -512,6 +524,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 			for (const [window, generation] of authorized) {
 				cleanupStarted.add(window);
 				if (prototypeDocumentGeneration(window.webContents) !== generation || await this.onWillUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE) === 'interrupted') {
+					interrupted = true;
 					this.handleWindowUnloadVeto(true);
 					return;
 				}
@@ -547,7 +560,12 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 			}
 			for (const id of this.pendingProjectCloses.keys()) {
 				const window = this.closeTargets.get(id);
-				if (window) { void this.finishPrototypeClose(window); }
+				if (window && interrupted) {
+					await this.pendingProjectCloses.get(id)!.error(new PrototypeCloseInterrupted());
+					this.pendingProjectCloses.delete(id);
+					this.closeTargets.delete(id);
+					window.setPrototypeClosePending(false, 'interrupted');
+				} else if (window) { void this.finishPrototypeClose(window); }
 			}
 		}
 	}
@@ -593,7 +611,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		}
 	}
 
-	unload(window: ICodeWindow, reason: UnloadReason): Promise<boolean /* veto */> {
+	unload(window: ICodeWindow, reason: UnloadReason): Promise<boolean | 'interrupted'> {
 
 		// Ensure there is only 1 unload running at the same time
 		const pendingUnloadPromise = this.mapWindowIdToPendingUnload.get(window.id);
@@ -610,7 +628,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		return unloadPromise;
 	}
 
-	private async doUnload(window: ICodeWindow, reason: UnloadReason): Promise<boolean /* veto */> {
+	private async doUnload(window: ICodeWindow, reason: UnloadReason): Promise<boolean | 'interrupted'> {
 
 		// Always allow to unload a window that is not yet ready
 		if (!window.isReady) {
@@ -625,7 +643,8 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		const veto = await this.onBeforeUnloadWindowInRenderer(window, windowUnloadReason);
 		if (veto === 'interrupted') {
 			this.trace('Lifecycle unload interrupted before acknowledgement');
-			return this.handleWindowUnloadVeto(true);
+			this.handleWindowUnloadVeto(true);
+			return 'interrupted';
 		}
 		if (veto) {
 			this.trace(`Lifecycle#unload() - veto in renderer (window ID ${window.id})`);
@@ -637,7 +656,8 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		if (generation === undefined || generation !== prototypeDocumentGeneration(window.webContents) ||
 			await this.onWillUnloadWindowInRenderer(window, windowUnloadReason) === 'interrupted') {
 			this.trace('Lifecycle unload interrupted during cleanup');
-			return this.handleWindowUnloadVeto(true);
+			this.handleWindowUnloadVeto(true);
+			return 'interrupted';
 		}
 		revokePrototypeDocument(window.webContents, 'acknowledged-unload');
 

@@ -81,7 +81,7 @@ export interface ICodeWindow extends IBaseWindow {
 
 	close(): void;
 	disposePrototypeWorkbench(afterUnload?: boolean): Promise<void>;
-	setPrototypeClosePending(pending: boolean, failed?: boolean): void;
+	setPrototypeClosePending(pending: boolean, failed?: boolean | 'interrupted'): void;
 	interruptPrototypeShutdown(): void;
 
 	getBounds(): electron.Rectangle;
