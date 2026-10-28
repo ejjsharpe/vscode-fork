@@ -8027,6 +8027,9 @@ export abstract class BaseAgentHostSessionsProvider extends Disposable implement
 
 		const newSession = this._getNewSession(chatId);
 		if (newSession) {
+			if (options?.homeWorkspace !== undefined && !equals(newSession.session.mainChat.get().homeWorkspace?.get(), options.homeWorkspace)) {
+				throw new Error(localize('pendingChatHomeMismatch', "Choose the pending chat's project when creating its session."));
+			}
 			// Create the chat session model so the management service can open the widget
 			await this._chatSessionsService.getOrCreateChatSession(newSession.session.resource, CancellationToken.None);
 			return newSession.session.mainChat.get();

@@ -4741,6 +4741,13 @@ suite('LocalAgentHostSessionsProvider', () => {
 		}), /invalid/i);
 	});
 
+	test('a pending draft cannot report a different explicit chat home as successfully created', async () => {
+		const provider = createProvider(disposables, agentHost);
+		const session = provider.createNewSession(URI.file('/home/user/project'), provider.sessionTypes[0].id);
+		await assert.rejects(provider.createNewChat(session.sessionId, undefined, { homeWorkspace: null }), /Choose the pending chat's project when creating its session/);
+		assert.deepStrictEqual(session.mainChat.get().homeWorkspace?.get(), { kind: 'folder', uri: 'file:///home/user/project' });
+	});
+
 	test('new project chats record exact homes while quick chats record intentional No Workspace', () => {
 		const provider = createProvider(disposables, agentHost);
 		const folder = provider.createNewSession(URI.parse('file:///home/user/my-project'), provider.sessionTypes[0].id);
