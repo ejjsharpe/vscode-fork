@@ -73,6 +73,8 @@ export interface ICodeWindow extends IBaseWindow {
 	readonly isExtensionTestHost: boolean;
 
 	readonly isReady: boolean;
+	/** Existing logical Close is still pending safeguards or joined cleanup. */
+	readonly isPrototypeClosePending: boolean;
 	ready(): Promise<ICodeWindow>;
 	setReady(): void;
 

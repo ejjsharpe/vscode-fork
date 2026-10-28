@@ -98,8 +98,8 @@ export abstract class BaseTerminalBackend extends Disposable {
 		}));
 	}
 
-	restartPtyHost(): void {
-		this._ptyHostController.restartPtyHost();
+	restartPtyHost(): Promise<void> {
+		return this._ptyHostController.restartPtyHost();
 	}
 
 	protected _deserializeTerminalState(serializedState: string | undefined): ISerializedTerminalState[] | undefined {

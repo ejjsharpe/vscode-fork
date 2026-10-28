@@ -209,7 +209,7 @@ registerTerminalAction({
 		const restartCandidates = unresponsiveBackends.length > 0 ? unresponsiveBackends : backends;
 		for (const backend of restartCandidates) {
 			logService.warn(`Restarting pty host for authority "${backend.remoteAuthority}"`);
-			backend.restartPtyHost();
+			await backend.restartPtyHost();
 		}
 	}
 });
