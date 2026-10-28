@@ -389,6 +389,12 @@ export class CodeApplication extends Disposable {
 				return false;
 			}
 
+			// Hosted workbenches are registered separately from the native shell.
+			const hosted = this.windowsMainService.getWindows().find(window => window.webContents.id === details.webContentsId);
+			if (hosted && !hosted.webContents.isDestroyed() && frame.processId === hosted.webContents.mainFrame.processId) {
+				return true;
+			}
+
 			// Check to see if the request comes from one of the main windows (or shared process) and not from embedded content
 			const windows = getAllWindowsExcludingOffscreen();
 			for (const window of windows) {
@@ -413,7 +419,7 @@ export class CodeApplication extends Disposable {
 			// Check to see if the request comes from one of the main editor windows.
 			for (const window of this.windowsMainService.getWindows()) {
 				if (window.win) {
-					if (frame.processId === window.win.webContents.mainFrame.processId) {
+					if (frame.processId === window.webContents.mainFrame.processId) {
 						return true;
 					}
 				}

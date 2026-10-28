@@ -20,6 +20,7 @@ export interface IAuxiliaryWindow extends IBaseWindow {
 }
 
 export class AuxiliaryWindow extends BaseWindow implements IAuxiliaryWindow {
+	override get webContents() { return this.auxiliaryWebContents; }
 
 	readonly id: number;
 	parentId = -1;
@@ -35,7 +36,7 @@ export class AuxiliaryWindow extends BaseWindow implements IAuxiliaryWindow {
 	private stateApplied = false;
 
 	constructor(
-		private readonly webContents: WebContents,
+		private readonly auxiliaryWebContents: WebContents,
 		private readonly windowOptions: BrowserWindowConstructorOptions | undefined,
 		private readonly disableMaximize: boolean,
 		@IEnvironmentMainService environmentMainService: IEnvironmentMainService,
@@ -46,14 +47,14 @@ export class AuxiliaryWindow extends BaseWindow implements IAuxiliaryWindow {
 	) {
 		super(configurationService, stateService, environmentMainService, logService);
 
-		this.id = this.webContents.id;
+		this.id = this.auxiliaryWebContents.id;
 
 		// Try to claim window
 		this.tryClaimWindow();
 	}
 
 	tryClaimWindow(options?: BrowserWindowConstructorOptions): void {
-		if (this._store.isDisposed || this.webContents.isDestroyed()) {
+		if (this._store.isDisposed || this.auxiliaryWebContents.isDestroyed()) {
 			return; // already disposed
 		}
 
@@ -84,7 +85,7 @@ export class AuxiliaryWindow extends BaseWindow implements IAuxiliaryWindow {
 			return; // already claimed
 		}
 
-		const window = BrowserWindow.fromWebContents(this.webContents);
+		const window = BrowserWindow.fromWebContents(this.auxiliaryWebContents);
 		if (window) {
 			this.logService.trace('[aux window] Claimed browser window instance');
 
@@ -122,6 +123,6 @@ export class AuxiliaryWindow extends BaseWindow implements IAuxiliaryWindow {
 	}
 
 	matches(webContents: WebContents): boolean {
-		return this.webContents.id === webContents.id;
+		return this.auxiliaryWebContents.id === webContents.id;
 	}
 }

@@ -739,7 +739,7 @@ export class BrowserView extends Disposable {
 
 		// If the view is focused, pass focus back to the window when hiding
 		if (!visible && this._view.webContents.isFocused()) {
-			this._currentWindow?.win?.webContents.focus();
+			this._currentWindow?.webContents.focus();
 		}
 
 		if (this._hasBeenLaidOut || !visible) {

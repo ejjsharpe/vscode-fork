@@ -1,0 +1,109 @@
+{
+  "result": {
+    "type": "object",
+    "value": [
+      {
+        "t": 0,
+        "visible": [
+          {
+            "id": 2,
+            "visible": false
+          },
+          {
+            "id": 3,
+            "visible": false
+          },
+          {
+            "id": 4,
+            "visible": true
+          }
+        ]
+      },
+      {
+        "t": 250,
+        "visible": [
+          {
+            "id": 2,
+            "visible": false
+          },
+          {
+            "id": 3,
+            "visible": false
+          },
+          {
+            "id": 4,
+            "visible": true
+          }
+        ]
+      },
+      {
+        "t": 500,
+        "visible": [
+          {
+            "id": 2,
+            "visible": false
+          },
+          {
+            "id": 3,
+            "visible": false
+          },
+          {
+            "id": 4,
+            "visible": true
+          }
+        ]
+      },
+      {
+        "t": 750,
+        "visible": [
+          {
+            "id": 2,
+            "visible": false
+          },
+          {
+            "id": 3,
+            "visible": false
+          },
+          {
+            "id": 4,
+            "visible": true
+          }
+        ]
+      },
+      {
+        "t": 1000,
+        "visible": [
+          {
+            "id": 2,
+            "visible": false
+          },
+          {
+            "id": 3,
+            "visible": false
+          },
+          {
+            "id": 4,
+            "visible": true
+          }
+        ]
+      },
+      {
+        "t": 1250,
+        "visible": [
+          {
+            "id": 2,
+            "visible": false
+          },
+          {
+            "id": 3,
+            "visible": false
+          },
+          {
+            "id": 4,
+            "visible": true
+          }
+        ]
+      }
+    ]
+  }
+}

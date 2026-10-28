@@ -1,0 +1,10 @@
+macOS 26.3.1 (25D2128); source ffd7973948bdb469993485c2662483205d983223
+Fresh client transpilation; built-in extensions copied from source checkout build.
+
+window100000: 2026-10-28 08:44:31.652 [info] Started local extension host with pid 82660.
+window100000: 2026-10-28 08:45:19.955 [info] Started local extension host with pid 83683.
+window100001: 2026-10-28 08:45:18.596 [info] Started local extension host with pid 83673.
+window100002: 2026-10-28 08:45:22.850 [info] Started local extension host with pid 83704.
+[hosting-probe] loaded {"id":100000,"nativeHost":1,"webContents":2,"pid":82650,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/sessions/electron-browser/sessions-dev.html"}
+[hosting-probe] loaded {"id":100001,"nativeHost":1,"webContents":3,"pid":83647,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":83661,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}

@@ -1639,7 +1639,7 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 			disposables.add(createdWindow.onDidLeaveFullScreen(() => this._onDidChangeFullScreen.fire({ window: createdWindow, fullscreen: false })));
 			disposables.add(createdWindow.onDidTriggerSystemContextMenu(({ x, y }) => this._onDidTriggerSystemContextMenu.fire({ window: createdWindow, x, y })));
 
-			const webContents = assertReturnsDefined(createdWindow.win?.webContents);
+			const webContents = assertReturnsDefined(createdWindow.webContents);
 			webContents.removeAllListeners('devtools-reload-page'); // remove built in listener so we can handle this on our own
 			disposables.add(Event.fromNodeEventEmitter(webContents, 'devtools-reload-page')(() => this.lifecycleMainService.reload(createdWindow)));
 
@@ -1778,7 +1778,7 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 	getFocusedWindow(): ICodeWindow | undefined {
 		const window = BrowserWindow.getFocusedWindow();
 		if (window) {
-			return this.getWindowById(window.id);
+			return this.getWindows().find(candidate => candidate.webContents.isFocused());
 		}
 
 		return undefined;
@@ -1831,13 +1831,6 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 	}
 
 	getWindowByWebContents(webContents: WebContents): ICodeWindow | undefined {
-		const browserWindow = BrowserWindow.fromWebContents(webContents);
-		if (!browserWindow) {
-			return undefined;
-		}
-
-		const window = this.getWindowById(browserWindow.id);
-
-		return window?.matches(webContents) ? window : undefined;
+		return this.getWindows().find(window => window.matches(webContents));
 	}
 }

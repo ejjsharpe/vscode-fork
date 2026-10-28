@@ -535,7 +535,7 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 
 		this.logService.trace(`Setting background throttling for window ${windowId} to '${allowed}'`);
 
-		window?.win?.webContents?.setBackgroundThrottling(allowed);
+		window?.webContents?.setBackgroundThrottling(allowed);
 	}
 
 	//#endregion
@@ -710,7 +710,7 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 		}
 		// macOS requires an image under the cursor; the file's own icon shows what the drop adds.
 		const icon = await app.getFileIcon(path, { size: 'normal' });
-		window.win.webContents.startDrag({ file: path, icon });
+		window.webContents.startDrag({ file: path, icon });
 	}
 
 	async setRepresentedFilename(windowId: number | undefined, path: string, options?: INativeHostOptions): Promise<void> {
@@ -985,7 +985,7 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 
 	async getScreenshot(windowId: number | undefined, rect?: IRectangle, options?: INativeHostOptions): Promise<VSBuffer | undefined> {
 		const window = this.windowById(options?.targetWindowId, windowId);
-		const captured = await window?.win?.webContents.capturePage(rect);
+		const captured = await window?.webContents.capturePage(rect);
 
 		const buf = captured?.toJPEG(95);
 		return buf && VSBuffer.wrap(buf);
@@ -1074,7 +1074,7 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 
 	async getProcessId(windowId: number | undefined): Promise<number | undefined> {
 		const window = this.windowById(undefined, windowId);
-		return window?.win?.webContents.getOSProcessId();
+		return window?.webContents.getOSProcessId();
 	}
 
 	async killProcess(windowId: number | undefined, pid: number, code: string): Promise<void> {
@@ -1096,7 +1096,7 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 	async triggerPaste(windowId: number | undefined, options?: INativeHostOptions): Promise<void> {
 		this.logService.trace(`Triggering paste in window ${windowId} with options:`, options);
 		const window = this.windowById(options?.targetWindowId, windowId);
-		return window?.win?.webContents.paste() ?? Promise.resolve();
+		return window?.webContents.paste() ?? Promise.resolve();
 	}
 
 	async readImage(): Promise<Uint8Array> {
@@ -1240,7 +1240,7 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 
 	async resolveProxy(windowId: number | undefined, url: string): Promise<string | undefined> {
 		const window = this.codeWindowById(windowId);
-		const session = window?.win?.webContents?.session;
+		const session = window?.webContents?.session;
 
 		return session ? session.resolveProxy(url) : app.resolveProxy(url);
 	}
@@ -1285,12 +1285,12 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 
 	async openDevTools(windowId: number | undefined, options?: Partial<OpenDevToolsOptions> & INativeHostOptions): Promise<void> {
 		const window = this.windowById(options?.targetWindowId, windowId);
-		window?.win?.webContents.openDevTools(options?.mode ? { mode: options.mode, activate: options.activate } : undefined);
+		window?.webContents.openDevTools(options?.mode ? { mode: options.mode, activate: options.activate } : undefined);
 	}
 
 	async toggleDevTools(windowId: number | undefined, options?: INativeHostOptions): Promise<void> {
 		const window = this.windowById(options?.targetWindowId, windowId);
-		window?.win?.webContents.toggleDevTools();
+		window?.webContents.toggleDevTools();
 	}
 
 	async openDevToolsWindow(windowId: number | undefined, url: string): Promise<void> {

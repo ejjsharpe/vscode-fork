@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { createPrototypeWorkbench, selectPrototypeWorkbench } from './prototypeWorkbenchHost.js';
 import electron, { BrowserWindowConstructorOptions, Display } from 'electron';
 import { DeferredPromise, RunOnceScheduler, timeout, Delayer } from '../../../base/common/async.js';
 import { CancellationToken } from '../../../base/common/cancellation.js';
@@ -182,6 +183,8 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 
 	protected _win: electron.BrowserWindow | null = null;
 	get win() { return this._win; }
+	protected hostedView: electron.WebContentsView | undefined;
+	get webContents() { return this.hostedView?.webContents ?? this._win!.webContents; }
 	protected setWin(win: electron.BrowserWindow, options?: BrowserWindowConstructorOptions): void {
 		this._win = win;
 		// Electron requires the overlay to have been enabled when the window was created.
@@ -477,7 +480,8 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 		// However, in scenarios where the window has multiple child views (e.g. browser WebContentsViews),
 		// the last focused view in the window may not be the workbench.
 		// So we explicitly focus the workbench web contents here to ensure it gets focus.
-		win.webContents.focus();
+		selectPrototypeWorkbench(this.id);
+		this.webContents.focus();
 	}
 
 	//#region Window Control Overlays
@@ -650,7 +654,7 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 		}
 
 		win?.setSimpleFullScreen(fullscreen);
-		win?.webContents.focus(); // workaround issue where focus is not going into window
+		this.webContents.focus(); // workaround issue where focus is not going into window
 	}
 
 	//#endregion
@@ -802,10 +806,12 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 			// Create the browser window
 			mark('code/willCreateCodeBrowserWindow');
-			this._win = new electron.BrowserWindow(options);
+			const hosted = createPrototypeWorkbench(options, !!config.isSessionsWindow);
+			this._win = hosted.host;
+			this.hostedView = hosted.view;
 			mark('code/didCreateCodeBrowserWindow');
 
-			this._id = this._win.id;
+			this._id = hosted.id;
 			this.setWin(this._win, options);
 
 			// Apply some state after window creation
@@ -900,18 +906,18 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		// Window error conditions to handle
 		this._register(Event.fromNodeEventEmitter(this._win, 'unresponsive')(() => this.onWindowError(WindowError.UNRESPONSIVE)));
 		this._register(Event.fromNodeEventEmitter(this._win, 'responsive')(() => this.onWindowError(WindowError.RESPONSIVE)));
-		this._register(Event.fromNodeEventEmitter(this._win.webContents, 'render-process-gone', (event, details) => details)(details => this.onWindowError(WindowError.PROCESS_GONE, { ...details })));
-		this._register(Event.fromNodeEventEmitter(this._win.webContents, 'did-fail-load', (event, exitCode, reason) => ({ exitCode, reason }))(({ exitCode, reason }) => this.onWindowError(WindowError.LOAD, { reason, exitCode })));
+		this._register(Event.fromNodeEventEmitter(this.webContents, 'render-process-gone', (event, details) => details)(details => this.onWindowError(WindowError.PROCESS_GONE, { ...details })));
+		this._register(Event.fromNodeEventEmitter(this.webContents, 'did-fail-load', (event, exitCode, reason) => ({ exitCode, reason }))(({ exitCode, reason }) => this.onWindowError(WindowError.LOAD, { reason, exitCode })));
 
 		// Prevent windows/iframes from blocking the unload
 		// through DOM events. We have our own logic for
 		// unloading a window that should not be confused
 		// with the DOM way.
 		// (https://github.com/microsoft/vscode/issues/122736)
-		this._register(Event.fromNodeEventEmitter<electron.Event>(this._win.webContents, 'will-prevent-unload')(event => event.preventDefault()));
+		this._register(Event.fromNodeEventEmitter<electron.Event>(this.webContents, 'will-prevent-unload')(event => event.preventDefault()));
 
 		// Remember that we loaded
-		this._register(Event.fromNodeEventEmitter(this._win.webContents, 'did-finish-load')(() => {
+		this._register(Event.fromNodeEventEmitter(this.webContents, 'did-finish-load')(() => {
 
 			// Associate properties from the load request if provided
 			if (this.pendingLoadConfig) {
@@ -955,7 +961,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 			const serviceUrl = URI.parse(this.productService.extensionsGallery.serviceUrl);
 			urls.push(`${serviceUrl.scheme}://${serviceUrl.authority}/*`);
 		}
-		this._win.webContents.session.webRequest.onBeforeSendHeaders({ urls }, async (details, cb) => {
+		this.webContents.session.webRequest.onBeforeSendHeaders({ urls }, async (details, cb) => {
 			const headers = await this.getMarketplaceHeaders();
 
 			cb({ cancel: false, requestHeaders: Object.assign(details.requestHeaders, headers) });
@@ -1051,7 +1057,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 				// Unresponsive
 				if (type === WindowError.UNRESPONSIVE) {
-					if (this.isExtensionDevelopmentHost || this.isExtensionTestHost || this._win?.webContents?.isDevToolsOpened()) {
+					if (this.isExtensionDevelopmentHost || this.isExtensionTestHost || this.webContents?.isDevToolsOpened()) {
 						// TODO@electron Workaround for https://github.com/microsoft/vscode/issues/56994
 						// In certain cases the window can report unresponsiveness because a breakpoint was hit
 						// and the process is stopped executing. The most typical cases are:
@@ -1239,7 +1245,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				const proxyRules = newHttpProxy || '';
 				const proxyBypassRules = newNoProxy ? `${newNoProxy},<local>` : '<local>';
 				this.logService.trace(`Setting proxy to '${proxyRules}', bypassing '${proxyBypassRules}'`);
-				this._win.webContents.session.setProxy({ proxyRules, proxyBypassRules, pacScript: '' });
+				this.webContents.session.setProxy({ proxyRules, proxyBypassRules, pacScript: '' });
 				electron.app.setProxy({ proxyRules, proxyBypassRules, pacScript: '' });
 			}
 		}
@@ -1316,7 +1322,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		} else {
 			windowUrl = FileAccess.asBrowserUri(`vs/code/electron-browser/workbench/workbench${this.environmentMainService.isBuilt ? '' : '-dev'}.html`).toString(true);
 		}
-		this._win.loadURL(windowUrl);
+		this.webContents.loadURL(windowUrl);
 
 		// Remember that we did load
 		const wasLoaded = this.wasLoaded;
@@ -1329,7 +1335,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				if (this._win && !this._win.isVisible() && !this._win.isMinimized()) {
 					this._win.show();
 					this.focus({ mode: FocusMode.Force });
-					this._win.webContents.openDevTools();
+					this.webContents.openDevTools();
 				}
 			}, 10000)).schedule();
 		}
@@ -1654,7 +1660,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	close(): void {
-		this._win?.close();
+		throw new Error('PROTOTYPE: project close is not implemented; Stage 1 routing probe only');
 	}
 
 	sendWhenReady(channel: string, token: CancellationToken, ...args: unknown[]): void {
@@ -1671,13 +1677,13 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 	send(channel: string, ...args: unknown[]): void {
 		if (this._win) {
-			if (this._win.isDestroyed() || this._win.webContents.isDestroyed()) {
+			if (this._win.isDestroyed() || this.webContents.isDestroyed()) {
 				this.logService.warn(`Sending IPC message to channel '${channel}' for window that is destroyed`);
 				return;
 			}
 
 			try {
-				this._win.webContents.send(channel, ...args);
+				this.webContents.send(channel, ...args);
 			} catch (error) {
 				this.logService.warn(`Error sending IPC message to channel '${channel}' of window ${this._id}: ${toErrorMessage(error)}`);
 			}
@@ -1760,7 +1766,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 	private async startCollectingJScallStacks(): Promise<void> {
 		if (!this.jsCallStackCollector.isTriggered()) {
-			const stack = await this._win?.webContents.mainFrame.collectJavaScriptCallStack();
+			const stack = await this.webContents.mainFrame.collectJavaScriptCallStack();
 
 			// Increment the count for this stack trace
 			if (stack) {
@@ -1788,7 +1794,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				// If the stack appears more than 20 percent of the time, log it
 				// to the error telemetry as UnresponsiveSampleError.
 				if (Math.round((count * 100) / this.jsCallStackEffectiveSampleCount) > 20) {
-					const fakeError = new UnresponsiveError(stack, this.id, this._win?.webContents.getOSProcessId());
+					const fakeError = new UnresponsiveError(stack, this.id, this.webContents.getOSProcessId());
 					errorHandler.onUnexpectedError(fakeError);
 				}
 				logMessage += `<${count}> ${stack}\n`;
@@ -1803,7 +1809,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	matches(webContents: electron.WebContents): boolean {
-		return this._win?.webContents.id === webContents.id;
+		return this.webContents.id === webContents.id;
 	}
 
 	override dispose(): void {
