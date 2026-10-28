@@ -161,11 +161,6 @@ function installShellControls(): void {
 		const tabs = [...document.querySelectorAll<HTMLElement>('[role="tab"]')];
 		const index = tabs.indexOf(tab);
 		const direction = event.key === 'ArrowLeft' ? -1 : 1;
-		if (event.altKey && event.shiftKey && event.key.startsWith('Arrow')) {
-			const target = tabs[index + direction];
-			if (target) { navigate('reorder', tab.dataset.id!, target.dataset.id!); }
-			return;
-		}
 		const next = tabs[event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + direction + tabs.length) % tabs.length];
 		for (const candidate of tabs) { candidate.tabIndex = candidate === next ? 0 : -1; }
 		next.focus();
@@ -226,7 +221,7 @@ export function createPrototypeWorkbench(options: electron.BrowserWindowConstruc
 				void electron.dialog.showMessageBox(helpHost, {
 					type: 'info', buttons: [localize('closeHelp', "Close")],
 					message: localize('projectNavigationHelp', "Project Navigation"),
-					detail: localize('projectNavigationHelpDetail', "Agents is always available to the left of the project tabs. Tab and Shift+Tab move between controls. Left and Right arrows, Home and End move through project tabs; Enter or Space selects the focused project. Alt+Shift+Left or Alt+Shift+Right reorders a focused project tab. Each project retains its editors and running work when you switch. Escape closes this help.")
+					detail: localize('projectNavigationHelpDetail', "Agents is always available to the left of the project tabs. Tab and Shift+Tab move between controls. Left and Right arrows, Home and End move through project tabs; Enter or Space selects the focused project. Drag a project tab to reorder it. Each project retains its editors and running work when you switch. Escape closes this help.")
 				}).then(() => { if (host === helpHost && !helpHost.isDestroyed()) { helpHost.webContents.focus(); } });
 			}
 			else if (match[1] === 'retry') { views.get(id)?.retry?.(); }
