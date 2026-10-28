@@ -9,6 +9,7 @@ import { promises as fsp } from 'fs';
 import * as os from 'os';
 import * as cp from 'child_process';
 import { dirname, join, isAbsolute, basename } from '../../../base/common/path.js';
+import { CancellationToken, CancellationTokenPool } from '../../../base/common/cancellation.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { Disposable, DisposableMap, toDisposable } from '../../../base/common/lifecycle.js';
 import { generateUuid } from '../../../base/common/uuid.js';
@@ -384,8 +385,13 @@ function sshExec(client: SSHClient, command: string, opts?: { ignoreExitCode?: b
 }
 
 /** Create a bound exec function for the given SSH client. */
-function bindSshExec(client: SSHClient): (command: string, opts?: { ignoreExitCode?: boolean }) => Promise<{ stdout: string; stderr: string; code: number }> {
-	return (command, opts) => sshExec(client, command, opts);
+function bindSshExec(client: SSHClient, token: CancellationToken = CancellationToken.None): (command: string, opts?: { ignoreExitCode?: boolean }) => Promise<{ stdout: string; stderr: string; code: number }> {
+	return async (command, opts) => {
+		if (token.isCancellationRequested) { throw new CancellationError(); }
+		const result = await sshExec(client, command, opts);
+		if (token.isCancellationRequested) { throw new CancellationError(); }
+		return result;
+	};
 }
 
 function startRemoteAgentHost(
@@ -809,6 +815,8 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 
 	private readonly _connections = this._register(new DisposableMap<string, SSHConnection>());
 	private readonly _relayLeases = this._register(new DisposableMap<string, SSHRelayLease>());
+	private readonly _pendingCallers = new Map<string, number>();
+	private readonly _pendingSessionTokens = new Map<string, CancellationTokenPool>();
 	private readonly _pendingSessions = new Map<string, Promise<SSHConnection>>();
 	private readonly _pendingReconnects = new Map<string, Promise<ISSHConnectResult>>();
 	private readonly _pendingRelayAcquisitions = new Map<SSHConnection, number>();
@@ -854,27 +862,44 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 		return this._nativeRequire;
 	}
 
-	async connect(config: ISSHAgentHostConfig, expectedConnectionId?: string): Promise<ISSHConnectResult> {
+	async connect(config: ISSHAgentHostConfig, expectedConnectionId?: string, token: CancellationToken = CancellationToken.None): Promise<ISSHConnectResult> {
+		if (token.isCancellationRequested) { throw new CancellationError(); }
 		const connectionKey = computeSSHConnectionKey(config);
-		const existing = this._connections.get(connectionKey);
-		if (existing) {
-			return this._acquireRelay(existing, expectedConnectionId);
-		}
-		const pending = this._pendingSessions.get(connectionKey);
-		if (pending) {
-			return pending.then(session => this._acquireRelay(session, expectedConnectionId));
-		}
-		const connect = this._connect(config);
-		this._pendingSessions.set(connectionKey, connect);
-		void connect.finally(() => {
-			if (this._pendingSessions.get(connectionKey) === connect) {
-				this._pendingSessions.delete(connectionKey);
+		let session = this._connections.get(connectionKey);
+		this._pendingCallers.set(connectionKey, (this._pendingCallers.get(connectionKey) ?? 0) + 1);
+		try {
+		if (!session) {
+			let pending = this._pendingSessions.get(connectionKey);
+			if (!pending) {
+				const pool = new CancellationTokenPool();
+				pool.add(token);
+				this._pendingSessionTokens.set(connectionKey, pool);
+				pending = this._connect(config, pool.token);
+				this._pendingSessions.set(connectionKey, pending);
+				void pending.finally(() => {
+					if (this._pendingSessions.get(connectionKey) === pending) {
+						this._pendingSessions.delete(connectionKey);
+						this._pendingSessionTokens.delete(connectionKey);
+					}
+					pool.dispose();
+				}).catch(() => { /* The caller observes the original rejection. */ });
+			} else {
+				this._pendingSessionTokens.get(connectionKey)?.add(token);
 			}
-		}).catch(() => { /* The caller observes the original rejection. */ });
-		return connect.then(session => this._acquireRelay(session, expectedConnectionId));
+			session = await pending;
+		}
+		if (token.isCancellationRequested) {
+			throw new CancellationError();
+		}
+		return await this._acquireRelay(session, expectedConnectionId, token);
+		} finally {
+			const remaining = (this._pendingCallers.get(connectionKey) ?? 1) - 1;
+			if (remaining) { this._pendingCallers.set(connectionKey, remaining); } else { this._pendingCallers.delete(connectionKey); }
+			if (session && this._canDisposeSession(session)) { session.dispose(); }
+		}
 	}
 
-	private async _connect(config: ISSHAgentHostConfig): Promise<SSHConnection> {
+	private async _connect(config: ISSHAgentHostConfig, token: CancellationToken): Promise<SSHConnection> {
 		const connectionKey = computeSSHConnectionKey(config);
 
 		const existing = this._connections.get(connectionKey);
@@ -890,6 +915,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 		this._logService.info(`${LOG_PREFIX} Connecting to ${connectionKey}`);
 		const displayHost = config.sshConfigHost ?? `${config.username}@${config.host}`;
 		let sshClient: SSHClient | undefined;
+		const cancellation = token.onCancellationRequested(() => sshClient?.end());
 
 		try {
 			const reportProgress = (message: string) => {
@@ -898,7 +924,8 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 
 			// 1. Establish SSH connection
 			reportProgress(localize('sshProgressConnecting', "Establishing SSH connection..."));
-			sshClient = await this._connectSSH(config, connectionKey);
+			sshClient = await this._connectSSH(config, connectionKey, token);
+			if (token.isCancellationRequested) { throw new CancellationError(); }
 
 			let endpoint: AgentHostEndpointAddress;
 			let connectionToken: string | undefined;
@@ -930,21 +957,21 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 			} else {
 				// 2. Resolve the remote CLI first — every registry command
 				// (`agent endpoints`/`agent host`/`agent relay`) needs it.
-				const { stdout: unameS } = await sshExec(sshClient, 'uname -s');
-				const { stdout: unameM } = await sshExec(sshClient, 'uname -m');
+				const { stdout: unameS } = await bindSshExec(sshClient, token)('uname -s');
+				const { stdout: unameM } = await bindSshExec(sshClient, token)('uname -m');
 				const platform = resolveRemotePlatform(unameS, unameM);
 				if (!platform) {
 					throw new Error(`${LOG_PREFIX} Unsupported remote platform: ${unameS.trim()} ${unameM.trim()}`);
 				}
 				this._logService.info(`${LOG_PREFIX} Remote platform: ${platform.os}-${platform.arch}`);
 				reportProgress(localize('sshProgressInstallingCLI', "Checking remote CLI installation..."));
-				const cliInstallation = await this._ensureCLIInstalled(sshClient, platform, reportProgress);
+				const cliInstallation = await this._ensureCLIInstalled(sshClient, platform, reportProgress, token);
 				cliBin = cliInstallation.cliBin;
 				cliDataDir = getRemoteCLIDataDir(this._serverDataFolderName);
 
 				// 3. Discover every live endpoint on the remote via the shared registry.
 				reportProgress(localize('sshProgressCheckingAgent', "Checking for existing agent hosts..."));
-				const exec = bindSshExec(sshClient);
+				const exec = bindSshExec(sshClient, token);
 				const initial = await runAgentEndpoints(exec, cliBin, cliDataDir);
 				userDataPath = initial.userDataPath;
 				const live = await filterLiveAgentHostEndpoints(exec, initial.endpoints);
@@ -965,6 +992,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 					reportProgress(localize('sshProgressAwaitingAgent', "Waiting for the new agent host to register..."));
 					return waitForNewStandaloneEndpoint(exec, cliBin, cliDataDir, userDataPath, live, {
 						timeoutMs: getNewAgentHostRegistrationTimeoutMs(cliInstallation.installed),
+						token,
 						progress: elapsedMs => reportProgress(localize('sshProgressStillAwaitingAgent', "Waiting for the new agent host to register... ({0} seconds elapsed)", Math.floor(elapsedMs / 1000))),
 					});
 				};
@@ -1069,6 +1097,8 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 				lifecycle = selected.lifecycle;
 			}
 
+			if (token.isCancellationRequested) { throw new CancellationError(); }
+
 			// 4. Retain the exact selected endpoint in the shared SSH session.
 			const address = connectionKey;
 			const conn = new SSHConnection(
@@ -1122,6 +1152,8 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 				this._logService.error(`${LOG_PREFIX} Failed to connect to ${displayHost}`, err);
 			}
 			throw err;
+		} finally {
+			cancellation.dispose();
 		}
 	}
 
@@ -1161,7 +1193,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 		this._onDidChangeConnections.fire();
 	}
 
-	private async _acquireRelay(session: SSHConnection, expectedConnectionId?: string): Promise<ISSHConnectResult> {
+	private async _acquireRelay(session: SSHConnection, expectedConnectionId?: string, token: CancellationToken = CancellationToken.None): Promise<ISSHConnectResult> {
 		if (expectedConnectionId) {
 			const pending = this._pendingReconnects.get(expectedConnectionId);
 			if (pending) {
@@ -1169,7 +1201,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 			}
 			const previous = this._relayLeases.get(expectedConnectionId);
 			if (previous?.session === session) {
-				const reconnect = this._createRelayLease(session).then(result => {
+				const reconnect = this._createRelayLease(session, token).then(result => {
 					this._replacements.set(expectedConnectionId, result.connectionId);
 					this._releaseRelay(expectedConnectionId, false);
 					return result;
@@ -1187,7 +1219,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 				return this._toResult(replacement);
 			}
 		}
-		return this._createRelayLease(session);
+		return this._createRelayLease(session, token);
 	}
 
 	private _getCurrentLease(connectionId: string): SSHRelayLease | undefined {
@@ -1216,7 +1248,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 		}
 	}
 
-	private async _createRelayLease(session: SSHConnection): Promise<ISSHConnectResult> {
+	private async _createRelayLease(session: SSHConnection, token: CancellationToken): Promise<ISSHConnectResult> {
 		const connectionId = generateUuid();
 		let lease: SSHRelayLease | undefined;
 		const timeoutMs = this.relayCreationTimeoutMs;
@@ -1250,6 +1282,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 				timedOut = true;
 				throw new Error(`SSH relay creation timed out after ${timeoutMs}ms (SSH client appears unresponsive)`);
 			}
+			if (token.isCancellationRequested) { relay.close(); throw new CancellationError(); }
 			if (this._connections.get(session.connectionKey) !== session) {
 				relay.close();
 				throw new Error(`${LOG_PREFIX} SSH session for ${session.connectionKey} was closed while acquiring a relay.`);
@@ -1264,12 +1297,13 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 			this._onDidChangeConnections.fire();
 			return this._toResult(lease);
 		} catch (error) {
+			if (token.isCancellationRequested) { throw new CancellationError(); }
 			const relayErrorMessage = error instanceof Error ? error.message : String(error);
 			this._logService.warn(`${LOG_PREFIX} Failed to connect to selected agent host endpoint: ${relayErrorMessage}`);
 			if (!timedOut && this._connections.get(session.connectionKey) === session && session.cliBin && session.cliDataDir) {
 				try {
 					const endpoints = await raceTimeout(
-						runAgentEndpoints(bindSshExec(session.sshClient), session.cliBin, session.cliDataDir, session.userDataPath),
+						runAgentEndpoints(bindSshExec(session.sshClient, token), session.cliBin, session.cliDataDir, session.userDataPath),
 						timeoutMs,
 					);
 					if (!endpoints) {
@@ -1279,7 +1313,6 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 					this._logService.warn(`${LOG_PREFIX} Failed to reread agent host endpoints after relay failure: ${rereadError instanceof Error ? rereadError.message : String(rereadError)}`);
 				}
 			}
-			session.dispose();
 			throw new Error(`${LOG_PREFIX} Failed to connect to the selected remote agent host: ${relayErrorMessage}. Please retry connecting.`);
 		} finally {
 			const remaining = (this._pendingRelayAcquisitions.get(session) ?? 1) - 1;
@@ -1295,7 +1328,8 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 	}
 
 	private _canDisposeSession(session: SSHConnection): boolean {
-		return !this._pendingRelayAcquisitions.has(session)
+		return !this._pendingCallers.has(session.connectionKey)
+			&& !this._pendingRelayAcquisitions.has(session)
 			&& ![...this._relayLeases.values()].some(candidate => candidate.session === session);
 	}
 
@@ -1315,9 +1349,10 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 		};
 	}
 
-	async reconnect(sshConfigHost: string, name: string, remoteAgentHostCommand?: string, agentForward?: boolean, userInitiated?: boolean, preferredAgentLocation?: RemoteAgentHostLocationPreference, expectedConnectionId?: string): Promise<ISSHConnectResult> {
+	async reconnect(sshConfigHost: string, name: string, remoteAgentHostCommand?: string, agentForward?: boolean, userInitiated?: boolean, preferredAgentLocation?: RemoteAgentHostLocationPreference, expectedConnectionId?: string, token: CancellationToken = CancellationToken.None): Promise<ISSHConnectResult> {
 		this._logService.info(`${LOG_PREFIX} Reconnecting via SSH config host: ${sshConfigHost} (userInitiated=${userInitiated ?? true})`);
 		const resolved = await this.resolveSSHConfig(sshConfigHost);
+		if (token.isCancellationRequested) { throw new CancellationError(); }
 
 		// Always use Agent auth — the auth handler will walk through the SSH
 		// agent and any default identities. If the user pinned a non-default
@@ -1342,7 +1377,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 			agentForward: agentForward && resolved.forwardAgent ? true : undefined,
 			userInitiated,
 			preferredAgentLocation,
-		}, expectedConnectionId);
+		}, expectedConnectionId, token);
 	}
 
 	async listSSHConfigHosts(): Promise<string[]> {
@@ -1356,7 +1391,8 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 		}
 	}
 
-	async ensureUserSSHConfig(): Promise<URI> {
+	async ensureUserSSHConfig(token: CancellationToken = CancellationToken.None): Promise<URI> {
+		if (token.isCancellationRequested) { throw new CancellationError(); }
 		const sshDir = join(os.homedir(), '.ssh');
 		const configPath = join(sshDir, 'config');
 		const isPosix = process.platform !== 'win32';
@@ -1370,6 +1406,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 			await fsp.access(configPath);
 		} catch {
 			try {
+				if (token.isCancellationRequested) { throw new CancellationError(); }
 				const handle = await fsp.open(configPath, 'a', isPosix ? 0o600 : undefined);
 				await handle.close();
 			} catch (err) {
@@ -1507,6 +1544,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 	protected async _connectSSH(
 		config: ISSHAgentHostConfig,
 		connectionKey?: string,
+		token: CancellationToken = CancellationToken.None,
 	): Promise<SSHClient> {
 		const originalHost = config.sshConfigHost ?? config.host;
 		const displayHost = config.sshConfigHost ?? `${config.username}@${config.host}`;
@@ -1666,7 +1704,9 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 			);
 		};
 
+		if (token.isCancellationRequested) { throw new CancellationError(); }
 		const client = await this._createSSHClient();
+		if (token.isCancellationRequested) { client.end(); throw new CancellationError(); }
 		return new Promise<SSHClient>((resolve, reject) => {
 			let settled = false;
 			let deadlineTimer: IHandshakeDeadlineHandle | undefined;
@@ -1693,6 +1733,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 					return;
 				}
 				settled = true;
+				cancellation?.dispose();
 				clearDeadline();
 				this._logService.info(`${LOG_PREFIX} SSH connection established to ${config.host}`);
 				cancelLiveKbiRequests();
@@ -1705,6 +1746,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 					return;
 				}
 				settled = true;
+				cancellation?.dispose();
 				clearDeadline();
 				cancelLiveKbiRequests();
 				cancelLiveHostKeyRequests();
@@ -1761,8 +1803,10 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 				this._handleAnnouncedHostKeys(connectionKey ?? displayHost, hostKeyHost, port, keys);
 			});
 
+			const cancellation = token.onCancellationRequested(() => rejectConnect(new CancellationError(), true));
 			armDeadline(HANDSHAKE_TIMEOUT_MS);
 			try {
+				if (token.isCancellationRequested) { throw new CancellationError(); }
 				if (resolved?.proxyCommand) {
 					const proxy = new SSHProxyCommand(expandSSHProxyCommand(resolved.proxyCommand, config.host, originalHost, port, config.username), this._logService);
 					this._proxies.set(client, proxy);
@@ -2296,8 +2340,8 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 	 *
 	 * Returns the resolved CLI binary path and its install outcome.
 	 */
-	private async _ensureCLIInstalled(client: SSHClient, platform: { os: string; arch: string }, reportProgress: (message: string) => void): Promise<IRemoteAgentHostCliInstallResult> {
-		return ensureRemoteAgentHostCliInstalled(bindSshExec(client), platform, {
+	private async _ensureCLIInstalled(client: SSHClient, platform: { os: string; arch: string }, reportProgress: (message: string) => void, token: CancellationToken): Promise<IRemoteAgentHostCliInstallResult> {
+		return ensureRemoteAgentHostCliInstalled(bindSshExec(client, token), platform, {
 			serverDataFolderName: this._serverDataFolderName,
 			quality: this._quality,
 			commit: this._commit,

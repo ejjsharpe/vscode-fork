@@ -7,6 +7,7 @@ import assert from 'assert';
 import { createRequire } from 'module';
 import * as net from 'net';
 import * as os from 'os';
+import { CancellationTokenSource } from '../../../../base/common/cancellation.js';
 import { DeferredPromise } from '../../../../base/common/async.js';
 import { getErrorCode, isCancellationError, transformErrorForSerialization, transformErrorFromSerialization } from '../../../../base/common/errors.js';
 import { toErrorMessage } from '../../../../base/common/errorMessage.js';
@@ -523,6 +524,14 @@ suite('SSHRemoteAgentHostMainService - connect flow', () => {
 	teardown(() => disposables.clear());
 
 	ensureNoDisposablesAreLeakedInTestSuite();
+
+	test('does not start a remote host after its pending owner expires', async () => {
+		const source = disposables.add(new CancellationTokenSource());
+		const connecting = service.connect(makeConfig({ remoteAgentHostCommand: 'agent-host' }), undefined, source.token);
+		source.cancel();
+		await assert.rejects(connecting, isCancellationError);
+		assert.deepStrictEqual({ started: service.startCalled, relays: service.relayCalled, closed: service.mockClients[0]?.ended }, { started: 0, relays: 0, closed: true });
+	});
 
 	for (const { name, error, expectedMessage } of [
 		{
@@ -1662,9 +1671,9 @@ suite('SSHRemoteAgentHostMainService - connect flow', () => {
 		]);
 	});
 
-	// --- Reconnect failure cleans up detached SSH client ---
+	// --- Relay renewal failures preserve shared session leases ---
 
-	test('failed lease renewal closes all leases and the next reconnect discovers a fresh SSH session', async () => {
+	test('failed lease renewal preserves other leases and permits another renewal', async () => {
 		service.execResponses = discoveryResponses([makeEndpoint({ type: 'standalone', pid: 1234, instanceId: 'inst-1' })]);
 
 		const original = await service.connect(makeConfig({ sshConfigHost: 'myhost' }));
@@ -1689,39 +1698,33 @@ suite('SSHRemoteAgentHostMainService - connect flow', () => {
 			/relay failed/,
 		);
 
-		service.execResponses = discoveryResponses([makeEndpoint({ type: 'standalone', pid: 5678, instanceId: 'inst-2', endpoint: { type: 'tcp', host: '127.0.0.1', port: 9090 } })]);
 		const replacement = await service.reconnect('myhost', 'test-host', undefined, undefined, undefined, undefined, original.connectionId);
 
+		await service.releaseRelay(other.connectionId);
 		assert.deepStrictEqual({
 			ended: originalClient.ended,
 			listeners: [originalClient.closeListenerCount, originalClient.errorListenerCount],
 			closeEvents,
 			relayCloseEvents,
 			clientCount: service.mockClients.length,
-			discoveryCalls: service.mockClients[1].execCalls.filter(command => command.includes('agent endpoints')).length,
+			discoveryCalls: originalClient.execCalls.filter(command => command.includes('agent endpoints')).length,
 			instanceId: replacement.instanceId,
 		}, {
-			ended: true,
-			listeners: [0, 0],
-			closeEvents: [original.connectionId, other.connectionId],
-			relayCloseEvents: [original.connectionId, other.connectionId],
-			clientCount: 2,
-			discoveryCalls: 1,
-			instanceId: 'inst-2',
+			ended: false,
+			listeners: [1, 1],
+			closeEvents: [other.connectionId],
+			relayCloseEvents: [other.connectionId],
+			clientCount: 1,
+			discoveryCalls: 2,
+			instanceId: 'inst-1',
 		});
 	});
 
-	test('a timed-out lease renewal closes all leases even when diagnostic SSH exec never resolves', async () => {
-		// Repro for: after a silent network drop, the SSH client's TCP is
-		// half-open but ssh2 hasn't seen 'close' yet. Reusing it for a fresh
-		// relay calls forwardOut, whose callback never fires. Without a
-		// timeout the whole connect() call hangs forever, so the renderer
-		// never sees a rejection and never retries — even after a window
-		// reload, since the shared-process state survives.
+	test('a timed-out lease renewal preserves other leases and skips unbounded diagnostics', async () => {
 		service.execResponses = discoveryResponses([makeEndpoint({ type: 'standalone', pid: 1234, instanceId: 'inst-1' })]);
 
 		const original = await service.connect(makeConfig({ sshConfigHost: 'myhost' }));
-		const other = await service.connect(makeConfig({ sshConfigHost: 'myhost' }));
+		await service.connect(makeConfig({ sshConfigHost: 'myhost' }));
 		const originalClient = service.mockClients[0];
 		const execCallsBefore = originalClient.execCalls.length;
 		originalClient.hangExec = true;
@@ -1748,10 +1751,10 @@ suite('SSHRemoteAgentHostMainService - connect flow', () => {
 			closeEvents,
 			relayCloseEvents,
 		}, {
-			ended: true,
+			ended: false,
 			diagnosticExecCalls: 0,
-			closeEvents: [original.connectionId, other.connectionId],
-			relayCloseEvents: [original.connectionId, other.connectionId],
+			closeEvents: [],
+			relayCloseEvents: [],
 		});
 	});
 
@@ -1773,7 +1776,7 @@ suite('SSHRemoteAgentHostMainService - connect flow', () => {
 			ended: client.ended,
 			diagnosticExecCalls: client.execCalls.length - execCallsBefore,
 		}, {
-			ended: true,
+			ended: false,
 			diagnosticExecCalls: 1,
 		});
 	});

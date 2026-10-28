@@ -5,6 +5,8 @@
 
 import type WebSocket from 'ws';
 import * as cp from 'child_process';
+import { CancellationToken, CancellationTokenPool } from '../../../base/common/cancellation.js';
+import { CancellationError } from '../../../base/common/errors.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { autorun } from '../../../base/common/observable.js';
 import { Disposable, DisposableStore, toDisposable } from '../../../base/common/lifecycle.js';
@@ -97,6 +99,8 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 
 	private readonly _sessions = new Map<string, IWSLSession>();
 	private readonly _connections = new Map<string, IWSLRelayLease>();
+	private readonly _pendingCallers = new Map<string, number>();
+	private readonly _pendingConnectTokens = new Map<string, CancellationTokenPool>();
 	private readonly _pendingConnects = new Map<string, Promise<IWSLSession>>();
 	private readonly _pendingReconnects = new Map<string, Promise<IWSLConnectResult>>();
 	private readonly _pendingRelayAcquisitions = new Map<IWSLSession, number>();
@@ -188,31 +192,48 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 		}
 	}
 
-	connect(config: IWSLAgentHostConfig): Promise<IWSLConnectResult> {
+	async connect(config: IWSLAgentHostConfig, token: CancellationToken = CancellationToken.None): Promise<IWSLConnectResult> {
+		if (token.isCancellationRequested) { throw new CancellationError(); }
 		const distro = validateDistroName(config.distro);
-		return this._getOrCreateSession(config, distro).then(session => this._createRelay(session));
+		this._pendingCallers.set(distro, (this._pendingCallers.get(distro) ?? 0) + 1);
+		let session: IWSLSession | undefined;
+		try {
+			session = await this._getOrCreateSession(config, distro, token);
+			if (token.isCancellationRequested) { throw new CancellationError(); }
+			return await this._createRelay(session, token);
+		} finally {
+			const remaining = (this._pendingCallers.get(distro) ?? 1) - 1;
+			if (remaining) { this._pendingCallers.set(distro, remaining); } else { this._pendingCallers.delete(distro); }
+			if (session && this._canCloseSession(session)) { this._closeSession(distro, session); }
+		}
 	}
 
-	private _getOrCreateSession(config: IWSLAgentHostConfig, distro: string): Promise<IWSLSession> {
+	private _getOrCreateSession(config: IWSLAgentHostConfig, distro: string, token: CancellationToken): Promise<IWSLSession> {
 		const existing = this._sessions.get(distro);
 		if (existing) {
 			return Promise.resolve(existing);
 		}
 		const pending = this._pendingConnects.get(distro);
 		if (pending) {
+			this._pendingConnectTokens.get(distro)?.add(token);
 			return pending;
 		}
-		const create = this._connectUnguarded(config, distro);
+		const pool = new CancellationTokenPool();
+		pool.add(token);
+		this._pendingConnectTokens.set(distro, pool);
+		const create = this._connectUnguarded(config, distro, pool.token);
 		this._pendingConnects.set(distro, create);
 		void create.finally(() => {
 			if (this._pendingConnects.get(distro) === create) {
 				this._pendingConnects.delete(distro);
+				this._pendingConnectTokens.delete(distro);
 			}
+			pool.dispose();
 		}).catch(() => { /* The caller observes the original rejection. */ });
 		return create;
 	}
 
-	private async _connectUnguarded(config: IWSLAgentHostConfig, distro: string): Promise<IWSLSession> {
+	private async _connectUnguarded(config: IWSLAgentHostConfig, distro: string, token: CancellationToken): Promise<IWSLSession> {
 		const connectionKey = `wsl:${distro}`;
 		const reportProgress = (message: string) => {
 			this._onDidReportConnectProgress.fire({ connectionKey, message });
@@ -220,6 +241,7 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 
 		reportProgress(localize('wslProgressDetectingPlatform', "Detecting platform in {0}...", distro));
 		const { os: targetOs, arch: targetArch } = await this._resolvePlatform(distro);
+		if (token.isCancellationRequested) { throw new CancellationError(); }
 
 		reportProgress(localize('wslProgressPreparingCLI', "Preparing CLI in {0}...", distro));
 		const script = composeAgentHostBootstrapScript({
@@ -407,9 +429,11 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 			child.removeListener('error', onChildError);
 		}));
 
+		const cancellation = token.onCancellationRequested(() => { rejectReady(new CancellationError()); this._killChild(child); });
 		let resolvedUrl: { url: string; token: string | undefined };
 		try {
 			resolvedUrl = await urlPromise;
+			if (token.isCancellationRequested) { throw new CancellationError(); }
 			if (childError) {
 				throw childError;
 			}
@@ -420,6 +444,8 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 			sessionDisposables.dispose();
 			this._killChild(child);
 			throw err;
+		} finally {
+			cancellation.dispose();
 		}
 		bootstrapProgressDisposables.dispose();
 		clearReadyTimeouts();
@@ -438,7 +464,7 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 		return session;
 	}
 
-	private async _createRelay(session: IWSLSession): Promise<IWSLConnectResult> {
+	private async _createRelay(session: IWSLSession, token: CancellationToken = CancellationToken.None): Promise<IWSLConnectResult> {
 		this._onDidReportConnectProgress.fire({
 			connectionKey: session.address,
 			message: localize('wslProgressConnecting', "Connecting to agent host in {0}...", session.distro),
@@ -447,7 +473,9 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 		let ws: WebSocket;
 		let connection: IWSLRelayLease | undefined;
 		try {
+			if (token.isCancellationRequested) { throw new CancellationError(); }
 			ws = await this._openWebSocket(session.url);
+			if (token.isCancellationRequested) { ws.close(); throw new CancellationError(); }
 			if (this._sessions.get(session.distro) !== session) {
 				ws.close();
 				throw new Error(`${LOG_PREFIX} Agent host session for '${session.distro}' was closed while acquiring a relay.`);
@@ -482,7 +510,6 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 			return this._toResult(connection);
 		} catch (err) {
 			this._logService.warn(`${LOG_PREFIX} Failed to acquire relay for ${session.address}`, err);
-			this._closeSession(session.distro, session);
 			throw err;
 		} finally {
 			const remaining = (this._pendingRelayAcquisitions.get(session) ?? 1) - 1;
@@ -506,9 +533,9 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 		this._closeSession(distro);
 	}
 
-	async reconnect(distro: string, name: string, remoteAgentHostCommand?: string, userInitiated?: boolean, expectedConnectionId?: string): Promise<IWSLConnectResult> {
+	async reconnect(distro: string, name: string, remoteAgentHostCommand?: string, userInitiated?: boolean, expectedConnectionId?: string, token: CancellationToken = CancellationToken.None): Promise<IWSLConnectResult> {
 		if (!expectedConnectionId) {
-			return this.connect({ distro, name, remoteAgentHostCommand, userInitiated });
+			return this.connect({ distro, name, remoteAgentHostCommand, userInitiated }, token);
 		}
 		const pending = this._pendingReconnects.get(expectedConnectionId);
 		if (pending) {
@@ -520,9 +547,9 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 			if (replacement?.session.distro === distro) {
 				return this._toResult(replacement);
 			}
-			return this.connect({ distro, name, remoteAgentHostCommand, userInitiated });
+			return this.connect({ distro, name, remoteAgentHostCommand, userInitiated }, token);
 		}
-		const reconnect = this._createRelay(current.session).then(result => {
+		const reconnect = this._createRelay(current.session, token).then(result => {
 			this._replacements.set(expectedConnectionId, result.connectionId);
 			this._closeRelay(expectedConnectionId, false);
 			return result;
@@ -636,7 +663,8 @@ export class WSLRemoteAgentHostMainService extends Disposable implements IWSLRem
 	}
 
 	private _canCloseSession(session: IWSLSession): boolean {
-		return !this._pendingRelayAcquisitions.has(session)
+		return !this._pendingCallers.has(session.distro)
+			&& !this._pendingRelayAcquisitions.has(session)
 			&& ![...this._connections.values()].some(connection => connection.session === session);
 	}
 
