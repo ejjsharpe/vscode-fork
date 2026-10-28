@@ -11,7 +11,13 @@ import { registerPrototypeDocument } from '../../../base/parts/ipc/electron-main
 let host: electron.BrowserWindow | undefined;
 let nextId = 100000;
 let selected: number | undefined;
-const views = new Map<number, { view: electron.WebContentsView; label: string; state?: string; retry?: () => void; close?: () => void }>();
+const views = new Map<number, { view: electron.WebContentsView; contents: electron.WebContents; label: string; state?: string; retry?: () => void; close?: () => void }>();
+const removals = new Map<number, { entry: NonNullable<ReturnType<typeof views.get>>; detached: boolean }>();
+let closeFailure: string | undefined;
+export function reportPrototypeCloseFailure(id: number): void {
+	closeFailure = localize('projectCleanupFailed', "Project {0}: Close failed", id);
+	renderShell();
+}
 export let prototypeHostClosing = false;
 export function setPrototypeHostClosing(value: boolean): void { prototypeHostClosing = value; }
 
@@ -23,29 +29,44 @@ export function setPrototypeRecovery(id: number, state: string | undefined, retr
 }
 
 export function removePrototypeWorkbench(id: number): void {
-	const entry = views.get(id);
-	if (!entry) { return; }
-	const ids = [...views.keys()];
-	const index = ids.indexOf(id);
-	views.delete(id);
-	if (host && !host.isDestroyed()) { host.contentView.removeChildView(entry.view); }
-	if (!entry.view.webContents.isDestroyed()) { entry.view.webContents.close({ waitForBeforeUnload: false }); }
-	if (selected === id) {
-		selected = ids[index + 1] ?? ids[index - 1];
-		if (selected !== undefined && host && !host.isDestroyed()) { selectPrototypeWorkbench(selected); }
+	let removal = removals.get(id);
+	if (!removal) {
+		const entry = views.get(id);
+		if (!entry) { return; }
+		removal = { entry, detached: false };
+		removals.set(id, removal);
+		const ids = [...views.keys()];
+		const index = ids.indexOf(id);
+		views.delete(id);
+		if (selected === id) { selected = ids[index + 1] ?? ids[index - 1]; }
 	}
-	renderShell();
+	const errors: unknown[] = [];
+	try {
+		if (!removal.detached && host && !host.isDestroyed()) { host.contentView.removeChildView(removal.entry.view); }
+		removal.detached = true;
+	} catch (error) { errors.push(error); }
+	try {
+		if (!removal.entry.contents.isDestroyed()) { removal.entry.contents.close({ waitForBeforeUnload: false }); }
+	} catch (error) { errors.push(error); }
+	try {
+		if (selected !== undefined && host && !host.isDestroyed()) { selectPrototypeWorkbench(selected); }
+		renderShell();
+	} catch (error) { errors.push(error); }
+	if (errors.length) { throw new AggregateError(errors, 'Project view cleanup failed'); }
+	removals.delete(id);
 }
 
 export function replacePrototypeWorkbench(id: number, options: electron.BrowserWindowConstructorOptions): electron.WebContentsView {
 	const entry = views.get(id);
 	if (!entry || !host || host.isDestroyed() || prototypeHostClosing) { throw new Error('Recovery owner no longer available'); }
 	const old = entry.view;
+	const oldContents = entry.contents;
 	const view = new electron.WebContentsView({ webPreferences: { ...options.webPreferences, backgroundThrottling: false } });
 	registerPrototypeDocument(view.webContents, id);
 	entry.view = view;
+	entry.contents = view.webContents;
 	host.contentView.removeChildView(old);
-	if (!old.webContents.isDestroyed()) { old.webContents.close({ waitForBeforeUnload: false }); }
+	if (!oldContents.isDestroyed()) { oldContents.close({ waitForBeforeUnload: false }); }
 	host.contentView.addChildView(view);
 	view.setVisible(selected === id);
 	if (selected === id) { selectPrototypeWorkbench(id); }
@@ -54,7 +75,7 @@ export function replacePrototypeWorkbench(id: number, options: electron.BrowserW
 
 export function selectPrototypeWorkbench(id: number): void {
 	const target = views.get(id);
-	if (!target || target.view.webContents.isDestroyed() || !host) {
+	if (!target || target.contents.isDestroyed() || !host) {
 		throw new Error(`Unknown/disposed prototype workbench ${id}`);
 	}
 	selected = id;
@@ -63,8 +84,8 @@ export function selectPrototypeWorkbench(id: number): void {
 	}
 	const [width, height] = host.getContentSize();
 	target.view.setBounds({ x: 0, y: 42, width, height: Math.max(0, height - 42) });
-	target.view.webContents.focus();
-	console.log('[hosting-probe] selected', JSON.stringify({ id, nativeHost: host.id, webContents: target.view.webContents.id }));
+	target.contents.focus();
+	console.log('[hosting-probe] selected', JSON.stringify({ id, nativeHost: host.id, webContents: target.contents.id }));
 }
 
 function renderShell(): void {
@@ -75,7 +96,7 @@ function renderShell(): void {
 		const close = entry.close ? ` <a href="https://prototype.invalid/close/${id}">${localize('close', "Close")}</a>` : '';
 		return `<span><a href="https://prototype.invalid/select/${id}">${entry.label} (${id})</a>${status}${retry}${close}</span>`;
 	}).join(' ');
-	void host.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>Disposable hosting probe</title><style>body{margin:0;background:#202020;color:white;font:14px system-ui}nav{height:42px;display:flex;align-items:center;gap:20px;padding:0 20px;overflow:auto;white-space:nowrap}a{color:inherit}a:focus-visible{outline:2px solid currentColor;outline-offset:2px}</style><nav>${links}</nav>`));
+	void host.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>Disposable hosting probe</title><style>body{margin:0;background:#202020;color:white;font:14px system-ui}nav{height:42px;display:flex;align-items:center;gap:20px;padding:0 20px;overflow:auto;white-space:nowrap}a{color:inherit}a:focus-visible{outline:2px solid currentColor;outline-offset:2px}</style><nav>${links}${closeFailure ? `<span role="alert">${closeFailure}</span>` : ''}</nav>`));
 }
 
 export function createPrototypeWorkbench(options: electron.BrowserWindowConstructorOptions, agents: boolean) {
@@ -103,7 +124,7 @@ export function createPrototypeWorkbench(options: electron.BrowserWindowConstruc
 	const id = nextId++;
 	const view = new electron.WebContentsView({ webPreferences: { ...options.webPreferences, backgroundThrottling: false } });
 	registerPrototypeDocument(view.webContents, id);
-	views.set(id, { view, label: agents ? 'Agents' : `Project ${views.size}` });
+	views.set(id, { view, contents: view.webContents, label: agents ? 'Agents' : `Project ${views.size}` });
 	host.contentView.addChildView(view);
 
 	view.webContents.on('did-finish-load', () => {
@@ -117,7 +138,7 @@ export function createPrototypeWorkbench(options: electron.BrowserWindowConstruc
 // Main-owned registry: a client's handshake cannot choose its workbench or role.
 export function prototypeContext(contents: electron.WebContents): string {
 	for (const [id, entry] of views) {
-		if (entry.view.webContents === contents) { return `window:${id}`; }
+		if (entry.contents === contents && !contents.isDestroyed()) { return `window:${id}`; }
 	}
 	return `unregistered:${contents.id}`;
 }

@@ -5,7 +5,7 @@
 
 import electron from 'electron';
 import { randomUUID } from 'node:crypto';
-import { prototypeHostClosing, setPrototypeHostClosing } from '../../windows/electron-main/prototypeWorkbenchHost.js';
+import { prototypeHostClosing, setPrototypeHostClosing, reportPrototypeCloseFailure } from '../../windows/electron-main/prototypeWorkbenchHost.js';
 import { onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply, revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { validatedIpcMain } from '../../../base/parts/ipc/electron-main/ipcMain.js';
 import { Barrier, DeferredPromise, Promises, timeout } from '../../../base/common/async.js';
@@ -436,8 +436,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		listeners.add(window.onDidClose(() => {
 			this.prototypeWindows.delete(window.id);
 			this.completedHostCleanup.delete(window.id);
-			void this.pendingProjectCloses.get(window.id)?.complete();
-			this.pendingProjectCloses.delete(window.id);
+
 			this.windowCounter--;
 			listeners.dispose();
 			if (this.windowCounter === 0 && (!isMacintosh || this._quitRequested)) { this.fireOnWillShutdown(ShutdownReason.QUIT); }
@@ -453,7 +452,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	}
 
 	close(window: ICodeWindow): Promise<void> {
-		if (!this.prototypeWindows.has(window.id)) { return Promise.resolve(); }
+		if (!this.prototypeWindows.has(window.id)) { return window.disposePrototypeWorkbench(); }
 		const existing = this.pendingProjectCloses.get(window.id);
 		if (existing) { return existing.p; }
 		const pending = new DeferredPromise<void>();
@@ -473,16 +472,18 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 			if (!this.prototypeWindows.has(window.id)) { return; }
 			if (this.completedHostCleanup.get(window.id) !== window.webContents && await this.unload(window, UnloadReason.CLOSE)) { return; }
 			this._onBeforeCloseWindow.fire(window);
-			window.webContents.close({ waitForBeforeUnload: false });
+			await window.disposePrototypeWorkbench();
 		} catch (error) {
 			failed = true;
+			reportPrototypeCloseFailure(window.id);
 			this.logService.error(error);
+			await pending.error(error);
 		} finally {
 			this.closingProjects.delete(window.id);
 			this.pendingProjectCloses.delete(window.id);
 			this.completedHostCleanup.delete(window.id);
 			if (this.prototypeWindows.has(window.id)) { window.setPrototypeClosePending(false, failed); }
-			await pending.complete();
+			if (!failed) { await pending.complete(); }
 		}
 	}
 

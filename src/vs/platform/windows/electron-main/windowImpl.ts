@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { revokePrototypeDocument, retirePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
-import { createPrototypeWorkbench, selectPrototypeWorkbench, replacePrototypeWorkbench, removePrototypeWorkbench, setPrototypeRecovery, prototypeHostClosing } from './prototypeWorkbenchHost.js';
+import { createPrototypeWorkbench, selectPrototypeWorkbench, replacePrototypeWorkbench, removePrototypeWorkbench, reportPrototypeCloseFailure, setPrototypeRecovery, prototypeHostClosing } from './prototypeWorkbenchHost.js';
 import electron, { BrowserWindowConstructorOptions, Display } from 'electron';
 import { DeferredPromise, RunOnceScheduler, timeout, Delayer, raceCancellationError } from '../../../base/common/async.js';
 import { CancellationToken, CancellationTokenSource } from '../../../base/common/cancellation.js';
@@ -185,14 +185,55 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 	protected _win: electron.BrowserWindow | null = null;
 	get win() { return this._win; }
 	protected hostedView: electron.WebContentsView | undefined;
-	get webContents() { return this.hostedView?.webContents ?? this._win!.webContents; }
+	protected hostedContents: electron.WebContents | undefined;
+	private logicalCloseNotified = false;
+	private logicalDisposing = false;
+	private logicalDisposed = false;
+	private logicalCloseError: unknown;
+	get webContents() {
+		if (this.hostedView) {
+			if (!this.hostedContents || this.hostedContents.isDestroyed() || this.logicalCloseNotified) { throw new Error(`Expired hosted workbench ${this.id}`); }
+			return this.hostedContents;
+		}
+		return this._win!.webContents;
+	}
 	protected readonly logicalCloseListener = this._register(new MutableDisposable());
 	protected registerLogicalClose(): void {
-		this.logicalCloseListener.value = Event.fromNodeEventEmitter(this.hostedView ? this.webContents : this._win!, this.hostedView ? 'destroyed' : 'closed')(() => {
-			if (this.hostedView) { removePrototypeWorkbench(this.id); }
-			this._onDidClose.fire();
-			this.dispose();
+		this.hostedContents = this.hostedView?.webContents;
+		this.logicalCloseListener.value = Event.fromNodeEventEmitter(this.hostedContents ?? this._win!, this.hostedView ? 'destroyed' : 'closed')(() => {
+			try { this.finishLogicalClose(); }
+			catch (error) { this.logService.error(error); reportPrototypeCloseFailure(this.id); }
 		});
+	}
+	private finishLogicalClose(): void {
+		if (this.logicalDisposing || this.logicalDisposed) { return; }
+		this.logicalDisposing = true;
+		const errors: unknown[] = [];
+		try {
+			try { if (this.hostedView) { removePrototypeWorkbench(this.id); } } catch (error) { errors.push(error); }
+			if (!this.logicalCloseNotified) {
+				this.logicalCloseNotified = true;
+				this._onDidClose.fire();
+			}
+			try { this.dispose(); } catch (error) { errors.push(error); }
+			this.logicalCloseError = errors.length ? new AggregateError(errors, 'Logical project disposal failed') : undefined;
+			this.logicalDisposed = errors.length === 0;
+		} finally { this.logicalDisposing = false; }
+		if (this.logicalCloseError) { throw this.logicalCloseError; }
+	}
+	async disposePrototypeWorkbench(): Promise<void> {
+		const contents = this.hostedContents;
+		if (contents && !contents.isDestroyed()) {
+			await new Promise<void>((resolve, reject) => {
+				const destroyed = () => resolve();
+				contents.once('destroyed', destroyed);
+				try { contents.close({ waitForBeforeUnload: false }); }
+				catch (error) { contents.removeListener('destroyed', destroyed); reject(error); }
+			});
+			// A destruction callback error belongs to this Close, even if a later retry succeeds.
+			if (this.logicalCloseError) { throw this.logicalCloseError; }
+		}
+		this.finishLogicalClose();
 	}
 	protected setWin(win: electron.BrowserWindow, options?: BrowserWindowConstructorOptions): void {
 		this._win = win;
@@ -814,6 +855,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 			const hosted = createPrototypeWorkbench(options, !!config.isSessionsWindow);
 			this._win = hosted.host;
 			this.hostedView = hosted.view;
+			this.hostedContents = hosted.view.webContents;
 			mark('code/didCreateCodeBrowserWindow');
 
 			this._id = hosted.id;
@@ -1215,6 +1257,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 			this.logicalCloseListener.clear();
 			revokePrototypeDocument(this.webContents, 'recovery');
 			this.hostedView = replacePrototypeWorkbench(this.id, this.prototypeOptions);
+			this.hostedContents = this.hostedView.webContents;
 			this.recoveryContents = this.webContents;
 			this.recoveryFailed = false;
 			this.registerLogicalClose();
@@ -1723,7 +1766,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	close(): void {
-		void this.lifecycleMainService.close(this);
+		void this.lifecycleMainService.close(this).catch(error => this.logService.error(error));
 	}
 
 	sendWhenReady(channel: string, token: CancellationToken, ...args: unknown[]): void {
@@ -1872,7 +1915,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	matches(webContents: electron.WebContents): boolean {
-		return this.webContents.id === webContents.id;
+		return !this.logicallyClosed && !this.hostedContents?.isDestroyed() && this.webContents.id === webContents.id;
 	}
 
 	override dispose(): void {

@@ -65,6 +65,7 @@ suite('WindowsFinder', () => {
 			reload(cli?: NativeParsedArgs): void { throw new Error('Method not implemented.'); }
 			focus(options?: { mode: FocusMode }): void { throw new Error('Method not implemented.'); }
 			close(): void { throw new Error('Method not implemented.'); }
+			async disposePrototypeWorkbench(): Promise<void> { }
 			setPrototypeClosePending(): void { }
 			interruptPrototypeShutdown(): void { }
 			getBounds(): Electron.Rectangle { throw new Error('Method not implemented.'); }
