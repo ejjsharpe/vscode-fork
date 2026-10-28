@@ -1,0 +1,6 @@
+{
+  "generation": 4,
+  "oldCompletionCannotAffectFreshWait": true,
+  "beforeReplacement": "interrupted",
+  "listenersRemoved": true
+}

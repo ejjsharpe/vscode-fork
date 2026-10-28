@@ -1,0 +1,1501 @@
+{
+  "before": {
+    "versions": {
+      "node": "24.22.0",
+      "acorn": "8.18.0",
+      "ada": "4.0.0",
+      "amaro": "1.1.11",
+      "ares": "1.34.8",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.2",
+      "llhttp": "9.4.3",
+      "merve": "1.2.2",
+      "modules": "148",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.70.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "0.0.0",
+      "simdjson": "4.6.11",
+      "simdutf": "7.7.0",
+      "sqlite": "3.53.4",
+      "tz": "2026d",
+      "undici": "7.29.1",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "15.0.245.31-electron.0",
+      "zlib": "1.3.2.1-motley",
+      "zstd": "1.6.0",
+      "electron": "43.8.3",
+      "chrome": "150.0.7871.250"
+    },
+    "hosts": [
+      {
+        "id": 1,
+        "contents": 1,
+        "children": 3
+      }
+    ],
+    "windows": [
+      {
+        "id": 100000,
+        "ready": true,
+        "contents": 2,
+        "pid": 25662,
+        "generation": 1,
+        "context": "window:100000",
+        "workspace": {
+          "id": "882b4a2b9bb7a07194bc8cecd514d56c",
+          "configPath": {
+            "scheme": "file",
+            "authority": "",
+            "path": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace",
+            "query": "",
+            "fragment": "",
+            "_formatted": "file:///tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace",
+            "_fsPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace"
+          }
+        },
+        "profile": "agents",
+        "environmentHash": "368ac2eaa3f488d65b571fd742734d5a8dcb971396debab518d4ac58d527b12f",
+        "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/882b4a2b9bb7a07194bc8cecd514d56c",
+        "title": "Agents"
+      },
+      {
+        "id": 100001,
+        "ready": true,
+        "contents": 3,
+        "pid": 25668,
+        "generation": 2,
+        "context": "window:100001",
+        "workspace": {
+          "id": "1f1138360af72dad2c8921bb0ae431e8",
+          "uri": {
+            "scheme": "file",
+            "authority": "",
+            "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+            "query": "",
+            "fragment": "",
+            "_formatted": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+            "_fsPath": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single"
+          }
+        },
+        "profile": "__default__profile__",
+        "environmentHash": "82fb6106e0ff905f7e4c1d06cbd7b6b5fd8a74cf88ef93fe1c79bb4baa334ddc",
+        "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/8ea84fcd7976d161978869d2d685856f",
+        "title": "Welcome — single"
+      },
+      {
+        "id": 100002,
+        "ready": false,
+        "contents": 5,
+        "pid": 0,
+        "context": "window:100002",
+        "workspace": {
+          "id": "7d098995c6809e5f7cb6fee64eb164ae",
+          "configPath": {
+            "scheme": "file",
+            "authority": "",
+            "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace",
+            "query": "",
+            "fragment": "",
+            "_formatted": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace",
+            "_fsPath": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace"
+          }
+        },
+        "profile": "__default__profile__",
+        "environmentHash": "82fb6106e0ff905f7e4c1d06cbd7b6b5fd8a74cf88ef93fe1c79bb4baa334ddc",
+        "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/7d098995c6809e5f7cb6fee64eb164ae",
+        "title": ""
+      }
+    ],
+    "contents": [
+      {
+        "id": 5,
+        "pid": 0,
+        "type": "window",
+        "crashed": false,
+        "context": "window:100002"
+      },
+      {
+        "id": 4,
+        "pid": 25682,
+        "type": "window",
+        "crashed": false,
+        "context": "unregistered:4"
+      },
+      {
+        "id": 3,
+        "pid": 25668,
+        "type": "window",
+        "crashed": false,
+        "generation": 2,
+        "context": "window:100001"
+      },
+      {
+        "id": 2,
+        "pid": 25662,
+        "type": "window",
+        "crashed": false,
+        "generation": 1,
+        "context": "window:100000"
+      },
+      {
+        "id": 1,
+        "pid": 25683,
+        "type": "window",
+        "crashed": false,
+        "context": "unregistered:1"
+      }
+    ],
+    "metrics": [
+      {
+        "pid": 25631,
+        "type": "Browser"
+      },
+      {
+        "pid": 25649,
+        "type": "GPU",
+        "serviceName": "GPU"
+      },
+      {
+        "pid": 25650,
+        "type": "Utility",
+        "name": "Network Service",
+        "serviceName": "network.mojom.NetworkService"
+      },
+      {
+        "pid": 25662,
+        "type": "Tab"
+      },
+      {
+        "pid": 25668,
+        "type": "Tab"
+      },
+      {
+        "pid": 25682,
+        "type": "Tab"
+      },
+      {
+        "pid": 25683,
+        "type": "Tab"
+      },
+      {
+        "pid": 25705,
+        "type": "Utility",
+        "name": "agentHost-1",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25707,
+        "type": "Utility",
+        "name": "shared-process-2",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25708,
+        "type": "Utility",
+        "name": "fileWatcher-3",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25710,
+        "type": "Utility",
+        "name": "extensionHost-4",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25916,
+        "type": "Utility",
+        "name": "fileWatcher-7",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25959,
+        "type": "Utility",
+        "name": "extensionHost-8",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 26607,
+        "type": "Utility",
+        "name": "fileWatcher-15",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 26627,
+        "type": "Utility",
+        "name": "extensionHost-16",
+        "serviceName": "node.mojom.NodeService"
+      }
+    ],
+    "windowCounter": 3,
+    "requests": [
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeBefore",
+        "before": true
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeBefore",
+        "before": true
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeWill",
+        "before": false
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeWill",
+        "before": false
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeWill",
+        "before": false
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeBefore",
+        "before": true
+      },
+      {
+        "windowId": 100000,
+        "contents": 2,
+        "channel": "vscode:onBeforeUnload",
+        "before": true
+      },
+      {
+        "windowId": 100001,
+        "contents": 3,
+        "channel": "vscode:onBeforeUnload",
+        "before": true
+      }
+    ],
+    "results": [
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeBefore",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeBefore",
+        "result": "cancel"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeWill",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeWill",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeWill",
+        "result": "interrupted"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeBefore",
+        "result": "interrupted"
+      },
+      {
+        "windowId": 100000,
+        "channel": "vscode:onBeforeUnload",
+        "result": "ok"
+      },
+      {
+        "windowId": 100001,
+        "channel": "vscode:onBeforeUnload",
+        "result": "ok"
+      }
+    ]
+  },
+  "during": {
+    "state": {
+      "versions": {
+        "node": "24.22.0",
+        "acorn": "8.18.0",
+        "ada": "4.0.0",
+        "amaro": "1.1.11",
+        "ares": "1.34.8",
+        "brotli": "1.2.0",
+        "cldr": "48.0",
+        "icu": "78.2",
+        "llhttp": "9.4.3",
+        "merve": "1.2.2",
+        "modules": "148",
+        "napi": "10",
+        "nbytes": "0.1.4",
+        "ncrypto": "0.0.1",
+        "nghttp2": "1.70.0",
+        "nghttp3": "",
+        "ngtcp2": "",
+        "openssl": "0.0.0",
+        "simdjson": "4.6.11",
+        "simdutf": "7.7.0",
+        "sqlite": "3.53.4",
+        "tz": "2026d",
+        "undici": "7.29.1",
+        "unicode": "17.0",
+        "uv": "1.52.1",
+        "uvwasi": "0.0.23",
+        "v8": "15.0.245.31-electron.0",
+        "zlib": "1.3.2.1-motley",
+        "zstd": "1.6.0",
+        "electron": "43.8.3",
+        "chrome": "150.0.7871.250"
+      },
+      "hosts": [
+        {
+          "id": 1,
+          "contents": 1,
+          "children": 3
+        }
+      ],
+      "windows": [
+        {
+          "id": 100000,
+          "ready": true,
+          "contents": 2,
+          "pid": 25662,
+          "generation": 1,
+          "context": "window:100000",
+          "workspace": {
+            "id": "882b4a2b9bb7a07194bc8cecd514d56c",
+            "configPath": {
+              "scheme": "file",
+              "authority": "",
+              "path": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace",
+              "query": "",
+              "fragment": "",
+              "_formatted": "file:///tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace",
+              "_fsPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace"
+            }
+          },
+          "profile": "agents",
+          "environmentHash": "368ac2eaa3f488d65b571fd742734d5a8dcb971396debab518d4ac58d527b12f",
+          "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/882b4a2b9bb7a07194bc8cecd514d56c",
+          "title": "Agents"
+        },
+        {
+          "id": 100001,
+          "ready": true,
+          "contents": 3,
+          "pid": 25668,
+          "generation": 2,
+          "context": "window:100001",
+          "workspace": {
+            "id": "1f1138360af72dad2c8921bb0ae431e8",
+            "uri": {
+              "scheme": "file",
+              "authority": "",
+              "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+              "query": "",
+              "fragment": "",
+              "_formatted": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+              "_fsPath": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single"
+            }
+          },
+          "profile": "__default__profile__",
+          "environmentHash": "82fb6106e0ff905f7e4c1d06cbd7b6b5fd8a74cf88ef93fe1c79bb4baa334ddc",
+          "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/8ea84fcd7976d161978869d2d685856f",
+          "title": "Welcome — single"
+        },
+        {
+          "id": 100002,
+          "ready": false,
+          "contents": 5,
+          "pid": 0,
+          "context": "window:100002",
+          "workspace": {
+            "id": "7d098995c6809e5f7cb6fee64eb164ae",
+            "configPath": {
+              "scheme": "file",
+              "authority": "",
+              "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace",
+              "query": "",
+              "fragment": "",
+              "_formatted": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace",
+              "_fsPath": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace"
+            }
+          },
+          "profile": "__default__profile__",
+          "environmentHash": "82fb6106e0ff905f7e4c1d06cbd7b6b5fd8a74cf88ef93fe1c79bb4baa334ddc",
+          "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/7d098995c6809e5f7cb6fee64eb164ae",
+          "title": ""
+        }
+      ],
+      "contents": [
+        {
+          "id": 5,
+          "pid": 0,
+          "type": "window",
+          "crashed": false,
+          "context": "window:100002"
+        },
+        {
+          "id": 3,
+          "pid": 25668,
+          "type": "window",
+          "crashed": false,
+          "generation": 2,
+          "context": "window:100001"
+        },
+        {
+          "id": 2,
+          "pid": 25662,
+          "type": "window",
+          "crashed": false,
+          "generation": 1,
+          "context": "window:100000"
+        },
+        {
+          "id": 1,
+          "pid": 25683,
+          "type": "window",
+          "crashed": false,
+          "context": "unregistered:1"
+        }
+      ],
+      "metrics": [
+        {
+          "pid": 25631,
+          "type": "Browser"
+        },
+        {
+          "pid": 25649,
+          "type": "GPU",
+          "serviceName": "GPU"
+        },
+        {
+          "pid": 25650,
+          "type": "Utility",
+          "name": "Network Service",
+          "serviceName": "network.mojom.NetworkService"
+        },
+        {
+          "pid": 25662,
+          "type": "Tab"
+        },
+        {
+          "pid": 25668,
+          "type": "Tab"
+        },
+        {
+          "pid": 25683,
+          "type": "Tab"
+        },
+        {
+          "pid": 25705,
+          "type": "Utility",
+          "name": "agentHost-1",
+          "serviceName": "node.mojom.NodeService"
+        },
+        {
+          "pid": 25707,
+          "type": "Utility",
+          "name": "shared-process-2",
+          "serviceName": "node.mojom.NodeService"
+        },
+        {
+          "pid": 25708,
+          "type": "Utility",
+          "name": "fileWatcher-3",
+          "serviceName": "node.mojom.NodeService"
+        },
+        {
+          "pid": 25710,
+          "type": "Utility",
+          "name": "extensionHost-4",
+          "serviceName": "node.mojom.NodeService"
+        },
+        {
+          "pid": 25916,
+          "type": "Utility",
+          "name": "fileWatcher-7",
+          "serviceName": "node.mojom.NodeService"
+        },
+        {
+          "pid": 25959,
+          "type": "Utility",
+          "name": "extensionHost-8",
+          "serviceName": "node.mojom.NodeService"
+        }
+      ],
+      "windowCounter": 3,
+      "requests": [
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeBefore",
+          "before": true
+        },
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeBefore",
+          "before": true
+        },
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeWill",
+          "before": false
+        },
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeWill",
+          "before": false
+        },
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeWill",
+          "before": false
+        },
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeBefore",
+          "before": true
+        },
+        {
+          "windowId": 100000,
+          "contents": 2,
+          "channel": "vscode:onBeforeUnload",
+          "before": true
+        },
+        {
+          "windowId": 100001,
+          "contents": 3,
+          "channel": "vscode:onBeforeUnload",
+          "before": true
+        }
+      ],
+      "results": [
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeBefore",
+          "result": "ok"
+        },
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeBefore",
+          "result": "cancel"
+        },
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeWill",
+          "result": "ok"
+        },
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeWill",
+          "result": "ok"
+        },
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeWill",
+          "result": "interrupted"
+        },
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeBefore",
+          "result": "interrupted"
+        },
+        {
+          "windowId": 100000,
+          "channel": "vscode:onBeforeUnload",
+          "result": "ok"
+        },
+        {
+          "windowId": 100001,
+          "channel": "vscode:onBeforeUnload",
+          "result": "ok"
+        }
+      ]
+    },
+    "hostClosing": true,
+    "recovering": true
+  },
+  "afterCloseRequest": {
+    "closed": false,
+    "state": {
+      "versions": {
+        "node": "24.22.0",
+        "acorn": "8.18.0",
+        "ada": "4.0.0",
+        "amaro": "1.1.11",
+        "ares": "1.34.8",
+        "brotli": "1.2.0",
+        "cldr": "48.0",
+        "icu": "78.2",
+        "llhttp": "9.4.3",
+        "merve": "1.2.2",
+        "modules": "148",
+        "napi": "10",
+        "nbytes": "0.1.4",
+        "ncrypto": "0.0.1",
+        "nghttp2": "1.70.0",
+        "nghttp3": "",
+        "ngtcp2": "",
+        "openssl": "0.0.0",
+        "simdjson": "4.6.11",
+        "simdutf": "7.7.0",
+        "sqlite": "3.53.4",
+        "tz": "2026d",
+        "undici": "7.29.1",
+        "unicode": "17.0",
+        "uv": "1.52.1",
+        "uvwasi": "0.0.23",
+        "v8": "15.0.245.31-electron.0",
+        "zlib": "1.3.2.1-motley",
+        "zstd": "1.6.0",
+        "electron": "43.8.3",
+        "chrome": "150.0.7871.250"
+      },
+      "hosts": [
+        {
+          "id": 1,
+          "contents": 1,
+          "children": 3
+        }
+      ],
+      "windows": [
+        {
+          "id": 100000,
+          "ready": true,
+          "contents": 2,
+          "pid": 25662,
+          "generation": 1,
+          "context": "window:100000",
+          "workspace": {
+            "id": "882b4a2b9bb7a07194bc8cecd514d56c",
+            "configPath": {
+              "scheme": "file",
+              "authority": "",
+              "path": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace",
+              "query": "",
+              "fragment": "",
+              "_formatted": "file:///tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace",
+              "_fsPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace"
+            }
+          },
+          "profile": "agents",
+          "environmentHash": "368ac2eaa3f488d65b571fd742734d5a8dcb971396debab518d4ac58d527b12f",
+          "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/882b4a2b9bb7a07194bc8cecd514d56c",
+          "title": "Agents"
+        },
+        {
+          "id": 100001,
+          "ready": true,
+          "contents": 3,
+          "pid": 25668,
+          "generation": 2,
+          "context": "window:100001",
+          "workspace": {
+            "id": "1f1138360af72dad2c8921bb0ae431e8",
+            "uri": {
+              "scheme": "file",
+              "authority": "",
+              "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+              "query": "",
+              "fragment": "",
+              "_formatted": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+              "_fsPath": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single"
+            }
+          },
+          "profile": "__default__profile__",
+          "environmentHash": "82fb6106e0ff905f7e4c1d06cbd7b6b5fd8a74cf88ef93fe1c79bb4baa334ddc",
+          "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/8ea84fcd7976d161978869d2d685856f",
+          "title": "Welcome — single"
+        },
+        {
+          "id": 100002,
+          "ready": false,
+          "contents": 5,
+          "pid": 0,
+          "context": "window:100002",
+          "workspace": {
+            "id": "7d098995c6809e5f7cb6fee64eb164ae",
+            "configPath": {
+              "scheme": "file",
+              "authority": "",
+              "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace",
+              "query": "",
+              "fragment": "",
+              "_formatted": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace",
+              "_fsPath": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace"
+            }
+          },
+          "profile": "__default__profile__",
+          "environmentHash": "82fb6106e0ff905f7e4c1d06cbd7b6b5fd8a74cf88ef93fe1c79bb4baa334ddc",
+          "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/7d098995c6809e5f7cb6fee64eb164ae",
+          "title": ""
+        }
+      ],
+      "contents": [
+        {
+          "id": 5,
+          "pid": 0,
+          "type": "window",
+          "crashed": false,
+          "context": "window:100002"
+        },
+        {
+          "id": 3,
+          "pid": 25668,
+          "type": "window",
+          "crashed": false,
+          "generation": 2,
+          "context": "window:100001"
+        },
+        {
+          "id": 2,
+          "pid": 25662,
+          "type": "window",
+          "crashed": false,
+          "generation": 1,
+          "context": "window:100000"
+        },
+        {
+          "id": 1,
+          "pid": 25683,
+          "type": "window",
+          "crashed": false,
+          "context": "unregistered:1"
+        }
+      ],
+      "metrics": [
+        {
+          "pid": 25631,
+          "type": "Browser"
+        },
+        {
+          "pid": 25649,
+          "type": "GPU",
+          "serviceName": "GPU"
+        },
+        {
+          "pid": 25650,
+          "type": "Utility",
+          "name": "Network Service",
+          "serviceName": "network.mojom.NetworkService"
+        },
+        {
+          "pid": 25662,
+          "type": "Tab"
+        },
+        {
+          "pid": 25668,
+          "type": "Tab"
+        },
+        {
+          "pid": 25683,
+          "type": "Tab"
+        },
+        {
+          "pid": 25705,
+          "type": "Utility",
+          "name": "agentHost-1",
+          "serviceName": "node.mojom.NodeService"
+        },
+        {
+          "pid": 25707,
+          "type": "Utility",
+          "name": "shared-process-2",
+          "serviceName": "node.mojom.NodeService"
+        },
+        {
+          "pid": 25708,
+          "type": "Utility",
+          "name": "fileWatcher-3",
+          "serviceName": "node.mojom.NodeService"
+        },
+        {
+          "pid": 25710,
+          "type": "Utility",
+          "name": "extensionHost-4",
+          "serviceName": "node.mojom.NodeService"
+        },
+        {
+          "pid": 25916,
+          "type": "Utility",
+          "name": "fileWatcher-7",
+          "serviceName": "node.mojom.NodeService"
+        },
+        {
+          "pid": 25959,
+          "type": "Utility",
+          "name": "extensionHost-8",
+          "serviceName": "node.mojom.NodeService"
+        }
+      ],
+      "windowCounter": 3,
+      "requests": [
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeBefore",
+          "before": true
+        },
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeBefore",
+          "before": true
+        },
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeWill",
+          "before": false
+        },
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeWill",
+          "before": false
+        },
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeWill",
+          "before": false
+        },
+        {
+          "windowId": 100002,
+          "contents": 4,
+          "channel": "vscode:probeBefore",
+          "before": true
+        },
+        {
+          "windowId": 100000,
+          "contents": 2,
+          "channel": "vscode:onBeforeUnload",
+          "before": true
+        },
+        {
+          "windowId": 100001,
+          "contents": 3,
+          "channel": "vscode:onBeforeUnload",
+          "before": true
+        }
+      ],
+      "results": [
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeBefore",
+          "result": "ok"
+        },
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeBefore",
+          "result": "cancel"
+        },
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeWill",
+          "result": "ok"
+        },
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeWill",
+          "result": "ok"
+        },
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeWill",
+          "result": "interrupted"
+        },
+        {
+          "windowId": 100002,
+          "channel": "vscode:probeBefore",
+          "result": "interrupted"
+        },
+        {
+          "windowId": 100000,
+          "channel": "vscode:onBeforeUnload",
+          "result": "ok"
+        },
+        {
+          "windowId": 100001,
+          "channel": "vscode:onBeforeUnload",
+          "result": "ok"
+        }
+      ]
+    }
+  },
+  "afterCanceledHost": {
+    "versions": {
+      "node": "24.22.0",
+      "acorn": "8.18.0",
+      "ada": "4.0.0",
+      "amaro": "1.1.11",
+      "ares": "1.34.8",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.2",
+      "llhttp": "9.4.3",
+      "merve": "1.2.2",
+      "modules": "148",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.70.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "0.0.0",
+      "simdjson": "4.6.11",
+      "simdutf": "7.7.0",
+      "sqlite": "3.53.4",
+      "tz": "2026d",
+      "undici": "7.29.1",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "15.0.245.31-electron.0",
+      "zlib": "1.3.2.1-motley",
+      "zstd": "1.6.0",
+      "electron": "43.8.3",
+      "chrome": "150.0.7871.250"
+    },
+    "hosts": [
+      {
+        "id": 1,
+        "contents": 1,
+        "children": 2
+      }
+    ],
+    "windows": [
+      {
+        "id": 100000,
+        "ready": true,
+        "contents": 2,
+        "pid": 25662,
+        "generation": 1,
+        "context": "window:100000",
+        "workspace": {
+          "id": "882b4a2b9bb7a07194bc8cecd514d56c",
+          "configPath": {
+            "scheme": "file",
+            "authority": "",
+            "path": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace",
+            "query": "",
+            "fragment": "",
+            "_formatted": "file:///tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace",
+            "_fsPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace"
+          }
+        },
+        "profile": "agents",
+        "environmentHash": "368ac2eaa3f488d65b571fd742734d5a8dcb971396debab518d4ac58d527b12f",
+        "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/882b4a2b9bb7a07194bc8cecd514d56c",
+        "title": "Agents"
+      },
+      {
+        "id": 100001,
+        "ready": true,
+        "contents": 3,
+        "pid": 25668,
+        "generation": 2,
+        "context": "window:100001",
+        "workspace": {
+          "id": "1f1138360af72dad2c8921bb0ae431e8",
+          "uri": {
+            "scheme": "file",
+            "authority": "",
+            "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+            "query": "",
+            "fragment": "",
+            "_formatted": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+            "_fsPath": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single"
+          }
+        },
+        "profile": "__default__profile__",
+        "environmentHash": "82fb6106e0ff905f7e4c1d06cbd7b6b5fd8a74cf88ef93fe1c79bb4baa334ddc",
+        "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/8ea84fcd7976d161978869d2d685856f",
+        "title": "Welcome — single"
+      }
+    ],
+    "contents": [
+      {
+        "id": 3,
+        "pid": 25668,
+        "type": "window",
+        "crashed": false,
+        "generation": 2,
+        "context": "window:100001"
+      },
+      {
+        "id": 2,
+        "pid": 25662,
+        "type": "window",
+        "crashed": false,
+        "generation": 1,
+        "context": "window:100000"
+      },
+      {
+        "id": 1,
+        "pid": 25683,
+        "type": "window",
+        "crashed": false,
+        "context": "unregistered:1"
+      }
+    ],
+    "metrics": [
+      {
+        "pid": 25631,
+        "type": "Browser"
+      },
+      {
+        "pid": 25649,
+        "type": "GPU",
+        "serviceName": "GPU"
+      },
+      {
+        "pid": 25650,
+        "type": "Utility",
+        "name": "Network Service",
+        "serviceName": "network.mojom.NetworkService"
+      },
+      {
+        "pid": 25662,
+        "type": "Tab"
+      },
+      {
+        "pid": 25668,
+        "type": "Tab"
+      },
+      {
+        "pid": 25683,
+        "type": "Tab"
+      },
+      {
+        "pid": 25705,
+        "type": "Utility",
+        "name": "agentHost-1",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25707,
+        "type": "Utility",
+        "name": "shared-process-2",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25708,
+        "type": "Utility",
+        "name": "fileWatcher-3",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25710,
+        "type": "Utility",
+        "name": "extensionHost-4",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25916,
+        "type": "Utility",
+        "name": "fileWatcher-7",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25959,
+        "type": "Utility",
+        "name": "extensionHost-8",
+        "serviceName": "node.mojom.NodeService"
+      }
+    ],
+    "windowCounter": 2,
+    "requests": [
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeBefore",
+        "before": true
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeBefore",
+        "before": true
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeWill",
+        "before": false
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeWill",
+        "before": false
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeWill",
+        "before": false
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeBefore",
+        "before": true
+      },
+      {
+        "windowId": 100000,
+        "contents": 2,
+        "channel": "vscode:onBeforeUnload",
+        "before": true
+      },
+      {
+        "windowId": 100001,
+        "contents": 3,
+        "channel": "vscode:onBeforeUnload",
+        "before": true
+      }
+    ],
+    "results": [
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeBefore",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeBefore",
+        "result": "cancel"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeWill",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeWill",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeWill",
+        "result": "interrupted"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeBefore",
+        "result": "interrupted"
+      },
+      {
+        "windowId": 100000,
+        "channel": "vscode:onBeforeUnload",
+        "result": "ok"
+      },
+      {
+        "windowId": 100001,
+        "channel": "vscode:onBeforeUnload",
+        "result": "ok"
+      }
+    ]
+  },
+  "after": {
+    "versions": {
+      "node": "24.22.0",
+      "acorn": "8.18.0",
+      "ada": "4.0.0",
+      "amaro": "1.1.11",
+      "ares": "1.34.8",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.2",
+      "llhttp": "9.4.3",
+      "merve": "1.2.2",
+      "modules": "148",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.70.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "0.0.0",
+      "simdjson": "4.6.11",
+      "simdutf": "7.7.0",
+      "sqlite": "3.53.4",
+      "tz": "2026d",
+      "undici": "7.29.1",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "15.0.245.31-electron.0",
+      "zlib": "1.3.2.1-motley",
+      "zstd": "1.6.0",
+      "electron": "43.8.3",
+      "chrome": "150.0.7871.250"
+    },
+    "hosts": [
+      {
+        "id": 1,
+        "contents": 1,
+        "children": 2
+      }
+    ],
+    "windows": [
+      {
+        "id": 100000,
+        "ready": true,
+        "contents": 2,
+        "pid": 25662,
+        "generation": 1,
+        "context": "window:100000",
+        "workspace": {
+          "id": "882b4a2b9bb7a07194bc8cecd514d56c",
+          "configPath": {
+            "scheme": "file",
+            "authority": "",
+            "path": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace",
+            "query": "",
+            "fragment": "",
+            "_formatted": "file:///tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace",
+            "_fsPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/User/agent-sessions.code-workspace"
+          }
+        },
+        "profile": "agents",
+        "environmentHash": "368ac2eaa3f488d65b571fd742734d5a8dcb971396debab518d4ac58d527b12f",
+        "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/882b4a2b9bb7a07194bc8cecd514d56c",
+        "title": "Agents"
+      },
+      {
+        "id": 100001,
+        "ready": true,
+        "contents": 3,
+        "pid": 25668,
+        "generation": 2,
+        "context": "window:100001",
+        "workspace": {
+          "id": "1f1138360af72dad2c8921bb0ae431e8",
+          "uri": {
+            "scheme": "file",
+            "authority": "",
+            "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+            "query": "",
+            "fragment": "",
+            "_formatted": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+            "_fsPath": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single"
+          }
+        },
+        "profile": "__default__profile__",
+        "environmentHash": "82fb6106e0ff905f7e4c1d06cbd7b6b5fd8a74cf88ef93fe1c79bb4baa334ddc",
+        "backupPath": "/tmp/code-oss-dev-20261028-134455-25604-dbttOF/user-data/Backups/8ea84fcd7976d161978869d2d685856f",
+        "title": "Welcome — single"
+      }
+    ],
+    "contents": [
+      {
+        "id": 3,
+        "pid": 25668,
+        "type": "window",
+        "crashed": false,
+        "generation": 2,
+        "context": "window:100001"
+      },
+      {
+        "id": 2,
+        "pid": 25662,
+        "type": "window",
+        "crashed": false,
+        "generation": 1,
+        "context": "window:100000"
+      },
+      {
+        "id": 1,
+        "pid": 25683,
+        "type": "window",
+        "crashed": false,
+        "context": "unregistered:1"
+      }
+    ],
+    "metrics": [
+      {
+        "pid": 25631,
+        "type": "Browser"
+      },
+      {
+        "pid": 25649,
+        "type": "GPU",
+        "serviceName": "GPU"
+      },
+      {
+        "pid": 25650,
+        "type": "Utility",
+        "name": "Network Service",
+        "serviceName": "network.mojom.NetworkService"
+      },
+      {
+        "pid": 25662,
+        "type": "Tab"
+      },
+      {
+        "pid": 25668,
+        "type": "Tab"
+      },
+      {
+        "pid": 25683,
+        "type": "Tab"
+      },
+      {
+        "pid": 25705,
+        "type": "Utility",
+        "name": "agentHost-1",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25707,
+        "type": "Utility",
+        "name": "shared-process-2",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25708,
+        "type": "Utility",
+        "name": "fileWatcher-3",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25710,
+        "type": "Utility",
+        "name": "extensionHost-4",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25916,
+        "type": "Utility",
+        "name": "fileWatcher-7",
+        "serviceName": "node.mojom.NodeService"
+      },
+      {
+        "pid": 25959,
+        "type": "Utility",
+        "name": "extensionHost-8",
+        "serviceName": "node.mojom.NodeService"
+      }
+    ],
+    "windowCounter": 2,
+    "requests": [
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeBefore",
+        "before": true
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeBefore",
+        "before": true
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeWill",
+        "before": false
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeWill",
+        "before": false
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeWill",
+        "before": false
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:probeBefore",
+        "before": true
+      },
+      {
+        "windowId": 100000,
+        "contents": 2,
+        "channel": "vscode:onBeforeUnload",
+        "before": true
+      },
+      {
+        "windowId": 100001,
+        "contents": 3,
+        "channel": "vscode:onBeforeUnload",
+        "before": true
+      }
+    ],
+    "results": [
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeBefore",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeBefore",
+        "result": "cancel"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeWill",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeWill",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeWill",
+        "result": "interrupted"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:probeBefore",
+        "result": "interrupted"
+      },
+      {
+        "windowId": 100000,
+        "channel": "vscode:onBeforeUnload",
+        "result": "ok"
+      },
+      {
+        "windowId": 100001,
+        "channel": "vscode:onBeforeUnload",
+        "result": "ok"
+      }
+    ]
+  },
+  "validations": 1,
+  "pending": true,
+  "cancelledRecovery": true,
+  "closeHonored": true
+}

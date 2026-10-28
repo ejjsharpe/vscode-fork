@@ -1,0 +1,5 @@
+{
+  "out/vs/platform/windows/electron-main/windowImpl.js": "772b58bdefa85e65f4068951c9720055a4f67446292f922f1027b58940b9e712",
+  "out/vs/platform/windows/electron-main/prototypeWorkbenchHost.js": "be7e7c8a1899d4285d218acaeac922051722c3b6ce4653e686faa644fb72b8dd",
+  "out/vs/platform/lifecycle/electron-main/lifecycleMainService.js": "24522e1dd2d298de91f0c60db7a1498efb924f6695eaa1019bbf090435e8ce2a"
+}

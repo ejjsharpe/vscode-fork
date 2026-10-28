@@ -1,0 +1,9 @@
+file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/lifecycle-replies/inspect.mjs:14
+if(result.error || result.result?.exceptionDetails) {throw new Error(JSON.stringify(result));}
+                                                           ^
+
+Error: {"id":1,"result":{"result":{"type":"object","value":{"generatedMessage":false,"code":"ERR_ASSERTION","actual":true,"expected":false,"operator":"strictEqual","diff":"simple"}},"exceptionDetails":{"exceptionId":1,"text":"Uncaught (in promise) AssertionError: Reentrant Close must not report success while the same disposal fails\n\ntrue !== false\n","lineNumber":0,"columnNumber":0,"exception":{"type":"object","subtype":"error","className":"AssertionError","description":"AssertionError: Reentrant Close must not report success while the same disposal fails\n\ntrue !== false\n\n    at <anonymous>:46:9","objectId":"-2724416396476886746.1.1"}}}}
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-2/work/escode-prototype/prototypes/live-hosting/lifecycle-replies/inspect.mjs:14:60
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.22.1
