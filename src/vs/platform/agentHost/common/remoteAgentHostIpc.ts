@@ -225,16 +225,24 @@ export function createSSHRemoteAgentHostChannel(service: ISSHRemoteAgentHostMain
 						if (previous && previous !== result.connectionId && owners.resources.has(previous)) { owners.resources.get(previous)!.replacement = result.connectionId; }
 						return result as T;
 					}
-					case 'relaySend': case 'releaseRelay':
+					case 'relaySend': case 'releaseRelay': {
 						owners.require(context, args[0], command !== 'relaySend');
+						const owner = owners.resources.get(args[0]);
 						await proxy.call('', command, args, token);
-						if (command === 'releaseRelay') { owners.resources.delete(args[0]); }
+						if (command === 'releaseRelay' && owners.resources.get(args[0]) === owner) { owners.resources.delete(args[0]); }
 						owners.check(context);
 						return undefined as T;
+					}
 					case 'disconnect': {
-						const ids = [...owners.resources].filter(([id, owner]) => owner.context === context && (owner.key === args[0] || id === args[0])).map(([id]) => id);
+						const ids = [...owners.resources].filter(([id, owner]) => owner.context === context && !owner.replacement && (owner.key === args[0] || id === args[0])).map(([id]) => id);
 						if (ids.length === 0) { throw new Error('Unknown or foreign SSH host'); }
-						for (const id of ids) { await service.releaseRelay(id); owners.resources.delete(id); }
+						for (const id of ids) {
+							if (lifetime.isCancellationRequested) { throw new CancellationError(); }
+							owners.require(context, id, true);
+							const owner = owners.resources.get(id);
+							await service.releaseRelay(id);
+							if (owners.resources.get(id) === owner) { owners.resources.delete(id); }
+						}
 						return undefined as T;
 					}
 					case 'respondKeyboardInteractive': case 'respondEndpointSelection': case 'respondHostKeyVerification': {
@@ -286,16 +294,24 @@ export function createWSLRemoteAgentHostChannel(service: IWSLRemoteAgentHostMain
 						if (previous && previous !== result.connectionId && owners.resources.has(previous)) { owners.resources.get(previous)!.replacement = result.connectionId; }
 						return result as T;
 					}
-					case 'relaySend': case 'releaseRelay':
+					case 'relaySend': case 'releaseRelay': {
 						owners.require(context, args[0], command !== 'relaySend');
+						const owner = owners.resources.get(args[0]);
 						await proxy.call('', command, args, token);
-						if (command === 'releaseRelay') { owners.resources.delete(args[0]); }
+						if (command === 'releaseRelay' && owners.resources.get(args[0]) === owner) { owners.resources.delete(args[0]); }
 						owners.check(context);
 						return undefined as T;
+					}
 					case 'disconnect': {
-						const ids = [...owners.resources].filter(([, owner]) => owner.context === context && owner.key === `wsl:${args[0]}`).map(([id]) => id);
+						const ids = [...owners.resources].filter(([, owner]) => owner.context === context && !owner.replacement && owner.key === `wsl:${args[0]}`).map(([id]) => id);
 						if (ids.length === 0) { throw new Error('Unknown or foreign WSL distro'); }
-						for (const id of ids) { await service.releaseRelay(id); owners.resources.delete(id); }
+						for (const id of ids) {
+							if (lifetime.isCancellationRequested) { throw new CancellationError(); }
+							owners.require(context, id, true);
+							const owner = owners.resources.get(id);
+							await service.releaseRelay(id);
+							if (owners.resources.get(id) === owner) { owners.resources.delete(id); }
+						}
 						return undefined as T;
 					}
 					case 'isWSLAvailable': case 'listDistros': case 'listRunningDistros': {
@@ -358,11 +374,13 @@ export function createTunnelAgentHostChannel(service: ITunnelAgentHostMainServic
 					case 'connect':
 						if (deleting.has(args[2])) { throw new Error('Tunnel deletion is pending'); }
 						return await owners.connect(context, args[2], () => service.connect(args[0], args[1], args[2], args[3], lifetime), id => service.disconnect(id), lifetime) as T;
-					case 'relaySend': case 'disconnect':
+					case 'relaySend': case 'disconnect': {
 						owners.require(context, args[0], command !== 'relaySend');
+						const owner = owners.resources.get(args[0]);
 						await proxy.call('', command, args, token);
-						if (command === 'disconnect') { owners.resources.delete(args[0]); }
+						if (command === 'disconnect' && owners.resources.get(args[0]) === owner) { owners.resources.delete(args[0]); }
 						owners.check(context); return undefined as T;
+					}
 					case 'deleteTunnel': {
 						if (deleting.has(args[2]) || preparing.has(args[2]) || owners.pending.has(args[2])) { throw new Error('Tunnel has pending operations'); }
 						if ([...owners.resources.values(), ...selections.values()].some(owner => owner.key === args[2] && owner.context !== context)) { throw new Error('Tunnel has foreign live resources'); }
@@ -412,11 +430,13 @@ export function createOwnedDevContainerAgentHostChannel(service: IDevContainerAg
 						catch (error) { if (owners.resources.get(config.connectionId)?.token === lifetime) { owners.resources.delete(config.connectionId); } throw error; }
 						finally { connecting.delete(config.connectionId); }
 					}
-					case 'relaySend': case 'disconnect':
+					case 'relaySend': case 'disconnect': {
 						owners.require(context, args[0], command !== 'relaySend');
+						const owner = owners.resources.get(args[0]);
 						await proxy.call('', command, args, token);
-						if (command === 'disconnect') { owners.resources.delete(args[0]); }
+						if (command === 'disconnect' && owners.resources.get(args[0]) === owner) { owners.resources.delete(args[0]); }
 						owners.check(context); return undefined as T;
+					}
 					case 'stopContainer': case 'removeContainer': {
 						const key = getDevContainerAgentHostSourceKey(args[0]);
 						const validate = () => {
