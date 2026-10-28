@@ -1,0 +1,3 @@
+First race assertion failed: after Close and delayed retry, expected 2 child views, actual 3.
+Subsequent stable inspection in race-state.json retained three ready logical workbenches, with the target on replacement WebContents 9.
+close-race.js repeats the overlap deterministically and preserves every state, proving Close returned while hostClosing=true without closing or canceling recovery.

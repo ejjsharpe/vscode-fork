@@ -1,0 +1,14 @@
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/main.log:9:2026-10-28 12:02:11.239 [info] Extension host with pid 9808 exited with code: 0, signal: unknown.
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/main.log:11:2026-10-28 12:03:36.979 [info] Extension host with pid 10565 exited with code: 0, signal: unknown.
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100000/renderer.log:9:2026-10-28 12:00:44.454 [info] Started local extension host with pid 9792.
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100002/exthost/exthost.log:1:2026-10-28 12:00:47.598 [info] Extension host with pid 9808 started
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100002/exthost/exthost.log:12:2026-10-28 12:02:11.238 [info] Extension host with pid 9808 exiting with code 0
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100002/exthost/exthost.log:13:2026-10-28 12:02:16.965 [info] Extension host with pid 10565 started
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100002/exthost/exthost.log:24:2026-10-28 12:03:36.929 [info] Extension host with pid 10565 exiting with code 0
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100002/exthost/exthost.log:25:2026-10-28 12:03:56.123 [info] Extension host with pid 10685 started
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100001/renderer.log:5:2026-10-28 12:00:38.669 [info] Started local extension host with pid 9774.
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100002/renderer.log:210:2026-10-28 12:00:47.115 [info] Started local extension host with pid 9808.
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100002/renderer.log:283:2026-10-28 12:02:16.297 [info] Started local extension host with pid 10565.
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100002/renderer.log:323:2026-10-28 12:03:55.464 [info] Started local extension host with pid 10685.
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100001/exthost/exthost.log:1:2026-10-28 12:00:41.040 [info] Extension host with pid 9774 started
+/tmp/code-oss-dev-20261028-120024-9655-l1hVjV/user-data/logs/20261028T120029/window100000/exthost/exthost.log:1:2026-10-28 12:00:45.116 [info] Extension host with pid 9792 started
