@@ -12,10 +12,15 @@ import { isErrorWithActions, toErrorMessage } from '../../../../base/common/erro
 import { Disposable, DisposableMap, DisposableStore, IDisposable, MutableDisposable, toDisposable, IReference } from '../../../../base/common/lifecycle.js';
 import { ResourceMap } from '../../../../base/common/map.js';
 import { IArtifactModel } from '../../../../platform/artifactIntegrations/common/artifactIntegration.js';
-import { IObservable, observableValue } from '../../../../base/common/observable.js';
+import { autorun, IObservable, observableValue } from '../../../../base/common/observable.js';
+import { basename } from '../../../../base/common/resources.js';
+import { Schemas } from '../../../../base/common/network.js';
 import { URI } from '../../../../base/common/uri.js';
 import { ILogService } from '../../../../platform/log/common/log.js';
-import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { INotificationService, Severity } from '../../../../platform/notification/common/notification.js';
+import { IQuickInputService, IQuickPickItem } from '../../../../platform/quickinput/common/quickInput.js';
+import { IFileDialogService } from '../../../../platform/dialogs/common/dialogs.js';
+import { IWorkspacesService, isRecentWorkspace } from '../../../../platform/workspaces/common/workspaces.js';
 import { agentHostAuthority } from '../../../../platform/agentHost/common/agentHostUri.js';
 import { IRemoteAgentHostService } from '../../../../platform/agentHost/common/remoteAgentHostService.js';
 import { IChatService } from '../../../../workbench/contrib/chat/common/chatService/chatService.js';
@@ -37,6 +42,11 @@ import { localize } from '../../../../nls.js';
 
 /** Storage key for the last session type used to create a quick chat. */
 const LAST_USED_QUICK_CHAT_SESSION_TYPE_STORAGE_KEY = 'sessions.quickChat.lastUsedSessionType';
+
+interface IChatHomePick extends IQuickPickItem {
+	readonly home?: ChatHomeWorkspace;
+	readonly browse?: 'folder' | 'workspace';
+}
 
 export class SessionsManagementService extends Disposable implements ISessionsManagementService {
 
@@ -75,6 +85,8 @@ export class SessionsManagementService extends Disposable implements ISessionsMa
 	private readonly _onDidInvokeChangesetOperation = this._register(new Emitter<ISessionChangesetOperationInvokedEvent>());
 	readonly onDidInvokeChangesetOperation: Event<ISessionChangesetOperationInvokedEvent> = this._onDidInvokeChangesetOperation.event;
 	private readonly _explicitlyMarkedUnreadChats = new ResourceMap<ResourceMap<number | undefined>>();
+	private readonly _chatHomeOffer = this._register(new MutableDisposable<DisposableStore>());
+	private _chatHomeOfferTarget: { readonly key: string; readonly chat: IChat } | undefined;
 
 	private readonly _onDidDiscardNewSession = this._register(new Emitter<ISession>());
 	readonly onDidDiscardNewSession: Event<ISession> = this._onDidDiscardNewSession.event;
@@ -115,6 +127,9 @@ export class SessionsManagementService extends Disposable implements ISessionsMa
 		@IRemoteAgentHostService private readonly remoteAgentHostService: IRemoteAgentHostService,
 		@IWorkspaceTrustManagementService private readonly workspaceTrustManagementService: IWorkspaceTrustManagementService,
 		@INotificationService private readonly notificationService: INotificationService,
+		@IQuickInputService private readonly quickInputService: IQuickInputService,
+		@IWorkspacesService private readonly workspacesService: IWorkspacesService,
+		@IFileDialogService private readonly fileDialogService: IFileDialogService,
 	) {
 		super();
 
@@ -748,6 +763,87 @@ export class SessionsManagementService extends Disposable implements ISessionsMa
 			throw new Error(localize('chatHomeAssignmentUnavailable', "This provider cannot change the chat's project."));
 		}
 		await provider.setChatHomeWorkspace(session.sessionId, chat.resource, home);
+	}
+
+	offerChatHomeWorkspace(session: ISession, chat: IChat): void {
+		const key = `${session.providerId}\0${chat.resource.toString()}`;
+		if (this._chatHomeOfferTarget?.key === key && this._chatHomeOfferTarget.chat === chat) {
+			return;
+		}
+		this._chatHomeOfferTarget = { key, chat };
+		this._chatHomeOffer.clear();
+		if (chat.status.get() === SessionStatus.Untitled) {
+			return;
+		}
+		const store = new DisposableStore();
+		this._chatHomeOffer.value = store;
+		const notification = store.add(new MutableDisposable<IDisposable>());
+		let offered = false;
+		store.add(autorun(reader => {
+			if (session.loading.read(reader)) {
+				return;
+			}
+			if (chat.homeWorkspace?.read(reader) !== undefined) {
+				notification.clear();
+				return;
+			}
+			if (offered) {
+				return;
+			}
+			offered = true;
+			const handle = this.notificationService.prompt(Severity.Info,
+				localize('chatHomeUnresolved', "Choose a project for '{0}'. You can keep using this conversation in Agents.", chat.title.read(undefined)),
+				[{ label: localize('chooseChatHome', "Choose Project"), run: async () => {
+					try {
+						await this.chooseChatHomeWorkspace(session, chat);
+					} catch (error) {
+						this.notificationService.error(error);
+					}
+				} }]);
+			notification.value = toDisposable(() => handle.close());
+		}));
+	}
+
+	async chooseChatHomeWorkspace(session: ISession, chat: IChat): Promise<void> {
+		if (!this._getProvider(session)?.setChatHomeWorkspace) {
+			throw new Error(localize('chatHomeAssignmentUnavailable', "This provider cannot change the chat's project."));
+		}
+		const recents = await this.workspacesService.getRecentlyOpened();
+		const items: IChatHomePick[] = [{ label: localize('chatHomeNoWorkspace', "No Workspace"), home: null }];
+		for (const recent of recents.workspaces) {
+			const workspace = isRecentWorkspace(recent);
+			const uri = workspace ? recent.workspace.configPath : recent.folderUri;
+			items.push({
+				label: recent.label ?? basename(uri),
+				description: recent.remoteAuthority ? localize('chatHomeRemoteDescription', "{0} [{1}]", uri.toString(), recent.remoteAuthority) : uri.toString(),
+				home: { kind: workspace ? 'workspace' : 'folder', uri: uri.toString(), ...(recent.remoteAuthority ? { remoteAuthority: recent.remoteAuthority } : {}) },
+			});
+		}
+		items.push({ label: localize('chatHomeBrowseFolder', "Browse for Folder..."), browse: 'folder' },
+			{ label: localize('chatHomeBrowseWorkspace', "Browse for Workspace..."), browse: 'workspace' });
+		const picked = await this.quickInputService.pick(items, {
+			title: localize('chooseChatHome', "Choose Project"),
+			placeHolder: localize('chooseChatHomePlaceholder', "Select this conversation's home workspace"),
+			matchOnDescription: true,
+		});
+		if (!picked) {
+			return;
+		}
+		let home = picked.home;
+		if (picked.browse) {
+			const files = await this.fileDialogService.showOpenDialog({
+				canSelectFolders: picked.browse === 'folder', canSelectFiles: picked.browse === 'workspace', canSelectMany: false,
+				availableFileSystems: [Schemas.file],
+				...(picked.browse === 'workspace' ? { filters: [{ name: localize('chatHomeWorkspaceFile', "Workspace"), extensions: ['code-workspace'] }] } : {}),
+			});
+			if (!files?.[0]) {
+				return;
+			}
+			home = { kind: picked.browse, uri: files[0].toString() };
+		}
+		if (home !== undefined) {
+			await this.setChatHomeWorkspace(session, chat, home);
+		}
 	}
 
 	async applyNestedChatWorkspace(session: ISession, chat: IChat, workspace: INestedChatWorkspace, prompt: string): Promise<void> {

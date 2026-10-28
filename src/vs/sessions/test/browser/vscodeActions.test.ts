@@ -44,7 +44,8 @@ suite('Web Open in Editor', () => {
 			const session = upcastPartial<IActiveSession>({
 				resource: URI.from({ scheme: 'test', path: '/session' }),
 				providerId: 'test',
-				activeChat: constObservable(upcastPartial<IChat>({ workspace: constObservable(workspace) })),
+				loading: constObservable(false),
+				activeChat: constObservable(upcastPartial<IChat>({ workspace: constObservable(workspace), homeWorkspace: constObservable({ kind: 'folder', uri: folder.toString() }) })),
 			});
 			const provider: ISessionsProvider = upcastPartial<IAgentHostSessionsProvider>({ id: 'agenthost-test', remoteAddress: connection.address });
 			instantiationService.stub(ISessionsService, upcastPartial<ISessionsService>({ activeSession: constObservable(session) }));
