@@ -8,6 +8,8 @@ import { ILifecycleMainService, LifecycleMainPhase } from '../../lifecycle/elect
 import { ILogService } from '../../log/common/log.js';
 import { ICommonMenubarService, IMenubarData } from '../common/menubar.js';
 import { Menubar } from './menubar.js';
+import { IWindowsMainService } from '../../windows/electron-main/windows.js';
+import { prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
 
 export const IMenubarMainService = createDecorator<IMenubarMainService>('menubarMainService');
@@ -25,7 +27,8 @@ export class MenubarMainService extends Disposable implements IMenubarMainServic
 	constructor(
 		@IInstantiationService private readonly instantiationService: IInstantiationService,
 		@ILifecycleMainService private readonly lifecycleMainService: ILifecycleMainService,
-		@ILogService private readonly logService: ILogService
+		@ILogService private readonly logService: ILogService,
+		@IWindowsMainService private readonly windowsMainService: IWindowsMainService
 	) {
 		super();
 
@@ -41,7 +44,13 @@ export class MenubarMainService extends Disposable implements IMenubarMainServic
 	async updateMenubar(windowId: number, menus: IMenubarData): Promise<void> {
 		this.logService.trace('menubarService#updateMenubar', windowId);
 
+		const window = this.windowsMainService.getWindowById(windowId);
+		const contents = window?.webContents;
+		const generation = contents && prototypeDocumentGeneration(contents);
 		const menubar = await this.menubar;
+		if (!contents || contents.isDestroyed() || window?.webContents !== contents || generation === undefined || prototypeDocumentGeneration(contents) !== generation) {
+			throw new Error('Rejected expired native menu owner');
+		}
 		menubar.updateMenu(menus, windowId);
 	}
 }

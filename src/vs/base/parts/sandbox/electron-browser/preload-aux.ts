@@ -6,6 +6,13 @@
 (function () {
 
 	const { ipcRenderer, webFrame, contextBridge } = require('electron');
+	let documentNonce: string | undefined;
+	let authorizeDocument!: () => void;
+	const documentAuthorized = new Promise<void>(resolve => { authorizeDocument = resolve; });
+	ipcRenderer.once('vscode:prototype-bootstrap', (_event: Electron.IpcRendererEvent, nonce: string) => {
+		documentNonce = nonce;
+		authorizeDocument();
+	});
 
 	function validateIPC(channel: string): true | never {
 		if (!channel?.startsWith('vscode:')) {
@@ -29,9 +36,12 @@
 				}
 			},
 
-			invoke(channel: string, ...args: unknown[]): Promise<unknown> {
+			async invoke(channel: string, ...args: unknown[]): Promise<unknown> {
 				validateIPC(channel);
-
+				if (channel === 'vscode:registerAuxiliaryWindow') {
+					await documentAuthorized;
+					return ipcRenderer.invoke(channel, ...args, documentNonce);
+				}
 				return ipcRenderer.invoke(channel, ...args);
 			}
 		},

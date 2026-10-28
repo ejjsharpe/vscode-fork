@@ -4,14 +4,20 @@
  *--------------------------------------------------------------------------------------------*/
 
 // THROWAWAY: main-owned document bootstrap and revocable connection bindings.
-import { randomUUID } from 'node:crypto';
-import { WebContents } from 'electron';
+import { randomUUID } from 'crypto';
+import { IpcMainEvent, IpcMainInvokeEvent, WebContents } from 'electron';
 import { Emitter } from '../../../common/event.js';
+
+export interface IPrototypeWorkbenchScope {
+	readonly role: 'project' | 'agents' | 'auxiliary';
+	readonly workspaceId?: string;
+	readonly remoteAuthority?: string;
+}
 
 let generation = 0;
 let connection = 0;
-const documents = new Map<number, { generation: number; nonce?: string; workbench: number; retired?: boolean; lifecycleReady?: boolean }>();
-const bindings = new Map<string, { contents: WebContents; generation: number; workbench: number }>();
+const documents = new Map<number, { generation: number; nonce?: string; workbench: number; scope: IPrototypeWorkbenchScope; retired?: boolean; lifecycleReady?: boolean }>();
+const bindings = new Map<string, { contents: WebContents; generation: number; workbench: number; scope: IPrototypeWorkbenchScope }>();
 const revoked = new Emitter<string>();
 export const onPrototypeConnectionRevoked = revoked.event;
 const documentRevoked = new Emitter<{ contents: WebContents; generation: number; reason: string }>();
@@ -40,8 +46,8 @@ export function retirePrototypeDocument(contents: WebContents, reason: string): 
 	revokePrototypeDocument(contents, reason);
 }
 
-export function registerPrototypeDocument(contents: WebContents, workbench: number): void {
-	documents.set(contents.id, { generation: 0, workbench });
+export function registerPrototypeDocument(contents: WebContents, workbench: number, scope: IPrototypeWorkbenchScope = { role: 'project' }): void {
+	documents.set(contents.id, { generation: 0, workbench, scope: { ...scope } });
 	contents.on('did-start-navigation', (_event, _url, inPlace, mainFrame) => {
 		if (mainFrame && !inPlace) { revokePrototypeDocument(contents, 'navigation'); }
 	});
@@ -66,9 +72,23 @@ export function bindPrototypeConnection(contents: WebContents, nonce: unknown): 
 	const document = documents.get(contents.id);
 	if (!document?.nonce || nonce !== document.nonce) { return undefined; }
 	const context = `window:${document.workbench}:document:${document.generation}:connection:${++connection}`;
-	bindings.set(context, { contents, generation: document.generation, workbench: document.workbench });
+	bindings.set(context, { contents, generation: document.generation, workbench: document.workbench, scope: { ...document.scope } });
 	console.log('[lifetime-probe] connection', context);
 	return context;
+}
+
+/** Authenticates a direct request before creating its independently revocable connection. */
+export function prototypeRequestContext(event: IpcMainEvent | IpcMainInvokeEvent, nonce: unknown): string {
+	if (event.senderFrame !== event.sender.mainFrame) { throw new Error('Rejected non-main-frame request'); }
+	const context = bindPrototypeConnection(event.sender, nonce);
+	if (!context) { throw new Error('Rejected unknown or stale document'); }
+	return context;
+}
+
+/** Main updates the next document's configured scope before navigating to it. */
+export function configurePrototypeDocument(contents: WebContents, scope: IPrototypeWorkbenchScope): void {
+	const document = documents.get(contents.id);
+	if (document) { document.scope = { ...scope }; }
 }
 
 export function prototypeBinding(context: string) {
