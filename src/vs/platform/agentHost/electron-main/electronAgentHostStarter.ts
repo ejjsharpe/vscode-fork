@@ -374,8 +374,9 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 			const owner = this._clientOwners.get(clientId);
 			if (owner && (owner.contentsId !== e.sender.id || owner.generation !== binding.generation)) { revokePrototypeConnection(context); throw new Error('Rejected foreign or retired Agent Host client identity'); }
 			this._clientOwners.set(clientId, { contentsId: e.sender.id, generation: binding.generation });
-			this._trackWindowSender(e.sender);
 		}
+		// Diagnostic-only windows also need restart notification, without acquiring provider identity.
+		this._trackWindowSender(e.sender);
 
 		if (this._exitSettled) {
 			await this._exitSettled;

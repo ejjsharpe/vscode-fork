@@ -22,7 +22,7 @@ import { createDecorator, ServicesAccessor } from '../../../../../platform/insta
 import { InstantiationType, registerSingleton } from '../../../../../platform/instantiation/common/extensions.js';
 import { ILogService } from '../../../../../platform/log/common/log.js';
 import { INotificationService, Severity } from '../../../../../platform/notification/common/notification.js';
-import { IV8InspectProfilingService, IV8Profile, Utils } from '../../../../../platform/profiling/common/profiling.js';
+import { IV8Profile, Utils } from '../../../../../platform/profiling/common/profiling.js';
 import { IsSessionsWindowContext } from '../../../../common/contextkeys.js';
 import { IStatusbarEntryAccessor, IStatusbarService, StatusbarAlignment } from '../../../../services/statusbar/browser/statusbar.js';
 import { IEditorService, SIDE_GROUP } from '../../../../services/editor/common/editorService.js';
@@ -59,7 +59,6 @@ class AgentHostProfileService extends Disposable implements IAgentHostProfileSer
 
 	constructor(
 		@IAgentHostService private readonly agentHostService: IAgentHostService,
-		@IV8InspectProfilingService private readonly profilingService: IV8InspectProfilingService,
 		@IContextKeyService private readonly contextKeyService: IContextKeyService,
 		@IStatusbarService private readonly statusbarService: IStatusbarService,
 		@IFileDialogService private readonly fileDialogService: IFileDialogService,
@@ -78,7 +77,7 @@ class AgentHostProfileService extends Disposable implements IAgentHostProfileSer
 			this.sessionId = undefined;
 			this.profileState.set(AgentHostProfileState.None);
 			if (sessionId) {
-				void this.profilingService.stopProfiling(sessionId).catch(error => {
+				void this.stopCpuProfile(sessionId).catch(error => {
 					this.logService.error('Failed to stop the agent host profiling session during disposal', error);
 				});
 			}
@@ -98,22 +97,24 @@ class AgentHostProfileService extends Disposable implements IAgentHostProfileSer
 		return this.startPromise;
 	}
 
+	private startCpuProfile(): Promise<string> {
+		if (!this.agentHostService.startCpuProfile || !this.agentHostService.stopCpuProfile) {
+			return Promise.reject(new Error(localize('profileAgentHost.unavailable', "CPU profiling is unavailable for this agent host.")));
+		}
+		return this.agentHostService.startCpuProfile();
+	}
+
+	private stopCpuProfile(id: string): Promise<IV8Profile> {
+		if (!this.agentHostService.stopCpuProfile) { return Promise.reject(new Error('CPU profiling is unavailable')); }
+		return this.agentHostService.stopCpuProfile(id);
+	}
+
 	private async doStartProfiling(): Promise<void> {
 		try {
-			const inspectInfo = await this.agentHostService.getInspectInfo(true);
-			if (this.isDisposed) {
-				return;
-			}
-			if (!inspectInfo) {
-				this.notificationService.warn(localize('profileAgentHost.noInspectPort', "Could not enable the Node.js inspector for the agent host process."));
-				this.profileState.set(AgentHostProfileState.None);
-				return;
-			}
-
-			const sessionId = await this.profilingService.startProfiling({ host: inspectInfo.host, port: inspectInfo.port });
+			const sessionId = await this.startCpuProfile();
 			if (this.isDisposed) {
 				try {
-					await this.profilingService.stopProfiling(sessionId);
+					await this.stopCpuProfile(sessionId);
 				} catch (error) {
 					this.logService.error('Failed to stop the agent host profiling session during disposal', error);
 				}
@@ -152,7 +153,7 @@ class AgentHostProfileService extends Disposable implements IAgentHostProfileSer
 			this.profilingNotification.clear();
 			if (sessionId) {
 				try {
-					await this.profilingService.stopProfiling(sessionId);
+					await this.stopCpuProfile(sessionId);
 				} catch (stopError) {
 					this.logService.error('Failed to clean up the agent host profiling session', stopError);
 				}
@@ -179,7 +180,7 @@ class AgentHostProfileService extends Disposable implements IAgentHostProfileSer
 
 		let profile: IV8Profile;
 		try {
-			profile = await this.profilingService.stopProfiling(sessionId);
+			profile = await this.stopCpuProfile(sessionId);
 		} catch (error) {
 			this.profileState.set(AgentHostProfileState.None);
 			this.notificationService.error(localize('profileAgentHost.stopFailed', "Failed to stop profiling the agent host: {0}", getErrorMessage(error)));
