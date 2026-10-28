@@ -1,0 +1,249 @@
+### Open tabs
+- 0: (current) [Welcome — multi (Workspace)](vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html)
+- 1: [Agents](vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/sessions/electron-browser/sessions-dev.html)
+- 2: [Welcome — single](vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html)
+- 3: [Disposable hosting probe](data:text/html;charset=utf-8,%3Cmeta%20http-equiv%3D%22Content-Security-Policy%22%20content%3D%22default-src%20'none'%3B%20style-src%20'unsafe-inline'%22%3E%3Ctitle%3EDisposable%20hosting%20probe%3C%2Ftitle%3E%3Cstyle%3Ebody%7Bmargin%3A0%3Bbackground%3A%23202020%3Bcolor%3Awhite%3Bfont%3A14px%20system-ui%7Dnav%7Bheight%3A42px%3Bdisplay%3Aflex%3Balign-items%3Acenter%3Bgap%3A20px%3Bpadding%3A0%2020px%3Boverflow%3Aauto%3Bwhite-space%3Anowrap%7Da%7Bcolor%3Ainherit%7Da%3Afocus-visible%7Boutline%3A2px%20solid%20currentColor%3Boutline-offset%3A2px%7D%3C%2Fstyle%3E%3Cnav%3E%3Cspan%3E%3Ca%20href%3D%22https%3A%2F%2Fprototype.invalid%2Fselect%2F100000%22%3EAgents%20(100000)%3C%2Fa%3E%3C%2Fspan%3E%20%3Cspan%3E%3Ca%20href%3D%22https%3A%2F%2Fprototype.invalid%2Fselect%2F100001%22%3EProject%201%20(100001)%3C%2Fa%3E%3C%2Fspan%3E%20%3Cspan%3E%3Ca%20href%3D%22https%3A%2F%2Fprototype.invalid%2Fselect%2F100002%22%3EProject%202%20(100002)%3C%2Fa%3E%3C%2Fspan%3E%3C%2Fnav%3E)
+### Page
+- Page URL: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html
+- Page Title: Welcome — multi (Workspace)
+- Console: 0 errors, 2 warnings
+### Snapshot
+```yaml
+- application [ref=e2]:
+  - generic [ref=e6]:
+    - generic [ref=e8]:
+      - toolbar [ref=e16]:
+        - button "Go Back (⌃-)" [disabled] [ref=e17]: 
+        - button "Go Forward (⌃⇧-)" [disabled] [ref=e18]: 
+        - toolbar "Agent Status" [ref=e19] [cursor=pointer]:
+          - generic [ref=e20]:
+            - button "Open Quick Access" [ref=e21]:
+              - generic [ref=e22]: multi (Workspace)
+            - generic [ref=e23]:
+              - button "Toggle Chat" [ref=e24]:
+                - button "Toggle Chat" [ref=e25]: 
+              - button "More Actions" [ref=e29]: 
+      - generic [ref=e30]:
+        - toolbar [ref=e34]:
+          - button "Open in Agents Window (⇧⌥⌘A)" [ref=e35] [cursor=pointer]:
+            - generic: Open in Agents
+          - button "Sign In" [ref=e37] [cursor=pointer]:
+            - generic [ref=e39]: Sign In
+        - toolbar "Title actions" [ref=e43]:
+          - button "Customize Layout..." [ref=e44] [cursor=pointer]: 
+          - button "Toggle Primary Side Bar (⌘B)" [pressed] [ref=e45] [cursor=pointer]: 
+          - button "Toggle Panel (⌘J)" [ref=e46] [cursor=pointer]: 
+          - button "Toggle Secondary Side Bar (⌥⌘B)" [pressed] [ref=e47] [cursor=pointer]: 
+    - banner "Restricted Mode is intended for safe code browsing. Trust this workspace to enable all features. Use navigation keys to access banner actions." [ref=e49]:
+      - generic [ref=e51]: 
+      - generic [ref=e52]: Restricted Mode is intended for safe code browsing. Trust this workspace to enable all features.
+      - generic [ref=e53]:
+        - button "Manage" [ref=e54] [cursor=pointer]
+        - button "Learn More" [ref=e55] [cursor=pointer]
+      - toolbar [ref=e58]:
+        - button "Close Banner" [ref=e59] [cursor=pointer]: 
+    - generic [ref=e65]:
+      - generic [ref=e67]:
+        - tablist "Active View Switcher" [ref=e70]:
+          - tab "Explorer (⇧⌘E)" [expanded] [selected] [ref=e71] [cursor=pointer]:
+            - generic "Explorer (⇧⌘E)" [ref=e72]: 
+          - tab "Search (⇧⌘F)" [ref=e73] [cursor=pointer]:
+            - generic "Search (⇧⌘F)" [ref=e74]: 
+          - tab "Source Control (⌃⇧G)" [ref=e75] [cursor=pointer]:
+            - generic "Source Control (⌃⇧G)" [ref=e76]: 
+          - tab "Run and Debug (⇧⌘D)" [ref=e77] [cursor=pointer]:
+            - generic "Run and Debug (⇧⌘D)" [ref=e78]: 
+          - tab "Extensions (⇧⌘X)" [ref=e79] [cursor=pointer]:
+            - generic "Extensions (⇧⌘X)" [ref=e80]: 
+        - toolbar "Manage" [ref=e83]:
+          - button "Accounts" [ref=e84] [cursor=pointer]:
+            - generic "Accounts" [ref=e85]: 
+          - button "Manage" [ref=e86] [cursor=pointer]:
+            - generic "Manage" [ref=e87]: 
+      - generic [ref=e88]:
+        - generic [ref=e89]:
+          - heading "Explorer" [level=2] [ref=e91]
+          - toolbar "Explorer actions" [ref=e95]:
+            - button "Views and More Actions..." [ref=e98] [cursor=pointer]: 
+          - generic:
+            - generic:
+              - generic:
+                - toolbar
+        - generic [ref=e103]:
+          - generic [ref=e105]:
+            - 'button "Explorer Section: multi (Workspace)" [expanded] [ref=e106] [cursor=pointer]':
+              - generic [ref=e107]: 
+              - text: 
+              - 'heading "Explorer Section: multi (Workspace)" [level=3] [ref=e108]': multi (Workspace)
+              - text:    
+            - tree "Files Explorer" [ref=e111]:
+              - generic [ref=e112]:
+                - treeitem "multi-a" [expanded] [level=1] [ref=e113] [cursor=pointer]:
+                  - generic [ref=e114]:
+                    - generic [ref=e115]: 
+                    - generic "~/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi-a" [ref=e117]:
+                      - generic [ref=e120]: multi-a
+                - treeitem "multi-b" [expanded] [level=1] [ref=e121] [cursor=pointer]:
+                  - generic [ref=e122]:
+                    - generic [ref=e123]: 
+                    - generic "~/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi-b" [ref=e125]:
+                      - generic [ref=e128]: multi-b
+          - button "Outline Section" [ref=e131] [cursor=pointer]:
+            - generic [ref=e132]: 
+            - text: 
+            - heading "Outline" [level=3] [ref=e133]
+            - text:  
+          - button "Timeline Section" [ref=e136] [cursor=pointer]:
+            - generic [ref=e137]: 
+            - text: 
+            - heading "Timeline" [level=3] [ref=e138]
+            - text:    
+      - main [ref=e147]:
+        - generic [ref=e155]:
+          - text:   
+          - generic [ref=e157]:
+            - tablist [ref=e158]:
+              - tab "Welcome, preview" [selected] [ref=e159] [cursor=pointer]:
+                - generic "Welcome" [ref=e160]:
+                  - generic [ref=e162]: Welcome
+                - toolbar "Tab actions" [ref=e165]:
+                  - button "Close (⌘W)" [ref=e166]: 
+            - toolbar "Editor actions" [ref=e171]:
+              - button "Split Editor Right (⌘\\) [⌥] Split Editor Down" [ref=e172] [cursor=pointer]: 
+              - button "More Actions..." [ref=e175] [cursor=pointer]: 
+          - document "Overview of how to get up to speed with your editor." [ref=e178]:
+            - generic [ref=e179]:
+              - generic [ref=e181]:
+                - generic [ref=e182]:
+                  - heading "Code - OSS Dev" [level=1] [ref=e183]
+                  - paragraph [ref=e184]: Editing evolved
+                - generic [ref=e185]:
+                  - generic [ref=e186]:
+                    - heading "Start" [level=2] [ref=e187]
+                    - list [ref=e188]:
+                      - listitem [ref=e189]:
+                        - button " New File..." [ref=e190] [cursor=pointer]:
+                          - generic [ref=e191]: 
+                          - text: New File...
+                      - listitem [ref=e192]:
+                        - button " Open..." [ref=e193] [cursor=pointer]:
+                          - generic [ref=e194]: 
+                          - text: Open...
+                      - listitem [ref=e195]:
+                        - button " Connect to..." [ref=e196] [cursor=pointer]:
+                          - generic [ref=e197]: 
+                          - text: Connect to...
+                  - generic [ref=e198]:
+                    - heading "Recent" [level=2] [ref=e199]
+                    - list [ref=e200]:
+                      - listitem [ref=e201]:
+                        - button "Open folder single with path ~/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch" [ref=e202] [cursor=pointer]: single
+                        - generic "~/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single" [ref=e203]: ~/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch
+                - generic [ref=e205]:
+                  - heading "Walkthroughs" [level=2] [ref=e206]
+                  - list [ref=e207]:
+                    - button " Get started with VS Code Customize your editor, learn the basics, and start coding" [ref=e208]:
+                      - generic [ref=e211]: 
+                      - heading "Get started with VS Code" [level=3] [ref=e213]
+                      - generic [ref=e214]: Customize your editor, learn the basics, and start coding
+                    - button " Learn the Fundamentals" [ref=e215]:
+                      - generic [ref=e216]:
+                        - generic [ref=e217]: 
+                        - heading "Learn the Fundamentals" [level=3] [ref=e218]
+                - generic [ref=e219]:
+                  - text: 
+                  - paragraph [ref=e220]:
+                    - checkbox "When checked, this page will be shown on startup." [checked] [ref=e221] [cursor=pointer]: 
+                    - generic [ref=e222] [cursor=pointer]: Show welcome page on startup
+              - generic [ref=e223]: 
+      - generic [ref=e225]:
+        - generic [ref=e226]:
+          - tablist "Active View Switcher" [ref=e230]:
+            - tab "Chat (⌃⌘I)" [expanded] [selected] [ref=e231] [cursor=pointer]:
+              - generic "Chat (⌃⌘I)" [ref=e232]: Chat
+          - toolbar "Chat actions" [ref=e236]:
+            - button "New Chat (⌘N)" [ref=e238] [cursor=pointer]: 
+            - button "New Chat" [ref=e242] [cursor=pointer]: 
+            - button "Open Customizations" [ref=e243] [cursor=pointer]: 
+            - button "Views and More Actions..." [ref=e246] [cursor=pointer]: 
+          - toolbar [ref=e251]:
+            - button "Maximize Secondary Side Bar" [ref=e252] [cursor=pointer]: 
+            - button "Hide Secondary Side Bar (⌥⌘B)" [ref=e253] [cursor=pointer]: 
+        - generic [ref=e260]:
+          - text:      
+          - generic [ref=e262]:
+            - text:    
+            - generic [ref=e263]:
+              - text:  
+              - generic [ref=e264]:
+                - generic [ref=e266]:
+                  - generic [ref=e268]: 
+                  - generic [ref=e269]: Build with Agent
+                  - paragraph [ref=e272]: AI responses may be inaccurate
+                  - paragraph [ref=e275]:
+                    - link "Generate Agent Instructions" [ref=e276] [cursor=pointer]:
+                      - /url: ""
+                    - text: to onboard AI onto your codebase.
+                - text:  
+                - generic [ref=e277]:
+                  - generic [ref=e278]:
+                    - text: 
+                    - generic:  
+                    - generic [ref=e280]:
+                      - code [ref=e283]:
+                        - generic [ref=e284]:
+                          - textbox "The editor is not accessible at this time. To enable screen reader optimized mode, use Shift+Option+F1" [active] [ref=e285]
+                          - textbox [ref=e286]
+                          - generic [ref=e292]: Describe what to build
+                      - generic [ref=e293]:
+                        - toolbar [ref=e296]:
+                          - button "Add Context... (⌘/)" [ref=e297] [cursor=pointer]: 
+                          - button "Agent" [ref=e300] [cursor=pointer]:
+                            - generic [ref=e301]: 
+                            - generic [ref=e302]: Agent
+                          - group "Models, unavailable while in Restricted mode" [ref=e303]:
+                            - button "Models, unavailable while in Restricted mode" [ref=e304] [cursor=pointer]:
+                              - generic [ref=e305]: Models
+                          - button "Configure Tools..." [ref=e306] [cursor=pointer]: 
+                        - toolbar [ref=e309]:
+                          - button "Dictate (Speech to Text) (⌘I)" [ref=e310] [cursor=pointer]: 
+                          - button "Send [⌥] Send to New Chat (⇧⌘Enter)" [disabled] [ref=e311]: 
+                  - toolbar [ref=e316]:
+                    - button "Local" [ref=e319] [cursor=pointer]:
+                      - generic [ref=e320]: 
+                      - generic [ref=e321]: Local
+                    - button "Permission picker, Default permissions" [ref=e324] [cursor=pointer]:
+                      - generic [ref=e325]: 
+                      - generic [ref=e326]: Default permissions
+                - text:  
+    - status [ref=e329]:
+      - generic [ref=e330]:
+        - generic "remote" [ref=e331]:
+          - button "remote" [ref=e332] [cursor=pointer]:
+            - generic [ref=e333]: 
+        - 'generic "Restricted Mode: Some features are disabled because this workspace is not trusted." [ref=e334]':
+          - 'button "Restricted Mode: Some features are disabled because this workspace is not trusted." [ref=e335] [cursor=pointer]':
+            - generic [ref=e336]: 
+            - text: Restricted Mode
+        - generic "No Problems" [ref=e337]:
+          - button "No Problems" [ref=e338] [cursor=pointer]:
+            - generic [ref=e339]: 
+            - text: "0"
+            - generic [ref=e340]: 
+            - text: "0"
+      - generic [ref=e341]:
+        - generic "Notifications" [ref=e342]:
+          - button "Notifications" [ref=e343] [cursor=pointer]:
+            - generic [ref=e344]: 
+        - generic "Codex status" [ref=e345]:
+          - button "Codex status" [ref=e346] [cursor=pointer]:
+            - generic [ref=e347]: 
+        - generic "Copilot status" [ref=e348]:
+          - button "Copilot status" [ref=e349] [cursor=pointer]:
+            - generic [ref=e350]: 
+  - generic:
+    - alert
+    - alert
+```
+### Events
+- New console entries: .playwright-cli/console-2026-10-28T13-02-04-991Z.log#L247-L299

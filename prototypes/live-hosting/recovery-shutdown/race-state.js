@@ -1,0 +1,1 @@
+({race:globalThis.recoveryProbe.closeRace,current:globalThis.recoveryProbe.snapshot(),pending:[...globalThis.recoveryProbe.service.pendingProjectCloses.keys()],closed:globalThis.recoveryProbe.target.logicallyClosed})

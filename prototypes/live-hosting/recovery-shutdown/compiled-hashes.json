@@ -1,0 +1,6 @@
+{
+  "out/vs/base/parts/ipc/electron-main/prototypeLifetime.js": "29f3d768a021b87230618fe5a3f9af1656d01cf33c5ced460b6cc6ff4922d7f8",
+  "out/vs/platform/lifecycle/electron-main/lifecycleMainService.js": "ff63eb9ddcd155b1181a77f10d62d368463ea499cb6b59b159129cf77dcdd167",
+  "out/vs/platform/windows/electron-main/prototypeWorkbenchHost.js": "95732b270b0c07404a6b7f14008a7576b8372478e3f8804dc8e915797a0578a1",
+  "out/vs/platform/windows/electron-main/windowImpl.js": "76f915747de5da65b9791b9d652b1d1b1997044d8279db71d5133a0d79a99795"
+}

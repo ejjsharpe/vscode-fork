@@ -1,0 +1,233 @@
+{
+  "versions": {
+    "node": "24.22.0",
+    "acorn": "8.18.0",
+    "ada": "4.0.0",
+    "amaro": "1.1.11",
+    "ares": "1.34.8",
+    "brotli": "1.2.0",
+    "cldr": "48.0",
+    "icu": "78.2",
+    "llhttp": "9.4.3",
+    "merve": "1.2.2",
+    "modules": "148",
+    "napi": "10",
+    "nbytes": "0.1.4",
+    "ncrypto": "0.0.1",
+    "nghttp2": "1.70.0",
+    "nghttp3": "",
+    "ngtcp2": "",
+    "openssl": "0.0.0",
+    "simdjson": "4.6.11",
+    "simdutf": "7.7.0",
+    "sqlite": "3.53.4",
+    "tz": "2026d",
+    "undici": "7.29.1",
+    "unicode": "17.0",
+    "uv": "1.52.1",
+    "uvwasi": "0.0.23",
+    "v8": "15.0.245.31-electron.0",
+    "zlib": "1.3.2.1-motley",
+    "zstd": "1.6.0",
+    "electron": "43.8.3",
+    "chrome": "150.0.7871.250"
+  },
+  "hosts": [
+    {
+      "id": 1,
+      "contents": 1,
+      "children": 3
+    }
+  ],
+  "windows": [
+    {
+      "id": 100000,
+      "ready": true,
+      "contents": 2,
+      "pid": 19171,
+      "generation": 1,
+      "context": "window:100000",
+      "workspace": {
+        "id": "6f3861bc27608ca6b4dbbcfb5fbc04df",
+        "configPath": {
+          "scheme": "file",
+          "authority": "",
+          "path": "/tmp/code-oss-dev-20261028-130907-19111-PElNNK/user-data/User/agent-sessions.code-workspace",
+          "query": "",
+          "fragment": "",
+          "_formatted": "file:///tmp/code-oss-dev-20261028-130907-19111-PElNNK/user-data/User/agent-sessions.code-workspace",
+          "_fsPath": "/tmp/code-oss-dev-20261028-130907-19111-PElNNK/user-data/User/agent-sessions.code-workspace"
+        }
+      },
+      "profile": "agents",
+      "environmentHash": "d780840e450da48071cfd40a39cf1d83c1fa6128783df18aea75356db7bdc493",
+      "backupPath": "/tmp/code-oss-dev-20261028-130907-19111-PElNNK/user-data/Backups/6f3861bc27608ca6b4dbbcfb5fbc04df",
+      "title": "Agents"
+    },
+    {
+      "id": 100001,
+      "ready": true,
+      "contents": 3,
+      "pid": 19178,
+      "generation": 2,
+      "context": "window:100001",
+      "workspace": {
+        "id": "45d502f991c6776b7df2587b21810390",
+        "uri": {
+          "scheme": "file",
+          "authority": "",
+          "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+          "query": "",
+          "fragment": "",
+          "_formatted": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single",
+          "_fsPath": "/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/single"
+        }
+      },
+      "profile": "__default__profile__",
+      "environmentHash": "89e1d687642e6d31ca3ee3aafd0ff77c780a1a03e75292d701522f311eb2a233",
+      "backupPath": "/tmp/code-oss-dev-20261028-130907-19111-PElNNK/user-data/Backups/f541b82402ed5ef605262b5a4d0136d0",
+      "title": "Welcome — single"
+    },
+    {
+      "id": 100002,
+      "ready": true,
+      "contents": 4,
+      "pid": 19195,
+      "generation": 3,
+      "context": "window:100002",
+      "workspace": {
+        "id": "fb27b78842110d1a7077fef402d31911",
+        "configPath": {
+          "scheme": "file",
+          "authority": "",
+          "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace",
+          "query": "",
+          "fragment": "",
+          "_formatted": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace",
+          "_fsPath": "/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/prototypes/live-hosting/recovery-shutdown/scratch/multi.code-workspace"
+        }
+      },
+      "profile": "__default__profile__",
+      "environmentHash": "89e1d687642e6d31ca3ee3aafd0ff77c780a1a03e75292d701522f311eb2a233",
+      "backupPath": "/tmp/code-oss-dev-20261028-130907-19111-PElNNK/user-data/Backups/fb27b78842110d1a7077fef402d31911",
+      "title": "Welcome — multi (Workspace)"
+    }
+  ],
+  "contents": [
+    {
+      "id": 4,
+      "pid": 19195,
+      "type": "window",
+      "crashed": false,
+      "generation": 3,
+      "context": "window:100002"
+    },
+    {
+      "id": 3,
+      "pid": 19178,
+      "type": "window",
+      "crashed": false,
+      "generation": 2,
+      "context": "window:100001"
+    },
+    {
+      "id": 2,
+      "pid": 19171,
+      "type": "window",
+      "crashed": false,
+      "generation": 1,
+      "context": "window:100000"
+    },
+    {
+      "id": 1,
+      "pid": 19196,
+      "type": "window",
+      "crashed": false,
+      "context": "unregistered:1"
+    }
+  ],
+  "metrics": [
+    {
+      "pid": 19140,
+      "type": "Browser"
+    },
+    {
+      "pid": 19156,
+      "type": "GPU",
+      "serviceName": "GPU"
+    },
+    {
+      "pid": 19157,
+      "type": "Utility",
+      "name": "Network Service",
+      "serviceName": "network.mojom.NetworkService"
+    },
+    {
+      "pid": 19171,
+      "type": "Tab"
+    },
+    {
+      "pid": 19178,
+      "type": "Tab"
+    },
+    {
+      "pid": 19195,
+      "type": "Tab"
+    },
+    {
+      "pid": 19196,
+      "type": "Tab"
+    },
+    {
+      "pid": 19199,
+      "type": "Utility",
+      "name": "agentHost-1",
+      "serviceName": "node.mojom.NodeService"
+    },
+    {
+      "pid": 19200,
+      "type": "Utility",
+      "name": "shared-process-2",
+      "serviceName": "node.mojom.NodeService"
+    },
+    {
+      "pid": 19201,
+      "type": "Utility",
+      "name": "fileWatcher-3",
+      "serviceName": "node.mojom.NodeService"
+    },
+    {
+      "pid": 19202,
+      "type": "Utility",
+      "name": "extensionHost-4",
+      "serviceName": "node.mojom.NodeService"
+    },
+    {
+      "pid": 19603,
+      "type": "Utility",
+      "name": "fileWatcher-5",
+      "serviceName": "node.mojom.NodeService"
+    },
+    {
+      "pid": 19604,
+      "type": "Utility",
+      "name": "fileWatcher-6",
+      "serviceName": "node.mojom.NodeService"
+    },
+    {
+      "pid": 19605,
+      "type": "Utility",
+      "name": "extensionHost-7",
+      "serviceName": "node.mojom.NodeService"
+    },
+    {
+      "pid": 19606,
+      "type": "Utility",
+      "name": "extensionHost-8",
+      "serviceName": "node.mojom.NodeService"
+    }
+  ],
+  "windowCounter": 3,
+  "requests": [],
+  "results": []
+}

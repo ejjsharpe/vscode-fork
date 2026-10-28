@@ -1,0 +1,4 @@
+{
+  "cleanup": "app.exit(0)",
+  "gracefulShutdownTest": false
+}

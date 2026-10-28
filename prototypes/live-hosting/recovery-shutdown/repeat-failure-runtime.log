@@ -1,0 +1,37 @@
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"recovery"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":5}
+[main 2026-10-28T13:09:39.874Z] Project recovery failed Error: Injected replacement bootstrap failure
+    at w.load (<anonymous>:6:38)
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/windows/electron-main/windowImpl.js:884:16
+    at new Promise (<anonymous>)
+    at CodeWindow.recoverPrototypeWorkbench (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/windows/electron-main/windowImpl.js:877:37)
+    at async <anonymous>:7:2
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"interrupted-or-failed-workbench"}
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"destroyed"}
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onBeforeUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"destroyed"}
+[main 2026-10-28T13:09:40.002Z] [uncaught exception in main]: TypeError: Cannot read properties of undefined (reading 'isDestroyed')
+[main 2026-10-28T13:09:40.002Z] TypeError: Cannot read properties of undefined (reading 'isDestroyed')
+    at removePrototypeWorkbench (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/windows/electron-main/prototypeWorkbenchHost.js:31:31)
+    at UniqueContainer.value (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/windows/electron-main/windowImpl.js:157:9)
+    at Emitter._deliver (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/base/common/event.js:814:16)
+    at Emitter.fire (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/base/common/event.js:839:12)
+    at WebContents.fn (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/base/common/event.js:395:36)
+    at WebContents.emit (node:events:526:24)
+Debugger ending on ws://127.0.0.1:61441/25d4ebb8-ee87-4e0c-9851-b9ab474452f4
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[Event.buffer][onWillCreateProfile] potential LEAK detected: 1 events buffered for 60s without being consumed. Buffered here:
+    at Object.buffer (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/base/common/event.js:261:27)
+    at Object.fromService (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/base/parts/ipc/common/ipc.js:812:44)
+    at CodeApplication.initChannels (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/code/electron-main/app.js:983:50)
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/code/electron-main/app.js:529:63
+    at InstantiationService.invokeFunction (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/instantiation/common/instantiationService.js:78:14)
+    at CodeApplication.startup (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/code/electron-main/app.js:529:29)
+    at async CodeMain.startup (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/code/electron-main/main.js:95:7)
+Debugger attached.
+Debugger ending on ws://127.0.0.1:61441/25d4ebb8-ee87-4e0c-9851-b9ab474452f4
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger ending on ws://127.0.0.1:61441/25d4ebb8-ee87-4e0c-9851-b9ab474452f4
+For help, see: https://nodejs.org/learn/getting-started/debugging

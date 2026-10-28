@@ -1,0 +1,37 @@
+[lifetime-probe] revoke {"workbench":100002,"generation":7,"reason":"recovery"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":5}
+[main 2026-10-28T13:05:40.053Z] Project recovery failed Error: Injected replacement bootstrap failure
+    at w.load (<anonymous>:6:38)
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/windows/electron-main/windowImpl.js:884:16
+    at new Promise (<anonymous>)
+    at CodeWindow.recoverPrototypeWorkbench (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/windows/electron-main/windowImpl.js:877:37)
+    at async <anonymous>:7:2
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"interrupted-or-failed-workbench"}
+[lifetime-probe] revoke {"workbench":100002,"generation":7,"reason":"destroyed"}
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onBeforeUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"destroyed"}
+[main 2026-10-28T13:05:40.190Z] [uncaught exception in main]: TypeError: Cannot read properties of undefined (reading 'isDestroyed')
+[main 2026-10-28T13:05:40.190Z] TypeError: Cannot read properties of undefined (reading 'isDestroyed')
+    at removePrototypeWorkbench (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/windows/electron-main/prototypeWorkbenchHost.js:31:31)
+    at UniqueContainer.value (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/windows/electron-main/windowImpl.js:157:9)
+    at Emitter._deliver (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/base/common/event.js:814:16)
+    at Emitter.fire (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/base/common/event.js:839:12)
+    at WebContents.fn (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/base/common/event.js:395:36)
+    at WebContents.emit (node:events:526:24)
+Debugger ending on ws://127.0.0.1:61016/74b312e5-4c6d-413f-a671-1229800aca47
+For help, see: https://nodejs.org/learn/getting-started/debugging
+Debugger attached.
+Debugger ending on ws://127.0.0.1:61016/74b312e5-4c6d-413f-a671-1229800aca47
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[main 2026-10-28T13:07:19.709Z] webContents#will-navigate: Prevented webcontent navigation
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[main 2026-10-28T13:08:08.245Z] webContents#will-navigate: Prevented webcontent navigation
+[main 2026-10-28T13:08:10.511Z] webContents#will-navigate: Prevented webcontent navigation
+[main 2026-10-28T13:08:10.513Z] [uncaught exception in main]: Error: Unknown/disposed prototype workbench 100002
+[main 2026-10-28T13:08:10.513Z] Error: Unknown/disposed prototype workbench 100002
+    at selectPrototypeWorkbench (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/windows/electron-main/prototypeWorkbenchHost.js:65:11)
+    at WebContents.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/platform/windows/electron-main/prototypeWorkbenchHost.js:99:9)
+    at WebContents.emit (node:events:526:24)
+[main 2026-10-28T13:08:11.029Z] webContents#will-navigate: Prevented webcontent navigation
+[main 2026-10-28T13:08:11.029Z] [uncaught exception in main]: Error: Unknown/disposed prototype workbench 100002

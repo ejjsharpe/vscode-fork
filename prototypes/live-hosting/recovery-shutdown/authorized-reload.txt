@@ -1,0 +1,22 @@
+### Result
+{"title":""}
+### Ran Playwright code
+```js
+await (async page => {
+ const dialog=page.getByRole('dialog',{name:'Welcome to Visual Studio Code'});
+ if(await dialog.count())await dialog.getByRole('button',{name:'Close',exact:true}).click();
+ await page.keyboard.press('F1');
+ await page.getByRole('textbox',{name:'Type the name of a command to run.'}).fill('>Developer: Reload Window');
+ await page.getByRole('option',{name:/^Developer: Reload Window/}).first().click();
+ await page.waitForTimeout(2000);
+ return {title:await page.title()};
+}
+)(page);
+```
+### Open tabs
+- 0: (current) [](vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html)
+- 1: [Agents](vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/sessions/electron-browser/sessions-dev.html)
+- 2: [Welcome — single](vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html)
+- 3: [Disposable hosting probe](data:text/html;charset=utf-8,%3Cmeta%20http-equiv%3D%22Content-Security-Policy%22%20content%3D%22default-src%20'none'%3B%20style-src%20'unsafe-inline'%22%3E%3Ctitle%3EDisposable%20hosting%20probe%3C%2Ftitle%3E%3Cstyle%3Ebody%7Bmargin%3A0%3Bbackground%3A%23202020%3Bcolor%3Awhite%3Bfont%3A14px%20system-ui%7Dnav%7Bheight%3A42px%3Bdisplay%3Aflex%3Balign-items%3Acenter%3Bgap%3A20px%3Bpadding%3A0%2020px%3Boverflow%3Aauto%3Bwhite-space%3Anowrap%7Da%7Bcolor%3Ainherit%7Da%3Afocus-visible%7Boutline%3A2px%20solid%20currentColor%3Boutline-offset%3A2px%7D%3C%2Fstyle%3E%3Cnav%3E%3Cspan%3E%3Ca%20href%3D%22https%3A%2F%2Fprototype.invalid%2Fselect%2F100000%22%3EAgents%20(100000)%3C%2Fa%3E%3C%2Fspan%3E%20%3Cspan%3E%3Ca%20href%3D%22https%3A%2F%2Fprototype.invalid%2Fselect%2F100001%22%3EProject%201%20(100001)%3C%2Fa%3E%3C%2Fspan%3E%20%3Cspan%3E%3Ca%20href%3D%22https%3A%2F%2Fprototype.invalid%2Fselect%2F100002%22%3EProject%202%20(100002)%3C%2Fa%3E%3C%2Fspan%3E%3C%2Fnav%3E)
+### Page
+- Page URL: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/w-6/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html

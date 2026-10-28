@@ -1,0 +1,32 @@
+### Result
+{"own":100002,"results":[{"claimed":"window:100000","command":"getProcessId","args":[100002],"result":17557},{"claimed":"window:100000","command":"getProcessId","args":[100000],"rejected":"Error: Rejected caller ID impersonation"},{"claimed":"window:100000","command":"getProcessId","args":[999999],"rejected":"Error: Rejected caller ID impersonation"},{"claimed":"window:100000","command":"getNativeWindowHandle","args":[100002,100000],"rejected":"Error: Rejected explicit target"},{"claimed":"window:100000","command":"isMaximized","args":[100002,{"targetWindowId":100000}],"rejected":"Error: Rejected foreign/unknown target targetWindowId"},{"claimed":"window:100000","command":"isMaximized","args":[100002,{"targetWindowId":999999}],"rejected":"Error: Rejected foreign/unknown target targetWindowId"},{"claimed":"window:100000","command":"isMaximized","args":[100002,{"nested":{"targetWindowId":100000}}],"rejected":"Error: Rejected foreign/unknown target targetWindowId"},{"claimed":"window:100000","command":"isMaximized","args":[100002,{"targetWindowId":100002}],"result":false},{"claimed":"shared-process","command":"getProcessId","args":[100002],"result":17557},{"claimed":"shared-process","command":"getProcessId","args":[100000],"rejected":"Error: Rejected caller ID impersonation"},{"claimed":"shared-process","command":"getProcessId","args":[999999],"rejected":"Error: Rejected caller ID impersonation"},{"claimed":"shared-process","command":"getNativeWindowHandle","args":[100002,100000],"rejected":"Error: Rejected explicit target"},{"claimed":"shared-process","command":"isMaximized","args":[100002,{"targetWindowId":100000}],"rejected":"Error: Rejected foreign/unknown target targetWindowId"},{"claimed":"shared-process","command":"isMaximized","args":[100002,{"targetWindowId":999999}],"rejected":"Error: Rejected foreign/unknown target targetWindowId"},{"claimed":"shared-process","command":"isMaximized","args":[100002,{"nested":{"targetWindowId":100000}}],"rejected":"Error: Rejected foreign/unknown target targetWindowId"},{"claimed":"shared-process","command":"isMaximized","args":[100002,{"targetWindowId":100002}],"result":false},{"claimed":"window:100002","command":"getProcessId","args":[100002],"result":17557},{"claimed":"window:100002","command":"getProcessId","args":[100000],"rejected":"Error: Rejected caller ID impersonation"},{"claimed":"window:100002","command":"getProcessId","args":[999999],"rejected":"Error: Rejected caller ID impersonation"},{"claimed":"window:100002","command":"getNativeWindowHandle","args":[100002,100000],"rejected":"Error: Rejected explicit target"},{"claimed":"window:100002","command":"isMaximized","args":[100002,{"targetWindowId":100000}],"rejected":"Error: Rejected foreign/unknown target targetWindowId"},{"claimed":"window:100002","command":"isMaximized","args":[100002,{"targetWindowId":999999}],"rejected":"Error: Rejected foreign/unknown target targetWindowId"},{"claimed":"window:100002","command":"isMaximized","args":[100002,{"nested":{"targetWindowId":100000}}],"rejected":"Error: Rejected foreign/unknown target targetWindowId"},{"claimed":"window:100002","command":"isMaximized","args":[100002,{"targetWindowId":100002}],"result":false}]}
+### Ran Playwright code
+```js
+await (async page => {
+ return await page.evaluate(async () => {
+  const base = location.href.slice(0, location.href.indexOf('/out/') + 5);
+  const { Client } = await import(base + 'vs/base/parts/ipc/electron-browser/ipc.electron.js');
+  const own = window.vscode.context.configuration().windowId;
+  const results = [];
+  for (const claimed of ['window:100000', 'shared-process', `window:${own}`]) {
+   const client = new Client(claimed);
+   try {
+    const channel = client.getChannel('nativeHost');
+    for (const [command,args] of [
+     ['getProcessId',[own]],['getProcessId',[100000]],['getProcessId',[999999]],
+     ['getNativeWindowHandle',[own,100000]],
+     ['isMaximized',[own,{targetWindowId:100000}]],
+     ['isMaximized',[own,{targetWindowId:999999}]],
+     ['isMaximized',[own,{nested:{targetWindowId:100000}}]],
+     ['isMaximized',[own,{targetWindowId:own}]]
+    ]) {
+     try { results.push({claimed,command,args,result:await channel.call(command,args) ?? null}); }
+     catch(error) { results.push({claimed,command,args,rejected:String(error)}); }
+    }
+   } finally { client.dispose(); }
+  }
+  return {own,results};
+ });
+}
+)(page);
+```
