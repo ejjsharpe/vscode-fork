@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { revokePrototypeDocument, retirePrototypeDocument, prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { configurePrototypeDocument, revokePrototypeDocument, retirePrototypeDocument, prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { createPrototypeWorkbench, selectPrototypeWorkbench, updatePrototypeWorkbench, replacePrototypeWorkbench, removePrototypeWorkbench, reportPrototypeCloseFailure, setPrototypeRecovery, prototypeHostClosing } from './prototypeWorkbenchHost.js';
 import electron, { BrowserWindowConstructorOptions, Display } from 'electron';
 import { DeferredPromise, RunOnceScheduler, timeout, Delayer, raceCancellationError } from '../../../base/common/async.js';
@@ -1397,6 +1397,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 	load(configuration: INativeWindowConfiguration, options: ILoadOptions = Object.create(null)): void {
 		this.logService.trace(`window#load: attempt to load window (id: ${this._id})`);
+		configurePrototypeDocument(this.webContents, { role: configuration.isSessionsWindow ? 'agents' : 'project', workspaceId: configuration.workspace?.id ?? toWorkspaceIdentifier(configuration.backupPath, !!configuration.extensionDevelopmentPath).id, remoteAuthority: configuration.remoteAuthority });
 		updatePrototypeWorkbench(this.id, configuration.workspace, configuration.remoteAuthority, this.configurationService.getValue<boolean>('accessibility.verbosity.projectTabs') !== false);
 
 		// Clear Document Edited if needed

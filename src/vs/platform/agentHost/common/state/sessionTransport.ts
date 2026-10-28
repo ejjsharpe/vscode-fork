@@ -63,6 +63,8 @@ export interface IProtocolTransport extends IDisposable {
 	readonly bufferedAmount?: number;
 	/** Trusted lane identity assigned by a relay server, never supplied by AHP. */
 	readonly relayClientId?: string;
+	/** Provider client identity bound by Electron main to the originating document. */
+	readonly nativeClientId?: string;
 	/** Trusted read-only designation assigned by a relay server. */
 	readonly relayPassive?: boolean;
 	readonly relayHandshakeMeta?: Record<string, unknown>;

@@ -338,7 +338,10 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 		this._forwardOTelPolicy();
 		let port: MessagePort;
 		try {
-			port = await acquirePort('vscode:createAgentHostMessageChannel', 'vscode:createAgentHostMessageChannelResult');
+			const nonce = generateUuid();
+			const pending = acquirePort(undefined, 'vscode:createAgentHostMessageChannelResult', nonce);
+			ipcRenderer.send('vscode:createAgentHostMessageChannel', nonce, this.clientId);
+			port = await pending;
 		} catch (error) {
 			if (error instanceof MessagePortAcquisitionError && error.fatal) {
 				throw new NonReconnectableTransportError(error.message);
