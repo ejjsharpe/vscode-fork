@@ -38,6 +38,9 @@ import { localize } from '../../../../nls.js';
 import { RemoteNameContext } from '../../../common/contextkeys.js';
 
 class RemoteAgentDiagnosticListener implements IWorkbenchContribution {
+
+	static readonly ID = 'workbench.contrib.remoteAgentDiagnosticListener';
+
 	constructor(
 		@IRemoteAgentService remoteAgentService: IRemoteAgentService,
 		@ILabelService labelService: ILabelService
@@ -194,7 +197,8 @@ class WSLContextKeyInitializer extends Disposable implements IWorkbenchContribut
 }
 
 const workbenchContributionsRegistry = Registry.as<IWorkbenchContributionsRegistry>(WorkbenchContributionsExtensions.Workbench);
-workbenchContributionsRegistry.registerWorkbenchContribution(RemoteAgentDiagnosticListener, LifecyclePhase.Eventually);
+// Install the receiver before main is notified that this document is ready.
+registerWorkbenchContribution2(RemoteAgentDiagnosticListener.ID, RemoteAgentDiagnosticListener, WorkbenchPhase.BlockStartup);
 workbenchContributionsRegistry.registerWorkbenchContribution(RemoteExtensionHostEnvironmentUpdater, LifecyclePhase.Eventually);
 registerWorkbenchContribution2(RemoteTelemetryEnablementUpdater.ID, RemoteTelemetryEnablementUpdater, WorkbenchPhase.BlockRestore);
 registerWorkbenchContribution2(RemoteEmptyWorkbenchPresentation.ID, RemoteEmptyWorkbenchPresentation, WorkbenchPhase.BlockRestore);
