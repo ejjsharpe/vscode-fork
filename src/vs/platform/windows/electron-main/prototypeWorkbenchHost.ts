@@ -96,7 +96,7 @@ function renderShell(): void {
 		const close = entry.close ? ` <a href="https://prototype.invalid/close/${id}">${localize('close', "Close")}</a>` : '';
 		return `<span><a href="https://prototype.invalid/select/${id}">${entry.label} (${id})</a>${status}${retry}${close}</span>`;
 	}).join(' ');
-	void host.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>Disposable hosting probe</title><style>body{margin:0;background:#202020;color:white;font:14px system-ui}nav{height:42px;display:flex;align-items:center;gap:20px;padding:0 20px;overflow:auto;white-space:nowrap}a{color:inherit}a:focus-visible{outline:2px solid currentColor;outline-offset:2px}</style><nav>${links}${closeFailure ? `<span role="alert">${closeFailure}</span>` : ''}</nav>`));
+	void host.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>escode</title><style>body{margin:0;background:#202020;color:white;font:14px system-ui}nav{height:42px;display:flex;align-items:center;gap:20px;padding:0 20px;overflow:auto;white-space:nowrap}a{color:inherit}a:focus-visible{outline:2px solid currentColor;outline-offset:2px}</style><nav>${links}${closeFailure ? `<span role="alert">${closeFailure}</span>` : ''}</nav>`));
 }
 
 export function createPrototypeWorkbench(options: electron.BrowserWindowConstructorOptions, agents: boolean) {

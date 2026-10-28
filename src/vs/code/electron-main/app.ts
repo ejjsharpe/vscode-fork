@@ -1570,13 +1570,20 @@ export class CodeApplication extends Disposable {
 		const context = isLaunchedFromCli(process.env) ? OpenContext.CLI : OpenContext.DESKTOP;
 		const args = this.environmentMainService.args;
 
-		// Handle agents window first based on context
-		if (args['agents']) {
+		const macOpenFiles: string[] = (global as { macOpenFiles?: string[] }).macOpenFiles ?? [];
+		const hasExplicitTarget = args._.length || args['folder-uri']?.length || args['file-uri']?.length || macOpenFiles.length || initialProtocolUrls?.openables.length || initialProtocolUrls?.urls.length || args.remote || args['new-window'] || args.profile || args['profile-temp'];
+
+		// Agents owns the permanent first entry, including when a project is the launch target.
+		if (args['agents'] || (!args.extensionDevelopmentPath && !hasExplicitTarget)) {
 			return windowsMainService.openAgentsWindow({
 				context,
 				cli: args,
 				initialStartup: true
 			});
+		}
+
+		if (!args.extensionDevelopmentPath) {
+			await windowsMainService.openAgentsWindow({ context, cli: { ...args, _: [] }, initialStartup: false });
 		}
 
 		// Then check for windows from protocol links to open
@@ -1641,7 +1648,6 @@ export class CodeApplication extends Disposable {
 			}
 		}
 
-		const macOpenFiles: string[] = (global as { macOpenFiles?: string[] }).macOpenFiles ?? [];
 		const hasCliArgs = args._.length;
 		const hasFolderURIs = !!args['folder-uri'];
 		const hasFileURIs = !!args['file-uri'];
