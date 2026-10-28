@@ -1,0 +1,29 @@
+{
+  "before": [
+    {
+      "windowId": 100001,
+      "contents": 3,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100001,
+      "contents": 3,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    }
+  ],
+  "ready": true,
+  "results": [
+    {
+      "windowId": 100001,
+      "channel": "vscode:onBeforeUnload",
+      "result": "interrupted"
+    },
+    {
+      "windowId": 100001,
+      "channel": "vscode:onBeforeUnload",
+      "result": "interrupted"
+    }
+  ]
+}

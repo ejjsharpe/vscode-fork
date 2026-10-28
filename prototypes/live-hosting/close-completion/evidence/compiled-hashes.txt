@@ -1,0 +1,2 @@
+1af5d7e01d7a5d6ab042574fe4bb15f3d65b0cbdce72e0841b145e895b4d98e7  out/vs/platform/lifecycle/electron-main/lifecycleMainService.js
+75e394aef7be44cb9948a3a98171d4222c54894bd1567c451d266883c963d214  out/vs/platform/windows/electron-main/windowImpl.js

@@ -1,0 +1,37 @@
+{
+  "pending": {
+    "settled": false,
+    "sameClose": true,
+    "sameDirect": true,
+    "registered": true
+  },
+  "completed": true,
+  "logicalDisposed": true,
+  "count": 2,
+  "requests": [
+    {
+      "windowId": 100001,
+      "contents": 3,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100001,
+      "contents": 3,
+      "channel": "vscode:onWillUnload",
+      "before": false
+    }
+  ],
+  "results": [
+    {
+      "windowId": 100001,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100001,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    }
+  ]
+}

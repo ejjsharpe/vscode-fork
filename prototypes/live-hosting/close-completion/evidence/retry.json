@@ -1,0 +1,12 @@
+{
+  "before": {
+    "requests": 4,
+    "count": 1
+  },
+  "after": {
+    "requests": 4,
+    "count": 1
+  },
+  "logicalDisposed": true,
+  "notifications": 0
+}

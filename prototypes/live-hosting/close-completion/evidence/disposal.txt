@@ -1,0 +1,10 @@
+file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-4/work/escode-prototype/prototypes/live-hosting/lifecycle-replies/inspect.mjs:9
+ const timeout = setTimeout(()=>{socket.close();reject(new Error('Inspector timeout'));},10000);
+                                                       ^
+
+Error: Inspector timeout
+    at Timeout._onTimeout (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-4/work/escode-prototype/prototypes/live-hosting/lifecycle-replies/inspect.mjs:9:56)
+    at listOnTimeout (node:internal/timers:685:17)
+    at process.processTimers (node:internal/timers:618:7)
+
+Node.js v24.22.1

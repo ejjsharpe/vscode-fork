@@ -1,0 +1,75 @@
+{
+  "coalesced": true,
+  "outcomes": [
+    {
+      "resolved": true
+    },
+    {
+      "resolved": true
+    }
+  ],
+  "notifications": 0,
+  "registered": true,
+  "logicalDisposed": false,
+  "closePending": false,
+  "shell": "Agents (100000)\nProject 1 (100003) Close cancelled Close\nProject 100002: Close failed",
+  "requests": [
+    {
+      "windowId": 100001,
+      "contents": 3,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100001,
+      "contents": 3,
+      "channel": "vscode:onWillUnload",
+      "before": false
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onWillUnload",
+      "before": false
+    },
+    {
+      "windowId": 100003,
+      "contents": 5,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    }
+  ],
+  "results": [
+    {
+      "windowId": 100001,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100001,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100003,
+      "channel": "vscode:onBeforeUnload",
+      "result": "interrupted"
+    }
+  ]
+}
