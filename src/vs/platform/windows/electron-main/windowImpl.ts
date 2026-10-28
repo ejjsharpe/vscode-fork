@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { createPrototypeWorkbench, selectPrototypeWorkbench } from './prototypeWorkbenchHost.js';
 import electron, { BrowserWindowConstructorOptions, Display } from 'electron';
 import { DeferredPromise, RunOnceScheduler, timeout, Delayer } from '../../../base/common/async.js';
@@ -1322,6 +1323,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		} else {
 			windowUrl = FileAccess.asBrowserUri(`vs/code/electron-browser/workbench/workbench${this.environmentMainService.isBuilt ? '' : '-dev'}.html`).toString(true);
 		}
+		revokePrototypeDocument(this.webContents, 'approved-load');
 		this.webContents.loadURL(windowUrl);
 
 		// Remember that we did load

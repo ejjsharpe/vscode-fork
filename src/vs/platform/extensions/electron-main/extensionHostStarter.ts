@@ -149,6 +149,8 @@ export class ExtensionHostStarter extends Disposable implements IDisposable, IEx
 			return;
 		}
 		extHostProcess.kill();
+		extHostProcess.dispose();
+		this._extHosts.delete(id);
 	}
 
 	async waitForExit(id: string, maxWaitTimeMs: number): Promise<void> {

@@ -9,6 +9,13 @@
 
 	const { ipcRenderer, webFrame, contextBridge, webUtils } = require('electron');
 
+	let documentNonce: string | undefined;
+	const pendingTransport: Array<[string, unknown[]]> = [];
+	ipcRenderer.once('vscode:prototype-bootstrap', (_event: Electron.IpcRendererEvent, nonce: string) => {
+		documentNonce = nonce;
+		for (const [channel, args] of pendingTransport.splice(0)) { ipcRenderer.send(channel, ...args, documentNonce); }
+	});
+
 	type ISandboxConfiguration = import('../common/sandboxTypes.js').ISandboxConfiguration;
 
 	//#region Utilities
@@ -111,7 +118,10 @@
 
 			send(channel: string, ...args: unknown[]): void {
 				if (validateIPC(channel)) {
-					ipcRenderer.send(channel, ...args);
+					if (['vscode:hello', 'vscode:message', 'vscode:disconnect'].includes(channel)) {
+						if (!documentNonce) { pendingTransport.push([channel, args]); }
+						else { ipcRenderer.send(channel, ...args, documentNonce); }
+					} else { ipcRenderer.send(channel, ...args); }
 				}
 			},
 

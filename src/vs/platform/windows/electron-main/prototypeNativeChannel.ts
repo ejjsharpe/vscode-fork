@@ -4,18 +4,19 @@
  *--------------------------------------------------------------------------------------------*/
 
 // THROWAWAY: explicit native-service scopes for the live hosting experiment.
+import { onPrototypeConnectionRevoked, prototypeBinding } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
 import { Event } from '../../../base/common/event.js';
 import { IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
 import { IWindowsMainService } from './windows.js';
 
-const ownMethods = new Set(`getProcessId getNativeWindowHandle isFullScreen toggleFullScreen isMaximized maximizeWindow unmaximizeWindow minimizeWindow moveWindowTop isWindowAlwaysOnTop toggleWindowAlwaysOnTop setWindowAlwaysOnTop positionWindow updateWindowControls updateWindowAccentColor focusWindow setMinimumSize saveWindowSplash setBackgroundThrottling showMessageBox showSaveDialog showOpenDialog startFileDrag setRepresentedFilename setDocumentEdited setApplicationBadge getScreenshot triggerPaste updateTouchBar notifyReady resolveProxy openDevTools toggleDevTools profileRenderer getAgentHostEditorState updateAgentHostEditorState claimAgentsWindowInvitation markAgentsWindowInvitationShown releaseAgentsWindowInvitation syncSystemWideKeybindings`.split(' '));
+const ownMethods = new Set(`reload getProcessId getNativeWindowHandle isFullScreen toggleFullScreen isMaximized maximizeWindow unmaximizeWindow minimizeWindow moveWindowTop isWindowAlwaysOnTop toggleWindowAlwaysOnTop setWindowAlwaysOnTop positionWindow updateWindowControls updateWindowAccentColor focusWindow setMinimumSize saveWindowSplash setBackgroundThrottling showMessageBox showSaveDialog showOpenDialog startFileDrag setRepresentedFilename setDocumentEdited setApplicationBadge getScreenshot triggerPaste updateTouchBar notifyReady resolveProxy openDevTools toggleDevTools profileRenderer getAgentHostEditorState updateAgentHostEditorState claimAgentsWindowInvitation markAgentsWindowInvitationShown releaseAgentsWindowInvitation syncSystemWideKeybindings`.split(' '));
 const appMethods = new Set(`getWindowCount getActiveWindowId getActiveWindowPosition getWindows getCursorScreenPoint showItemInFolder openExternal moveItemToTrash getMediaAccessStatus requestScreenCaptureAccess isAdmin getOSStatistics getFreeDiskSpace getOSProperties getOSVirtualMachineHint isGPUCompositingEnabled getOSColorScheme hasWSLFeatureInstalled readClipboardText readImage writeImage writeClipboardText readClipboardFindText writeClipboardFindText writeClipboardBuffer readClipboardBuffer hasClipboard resolveProxyWithPackage readProxyConfigWithPackage lookupAuthorization lookupKerberosAuthorization loadCertificates isPortFree findFreePort windowsGetStringRegKey getSystemIdleState getSystemIdleTime getCurrentThermalState isOnBatteryPower`.split(' '));
 const ownEvents = new Set(`onDidOpenMainWindow onDidTriggerWindowSystemContextMenu onDidMaximizeWindow onDidUnmaximizeWindow onDidChangeWindowFullScreen onDidBlurMainWindow onDidFocusMainWindow onDidBlurMainOrAuxiliaryWindow onDidFocusMainOrAuxiliaryWindow onDidChangeWindowAlwaysOnTop`.split(' '));
 const appEvents = new Set(`onDidSuspendOS onDidResumeOS onDidChangeOnBatteryPower onDidChangeThermalState onDidChangeSpeedLimit onWillShutdownOS onDidLockScreen onDidUnlockScreen onDidChangeColorScheme onDidChangePassword onDidChangeDisplay onDidChangeGPUCompositing onDidChangeAgentHostEditorState`.split(' '));
 
 function caller(context: string, windows: IWindowsMainService) {
-	const match = /^window:(\d+)$/.exec(context);
-	const window = match ? windows.getWindowById(Number(match[1])) : undefined;
+	const window = windows.getWindowById(prototypeBinding(context).workbench);
 	if (!window || window.webContents.isDestroyed()) { throw new Error('Rejected unregistered or stale caller'); }
 	return window;
 }
@@ -32,13 +33,15 @@ function checkTargets(value: unknown, id: number): void {
 
 export function prototypeNativeChannel(channel: IServerChannel<string>, windows: IWindowsMainService): IServerChannel<string> {
 	return {
-		async call(context, command, args: unknown[], token) {
+		async call<T>(context: string, command: string, args: unknown[], token?: CancellationToken) {
 			const window = caller(context, windows);
 			if (!Array.isArray(args) || args[0] !== window.id) { throw new Error('Rejected caller ID impersonation'); }
 			if (!ownMethods.has(command) && !appMethods.has(command)) { throw new Error(`Unclassified/coordinator-only native operation: ${command}`); }
 			checkTargets(args.slice(1), window.id);
 			if (command === 'getNativeWindowHandle' && args[1] !== window.id) { throw new Error('Rejected explicit target'); }
-			return channel.call(context, command, args, token);
+			const result = await channel.call<T>(context, command, args, token);
+			prototypeBinding(context);
+			return result;
 		},
 		listen(context, event, arg) {
 			const window = caller(context, windows);
@@ -53,21 +56,30 @@ export function prototypeNativeChannel(channel: IServerChannel<string>, windows:
 }
 
 export function prototypeExtensionChannel(channel: IServerChannel<string>, windows: IWindowsMainService): IServerChannel<string> {
-	// shortcut: frame identity survives some reloads; replace with a revocable document generation before acceptance.
-	const owners = new Map<string, { window: number; frame: Electron.WebFrameMain }>();
+	const owners = new Map<string, string>();
+	onPrototypeConnectionRevoked(context => {
+		for (const [id, owner] of owners) {
+			if (owner === context) {
+				owners.delete(id);
+				void channel.call(context, 'kill', [id]).catch(error => console.error('[lifetime-probe] cleanup failed', error));
+			}
+		}
+	});
 	function authorize(context: string, id: unknown) {
 		const window = caller(context, windows);
 		const owner = typeof id === 'string' ? owners.get(id) : undefined;
-		if (!owner || owner.window !== window.id || owner.frame !== window.webContents.mainFrame || owner.frame.isDestroyed()) { throw new Error('Rejected extension-host owner/lifetime'); }
+		if (!owner || owner !== context) { throw new Error('Rejected extension-host owner/lifetime'); }
 		return window;
 	}
 	return {
-		async call(context, command, args: unknown[], token) {
+		async call<T>(context: string, command: string, args: unknown[], token?: CancellationToken) {
 			const window = caller(context, windows);
 			if (command === 'createExtensionHost') {
-				const frame = window.webContents.mainFrame;
+
 				const result = await channel.call<{ id: string }>(context, command, args, token);
-				owners.set(result.id, { window: window.id, frame });
+				try { prototypeBinding(context); }
+				catch (error) { await channel.call(context, 'kill', [result.id]); throw error; }
+				owners.set(result.id, context);
 				return result as never;
 			}
 			authorize(context, args?.[0]);
@@ -77,12 +89,50 @@ export function prototypeExtensionChannel(channel: IServerChannel<string>, windo
 				const options = args[1] as { responseWindowId?: number };
 				if (options?.responseWindowId !== window.id) { throw new Error('Rejected extension-host destination'); }
 			}
-			return channel.call(context, command, args, token);
+			const result = await channel.call<T>(context, command, args, token);
+			prototypeBinding(context);
+			return result;
 		},
 		listen(context, event, id) {
 			authorize(context, id);
 			if (!['onDynamicStdout', 'onDynamicStderr', 'onDynamicMessage', 'onDynamicExit'].includes(event)) { throw new Error('Rejected extension-host event'); }
 			return channel.listen(context, event, id);
 		}
+	};
+}
+
+// Renderer workers have a separate owner from provider-owned agent processes.
+export function prototypeWorkerChannel(channel: IServerChannel<string>, windows: IWindowsMainService): IServerChannel<string> {
+	const owners = new Map<string, { context: string; configuration: import('../../utilityProcess/common/utilityProcessWorkerService.js').IUtilityProcessWorkerConfiguration }>();
+	onPrototypeConnectionRevoked(context => {
+		for (const [key, owner] of owners) {
+			if (owner.context === context) {
+				owners.delete(key);
+				void channel.call(context, 'disposeWorker', [owner.configuration]).catch(error => console.error('[lifetime-probe] worker cleanup failed', error));
+			}
+		}
+	});
+	return {
+		async call<T>(context: string, command: string, args: unknown[], token?: CancellationToken): Promise<T> {
+			const window = caller(context, windows);
+			if (!Array.isArray(args) || args.length !== 1) { throw new Error('Rejected worker arguments'); }
+			const configuration = args[0] as import('../../utilityProcess/common/utilityProcessWorkerService.js').IUtilityProcessWorkerCreateConfiguration;
+			if (!configuration || configuration.reply?.windowId !== window.id || !['vs/platform/files/node/watcher/watcherMain', 'vs/platform/localTranscription/node/localTranscriptionMain'].includes(configuration.process?.moduleId)) {
+				throw new Error('Rejected worker owner/module');
+			}
+			checkTargets(configuration, window.id);
+			const key = `${window.id}:${configuration.process.moduleId}`;
+			if (command === 'disposeWorker') {
+				if (owners.get(key)?.context !== context) { throw new Error('Rejected worker connection'); }
+				owners.delete(key);
+			} else if (command === 'createWorker') {
+				if (!configuration.reply.channel?.startsWith('vscode:') || typeof configuration.reply.nonce !== 'string') { throw new Error('Rejected worker reply'); }
+				owners.set(key, { context, configuration });
+			} else { throw new Error('Rejected worker operation'); }
+			const result = await channel.call<T>(context, command, args, token);
+			prototypeBinding(context);
+			return result;
+		},
+		listen() { throw new Error('Rejected worker event'); }
 	};
 }

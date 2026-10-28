@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { prototypeContext } from '../../platform/windows/electron-main/prototypeWorkbenchHost.js';
-import { prototypeNativeChannel, prototypeExtensionChannel } from '../../platform/windows/electron-main/prototypeNativeChannel.js';
+import { bindPrototypeConnection } from '../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { prototypeNativeChannel, prototypeExtensionChannel, prototypeWorkerChannel } from '../../platform/windows/electron-main/prototypeNativeChannel.js';
 
 
 import { app, BrowserWindow, desktopCapturer, globalShortcut, powerMonitor, protocol, screen as electronScreen, session, Session, systemPreferences, WebFrameMain } from 'electron';
@@ -735,7 +735,7 @@ export class CodeApplication extends Disposable {
 		}
 
 		// Main process server (electron IPC based)
-		const mainProcessElectronServer = new ElectronIPCServer(prototypeContext);
+		const mainProcessElectronServer = new ElectronIPCServer(bindPrototypeConnection);
 		Event.once(this.lifecycleMainService.onWillShutdown)(e => {
 			if (e.reason === ShutdownReason.KILL) {
 				// When we go down abnormally, make sure to free up
@@ -1539,7 +1539,7 @@ export class CodeApplication extends Disposable {
 
 		// Utility Process Worker
 		const utilityProcessWorkerChannel = ProxyChannel.fromService(accessor.get(IUtilityProcessWorkerMainService), disposables);
-		mainProcessElectronServer.registerChannel(ipcUtilityProcessWorkerChannelName, utilityProcessWorkerChannel);
+		mainProcessElectronServer.registerChannel(ipcUtilityProcessWorkerChannelName, prototypeWorkerChannel(utilityProcessWorkerChannel, accessor.get(IWindowsMainService)));
 	}
 
 	private async openFirstWindow(accessor: ServicesAccessor, initialProtocolUrls: IInitialProtocolUrls | undefined): Promise<ICodeWindow[]> {

@@ -5,6 +5,7 @@
 
 // THROWAWAY: stage-one hosting/routing probe. No production lifecycle implementation.
 import electron from 'electron';
+import { registerPrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 
 let host: electron.BrowserWindow | undefined;
 let nextId = 100000;
@@ -46,6 +47,7 @@ export function createPrototypeWorkbench(options: electron.BrowserWindowConstruc
 	}
 	const id = nextId++;
 	const view = new electron.WebContentsView({ webPreferences: { ...options.webPreferences, backgroundThrottling: false } });
+	registerPrototypeDocument(view.webContents, id);
 	views.set(id, { view, label: agents ? 'Agents' : `Project ${views.size}` });
 	host.contentView.addChildView(view);
 	view.webContents.on('destroyed', () => { views.delete(id); });

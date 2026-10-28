@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { BrowserWindow, Details, MessageChannelMain, app, utilityProcess, UtilityProcess as ElectronUtilityProcess } from 'electron';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { Emitter, Event } from '../../../base/common/event.js';
@@ -481,6 +482,9 @@ export class WindowUtilityProcess extends UtilityProcess {
 			return true;
 		}
 
+		const generation = prototypeDocumentGeneration(responseWindow.webContents);
+		if (generation === undefined) { return false; }
+
 		// Start utility process
 		const started = super.doStart(configuration);
 		if (!started) {
@@ -493,6 +497,11 @@ export class WindowUtilityProcess extends UtilityProcess {
 		// Establish & exchange message ports
 		const windowPort = this.connect(configuration.payload);
 		console.log('[hosting-probe] port', JSON.stringify({ workbench: responseWindow.id, webContents: responseWindow.webContents.id, channel: configuration.responseChannel }));
+		if (prototypeDocumentGeneration(responseWindow.webContents) !== generation) {
+			windowPort.close();
+			this.kill();
+			return false;
+		}
 		responseWindow.webContents.postMessage(configuration.responseChannel, configuration.responseNonce, [windowPort]);
 
 		return true;
