@@ -1,0 +1,9 @@
+{
+  "runtime": {
+    "electron": "43.8.3",
+    "node": "24.22.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "hosts": []
+}

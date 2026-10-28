@@ -1,0 +1,6 @@
+{
+  "ordinaryCommand": true,
+  "safeguardVisible": true,
+  "safeguardButton": "Terminate",
+  "safeguardWorkbench": "Agents"
+}

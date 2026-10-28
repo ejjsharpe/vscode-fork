@@ -1,0 +1,17 @@
+{
+  "source": "a330d2a1016",
+  "host": 1,
+  "originalViews": [
+    2,
+    3,
+    4
+  ],
+  "destroyed": [
+    2,
+    3,
+    4
+  ],
+  "hostDestroyed": true,
+  "allOriginalViewsDestroyed": true,
+  "remainingHosts": 0
+}

@@ -1,0 +1,38 @@
+{
+  "setup": [
+    {
+      "failure": "Initial detached app became unreachable after launching terminal ended",
+      "repair": "Relaunch with retained PTY and cat; inspector/CDP then remained reachable."
+    },
+    {
+      "failure": "First baseline launch omitted Copilot dist artifacts from the independent dependency/output copy",
+      "repair": "Copied extension dist artifacts independently before candidate launches. Baseline scope is routing rejection, not provider/lifecycle acceptance."
+    },
+    {
+      "failure": "Reused multi-workbench preparation timed out waiting for command palette; shell locator boundingBox waited on canceled navigation",
+      "repair": "Use current-page preparation, ordinary title-bar Open Quick Access and per-launch observed target indexes. No native keyboard-focus claim."
+    },
+    {
+      "failure": "Initial Close probe expected a Save prompt but actual first safeguard was Agents terminal confirmation",
+      "repair": "Accept a real terminal or save safeguard across workbenches; do not label the terminal prompt a lifecycle hang."
+    },
+    {
+      "failure": "Native shortcut/AX Quick Access text entry did not select the requested command in one later attempt; CUA once required state refresh",
+      "repair": "Refresh state and invoke the visible ordinary command via the named Playwright session. Native close-button clicks and native safeguard/Save As interactions are separately verified."
+    }
+  ],
+  "product": [
+    {
+      "source": "af1c117b8f8",
+      "failure": "Close Window rejected as unclassified",
+      "repair": "18cea478f7f classifies the existing Close Window operation; no project-only route remains."
+    },
+    {
+      "source": "18cea478f7f",
+      "failure": "Whole-host shutdown awaited an Agents terminal confirmation in a hidden view while a project remained visible. Native close button reproduced the hidden safeguard.",
+      "repair": "a330d2a1016 focuses each lifecycle-ready workbench before host permission collection. Real terminal/save prompts became visible and cancellation/success controls passed."
+    }
+  ],
+  "creatorClarification": "Close Window means close the whole shared window, like the native close button. A project-tab Close is distinct and project-only. Provisional project-only command routing was removed before runtime candidate testing and never committed.",
+  "remaining": "No Stage 1/feasibility pass or creator experiment verdict. Complete inherited gate remains on the open assigned ticket. Authorization probes remain paused."
+}

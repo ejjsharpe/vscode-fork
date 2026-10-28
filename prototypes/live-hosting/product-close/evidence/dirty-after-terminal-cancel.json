@@ -1,0 +1,13 @@
+{
+  "afterTerminalCancel": true,
+  "projects": [
+    {
+      "workspace": "multi",
+      "dirtyTextPreserved": true
+    },
+    {
+      "workspace": "single",
+      "dirtyTextPreserved": true
+    }
+  ]
+}

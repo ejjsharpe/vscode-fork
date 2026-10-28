@@ -1,0 +1,34 @@
+{
+  "source": "a330d2a1016",
+  "method": "Native CUA controls in the isolated Code - OSS window, plus ordinary command palette driven via named Playwright CLI session",
+  "steps": [
+    {
+      "trigger": "Close Window command",
+      "observed": "Visible Agents confirmation for two terminal sessions",
+      "action": "Cancel",
+      "result": "Host and both dirty projects retained; both dirty texts asserted unchanged"
+    },
+    {
+      "trigger": "Native close button",
+      "observed": "Visible Agents terminal confirmation, then visible single-folder Save/Don\u2019t Save/Cancel prompt",
+      "action": "Terminate then Cancel",
+      "result": "Host and both dirty projects retained; both dirty texts asserted unchanged"
+    },
+    {
+      "trigger": "Later native close button",
+      "action": "Terminate; Save single editor to scratch/single/whole-window-state.txt; Cancel at multi-folder editor prompt",
+      "result": "First file exact content verified; both projects and host retained"
+    },
+    {
+      "trigger": "Later explicit Close Window command",
+      "action": "Terminate; Save remaining multi-folder editor to scratch/multi-a/whole-window-state.txt",
+      "result": "No renewed save prompt for the clean single editor; both files exact; native host and all three original views destroyed after real lifecycle acknowledgements"
+    }
+  ],
+  "limits": [
+    "Project-tab Close not tested in this checkpoint",
+    "Native keyboard focus, IME, VoiceOver and hidden-view accessibility are not certified",
+    "No active task/debug/agent run was started; existing terminal sessions are not proof of running-command/provider continuity",
+    "No replacement/race or paused authorization probes were rerun"
+  ]
+}

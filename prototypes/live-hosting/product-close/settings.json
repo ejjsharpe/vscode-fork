@@ -1,0 +1,8 @@
+{
+  "window.dialogStyle": "custom",
+  "files.hotExit": "off",
+  "files.autoSave": "off",
+  "window.confirmBeforeClose": "never",
+  "terminal.integrated.confirmOnExit": "always",
+  "workbench.startupEditor": "none"
+}

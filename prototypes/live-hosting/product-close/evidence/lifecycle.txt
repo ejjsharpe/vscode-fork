@@ -1,0 +1,42 @@
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[readiness-probe] dispatch 1793213785233 100000 1 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"cancel"}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[readiness-probe] dispatch 1793213832495 100000 1 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[readiness-probe] dispatch 1793213836735 100001 2 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onBeforeUnload","result":"cancel"}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[readiness-probe] dispatch 1793213854162 100000 1 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[readiness-probe] dispatch 1793213857891 100001 2 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[readiness-probe] dispatch 1793213866693 100002 3 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onBeforeUnload","result":"cancel"}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[readiness-probe] dispatch 1793213964396 100000 1 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[readiness-probe] dispatch 1793213975931 100001 2 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[readiness-probe] dispatch 1793213975949 100002 3 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onBeforeUnload","result":"ok"}
+[readiness-probe] dispatch 1793213988611 100000 1 vscode:onWillUnload
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onWillUnload","result":"ok"}
+[readiness-probe] dispatch 1793213988746 100001 2 vscode:onWillUnload
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onWillUnload","result":"ok"}
+[readiness-probe] dispatch 1793213988983 100002 3 vscode:onWillUnload
+[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onWillUnload","result":"ok"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}

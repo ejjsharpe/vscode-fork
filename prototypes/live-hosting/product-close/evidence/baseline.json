@@ -1,0 +1,10 @@
+{
+  "source": "af1c117b8f8",
+  "ordinaryCommand": "Close Window",
+  "result": "failed",
+  "error": "Ordinary Close Window rejected as an unclassified operation",
+  "underlyingNotification": "Unclassified/coordinator-only native operation: closeWindow",
+  "dirtySingleEditor": true,
+  "missingCopilotDistAtLaunch": true,
+  "limit": "UI routing failure only; no provider or lifecycle pass. Baseline launched before missing extension dist artifacts were copied."
+}

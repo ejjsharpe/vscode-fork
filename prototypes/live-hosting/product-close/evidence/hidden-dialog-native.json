@@ -1,0 +1,30 @@
+{
+  "runtime": {
+    "electron": "43.8.3",
+    "node": "24.22.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "hosts": [
+    {
+      "id": 1,
+      "views": [
+        {
+          "contents": 2,
+          "title": "Agents",
+          "visible": false
+        },
+        {
+          "contents": 3,
+          "title": "single unsaved work • Untitled-1 — single",
+          "visible": true
+        },
+        {
+          "contents": 4,
+          "title": "multi unsaved work • Untitled-1 — multi (Workspace)",
+          "visible": false
+        }
+      ]
+    }
+  ]
+}
