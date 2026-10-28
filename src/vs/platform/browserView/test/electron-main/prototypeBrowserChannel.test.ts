@@ -12,9 +12,10 @@ import { IBrowserViewMainService } from '../../electron-main/browserViewMainServ
 import { BrowserView } from '../../electron-main/browserView.js';
 import { prototypeBrowserGroupChannel, prototypeBrowserViewChannel } from '../../electron-main/prototypeBrowserChannel.js';
 import { BrowserSession } from '../../electron-main/browserSession.js';
-import { IBrowserViewInfo } from '../../common/browserView.js';
+import { IBrowserViewInfo, BrowserViewEvent } from '../../common/browserView.js';
 import { IBrowserViewGroupMainService } from '../../electron-main/browserViewGroupMainService.js';
 import { DeferredPromise } from '../../../../base/common/async.js';
+import { Emitter, Event } from '../../../../base/common/event.js';
 
 suite('Native browser ownership', () => {
 	const store = ensureNoDisposablesAreLeakedInTestSuite();
@@ -40,6 +41,32 @@ suite('Native browser ownership', () => {
 		await assert.rejects(channel.call('owner', 'getOrCreateBrowserView', ['new', { host: { windowId: 52 }, session: { scope: 'ephemeral' }, owner: { type: 'user' } }]), /host/);
 		current = false;
 		await assert.rejects(channel.call('owner', 'getURL', ['own']), /Revoked/);
+	});
+
+	test('preserves the native initial snapshot that unblocks current-owner browser creation', () => {
+		const events = store.add(new Emitter<BrowserViewEvent>());
+		class Source {
+			onDynamicBrowserViewEvent(windowId: number): Event<BrowserViewEvent> {
+				return (listener, thisArgs, eventDisposables) => {
+					const subscription = events.event(listener, thisArgs, eventDisposables);
+					listener.call(thisArgs, [{ type: 'snapshot', windowId, views: [] }, []]);
+					return subscription;
+				};
+			}
+		}
+		let current = true;
+		const disposables = store.add(new DisposableStore());
+		const source = new Source();
+		const channel = prototypeBrowserViewChannel(ProxyChannel.fromService(source, disposables), upcastPartial<IBrowserViewMainService>(source), () => {
+			if (!current) { throw new Error('Revoked'); }
+			return { role: 'project', workbench: 51, generation: 1 };
+		}, disposables);
+		const received: string[] = [];
+		store.add(channel.listen<BrowserViewEvent>('owner', 'onDynamicBrowserViewEvent', 51)(([event]) => received.push(event.type)));
+		events.fire([{ type: 'snapshot', windowId: 51, views: [] }, []]);
+		current = false;
+		events.fire([{ type: 'snapshot', windowId: 51, views: [] }, []]);
+		assert.deepStrictEqual(received, ['snapshot', 'snapshot']);
 	});
 
 	test('destroys a browser group that completes after its delegated owner expires', async () => {

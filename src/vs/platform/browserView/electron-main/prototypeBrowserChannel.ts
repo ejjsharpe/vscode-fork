@@ -113,12 +113,16 @@ export function prototypeBrowserViewChannel(channel: IServerChannel<string>, ser
 			if (event === 'onDynamicBrowserViewEvent') {
 				if (arg !== scope.workbench) { throw new Error('Rejected foreign browser event host'); }
 			} else if (event !== 'onDidCreateBrowserView') { throw new Error('Rejected browser event'); }
-			return Event.filter(channel.listen<T>(context, event, arg), value => {
+			// This source synchronously replays its initial snapshot when subscribed.
+			// Event.filter's intermediate emitter subscribes before adding its listener and loses that replay.
+			return (listener, thisArgs, eventDisposables) => channel.listen<T>(context, event, arg)(value => {
+				let permitted: boolean;
 				try {
 					resolveScope(context);
-					return event !== 'onDidCreateBrowserView' || (value as IBrowserViewCreatedEvent).info.host.windowId === scope.workbench;
-				} catch { return false; }
-			});
+					permitted = event !== 'onDidCreateBrowserView' || (value as IBrowserViewCreatedEvent).info.host.windowId === scope.workbench;
+				} catch { return; }
+				if (permitted) { listener.call(thisArgs, value); }
+			}, undefined, eventDisposables);
 		}
 	};
 }
