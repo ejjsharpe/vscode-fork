@@ -3,11 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { revokePrototypeDocument, retirePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { createPrototypeWorkbench, selectPrototypeWorkbench, replacePrototypeWorkbench, removePrototypeWorkbench, setPrototypeRecovery, prototypeHostClosing } from './prototypeWorkbenchHost.js';
 import electron, { BrowserWindowConstructorOptions, Display } from 'electron';
-import { DeferredPromise, RunOnceScheduler, timeout, Delayer } from '../../../base/common/async.js';
-import { CancellationToken } from '../../../base/common/cancellation.js';
+import { DeferredPromise, RunOnceScheduler, timeout, Delayer, raceCancellationError } from '../../../base/common/async.js';
+import { CancellationToken, CancellationTokenSource } from '../../../base/common/cancellation.js';
 import { toErrorMessage } from '../../../base/common/errorMessage.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { Disposable, DisposableStore, IDisposable, MutableDisposable, toDisposable } from '../../../base/common/lifecycle.js';
@@ -864,10 +864,15 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	private prototypeOptions!: BrowserWindowConstructorOptions;
 	private recovery: Promise<void> | undefined;
 	private recoverySerial = 0;
+	private recoveryCancellation: CancellationTokenSource | undefined;
+	private recoveryContents: electron.WebContents | undefined;
+	private closePending = false;
+	private recoveryFailed = false;
 	private logicallyClosed = false;
 	private readonly rendererListeners = this._register(new DisposableStore());
 
 	setReady(): void {
+		if (this.logicallyClosed || this.recoveryFailed) { return; }
 		this.logService.trace(`window#load: window reported ready (id: ${this._id})`);
 
 		this.readyState = ReadyState.READY;
@@ -1022,7 +1027,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				break;
 		}
 
-		if (this.logicallyClosed || this.recovery) { return; }
+		if (this.logicallyClosed || this.recovery || this.closePending) { return; }
 		if (type === WindowError.PROCESS_GONE) { this.readyState = ReadyState.NONE; }
 
 		// Telemetry
@@ -1151,24 +1156,57 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		}
 	}
 
+	setPrototypeClosePending(pending: boolean, failed = false): void {
+		this.closePending = pending;
+		if (pending) {
+			this.recoverySerial++;
+			this.recoveryCancellation?.cancel();
+			this.recoveryCancellation = undefined;
+			this.recovery = undefined;
+			// Cancel attempt-owned bootstrap, but keep healthy outgoing services through cleanup.
+			if (this.recoveryContents && !this.isReady) { this.interruptPrototypeShutdown(); }
+			this.recoveryContents = undefined;
+			setPrototypeRecovery(this.id, localize('projectClosePending', "Close pending"));
+		} else if (!this.logicallyClosed) {
+			setPrototypeRecovery(this.id, failed ? localize('projectCloseFailed', "Close failed") : localize('projectCloseCancelled', "Close cancelled"),
+				this.isReady ? undefined : () => { void this.destroyWindow(true, false); }, () => this.close());
+		}
+	}
+
+	interruptPrototypeShutdown(): void {
+		this.recoveryFailed = true;
+		this.readyState = ReadyState.NONE;
+		retirePrototypeDocument(this.webContents, 'interrupted-or-failed-workbench');
+		this.webContents.stop();
+		if (!this.closePending) {
+			setPrototypeRecovery(this.id, localize('projectRecoveryFailed', "Recovery failed"), () => { void this.destroyWindow(true, false); }, () => this.close());
+		}
+	}
+
 	private async destroyWindow(reopen: boolean, skipRestoreEditors: boolean): Promise<void> {
-		if (this.logicallyClosed || prototypeHostClosing) { return; }
-		if (!reopen) { this.close(); return; }
+		if (this.logicallyClosed) { return; }
+		if (!reopen) { return this.lifecycleMainService.close(this); }
+		if (prototypeHostClosing || this.closePending) { return; }
 		if (this.recovery) { return this.recovery; }
 		const serial = ++this.recoverySerial;
-		this.recovery = this.recoverPrototypeWorkbench(serial, skipRestoreEditors).finally(() => { this.recovery = undefined; });
+		const cancellation = this.recoveryCancellation = new CancellationTokenSource();
+		this.recovery = this.recoverPrototypeWorkbench(serial, skipRestoreEditors, cancellation.token).finally(() => {
+			cancellation.dispose();
+			if (serial === this.recoverySerial) { this.recovery = undefined; this.recoveryCancellation = undefined; this.recoveryContents = undefined; }
+		});
 		return this.recovery;
 	}
 
-	private async recoverPrototypeWorkbench(serial: number, skipRestoreEditors: boolean): Promise<void> {
+	private async recoverPrototypeWorkbench(serial: number, skipRestoreEditors: boolean, token: CancellationToken): Promise<void> {
 		const configuration = { ...this._config! };
 		try {
 			setPrototypeRecovery(this.id, localize('recoveringProject', "Recovering…"), undefined, () => this.close());
-			if (configuration.workspace && !await this.validateWorkspaceBeforeReload(configuration)) { throw new Error('Workspace is unavailable'); }
+			if (configuration.workspace && !await raceCancellationError(this.validateWorkspaceBeforeReload(configuration), token)) { throw new Error('Workspace is unavailable'); }
+			if (token.isCancellationRequested) { return; }
 			if (skipRestoreEditors && configuration.workspace) {
 				const storage = this.storageMainService.workspaceStorage(configuration.workspace);
 				await storage.init();
-				storage.delete('memento/workbench.parts.editor');
+				if (!token.isCancellationRequested) { storage.delete('memento/workbench.parts.editor'); }
 				await storage.close();
 			}
 			if (this.logicallyClosed || serial !== this.recoverySerial || prototypeHostClosing) { return; }
@@ -1177,6 +1215,8 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 			this.logicalCloseListener.clear();
 			revokePrototypeDocument(this.webContents, 'recovery');
 			this.hostedView = replacePrototypeWorkbench(this.id, this.prototypeOptions);
+			this.recoveryContents = this.webContents;
+			this.recoveryFailed = false;
 			this.registerLogicalClose();
 			this.registerRendererListeners();
 			this.readyState = ReadyState.NONE;
@@ -1189,7 +1229,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 			configuration.isInitialStartup = false;
 			const listeners = new DisposableStore();
 			try {
-				await new Promise<void>((resolve, reject) => {
+				await raceCancellationError(new Promise<void>((resolve, reject) => {
 					listeners.add(this.onDidSignalReady(() => resolve()));
 					listeners.add(this.onDidClose(() => reject(new Error('Project closed during recovery'))));
 					listeners.add(Event.fromNodeEventEmitter(this.webContents, 'did-fail-load')(() => reject(new Error('Replacement load failed'))));
@@ -1197,15 +1237,14 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 					const timer = setTimeout(() => reject(new Error('Replacement did not become ready')), 30000);
 					listeners.add(toDisposable(() => clearTimeout(timer)));
 					this.load(configuration, { isReload: true });
-				});
+				}), token);
 			} finally { listeners.dispose(); }
 			if (!this.logicallyClosed && serial === this.recoverySerial) { setPrototypeRecovery(this.id, undefined); }
 		} catch (error) {
+			if (token.isCancellationRequested) { return; }
 			this.logService.error('Project recovery failed', error);
 			if (!this.logicallyClosed && serial === this.recoverySerial) {
-				revokePrototypeDocument(this.webContents, 'recovery-failed');
-				this.readyState = ReadyState.NONE;
-				setPrototypeRecovery(this.id, localize('projectRecoveryFailed', "Recovery failed"), () => { void this.destroyWindow(true, false); }, () => this.close());
+				this.interruptPrototypeShutdown();
 			}
 		}
 	}
@@ -1839,6 +1878,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	override dispose(): void {
 		this.logicallyClosed = true;
 		this.recoverySerial++;
+		this.recoveryCancellation?.cancel();
 		this.whenReadyCallbacks.length = 0;
 		super.dispose();
 

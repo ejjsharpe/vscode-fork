@@ -10,7 +10,7 @@ import { Emitter } from '../../../common/event.js';
 
 let generation = 0;
 let connection = 0;
-const documents = new Map<number, { generation: number; nonce?: string; workbench: number }>();
+const documents = new Map<number, { generation: number; nonce?: string; workbench: number; retired?: boolean }>();
 const bindings = new Map<string, { contents: WebContents; generation: number; workbench: number }>();
 const revoked = new Emitter<string>();
 export const onPrototypeConnectionRevoked = revoked.event;
@@ -33,6 +33,12 @@ export function revokePrototypeDocument(contents: WebContents, reason: string): 
 	console.log('[lifetime-probe] revoke', JSON.stringify({ workbench: document.workbench, generation: document.generation, reason }));
 }
 
+export function retirePrototypeDocument(contents: WebContents, reason: string): void {
+	const document = documents.get(contents.id);
+	if (document) { document.retired = true; }
+	revokePrototypeDocument(contents, reason);
+}
+
 export function registerPrototypeDocument(contents: WebContents, workbench: number): void {
 	documents.set(contents.id, { generation: 0, workbench });
 	contents.on('did-start-navigation', (_event, _url, inPlace, mainFrame) => {
@@ -45,6 +51,7 @@ export function registerPrototypeDocument(contents: WebContents, workbench: numb
 	});
 	// Main pushes a fresh secret to the new document's isolated preload, never a client claim.
 	contents.on('dom-ready', () => {
+		if (documents.get(contents.id)?.retired) { return; }
 		revokePrototypeDocument(contents, 'bootstrap');
 		const document = documents.get(contents.id)!;
 		document.generation = ++generation;

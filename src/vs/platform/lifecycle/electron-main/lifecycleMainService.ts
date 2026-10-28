@@ -8,7 +8,7 @@ import { randomUUID } from 'node:crypto';
 import { prototypeHostClosing, setPrototypeHostClosing } from '../../windows/electron-main/prototypeWorkbenchHost.js';
 import { onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply, revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { validatedIpcMain } from '../../../base/parts/ipc/electron-main/ipcMain.js';
-import { Barrier, Promises, timeout } from '../../../base/common/async.js';
+import { Barrier, DeferredPromise, Promises, timeout } from '../../../base/common/async.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { Disposable, DisposableStore } from '../../../base/common/lifecycle.js';
 import { isMacintosh, isWindows } from '../../../base/common/platform.js';
@@ -244,6 +244,8 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	private readonly prototypeWindows = new Map<number, ICodeWindow>();
 	private readonly prototypeHosts = new WeakSet<electron.BrowserWindow>();
 	private readonly closingProjects = new Set<number>();
+	private readonly pendingProjectCloses = new Map<number, DeferredPromise<void>>();
+	private readonly completedHostCleanup = new Map<number, electron.WebContents>();
 	private windowCounter = 0;
 
 	private pendingQuitPromise: Promise<boolean> | undefined = undefined;
@@ -427,9 +429,15 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		const listeners = new DisposableStore();
 		this.prototypeWindows.set(window.id, window);
 		this.windowCounter++;
-		listeners.add(window.onWillLoad(e => this._onWillLoadWindow.fire({ window, workspace: e.workspace, reason: e.reason })));
+		listeners.add(window.onWillLoad(e => {
+			this.completedHostCleanup.delete(window.id);
+			this._onWillLoadWindow.fire({ window, workspace: e.workspace, reason: e.reason });
+		}));
 		listeners.add(window.onDidClose(() => {
 			this.prototypeWindows.delete(window.id);
+			this.completedHostCleanup.delete(window.id);
+			void this.pendingProjectCloses.get(window.id)?.complete();
+			this.pendingProjectCloses.delete(window.id);
 			this.windowCounter--;
 			listeners.dispose();
 			if (this.windowCounter === 0 && (!isMacintosh || this._quitRequested)) { this.fireOnWillShutdown(ShutdownReason.QUIT); }
@@ -444,24 +452,49 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		}
 	}
 
-	async close(window: ICodeWindow): Promise<void> {
-		if (prototypeHostClosing || this.closingProjects.has(window.id) || !this.prototypeWindows.has(window.id)) { return; }
+	close(window: ICodeWindow): Promise<void> {
+		if (!this.prototypeWindows.has(window.id)) { return Promise.resolve(); }
+		const existing = this.pendingProjectCloses.get(window.id);
+		if (existing) { return existing.p; }
+		const pending = new DeferredPromise<void>();
+		this.pendingProjectCloses.set(window.id, pending);
+		window.setPrototypeClosePending(true);
+		if (!prototypeHostClosing) { void this.finishPrototypeClose(window); }
+		return pending.p;
+	}
+
+	private async finishPrototypeClose(window: ICodeWindow): Promise<void> {
+		if (this.closingProjects.has(window.id)) { return; }
+		const pending = this.pendingProjectCloses.get(window.id);
+		if (!pending) { return; }
 		this.closingProjects.add(window.id);
+		let failed = false;
 		try {
-			if (await this.unload(window, UnloadReason.CLOSE)) { return; }
+			if (!this.prototypeWindows.has(window.id)) { return; }
+			if (this.completedHostCleanup.get(window.id) !== window.webContents && await this.unload(window, UnloadReason.CLOSE)) { return; }
 			this._onBeforeCloseWindow.fire(window);
 			window.webContents.close({ waitForBeforeUnload: false });
-		} finally { this.closingProjects.delete(window.id); }
+		} catch (error) {
+			failed = true;
+			this.logService.error(error);
+		} finally {
+			this.closingProjects.delete(window.id);
+			this.pendingProjectCloses.delete(window.id);
+			this.completedHostCleanup.delete(window.id);
+			if (this.prototypeWindows.has(window.id)) { window.setPrototypeClosePending(false, failed); }
+			await pending.complete();
+		}
 	}
 
 	private async closePrototypeHost(host: electron.BrowserWindow): Promise<void> {
 		setPrototypeHostClosing(true);
 		const windows = [...this.prototypeWindows.values()].filter(window => window.win === host);
 		const authorized = new Map<ICodeWindow, number>();
+		const cleanupStarted = new Set<ICodeWindow>();
 		try {
 			// Ask every live project before any cleanup; a veto must leave neighbours usable.
 			for (const window of windows) {
-				if (this.mapWindowIdToPendingUnload.has(window.id) || !window.isReady) {
+				if (this.closingProjects.has(window.id) || this.mapWindowIdToPendingUnload.has(window.id) || !window.isReady) {
 					this.handleWindowUnloadVeto(true);
 					return;
 				}
@@ -473,10 +506,13 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 				authorized.set(window, generation);
 			}
 			for (const [window, generation] of authorized) {
+				cleanupStarted.add(window);
 				if (prototypeDocumentGeneration(window.webContents) !== generation || await this.onWillUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE) === 'interrupted') {
 					this.handleWindowUnloadVeto(true);
 					return;
 				}
+				this.completedHostCleanup.set(window.id, window.webContents);
+				revokePrototypeDocument(window.webContents, 'host-cleanup-complete');
 			}
 			for (const window of windows) {
 				revokePrototypeDocument(window.webContents, 'host-shutdown');
@@ -487,7 +523,17 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		} catch (error) {
 			this.logService.error(error);
 			this.handleWindowUnloadVeto(true);
-		} finally { setPrototypeHostClosing(false); }
+		} finally {
+			setPrototypeHostClosing(false);
+			for (const window of cleanupStarted) {
+				if (!host.isDestroyed() && this.prototypeWindows.has(window.id)) { window.interruptPrototypeShutdown(); }
+			}
+			for (const id of this.pendingProjectCloses.keys()) {
+				const window = this.prototypeWindows.get(id);
+				if (window) { void this.finishPrototypeClose(window); }
+				else { await this.pendingProjectCloses.get(id)?.complete(); this.pendingProjectCloses.delete(id); }
+			}
+		}
 	}
 
 	registerAuxWindow(auxWindow: IAuxiliaryWindow): void {
@@ -521,7 +567,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	}
 
 	async reload(window: ICodeWindow, cli?: NativeParsedArgs): Promise<void> {
-		if (prototypeHostClosing || this.closingProjects.has(window.id)) { return; }
+		if (prototypeHostClosing || this.pendingProjectCloses.has(window.id)) { return; }
 
 		// Only reload when the window has not vetoed this
 		const veto = await this.unload(window, UnloadReason.RELOAD);

@@ -80,6 +80,8 @@ export interface ICodeWindow extends IBaseWindow {
 	reload(cli?: NativeParsedArgs): void;
 
 	close(): void;
+	setPrototypeClosePending(pending: boolean, failed?: boolean): void;
+	interruptPrototypeShutdown(): void;
 
 	getBounds(): electron.Rectangle;
 

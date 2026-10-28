@@ -84,7 +84,7 @@ export function createPrototypeWorkbench(options: electron.BrowserWindowConstruc
 		host.webContents.on('will-navigate', (event, url) => {
 			event.preventDefault();
 			const match = /^https:\/\/prototype\.invalid\/(select|retry|close)\/(\d+)$/.exec(url);
-			if (!match || prototypeHostClosing) { return; }
+			if (!match || (prototypeHostClosing && match[1] !== 'close')) { return; }
 			const id = Number(match[2]);
 			if (match[1] === 'select') { selectPrototypeWorkbench(id); }
 			else if (match[1] === 'retry') { views.get(id)?.retry?.(); }
