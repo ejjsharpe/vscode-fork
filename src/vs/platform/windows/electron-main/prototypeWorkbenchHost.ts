@@ -68,7 +68,7 @@ export function replacePrototypeWorkbench(id: number, options: electron.BrowserW
 	const old = entry.view;
 	const oldContents = entry.contents;
 	const view = new electron.WebContentsView({ webPreferences: { ...options.webPreferences, backgroundThrottling: false } });
-	registerPrototypeDocument(view.webContents, id);
+	registerPrototypeDocument(view.webContents, id, { role: entry.agents ? 'agents' : 'project' });
 	entry.view = view;
 	entry.contents = view.webContents;
 	host.contentView.removeChildView(old);
@@ -249,7 +249,7 @@ export function createPrototypeWorkbench(options: electron.BrowserWindowConstruc
 	}
 	const id = nextId++;
 	const view = new electron.WebContentsView({ webPreferences: { ...options.webPreferences, backgroundThrottling: false } });
-	registerPrototypeDocument(view.webContents, id);
+	registerPrototypeDocument(view.webContents, id, { role: agents ? 'agents' : 'project' });
 	views.set(id, { view, contents: view.webContents, label: agents ? localize('agents', "Agents") : localize('emptyProject', "Empty Project"), path: '', agents });
 	host.contentView.addChildView(view);
 

@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { DeferredPromise } from '../../../base/common/async.js';
+import { CancellationToken } from '../../../base/common/cancellation.js';
 import { ProxyChannel } from '../../../base/parts/ipc/common/ipc.js';
 import { Server as ChildProcessServer } from '../../../base/parts/ipc/node/ipc.cp.js';
 import { Server as UtilityProcessServer } from '../../../base/parts/ipc/node/ipc.mp.js';
@@ -280,7 +281,11 @@ async function startAgentHost(): Promise<void> {
 
 	if (server instanceof UtilityProcessServer) {
 		const localDataPlaneDisposables = protocolIngressDisposables.add(new DisposableStore());
-		const messagePortProtocolServer = localDataPlaneDisposables.add(new MessagePortProtocolServer<string>());
+		const messagePortProtocolServer = localDataPlaneDisposables.add(new MessagePortProtocolServer<string>(context => {
+			const scope = server.getConnectionScope(context);
+			if (!scope?.clientId) { throw new Error('Rejected non-renderer Agent Host protocol connection'); }
+			return scope.clientId;
+		}));
 		// Shared config for the local data-plane protocol handlers (renderer
 		// MessagePort + the external endpoint, which each get their own handler).
 		const localProtocolHandlerConfig = {
@@ -309,12 +314,13 @@ async function startAgentHost(): Promise<void> {
 				if (authorityRegistrations.has(connection)) {
 					return;
 				}
-				const clientId = connection.ctx;
-				if (typeof clientId !== 'string' || !clientId) {
+				const scope = server.getConnectionScope(connection.ctx);
+				const clientId = scope?.clientId;
+				if (!clientId) {
 					return;
 				}
 				const connectionStore = new DisposableStore();
-				const getChannel = (channelName: string) => server.getChannel(channelName, c => c.ctx === clientId);
+				const getChannel = (channelName: string) => server.getChannel(channelName, c => c.ctx === connection.ctx);
 				const proxyConnection = createAgentHostClientProxyConnection(getChannel(AGENT_HOST_CLIENT_PROXY_CHANNEL));
 				connectionStore.add(proxyResolver.register(clientId, proxyConnection));
 				if (byokLmBridgeRegistry) {
@@ -514,7 +520,18 @@ async function startAgentHost(): Promise<void> {
 		},
 	);
 	management.setMissionControl(missionControl.environment);
-	server.registerChannel(AgentHostIpcChannels.Management, ProxyChannel.fromService(management, disposables));
+	const managementChannel = ProxyChannel.fromService(management, disposables);
+	const utilityServer = server instanceof UtilityProcessServer ? server : undefined;
+	server.registerChannel(AgentHostIpcChannels.Management, utilityServer ? {
+		async call<T>(context: string, command: string, args: unknown[], token?: CancellationToken) {
+			const scope = utilityServer.getConnectionScope(context);
+			if (scope && (scope.role !== 'agents' || ['shutdown', 'setSystemFullyAwake', 'setSystemNetworkOnline', 'reportMacAccessibilityTrustChange'].includes(command))) { throw new Error('Rejected non-owner Agent Host management operation'); }
+			const result = await managementChannel.call<T>(context, command, args, token);
+			utilityServer.getConnectionScope(context);
+			return result;
+		},
+		listen() { throw new Error('Agent Host management has no renderer events'); }
+	} : managementChannel);
 	if (!(server instanceof UtilityProcessServer)) {
 		server.registerChannel(AgentHostIpcChannels.ConnectionTracker, ProxyChannel.fromService(connectionTrackerService, disposables));
 	}

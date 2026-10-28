@@ -3,7 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { onPrototypeDocumentRevoked, prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { onPrototypeConnectionRevoked, onPrototypeDocumentRevoked, prototypeBinding, prototypeDocumentGeneration, revokePrototypeConnection } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { ITrustedMessagePortConnection } from '../../../base/parts/ipc/common/ipc.mp.js';
 import { Details, MessageChannelMain, app, utilityProcess, UtilityProcess as ElectronUtilityProcess } from 'electron';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { Emitter, Event } from '../../../base/common/event.js';
@@ -183,6 +184,7 @@ export class UtilityProcess extends Disposable {
 	private process: ElectronUtilityProcess | undefined = undefined;
 	private processPid: number | undefined = undefined;
 	private configuration: IUtilityProcessConfiguration | undefined = undefined;
+	private readonly rendererConnections = new Set<string>();
 
 	constructor(
 		@ILogService private readonly logService: ILogService,
@@ -190,6 +192,14 @@ export class UtilityProcess extends Disposable {
 		@ILifecycleMainService protected readonly lifecycleMainService: ILifecycleMainService
 	) {
 		super();
+		this._register(onPrototypeConnectionRevoked(context => {
+			if (this.rendererConnections.delete(context)) { this.postMessage({ type: 'vscode:ipc-revoke', context }); }
+		}));
+		this._register(this.onExit(() => this.rendererConnections.clear()));
+		this._register(this.onMessage(message => {
+			const closed = message as { type?: string; context?: string } | undefined;
+			if (closed?.type === 'vscode:ipc-closed' && typeof closed.context === 'string' && this.rendererConnections.delete(closed.context)) { revokePrototypeConnection(closed.context); }
+		}));
 	}
 
 	protected log(msg: string, severity: Severity): void {
@@ -395,9 +405,20 @@ export class UtilityProcess extends Disposable {
 		return true;
 	}
 
-	connect(payload?: unknown): Electron.MessagePortMain {
+	connect(payload?: unknown, context?: string, clientId?: string): Electron.MessagePortMain {
+		let message = payload;
+		if (context) {
+			const binding = prototypeBinding(context);
+			message = { type: 'vscode:ipc-connection', context, scope: { ...binding.scope, workbench: binding.workbench, generation: binding.generation, clientId }, payload } satisfies ITrustedMessagePortConnection;
+			this.rendererConnections.add(context);
+		}
 		const { port1: outPort, port2: utilityProcessPort } = new MessageChannelMain();
-		this.postMessage(payload, [utilityProcessPort]);
+		if (!this.postMessage(message, [utilityProcessPort])) {
+			outPort.close();
+			utilityProcessPort.close();
+			if (context) { this.rendererConnections.delete(context); }
+			throw new Error('Utility process is unavailable');
+		}
 
 		return outPort;
 	}

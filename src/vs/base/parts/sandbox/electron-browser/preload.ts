@@ -130,7 +130,7 @@
 						ipcRenderer.send(channel, ...args, documentNonce);
 						return;
 					}
-					if ((['vscode:hello', 'vscode:message', 'vscode:disconnect'].includes(channel) || /^vscode:(ok|cancel|reply)/.test(channel))) {
+					if ((['vscode:hello', 'vscode:message', 'vscode:disconnect', 'vscode:createSharedProcessChannelConnection', 'vscode:createSharedProcessRawConnection', 'vscode:createPtyHostMessageChannel', 'vscode:createAgentHostMessageChannel', 'vscode:agentHostOTelPolicy', 'vscode:restartAgentHost'].includes(channel) || /^vscode:(ok|cancel|reply)/.test(channel))) {
 						if (!documentNonce) { pendingTransport.push([channel, args]); }
 						else { ipcRenderer.send(channel, ...args, documentNonce); }
 					} else { ipcRenderer.send(channel, ...args); }
