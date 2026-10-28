@@ -916,6 +916,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	private recoveryCancellation: CancellationTokenSource | undefined;
 	private recoveryContents: electron.WebContents | undefined;
 	private closePending = false;
+	get isPrototypeClosePending(): boolean { return this.closePending; }
 	private recoveryFailed = false;
 	private logicallyClosed = false;
 	private readonly rendererListeners = this._register(new DisposableStore());

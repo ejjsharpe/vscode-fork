@@ -13,7 +13,7 @@ import { VSBuffer } from '../../../base/common/buffer.js';
 
 export const ptyNativeParentChannelName = 'ptyNativeParent';
 
-export function createLocalPtyChannel(service: IPtyService | ILocalPtyService, disposables: DisposableStore, getScope?: (context: string) => IMessagePortConnectionScope | undefined, onRevoked: Event<string> = Event.None, nativeService = false, resolveNativeParent?: (context: string, handle: VSBuffer, targetWindowId: number) => Promise<VSBuffer>): IServerChannel {
+export function createLocalPtyChannel(service: IPtyService | ILocalPtyService, disposables: DisposableStore, getScope?: (context: string) => IMessagePortConnectionScope | undefined, onRevoked: Event<string> = Event.None, nativeService = false, resolveNativeParent?: (context: string, handle: VSBuffer, targetWindowId: number) => Promise<VSBuffer>, requestRestart?: (context: string) => Promise<void>): IServerChannel {
 	const channel = ProxyChannel.fromService(service, disposables, {
 		// Process events use the direct pty host connection; keep management-event buffering unchanged on this channel.
 		unbufferedEvents: [
@@ -54,6 +54,11 @@ export function createLocalPtyChannel(service: IPtyService | ILocalPtyService, d
 			const scope = getScope(context);
 			if (!scope) { return channel.call<T>(context, command, args); }
 			if (scope.role === 'auxiliary' || !Array.isArray(args)) { throw new Error('Rejected PTY caller or arguments'); }
+			if (command === 'restartPtyHost' && requestRestart) {
+				await requestRestart(context);
+				getScope(context);
+				return undefined as T;
+			}
 			if (processMethods.has(command)) {
 				if (typeof args[0] !== 'number') { throw new Error('Rejected PTY process handle'); }
 				await ownProcess(context, args[0]);
