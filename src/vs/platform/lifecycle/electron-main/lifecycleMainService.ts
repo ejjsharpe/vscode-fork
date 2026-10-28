@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import electron from 'electron';
-import { randomUUID } from 'node:crypto';
+import { randomUUID } from 'crypto';
 import { prototypeHostClosing, setPrototypeHostClosing, reportPrototypeCloseFailure } from '../../windows/electron-main/prototypeWorkbenchHost.js';
 import { prototypeLifecycleReady, onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply, revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { validatedIpcMain } from '../../../base/parts/ipc/electron-main/ipcMain.js';

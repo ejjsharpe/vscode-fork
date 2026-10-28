@@ -38,6 +38,7 @@ import { getRemoteAuthority } from '../../remote/common/remoteHosts.js';
 import { IStateService } from '../../state/node/state.js';
 import { AgentsWindowOpenSource, IAgentsWindowDraft, IAddRemoveFoldersRequest, INativeOpenFileRequest, INativeWindowConfiguration, IOpenEmptyWindowOptions, IPath, IPathsToWaitFor, isFileToOpen, isFolderToOpen, isWorkspaceToOpen, IWindowOpenable, IWindowSettings } from '../../window/common/window.js';
 import { CodeWindow } from './windowImpl.js';
+import { getSelectedPrototypeWorkbench } from './prototypeWorkbenchHost.js';
 import { IOpenConfiguration, IOpenEmptyConfiguration, IWindowsCountChangedEvent, IWindowsMainService, OpenContext, getLastFocused } from './windows.js';
 import { findWindowOnExtensionDevelopmentPath, findWindowOnFile, findWindowOnWorkspaceOrFolder } from './windowsFinder.js';
 import { IWindowState, WindowsStateHandler } from './windowsStateHandler.js';
@@ -1738,7 +1739,8 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 	getFocusedWindow(): ICodeWindow | undefined {
 		const window = BrowserWindow.getFocusedWindow();
 		if (window) {
-			return this.getWindows().find(candidate => candidate.webContents.isFocused());
+			const auxiliary = this.auxiliaryWindowsMainService.getWindowByWebContents(window.webContents);
+			return auxiliary ? this.getWindowById(auxiliary.parentId) : this.getWindowByBrowserWindow(window);
 		}
 
 		return undefined;
@@ -1788,6 +1790,11 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 
 	getWindowById(windowId: number): ICodeWindow | undefined {
 		return this.windows.get(windowId);
+	}
+
+	getWindowByBrowserWindow(window: BrowserWindow): ICodeWindow | undefined {
+		const selected = getSelectedPrototypeWorkbench(window);
+		return selected === undefined ? this.getWindowByWebContents(window.webContents) : this.getWindowById(selected);
 	}
 
 	getWindowByWebContents(webContents: WebContents): ICodeWindow | undefined {
