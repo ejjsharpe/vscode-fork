@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { chatHomeWorkspaceValidator } from '../../workspace/common/chatHomeWorkspace.js';
 import { createHash } from 'crypto';
 import { IJSONSchema } from '../../../base/common/jsonSchema.js';
 import { stableStringify } from '../../../base/common/objects.js';
@@ -418,6 +419,7 @@ const workingDirectoriesValidator = new RefinedValidator(
 );
 
 const chatValidator = plainObject(vObj({
+	homeWorkspace: vOptionalProp(chatHomeWorkspaceValidator),
 	uri: uriString(),
 	order: safeInteger(),
 	kind: vEnum('default', 'peer'),

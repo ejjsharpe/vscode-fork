@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import type { ChatHomeWorkspace } from '../../workspace/common/chatHomeWorkspace.js';
 import { DeferredPromise, disposableTimeout } from '../../../base/common/async.js';
 import type { CancellationToken } from '../../../base/common/cancellation.js';
 import { Emitter, Event, Relay } from '../../../base/common/event.js';
@@ -734,6 +735,14 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 			return this._getManagementService().createChatWithExtensions(session, chat, options);
 		}
 		return this._requireClient().createChat(session, chat, options);
+	}
+
+	getChatHomeWorkspace(chat: URI): Promise<ChatHomeWorkspace | undefined> {
+		return this._requireClient().getChatHomeWorkspace(chat);
+	}
+
+	setChatHomeWorkspace(chat: URI, home: ChatHomeWorkspace): Promise<void> {
+		return this._requireClient().setChatHomeWorkspace(chat, home);
 	}
 
 	setChatWorkspace(chat: URI, workspace: IAgentCreateChatWorkspace): Promise<void> {

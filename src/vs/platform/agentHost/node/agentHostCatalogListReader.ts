@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { withChatHomeWorkspace } from '../../workspace/common/chatHomeWorkspace.js';
 import { Limiter } from '../../../base/common/async.js';
 import { type IAgentSessionMetadata } from '../common/agent.js';
 import { readCodexSessionModel } from '../common/meta/codexSessionModel.js';
@@ -145,7 +146,12 @@ export class AgentHostCatalogListReader {
 		let status = withSessionStatusFlag(SessionStatus.Idle, SessionStatus.IsRead, data.isRead);
 		status = withSessionStatusFlag(status, SessionStatus.IsArchived, data.isArchived);
 		// Payloads written by earlier versions record the session folder's GitHub state on its own.
-		const meta = withSessionExternal(withMigratedSessionGitHubState(data._meta, data.workingDirectories[0]?.toString()), registered.external);
+		let meta = withSessionExternal(withMigratedSessionGitHubState(data._meta, data.workingDirectories[0]?.toString()), registered.external);
+		for (const chat of data.chats) {
+			if (chat.homeWorkspace !== undefined) {
+				meta = withChatHomeWorkspace(meta, chat.uri.toString(), chat.homeWorkspace);
+			}
+		}
 		const model = readCodexSessionModel({ _meta: meta });
 		return {
 			session: registered.session,
@@ -164,6 +170,7 @@ export class AgentHostCatalogListReader {
 			chats: data.chats.map(chat => ({
 				chat: chat.uri,
 				summary: chat.summary,
+				...(chat.homeWorkspace !== undefined ? { homeWorkspace: chat.homeWorkspace } : {}),
 				kind: chat.kind,
 				origin: fromCatalogChatOrigin(chat.origin),
 				...(chat.interactivity !== undefined ? { interactivity: chat.interactivity } : {}),

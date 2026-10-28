@@ -3,6 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { readInitialChatHomeWorkspaceMeta, retainRecordedChatHomeWorkspaces } from '../../../../../platform/agentHost/common/meta/agentChatHomeWorkspaceMeta.js';
+import { CHAT_HOME_WORKSPACE_METADATA_KEY, ChatHomeWorkspace, readChatHomeWorkspace, readChatHomeWorkspaceFromMeta, withChatHomeWorkspace } from '../../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { disposableTimeout, raceCancellation, raceCancellationError } from '../../../../../base/common/async.js';
 import { CancellationToken, CancellationTokenSource } from '../../../../../base/common/cancellation.js';
 import { Codicon } from '../../../../../base/common/codicons.js';
@@ -283,6 +285,7 @@ interface ISerializedSessionMetadata {
 		readonly chat: string;
 		readonly summary?: string;
 		readonly kind: 'default' | 'peer';
+		readonly homeWorkspace?: ChatHomeWorkspace;
 		readonly origin?: ChatOrigin;
 		readonly provider?: string;
 		readonly interactivity?: ProtocolChatInteractivity;
@@ -349,6 +352,7 @@ function serializeMetadata(meta: IAgentSessionMetadata, discovery?: IAgentHostSe
 			chat: chat.chat.toString(),
 			summary: chat.summary,
 			kind: chat.kind,
+			...(chat.homeWorkspace !== undefined ? { homeWorkspace: chat.homeWorkspace } : {}),
 			origin: chat.origin,
 			...(readChatMetadataProvider(chat) !== undefined ? { provider: readChatMetadataProvider(chat) } : {}),
 			...(chat.interactivity !== undefined ? { interactivity: chat.interactivity } : {}),
@@ -407,6 +411,12 @@ function deserializeMetadata(raw: ISerializedSessionMetadata): IAgentSessionMeta
 		if (initiator) {
 			_meta = withSessionInitiator(_meta, initiator);
 		}
+		for (const chat of raw.chats ?? []) {
+			const home = readChatHomeWorkspace(chat.homeWorkspace);
+			if (home !== undefined) {
+				_meta = withChatHomeWorkspace(_meta, chat.chat, home);
+			}
+		}
 		_meta = withSessionExternal(_meta, raw.external === true);
 		_meta = withSessionMultiRootMetadata(_meta, readSessionMultiRootMetadata({ [SESSION_META_MULTI_ROOT_KEY]: raw.multiRoot }));
 		_meta = withSessionGitHubData(_meta, parseSessionGitHubData(raw.githubData));
@@ -457,6 +467,7 @@ function deserializeMetadata(raw: ISerializedSessionMetadata): IAgentSessionMeta
 				chat: URI.parse(chat.chat),
 				summary: chat.summary,
 				kind: chat.kind,
+				...(readChatHomeWorkspace(chat.homeWorkspace) !== undefined ? { homeWorkspace: readChatHomeWorkspace(chat.homeWorkspace) } : {}),
 				origin: chat.origin,
 				...(typeof chat.provider === 'string' ? { provider: chat.provider } : {}),
 				...(chat.interactivity !== undefined ? { interactivity: chat.interactivity } : {}),
@@ -1134,7 +1145,7 @@ class AdditionalChat extends Disposable {
 		return this._movable;
 	}
 
-	constructor(resource: URI, summary: AgentHostChatSummary, createdAtFallback: Date, changesets: IObservable<readonly ISessionChangeset[] | undefined>, backgroundShells: IObservable<readonly IChatBackgroundShell[]>, private readonly _acquireDetails: () => IDisposable, sessionWorkspace: IObservable<ISessionWorkspace | undefined>, mapWorkingDirectoryUri: AgentHostUriMapper, isNew: boolean = false, parentChat?: URI, sessionIsArchived: IObservable<boolean> = constObservable(false), canArchive: IObservable<boolean> = constObservable(false), output?: IChatOutputObs, sessionIsReadOnly: IObservable<boolean> = constObservable(false), connectionStatus?: IObservable<RemoteAgentHostConnectionStatus>, allowOfflineDrafts: IObservable<boolean> = constObservable(false), sessionAgentProvider?: string) {
+	constructor(resource: URI, summary: AgentHostChatSummary, createdAtFallback: Date, changesets: IObservable<readonly ISessionChangeset[] | undefined>, backgroundShells: IObservable<readonly IChatBackgroundShell[]>, private readonly _acquireDetails: () => IDisposable, sessionWorkspace: IObservable<ISessionWorkspace | undefined>, mapWorkingDirectoryUri: AgentHostUriMapper, isNew: boolean = false, parentChat?: URI, sessionIsArchived: IObservable<boolean> = constObservable(false), canArchive: IObservable<boolean> = constObservable(false), output?: IChatOutputObs, sessionIsReadOnly: IObservable<boolean> = constObservable(false), connectionStatus?: IObservable<RemoteAgentHostConnectionStatus>, allowOfflineDrafts: IObservable<boolean> = constObservable(false), sessionAgentProvider?: string, homeWorkspace?: IObservable<ChatHomeWorkspace | undefined>) {
 		super();
 		this.backendUri = URI.parse(summary.resource);
 		this._origin = summary.origin;
@@ -1181,6 +1192,7 @@ class AdditionalChat extends Disposable {
 			...(this.agentProvider ? { harness: toAgentHostChatHarness(this.agentProvider) } : {}),
 			createdAt: modifiedAt ?? createdAtFallback,
 			workspace: this._withDetails(workspace),
+			homeWorkspace,
 			title: this._withDetails(this._title),
 			updatedAt: this._withDetails(this._updatedAt),
 			status: toPresentedSessionStatus(this, status, connectionStatus),
@@ -1810,6 +1822,10 @@ export class AgentHostSessionAdapter extends Disposable implements ISession {
 			harness: this.harness,
 			createdAt: this.createdAt,
 			workspace: defaultChatWorkspace,
+			homeWorkspace: derived(this, reader => {
+				const chat = this._defaultChatBackendUri.read(reader);
+				return chat ? readChatHomeWorkspaceFromMeta(this._metaObs.read(reader), chat.toString()) : undefined;
+			}),
 			title: this._options.useSessionTitleForDefaultChat ? this.title : derived(this, reader => this._defaultChatTitleOverride.read(reader) ?? this.title.read(reader)),
 			updatedAt: this._withChatDetails(this._defaultChatUpdatedAt),
 			status: toPresentedSessionStatus(this, defaultChatStatus, this._options.preserveStatusWhenDisconnected ? undefined : connectionStatus),
@@ -2282,6 +2298,7 @@ export class AgentHostSessionAdapter extends Disposable implements ISession {
 			this._options.preserveStatusWhenDisconnected ? undefined : this._options.connectionStatus,
 			this._options.allowOfflineDrafts,
 			this.agentProvider,
+			derived(this, reader => readChatHomeWorkspaceFromMeta(this._metaObs.read(reader), backendUri.toString())),
 		);
 		const selection = this._chatModelSelections.get(chatId);
 		if (selection) {
@@ -2782,6 +2799,7 @@ export class AgentHostSessionAdapter extends Disposable implements ISession {
 	 * yet.
 	 */
 	setMeta(meta: SessionMeta | undefined, tx?: ITransaction): boolean {
+		meta = retainRecordedChatHomeWorkspaces(this._meta, meta);
 		// Discovery knows the creating application even when the host reports a fallback.
 		const initiator = this.discoveryMetadata?.initiator ?? readSessionInitiator({ _meta: meta }) ?? readSessionInitiator({ _meta: this._meta });
 		if (initiator) {
@@ -3554,6 +3572,7 @@ class NewSession extends Disposable {
 		const mainChat: IChat = {
 			resource, createdAt, title, updatedAt,
 			workspace: this._workspace,
+			homeWorkspace: constObservable(readChatHomeWorkspace(this._initialMetadata?.[CHAT_HOME_WORKSPACE_METADATA_KEY])),
 			status: this._status,
 			changes,
 			changesets: this._changesets,
@@ -5538,6 +5557,9 @@ export abstract class BaseAgentHostSessionsProvider extends Disposable implement
 	// -- Session lifecycle ----------------------------------------------------
 
 	createNewSession(workspaceUri: URI, sessionTypeId: string, options?: ISessionsProviderCreateSessionOptions): ISession {
+		if (options?.homeWorkspace !== undefined) {
+			options = { ...options, metadata: { ...options.metadata, [CHAT_HOME_WORKSPACE_METADATA_KEY]: options.homeWorkspace } };
+		}
 		if (!workspaceUri) {
 			throw new Error('Workspace has no repository URI');
 		}
@@ -5583,6 +5605,7 @@ export abstract class BaseAgentHostSessionsProvider extends Disposable implement
 	}
 
 	createQuickChat(sessionTypeId: string, options?: ISessionsProviderCreateSessionOptions): ISession {
+		options = { ...options, metadata: { ...options?.metadata, [CHAT_HOME_WORKSPACE_METADATA_KEY]: null } };
 		const sessionType = this.sessionTypes.find(t => t.id === sessionTypeId);
 		if (!sessionType) {
 			throw new Error(this._noAgentsErrorMessage());
@@ -5630,6 +5653,16 @@ export abstract class BaseAgentHostSessionsProvider extends Disposable implement
 		initialModeId?: string,
 		initialPullRequestUrl?: string,
 	): ISession {
+		const requestedHome = readInitialChatHomeWorkspaceMeta({ _meta: initialMetadata });
+		if (requestedHome === 'invalid') {
+			throw new Error(localize('invalidChatHomeWorkspace', "The chat's project metadata is invalid."));
+		}
+		if (requestedHome === undefined) {
+			const directory = workspace?.folders[0]?.workingDirectory;
+			initialMetadata = { ...initialMetadata, [CHAT_HOME_WORKSPACE_METADATA_KEY]: quickChat ? null : directory ? {
+				kind: 'folder', uri: directory.toString(), ...(directory.scheme === Schemas.vscodeRemote ? { remoteAuthority: directory.authority } : {}),
+			} : undefined };
+		}
 		// Tear-down of superseded drafts is handled by the management layer
 		// (it calls `deleteNewSession` on the previous pending session). Each
 		// new session is tracked independently in `_newSessions` so several can
@@ -7976,6 +8009,15 @@ export abstract class BaseAgentHostSessionsProvider extends Disposable implement
 		return true;
 	}
 
+	async setChatHomeWorkspace(sessionId: string, chat: URI, home: ChatHomeWorkspace): Promise<void> {
+		const target = this._getCanvasChatTarget(sessionId, chat);
+		const connection = this.connection;
+		if (!connection?.setChatHomeWorkspace) {
+			throw new Error(localize('chatHomeAssignmentUnavailable', "This provider cannot change the chat's project."));
+		}
+		await connection.setChatHomeWorkspace(target.chat, home);
+	}
+
 	async createNewChat(chatId: string, _prompt?: string, options?: ICreateNewChatOptions): Promise<IChat> {
 		this._assertSessionAvailable(chatId);
 		const connection = this.connection;
@@ -7993,7 +8035,7 @@ export abstract class BaseAgentHostSessionsProvider extends Disposable implement
 		// Otherwise this is an additional peer chat inside an existing running
 		// session. Mint a client-chosen chat URI, ask the host to add it to the
 		// session's catalog, and wait for the adapter to surface the new chat.
-		return this._createAdditionalChat(chatId, connection, options?.harness);
+		return this._createAdditionalChat(chatId, connection, options?.harness, options?.homeWorkspace);
 	}
 
 	getNestedChatWorkspaceSupport(sessionId: string, chat: URI, reader: IReader | undefined): INestedChatWorkspaceSupport | undefined {
@@ -8128,7 +8170,7 @@ export abstract class BaseAgentHostSessionsProvider extends Disposable implement
 		return provider;
 	}
 
-	private async _createAdditionalChat(chatId: string, connection: IAgentConnection, harness?: string): Promise<IChat> {
+	private async _createAdditionalChat(chatId: string, connection: IAgentConnection, harness?: string, homeWorkspace?: ChatHomeWorkspace): Promise<IChat> {
 		const rawId = this._sessionKeyFromChatId(chatId);
 		const cached = rawId ? this._sessionCache.get(rawId) : undefined;
 		if (!rawId || !cached) {
@@ -8155,7 +8197,7 @@ export abstract class BaseAgentHostSessionsProvider extends Disposable implement
 		const createOptions: IAgentCreateChatRequestOptions = chatProvider
 			? { provider: chatProvider }
 			: { model: cached.modelSelection };
-		await connection.createChat(sessionUri, chatUri, createOptions);
+		await connection.createChat(sessionUri, chatUri, { ...createOptions, ...(homeWorkspace !== undefined ? { homeWorkspace } : {}) });
 
 		let chat: IChat;
 		try {

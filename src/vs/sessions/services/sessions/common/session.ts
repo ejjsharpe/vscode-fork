@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import type { ChatHomeWorkspace } from '../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { CancellationToken } from '../../../../base/common/cancellation.js';
 import { arrayEquals } from '../../../../base/common/equals.js';
 import { IMarkdownString } from '../../../../base/common/htmlContent.js';
@@ -799,6 +800,9 @@ export interface IChat {
 	readonly createdAt: Date;
 
 	// Reactive properties
+
+	/** Exact recorded ownership; absence is unresolved, null is intentional No Workspace. */
+	readonly homeWorkspace?: IObservable<ChatHomeWorkspace | undefined>;
 
 	/** The effective workspace available to this chat. */
 	readonly workspace: IObservable<ISessionWorkspace | undefined>;

@@ -16,7 +16,7 @@ import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/c
 import { AGENT_HOST_CATALOG_SNAPSHOT_SESSION_LIMIT, AgentHostDatabase, IAgentHostDatabase, IAgentHostDatabaseChatV2NormalizationCandidate, IAgentHostDatabaseChatV2Promotion, IAgentHostDatabaseSessionV2Envelope } from '../../node/agentHostDatabase.js';
 import { AGENT_HOST_CATALOG_CHILD_LIMIT, AGENT_HOST_CATALOG_PAYLOAD_VERSION, AgentHostCatalogData, decodeAgentHostCatalogPayload, projectAgentHostCatalogChatOrigin } from '../../node/agentHostCatalogProjection.js';
 import { ChatInteractivity, ChatOriginKind } from '../../common/state/protocol/channels-chat/state.js';
-import { encodeChatV2Metadata } from '../../node/agentHostChatCatalogV2.js';
+import { decodeChatV2Metadata, encodeChatV2Metadata } from '../../node/agentHostChatCatalogV2.js';
 
 function openDatabase(path: string): Promise<Database> {
 	return new Promise((resolve, reject) => {
@@ -2959,6 +2959,16 @@ suite('AgentHostDatabase sessions_v2', () => {
 			} finally {
 				await close(inspect);
 			}
+		});
+
+		test('chat home metadata preserves exact workspace identity and intentional No Workspace', () => {
+			const recorded = { summary: 'Same repository', homeWorkspace: { kind: 'workspace' as const, uri: 'file:///projects/shared.code-workspace', remoteAuthority: 'ssh-remote+build' } };
+			const quickChat = { summary: 'Quick chat', homeWorkspace: null };
+			assert.deepStrictEqual([decodeChatV2Metadata(encodeChatV2Metadata(recorded)), decodeChatV2Metadata(encodeChatV2Metadata(quickChat))], [recorded, quickChat]);
+		});
+
+		test('chat home metadata rejects malformed targets rather than recording No Workspace', () => {
+			assert.throws(() => encodeChatV2Metadata({ homeWorkspace: { kind: 'folder', uri: 'relative/path' } }), /Invalid chat metadata/);
 		});
 
 		test('bounded metadata uses existing changes validator and rejects unsafe measurements', () => {

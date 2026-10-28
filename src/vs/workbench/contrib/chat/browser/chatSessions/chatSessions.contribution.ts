@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { ChatHomeWorkspace, chatHomeWorkspaceValidator } from '../../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { sep } from '../../../../../base/common/path.js';
 import { AsyncIterableProducer, DeferredPromise, raceCancellation, raceCancellationError } from '../../../../../base/common/async.js';
 import { CancellationToken, CancellationTokenSource } from '../../../../../base/common/cancellation.js';
@@ -1065,6 +1066,25 @@ export class ChatSessionsService extends Disposable implements IChatSessionsServ
 		const sessionType = getChatSessionType(sessionResource);
 		const resolvedType = this._resolveToPrimaryType(sessionType) || sessionType;
 		return this._contentProviders.get(resolvedType)?.resolveChatResponseUri?.(sessionResource, href, kind) ?? href;
+	}
+
+	async getChatHomeWorkspace(sessionResource: URI): Promise<ChatHomeWorkspace | undefined> {
+		const sessionType = getChatSessionType(sessionResource);
+		const provider = this._contentProviders.get(this._resolveToPrimaryType(sessionType) || sessionType);
+		return provider?.getChatHomeWorkspace?.(sessionResource);
+	}
+
+	async setChatHomeWorkspace(sessionResource: URI, home: ChatHomeWorkspace): Promise<void> {
+		const validated = chatHomeWorkspaceValidator.validate(home);
+		if (validated.error) {
+			throw new Error(validated.error.message);
+		}
+		const sessionType = getChatSessionType(sessionResource);
+		const provider = this._contentProviders.get(this._resolveToPrimaryType(sessionType) || sessionType);
+		if (!provider?.setChatHomeWorkspace) {
+			throw new Error(localize('chatHomeAssignmentUnavailable', "This provider cannot change the chat's project."));
+		}
+		await provider.setChatHomeWorkspace(sessionResource, validated.content);
 	}
 
 	public updateChatSessionMetadata(sessionResource: URI, metadata: Record<string, unknown>): boolean {

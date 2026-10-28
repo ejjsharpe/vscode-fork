@@ -6479,6 +6479,31 @@ suite('AgentService (node dispatcher)', () => {
 			return Event.toPromise(Event.filter(Event.any(svc.onDidAction, getStateManager(svc).onDidRejectClientAction), envelope => envelope.origin?.clientId === 'test-client' && envelope.origin.clientSeq === clientSeq), disposables);
 		}
 
+		test('new chat creation records its explicit exact home before any request', async () => {
+			const { svc } = await createSessionWithReadPeer('normalized');
+			const home = { kind: 'workspace' as const, uri: 'file:///projects/one.code-workspace' };
+			const session = await svc.createSession({ legacyChatUris: false, provider: 'copilot', _meta: { 'vscode.chatHomeWorkspace': home } });
+			const chat = getStateManager(svc).getDefaultChat(session.toString())!;
+			assert.deepStrictEqual(await svc.getChatHomeWorkspace(session, URI.parse(chat)), home);
+		});
+
+		test('new peer chat records only its explicitly selected home in a mixed-home session', async () => {
+			const { svc, session, defaultChat } = await createSessionWithReadPeer('normalized');
+			const home = { kind: 'folder' as const, uri: 'file:///projects/other-worktree' };
+			const chat = URI.parse(mintPeerChatUri('opaque', session.toString()));
+			await svc.createChat(session, chat, { homeWorkspace: home });
+			assert.deepStrictEqual([await svc.getChatHomeWorkspace(session, chat), await svc.getChatHomeWorkspace(session, URI.parse(defaultChat))], [home, undefined]);
+		});
+
+		test('exact chat homes survive reassignment and host restart without changing sibling ownership', async () => {
+			const { svc, session, defaultChat, peer, restart } = await createSessionWithReadPeer('normalized');
+			const home = { kind: 'workspace' as const, uri: 'file:///projects/overlap.code-workspace', remoteAuthority: 'ssh-remote+build' };
+			await svc.setChatHomeWorkspace(session, URI.parse(defaultChat), home);
+			await svc.setChatHomeWorkspace(session, URI.parse(peer), null);
+			const restarted = await restart();
+			assert.deepStrictEqual([await restarted.getChatHomeWorkspace(session, URI.parse(defaultChat)), await restarted.getChatHomeWorkspace(session, URI.parse(peer))], [home, null]);
+		});
+
 		test('a chat read toggle on an unloaded session applies without restoring it or holding later actions', async () => {
 			const { svc, db, session, peer } = await createSessionWithReadPeer();
 			const warm = await svc.createSession({ legacyChatUris: false, provider: 'copilot' });
@@ -31363,6 +31388,18 @@ suite('AgentService (node dispatcher)', () => {
 			});
 		});
 
+		test('an explicit No Workspace chat home remains null with a real scratch working directory', async () => {
+			const { svc, agent, database, fileService: files } = await createScratchService();
+			const session = await svc.createSession({ legacyChatUris: true, provider: 'copilot', workingDirectories: [URI.file('/workspace')] });
+			const peer = URI.parse(buildChatUri(session, 'no-workspace-home'));
+			await svc.createChat(session, peer, { homeWorkspace: null, workspace: { kind: 'scratch' } });
+			const [row] = await database.listScratchFolders();
+
+			assert.deepStrictEqual({ home: await svc.getChatHomeWorkspace(session, peer), exists: !!row && await files.exists(URI.parse(row.folder)), directories: agent.created.find(entry => entry.chat === peer.toString())?.workingDirectories }, {
+				home: null, exists: true, directories: row ? [row.folder] : undefined,
+			});
+		});
+
 		test('a requested scratch folder is refused instead of silently sharing the session workspace', async () => {
 			const singleFolder = await createScratchService({ multipleChats: { fork: true } });
 			const multiFolder = await createScratchService();
@@ -31607,6 +31644,19 @@ suite('AgentService (node dispatcher)', () => {
 				chat: [repository.toString()],
 				records: [],
 				provider: [{ chat: peer.toString(), workingDirectories: [repository.toString()], sawWorkspace: false }],
+			});
+		});
+
+		test('an explicit saved workspace chat home survives peer creation with folder workspace and working-directory inputs', async () => {
+			const { svc, session, snapshot } = await createFolderService();
+			const home = { kind: 'workspace' as const, uri: 'file:///workspace/shared.code-workspace', remoteAuthority: 'ssh-remote+host' };
+			const withWorkspace = URI.parse(buildChatUri(session, 'home-with-workspace'));
+			const withDirectory = URI.parse(buildChatUri(session, 'home-with-directory'));
+			await svc.createChat(session, withWorkspace, { homeWorkspace: home, workspace: { kind: 'folder', folder: repository, isolation: 'folder' } });
+			await svc.createChat(session, withDirectory, { homeWorkspace: home, workingDirectories: [repository] });
+
+			assert.deepStrictEqual({ homes: await Promise.all([svc.getChatHomeWorkspace(session, withWorkspace), svc.getChatHomeWorkspace(session, withDirectory)]), directories: [(await snapshot(withWorkspace)).chat, (await snapshot(withDirectory)).chat] }, {
+				homes: [home, home], directories: [[repository.toString()], [repository.toString()]],
 			});
 		});
 
@@ -40721,6 +40771,18 @@ suite('AgentService (node dispatcher)', () => {
 				});
 			});
 
+			test('chat homes remain exact after moving and promoting the existing conversation', async () => {
+				const { service, source, target, peer } = await setupMove();
+				const home = { kind: 'workspace' as const, uri: 'file:///projects/saved.code-workspace', remoteAuthority: 'ssh-remote+build' };
+				await service.setChatHomeWorkspace(source, peer, home);
+				await service.moveChat(source, peer, { kind: 'session', session: target, after: undefined });
+				const listed = (await service.listSessions()).find(session => session.session.toString() === target.toString());
+				const moved = listed?.chats?.find(chat => chat.chat.toString() === peer.toString())?.homeWorkspace;
+				completeTurn(service, peer);
+				const promoted = await service.moveChat(target, peer, { kind: 'newSession' });
+				assert.deepStrictEqual([moved, await service.getChatHomeWorkspace(promoted, peer)], [home, home]);
+			});
+
 			test('a moved chat\'s terminal stays claimed by its new session and survives deleting the old one', async () => {
 				const { service, source, target, peer } = await setupMove();
 				const terminals = (service as unknown as { _terminalManager: { createOutputTerminal(uri: string, options: { title: string; claim: TerminalClaim }): void; getTerminalState(uri: string): { readonly claim: TerminalClaim } | undefined } })._terminalManager;
@@ -44210,6 +44272,20 @@ suite('AgentService (node dispatcher)', () => {
 			// The state manager should have the worktree path, not the source path
 			const state = getStateManager(service).getSessionState(session.toString());
 			assert.strictEqual(state?.workingDirectories?.[0], worktreeDir.toString());
+		});
+
+		test('a new chat home follows the provider-resolved worktree and retains its environment', async () => {
+			const directory = URI.file('/source/repo.worktrees/agents-home');
+			copilotAgent.resolvedWorkingDirectory = directory;
+			registerTestAgentProvider(service, copilotAgent);
+			for (const [kind, uri, expectedUri] of [['folder', 'file:///source/repo', 'file:///source/repo.worktrees/agents-home'], ['folder', 'agent-host://remote/source/repo', 'agent-host://remote/source/repo.worktrees/agents-home'], ['workspace', 'file:///source/shared.code-workspace', 'file:///source/shared.code-workspace']]) {
+				const session = await service.createSession({
+					legacyChatUris: false, provider: 'copilot', workingDirectories: [URI.file('/source/repo')],
+					_meta: { 'vscode.chatHomeWorkspace': { kind, uri, remoteAuthority: 'ssh-remote+build' } },
+				});
+				const chat = URI.parse(getStateManager(service).getDefaultChat(session.toString())!);
+				assert.deepStrictEqual(await service.getChatHomeWorkspace(session, chat), { kind, uri: expectedUri, remoteAuthority: 'ssh-remote+build' });
+			}
 		});
 
 		test('createSession falls back to config working directory when agent does not resolve', async () => {

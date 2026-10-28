@@ -3,6 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { readInitialChatHomeWorkspaceMeta } from '../common/meta/agentChatHomeWorkspaceMeta.js';
+import { CHAT_HOME_WORKSPACE_METADATA_KEY, ChatHomeWorkspace, chatHomeWorkspaceValidator, readChatHomeWorkspaceFromMeta, withChatHomeWorkspace } from '../../workspace/common/chatHomeWorkspace.js';
 import { withMessageReplacedTurn, withMessageRequestHiddenFromTranscript } from '../common/meta/agentMessageMeta.js';
 import { decodeBase64, VSBuffer } from '../../../base/common/buffer.js';
 import { Barrier, DeferredPromise, disposableTimeout, Limiter, raceTimeout, Sequencer, SequencerByKey, ThrottlerByKey } from '../../../base/common/async.js';
@@ -3187,6 +3189,7 @@ export class AgentService extends Disposable implements IAgentService {
 			summary: chat.title,
 			kind: defaultChat === chat.resource ? 'default' : 'peer',
 			origin: chat.origin,
+			...(readChatHomeWorkspaceFromMeta(summary._meta, chat.resource) !== undefined ? { homeWorkspace: readChatHomeWorkspaceFromMeta(summary._meta, chat.resource) } : {}),
 			...(chat.provider !== undefined ? { provider: chat.provider } : {}),
 			...(chat.interactivity !== undefined ? { interactivity: chat.interactivity } : {}),
 			...(chat.status !== undefined ? {
@@ -3533,7 +3536,7 @@ export class AgentService extends Disposable implements IAgentService {
 				providerData,
 				workingDirectories: chat.workingDirectories,
 				isRead: isSessionStatusRead(chat.status ?? state.status),
-				metadata: { summary: chat.title || undefined, interactivity: chat.interactivity },
+				metadata: { summary: chat.title || undefined, interactivity: chat.interactivity, homeWorkspace: readChatHomeWorkspaceFromMeta(state._meta, chat.resource) },
 			},
 			peers: [],
 			privateDescendants: [],
@@ -6091,6 +6094,9 @@ export class AgentService extends Disposable implements IAgentService {
 
 	private async _createSession(config: IAgentServiceCreateSessionConfig | undefined, origin?: SessionOrigin): Promise<URI> {
 		const provider = this._providerService.resolveProvider(config?.provider);
+		if (readInitialChatHomeWorkspaceMeta(config) === 'invalid') {
+			throw new Error('Invalid chat home workspace');
+		}
 		const isEphemeral = config ? readEphemeralSessionMeta(config).isEphemeral === true : false;
 		if (!provider) {
 			throw new Error(`No agent provider registered for: ${config?.provider ?? '(none)'}`);
@@ -6356,6 +6362,13 @@ export class AgentService extends Disposable implements IAgentService {
 		// never dropped by the customization dedup.
 		if (folderPickerDecision) {
 			this._stateManager.setSessionMeta(session.toString(), withSessionFolderPickerDecision(this._stateManager.getSessionState(session.toString())?._meta, folderPickerDecision));
+		}
+		const initialHome = readInitialChatHomeWorkspaceMeta(config);
+		if (initialHome !== undefined && initialHome !== 'invalid') {
+			const home = initialHome?.kind === 'folder' && created.resolvedWorkingDirectory
+				? this._chatFolderHome(created.resolvedWorkingDirectory, initialHome)
+				: initialHome;
+			this._stateManager.setSessionMeta(session.toString(), withChatHomeWorkspace(this._stateManager.getSessionState(session.toString())?._meta, defaultChat.toString(), home));
 		}
 		this._publishWorkingDirectoryIdentities(session.toString());
 		// The default chat registered before its session had config: its values are its complete config from here on.
@@ -6705,7 +6718,10 @@ export class AgentService extends Disposable implements IAgentService {
 				scratch = await this._allocateScratchFolder(session, chat, chatOptions, workspace?.kind === 'scratch');
 			}
 			const directory = prepared?.directory ?? scratch?.folder;
-			await this._createChatWithReservations(session, chat, directory ? { ...chatOptions, workingDirectories: [directory] } : chatOptions, reservations, credentials, initialMessageContext);
+			const requestedHome = options?.homeWorkspace;
+			// Creation's explicit home wins; a tool cwd (including scratch) does not reassign it.
+			const homeWorkspace = requestedHome !== undefined ? requestedHome : workspace?.kind === 'scratch' ? null : workspace?.kind === 'folder' && directory ? this._chatFolderHome(directory, undefined) : undefined;
+			await this._createChatWithReservations(session, chat, directory ? { ...chatOptions, workingDirectories: [directory], homeWorkspace } : chatOptions, reservations, credentials, initialMessageContext);
 		} catch (error) {
 			// Reservations hold the folder attached to the session, so they end before the detach in abort() and release().
 			reservations.dispose();
@@ -6781,6 +6797,36 @@ export class AgentService extends Disposable implements IAgentService {
 		return prepared;
 	}
 
+	/** Reads the chat's own durable catalog record, including while its presentation is closed. */
+	async getChatHomeWorkspace(session: URI, chat: URI): Promise<ChatHomeWorkspace | undefined> {
+		const recorded = await this._peerChatStore.readNormalizedChat(session, chat);
+		return recorded.normalized ? recorded.chat?.metadata?.homeWorkspace : readChatHomeWorkspaceFromMeta(this._stateManager.getSessionState(session.toString())?._meta, chat.toString());
+	}
+
+	/** Persists one exact chat home; assignment grants no access and never creates or sends a conversation. */
+	async setChatHomeWorkspace(session: URI, chat: URI, home: ChatHomeWorkspace): Promise<void> {
+		const validated = chatHomeWorkspaceValidator.validate(home);
+		if (validated.error) {
+			throw new Error(validated.error.message);
+		}
+		const recorded = await this._peerChatStore.readNormalizedChat(session, chat);
+		if (recorded.normalized ? !recorded.chat || recorded.chat.ownerSession !== session.toString() : this._chatOwnership.getChatOwner(chat.toString()) !== session.toString()) {
+			throw new Error('Chat home target does not belong to this session');
+		}
+		await this._peerChatStore.persistMetadata(session, chat, { [CHAT_HOME_WORKSPACE_METADATA_KEY]: JSON.stringify(validated.content) });
+		const state = this._stateManager.getSessionState(session.toString());
+		if (state) {
+			this._stateManager.setSessionMeta(session.toString(), withChatHomeWorkspace(state._meta, chat.toString(), validated.content));
+		}
+		await this._persistOrderedListVisibleSessionState(session, {});
+	}
+
+	private _chatFolderHome(directory: URI, previous: ChatHomeWorkspace | undefined): ChatHomeWorkspace {
+		// The directory resolves on this owner; preserve the caller's exact URI environment.
+		const uri = previous?.kind === 'folder' ? URI.parse(previous.uri).with({ path: directory.path, query: directory.query, fragment: directory.fragment }) : directory;
+		return { kind: 'folder', uri: uri.toString(), ...(previous?.remoteAuthority ? { remoteAuthority: previous.remoteAuthority } : {}) };
+	}
+
 	async setChatWorkspace(session: URI, chat: URI, workspace: IAgentCreateChatWorkspace, credentials?: IAgentHostCredentialSource): Promise<void> {
 		const sessionKey = session.toString();
 		const chatKey = chat.toString();
@@ -6803,10 +6849,13 @@ export class AgentService extends Disposable implements IAgentService {
 			}
 			if (workspace.kind === 'scratch' && await this._ownScratchFolder(session, chat) !== undefined) {
 				// The chat already works in a scratch folder of its own.
+				await this.setChatHomeWorkspace(session, chat, null);
 				return;
 			}
 			if (workspace.kind === 'folder' && workspace.isolation === 'folder' && this._isChatWorkingOnlyIn(session, chat, workspace.folder)) {
 				// The chat already works in this folder only.
+				const previousHome = await this.getChatHomeWorkspace(session, chat);
+				await this.setChatHomeWorkspace(session, chat, this._chatFolderHome(workspace.folder, previousHome));
 				return;
 			}
 			credentials = await this._resolveExecutionCredentials(sessionKey, credentials);
@@ -6835,6 +6884,8 @@ export class AgentService extends Disposable implements IAgentService {
 		await scratch?.commit();
 		await this._retireReplacedScratchFolders(session, chat, directory);
 		await this._releaseReplacedChatFolders(session, chat, previousDirectories, directory);
+		const previousHome = await this.getChatHomeWorkspace(session, chat);
+		await this.setChatHomeWorkspace(session, chat, workspace.kind === 'scratch' ? null : this._chatFolderHome(directory, previousHome));
 		// The folders are final: publish which are scratch folders, or clients show the chat's scratch folder as its own workspace.
 		this._publishWorkingDirectoryIdentities(sessionKey);
 	}
@@ -7226,6 +7277,12 @@ export class AgentService extends Disposable implements IAgentService {
 
 	/** Creates a chat, reserving its folders in `reservations` from their validation until it is published. */
 	private async _createChatWithReservations(session: URI, chat: URI, options: IAgentCreateChatRequestOptions | undefined, reservations: DisposableStore, credentials?: IAgentHostCredentialSource, initialMessageContext?: IAgentCreateChatInitialMessageContext): Promise<void> {
+		if (options?.homeWorkspace !== undefined) {
+			const home = chatHomeWorkspaceValidator.validate(options.homeWorkspace);
+			if (home.error) {
+				throw new Error(home.error.message);
+			}
+		}
 		const sessionKey = session.toString();
 		const initiallyArchived = isSessionStatusArchived(this._stateManager.getSessionSummary(sessionKey)?.status);
 		credentials = await this._resolveExecutionCredentials(sessionKey, credentials);
@@ -7259,7 +7316,7 @@ export class AgentService extends Disposable implements IAgentService {
 		let forkedTitle: string | undefined;
 		let forkedSourceTitle: string | undefined;
 		let persistForkedLocalTurnsAfterDuplicateCheck: (() => void) | undefined;
-		const { sideChat, title: requestedTitle, initialMessage, provider: _requestedProvider, ...providerOptions } = options ?? {};
+		const { sideChat, title: requestedTitle, initialMessage, provider: _requestedProvider, homeWorkspace: requestedHomeWorkspace, ...providerOptions } = options ?? {};
 		if (initialMessage && !initialMessageContext) {
 			throw new ProtocolError(JsonRpcErrorCodes.InvalidParams, 'An initial chat message requires trusted submitting-client context.');
 		}
@@ -7472,6 +7529,9 @@ export class AgentService extends Disposable implements IAgentService {
 						createResult?.inheritedTurnId,
 						createOptions?.workingDirectories?.map(directory => directory.toString()),
 					);
+					if (requestedHomeWorkspace !== undefined) {
+						await this._peerChatStore.persistMetadata(session, chat, { [CHAT_HOME_WORKSPACE_METADATA_KEY]: JSON.stringify(requestedHomeWorkspace) });
+					}
 					if (peerChatOrigin?.kind !== ChatOriginKind.Tool) {
 						await this._recordLaunchDirectories(session, [{ chat: chat.toString(), isDefault: false }], createOptions?.workingDirectories?.map(directory => directory.toString()) ?? this._sessionFoldersOfChatWithoutOwn(sessionKey));
 					}
@@ -7502,6 +7562,9 @@ export class AgentService extends Disposable implements IAgentService {
 							? { config: { schema: ownConfigSchema, values: initialConfig }, configSchema: ownConfigSchema }
 							: Object.keys(initialConfig).length > 0 ? { config: { values: initialConfig } } : {}),
 					});
+					if (requestedHomeWorkspace !== undefined) {
+						this._stateManager.setSessionMeta(sessionKey, withChatHomeWorkspace(this._stateManager.getSessionState(sessionKey)?._meta, chat.toString(), requestedHomeWorkspace));
+					}
 					// The registered chat owns its values from here on.
 					configSeed.dispose();
 					this._consumePreparedChatWorkingDirectories(session, createOptions?.workingDirectories?.map(directory => directory.toString()) ?? []);
@@ -8464,7 +8527,13 @@ export class AgentService extends Disposable implements IAgentService {
 			this._stateManager.dispatchServerAction(chat, { type: ActionType.ChatConfigChanged, config: committed.config });
 		}
 		const targetMeta = this._stateManager.getSessionState(target)?._meta;
-		const movedMeta = withMovedFolderGitHubData(targetMeta, sourceMeta, chatFolders);
+		let movedMeta = withMovedFolderGitHubData(targetMeta, sourceMeta, chatFolders);
+		for (const moved of committed.moved) {
+			const home = readChatHomeWorkspaceFromMeta(sourceMeta, moved);
+			if (home !== undefined) {
+				movedMeta = withChatHomeWorkspace(movedMeta, moved, home);
+			}
+		}
 		if (artifacts || movedMeta !== targetMeta) {
 			this._stateManager.setSessionMeta(target, artifacts ? withSessionArtifacts(movedMeta, artifacts.target) : movedMeta);
 		}
@@ -9044,6 +9113,12 @@ export class AgentService extends Disposable implements IAgentService {
 	private _promoteMovedChatsAndState(provider: IAgent, source: string, target: string, chat: string, inMemory: readonly string[], chatFolders: readonly string[], config: SessionConfigState | undefined, inheritedFolders: boolean, project: ProjectInfo | undefined, meta: SessionSummaryMeta | undefined, ownConfig: Record<string, unknown>): void {
 		const chatSummary = this._stateManager.getSessionState(source)?.chats.find(candidate => candidate.resource === chat);
 		const sourceSummary = this._stateManager.getSessionSummary(source);
+		for (const moved of inMemory) {
+			const home = readChatHomeWorkspaceFromMeta(this._stateManager.getSessionState(source)?._meta, moved);
+			if (home !== undefined) {
+				meta = withChatHomeWorkspace(meta, moved, home);
+			}
+		}
 		const now = new Date().toISOString();
 		this._stateManager.promoteChats(source, {
 			resource: target,
@@ -12686,6 +12761,8 @@ export class AgentService extends Disposable implements IAgentService {
 		} else {
 			await this.runWithChatCatalogLock(session, update);
 		}
+		const previousHome = await this.getChatHomeWorkspace(session, chat);
+		await this.setChatHomeWorkspace(session, chat, this._chatFolderHome(directory, previousHome));
 		// The chat left the scratch folder it owned: detach it from the session and let the clean-up pass reclaim it.
 		await this._retireReplacedScratchFolders(session, chat, directory);
 		this._publishWorkingDirectoryIdentities(session.toString());

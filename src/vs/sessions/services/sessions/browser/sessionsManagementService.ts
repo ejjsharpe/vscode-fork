@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { ChatHomeWorkspace } from '../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { Emitter, Event } from '../../../../base/common/event.js';
 import { raceCancellationError } from '../../../../base/common/async.js';
 import { CancellationToken, CancellationTokenSource } from '../../../../base/common/cancellation.js';
@@ -669,6 +670,9 @@ export class SessionsManagementService extends Disposable implements ISessionsMa
 	}
 
 	private _providerCreateSessionOptions(provider: ISessionsProvider, sessionTypeId: string, options: ICreateNewSessionOptions | undefined): ISessionsProviderCreateSessionOptions {
+		if (options?.homeWorkspace !== undefined && !provider.setChatHomeWorkspace) {
+			throw new Error(localize('chatHomeAssignmentUnavailable', "This provider cannot change the chat's project."));
+		}
 		const sessionTemplate = options?.sessionTemplate ?? options?.automationConfiguration?.sessionTemplate;
 		if (sessionTemplate && provider.supportsAutomationSessionConfiguration !== true) {
 			throw new Error(`Sessions provider '${provider.id}' does not support Automation session templates.`);
@@ -687,6 +691,7 @@ export class SessionsManagementService extends Disposable implements ISessionsMa
 			: options?.automationConfiguration;
 		return {
 			metadata: options?.metadata,
+			...(options?.homeWorkspace !== undefined ? { homeWorkspace: options.homeWorkspace } : {}),
 			...(options?.createdBySession ? { createdBySession: options.createdBySession } : {}),
 			...(options?.modelId && options.modelConfiguration ? {
 				modelId: options.modelId,
@@ -720,9 +725,12 @@ export class SessionsManagementService extends Disposable implements ISessionsMa
 			this.logService.warn(`[SessionsManagement] createNewChatInSession: provider '${session.providerId}' not found`);
 			return undefined;
 		}
+		if (options?.homeWorkspace !== undefined && !provider.setChatHomeWorkspace) {
+			throw new Error(localize('chatHomeAssignmentUnavailable', "This provider cannot change the chat's project."));
+		}
 		// `forceNew` skips reuse so callers can reset the composer right after
 		// sending a chat (which may still transiently report `Untitled`).
-		if (!options?.forceNew) {
+		if (!options?.forceNew && options?.homeWorkspace === undefined) {
 			// Reuse only a draft using the requested harness; a different harness needs a chat of its own.
 			const requestedHarness = options?.harness ?? session.harness;
 			const existingUntitled = session.chats.get().find(c => c.status.get() === SessionStatus.Untitled && getChatHarness(session, c) === requestedHarness);
@@ -732,6 +740,14 @@ export class SessionsManagementService extends Disposable implements ISessionsMa
 		}
 		const created = await provider.createNewChat(session.sessionId, undefined, options);
 		return created;
+	}
+
+	async setChatHomeWorkspace(session: ISession, chat: IChat, home: ChatHomeWorkspace): Promise<void> {
+		const provider = this._getProvider(session);
+		if (!provider?.setChatHomeWorkspace) {
+			throw new Error(localize('chatHomeAssignmentUnavailable', "This provider cannot change the chat's project."));
+		}
+		await provider.setChatHomeWorkspace(session.sessionId, chat.resource, home);
 	}
 
 	async applyNestedChatWorkspace(session: ISession, chat: IChat, workspace: INestedChatWorkspace, prompt: string): Promise<void> {

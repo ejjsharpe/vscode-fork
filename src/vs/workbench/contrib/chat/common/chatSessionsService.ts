@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import type { ChatHomeWorkspace } from '../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { CancellationToken } from '../../../../base/common/cancellation.js';
 import { IStringDictionary } from '../../../../base/common/collections.js';
 import { Event } from '../../../../base/common/event.js';
@@ -668,6 +669,9 @@ export interface IChatSessionContentProvider {
 
 	/** Updates provider-owned metadata for a session. */
 	updateChatSessionMetadata?(sessionResource: URI, metadata: Record<string, unknown>): void;
+	/** Exact persisted home of this provider-owned chat, without creating or sending it. */
+	getChatHomeWorkspace?(sessionResource: URI): Promise<ChatHomeWorkspace | undefined>;
+	setChatHomeWorkspace?(sessionResource: URI, home: ChatHomeWorkspace): Promise<void>;
 
 	/** Resolves a parsed response Markdown URI in its owning session, including file image paths, before sanitization. */
 	resolveChatResponseUri?(sessionResource: URI, href: string, kind: 'link' | 'image'): string;
@@ -1080,6 +1084,8 @@ export interface IChatSessionsService {
 	canResolveChatSession(sessionType: string): Promise<boolean>;
 	getOrCreateChatSession(sessionResource: URI, token: CancellationToken): Promise<IChatSession>;
 	updateChatSessionMetadata(sessionResource: URI, metadata: Record<string, unknown>): boolean;
+	getChatHomeWorkspace(sessionResource: URI): Promise<ChatHomeWorkspace | undefined>;
+	setChatHomeWorkspace(sessionResource: URI, home: ChatHomeWorkspace): Promise<void>;
 	/** Resolves a parsed response Markdown URI through its session content provider. */
 	resolveChatResponseUri(sessionResource: URI, href: string, kind: 'link' | 'image'): string;
 
