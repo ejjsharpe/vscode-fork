@@ -1,0 +1,13 @@
+{
+  "atBootstrap": {
+    "ready": false,
+    "generation": 5
+  },
+  "outcomes": [
+    false,
+    "interrupted"
+  ],
+  "replacements": 1,
+  "ready": true,
+  "pending": 0
+}

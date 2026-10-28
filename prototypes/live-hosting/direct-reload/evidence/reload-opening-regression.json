@@ -1,0 +1,103 @@
+{
+  "atBootstrap": {
+    "ready": false,
+    "lifecycleReady": false,
+    "generation": 12
+  },
+  "opens": 0,
+  "ready": true,
+  "lifecycleReady": true,
+  "windows": 3,
+  "results": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "interrupted"
+    },
+    {
+      "windowId": 100000,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100001,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "cancel"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    }
+  ]
+}

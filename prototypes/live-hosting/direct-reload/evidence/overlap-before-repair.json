@@ -1,0 +1,20 @@
+{
+  "replacements": 2,
+  "before": 5,
+  "after": 6,
+  "ready": true,
+  "requests": [
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onWillUnload",
+      "before": false
+    }
+  ]
+}

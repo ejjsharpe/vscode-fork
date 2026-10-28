@@ -1,0 +1,7 @@
+{
+  "sameScheduledPromise": true,
+  "sameReentrantPromise": true,
+  "unloadCalls": 1,
+  "ready": true,
+  "pending": 0
+}

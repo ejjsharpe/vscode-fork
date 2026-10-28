@@ -1,0 +1,20 @@
+{
+  "generation": 4,
+  "ready": true,
+  "requests": [
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    }
+  ],
+  "results": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "cancel"
+    }
+  ],
+  "title": "Disposable lifecycle reply test • Untitled-1 — multi (Workspace)"
+}

@@ -1,0 +1,11 @@
+{
+  "injectedFailure": true,
+  "sharedPromise": true,
+  "outcomes": [
+    "rejected",
+    "rejected"
+  ],
+  "laterExplicitReplacements": 1,
+  "ready": true,
+  "pending": 0
+}

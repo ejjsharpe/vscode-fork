@@ -1,0 +1,1 @@
+Harness assertion failed: expected phase results [ok, reply], observed [ok, ok]. waitForPrototypeLifecycle normalizes both acknowledgements to ok. Corrected expectation; reran saved live-state assertions. This was not a product safeguard failure.
