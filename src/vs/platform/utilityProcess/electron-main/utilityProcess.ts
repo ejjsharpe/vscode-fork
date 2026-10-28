@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
-import { BrowserWindow, Details, MessageChannelMain, app, utilityProcess, UtilityProcess as ElectronUtilityProcess } from 'electron';
+import { onPrototypeDocumentRevoked, prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { Details, MessageChannelMain, app, utilityProcess, UtilityProcess as ElectronUtilityProcess } from 'electron';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { ILogService } from '../../log/common/log.js';
@@ -492,7 +492,7 @@ export class WindowUtilityProcess extends UtilityProcess {
 		}
 
 		// Register to window events
-		this.registerWindowListeners(responseWindow.win, configuration);
+		this.registerWindowListeners(configuration);
 
 		// Establish & exchange message ports
 		const windowPort = this.connect(configuration.payload);
@@ -507,7 +507,7 @@ export class WindowUtilityProcess extends UtilityProcess {
 		return true;
 	}
 
-	private registerWindowListeners(window: BrowserWindow, configuration: IWindowUtilityProcessConfiguration): void {
+	private registerWindowListeners(configuration: IWindowUtilityProcessConfiguration): void {
 
 		// If the lifecycle of the utility process is bound to the window,
 		// we terminate the process if the window closes or changes.
@@ -516,16 +516,22 @@ export class WindowUtilityProcess extends UtilityProcess {
 
 		if (configuration.windowLifecycleBound) {
 			const graceTime = configuration.windowLifecycleGraceTime;
-			const terminate = graceTime && graceTime > 0
-				? () => this.waitForExit(graceTime)
-				: () => this.kill();
+			let terminated = false;
+			const terminate = () => {
+				if (terminated) { return; }
+				terminated = true;
+				if (graceTime && graceTime > 0) { void this.waitForExit(graceTime); }
+				else { this.kill(); }
+			};
 			this._register(Event.filter(this.lifecycleMainService.onWillLoadWindow, e => e.window.id === configuration.responseWindowId)(terminate));
 			const contents = this.windowsMainService.getWindowById(configuration.responseWindowId)?.webContents;
 			if (contents) {
+				this._register(Event.filter(onPrototypeDocumentRevoked, event => event.contents === contents)(terminate));
 				this._register(Event.fromNodeEventEmitter(contents, 'destroyed')(terminate));
 				this._register(Event.fromNodeEventEmitter(contents, 'render-process-gone')(terminate));
 			}
-			this._register(Event.fromNodeEventEmitter(window, 'closed')(terminate));
+			const owner = this.windowsMainService.getWindowById(configuration.responseWindowId);
+			if (owner) { this._register(owner.onDidClose(terminate)); }
 		}
 	}
 }

@@ -5,6 +5,7 @@
 
 import electron from 'electron';
 import { randomUUID } from 'node:crypto';
+import { prototypeHostClosing, setPrototypeHostClosing } from '../../windows/electron-main/prototypeWorkbenchHost.js';
 import { onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply, revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { validatedIpcMain } from '../../../base/parts/ipc/electron-main/ipcMain.js';
 import { Barrier, Promises, timeout } from '../../../base/common/async.js';
@@ -134,6 +135,7 @@ export interface ILifecycleMainService {
 	 * Make a `ICodeWindow` known to the lifecycle main service.
 	 */
 	registerWindow(window: ICodeWindow): void;
+	close(window: ICodeWindow): Promise<void>;
 
 	/**
 	 * Make a `IAuxiliaryWindow` known to the lifecycle main service.
@@ -239,7 +241,9 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	private _phase = LifecycleMainPhase.Starting;
 	get phase(): LifecycleMainPhase { return this._phase; }
 
-	private readonly windowToCloseRequest = new Set<number>();
+	private readonly prototypeWindows = new Map<number, ICodeWindow>();
+	private readonly prototypeHosts = new WeakSet<electron.BrowserWindow>();
+	private readonly closingProjects = new Set<number>();
 	private windowCounter = 0;
 
 	private pendingQuitPromise: Promise<boolean> | undefined = undefined;
@@ -420,60 +424,70 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	}
 
 	registerWindow(window: ICodeWindow): void {
-		const windowListeners = new DisposableStore();
-
-		// track window count
+		const listeners = new DisposableStore();
+		this.prototypeWindows.set(window.id, window);
 		this.windowCounter++;
+		listeners.add(window.onWillLoad(e => this._onWillLoadWindow.fire({ window, workspace: e.workspace, reason: e.reason })));
+		listeners.add(window.onDidClose(() => {
+			this.prototypeWindows.delete(window.id);
+			this.windowCounter--;
+			listeners.dispose();
+			if (this.windowCounter === 0 && (!isMacintosh || this._quitRequested)) { this.fireOnWillShutdown(ShutdownReason.QUIT); }
+		}));
+		const host = assertReturnsDefined(window.win);
+		if (!this.prototypeHosts.has(host)) {
+			this.prototypeHosts.add(host);
+			host.on('close', event => {
+				event.preventDefault();
+				if (!prototypeHostClosing) { void this.closePrototypeHost(host); }
+			});
+		}
+	}
 
-		// Window Will Load
-		windowListeners.add(window.onWillLoad(e => this._onWillLoadWindow.fire({ window, workspace: e.workspace, reason: e.reason })));
+	async close(window: ICodeWindow): Promise<void> {
+		if (prototypeHostClosing || this.closingProjects.has(window.id) || !this.prototypeWindows.has(window.id)) { return; }
+		this.closingProjects.add(window.id);
+		try {
+			if (await this.unload(window, UnloadReason.CLOSE)) { return; }
+			this._onBeforeCloseWindow.fire(window);
+			window.webContents.close({ waitForBeforeUnload: false });
+		} finally { this.closingProjects.delete(window.id); }
+	}
 
-		// Window Before Closing: Main -> Renderer
-		const win = assertReturnsDefined(window.win);
-		windowListeners.add(Event.fromNodeEventEmitter<electron.Event>(win, 'close')(e => {
-
-			// The window already acknowledged to be closed
-			const windowId = window.id;
-			if (this.windowToCloseRequest.delete(windowId)) {
-				return;
-			}
-
-			this.trace(`Lifecycle#window.on('close') - window ID ${window.id}`);
-
-			// Otherwise prevent unload and handle it from window
-			e.preventDefault();
-			this.unload(window, UnloadReason.CLOSE).then(veto => {
-				if (veto) {
-					this.windowToCloseRequest.delete(windowId);
+	private async closePrototypeHost(host: electron.BrowserWindow): Promise<void> {
+		setPrototypeHostClosing(true);
+		const windows = [...this.prototypeWindows.values()].filter(window => window.win === host);
+		const authorized = new Map<ICodeWindow, number>();
+		try {
+			// Ask every live project before any cleanup; a veto must leave neighbours usable.
+			for (const window of windows) {
+				if (this.mapWindowIdToPendingUnload.has(window.id) || !window.isReady) {
+					this.handleWindowUnloadVeto(true);
 					return;
 				}
-
-				this.windowToCloseRequest.add(windowId);
-
-				// Fire onBeforeCloseWindow before actually closing
-				this.trace(`Lifecycle#onBeforeCloseWindow.fire() - window ID ${windowId}`);
-				this._onBeforeCloseWindow.fire(window);
-
-				// No veto, close window now
-				window.close();
-			});
-		}));
-		windowListeners.add(Event.fromNodeEventEmitter<electron.Event>(win, 'closed')(() => {
-			this.trace(`Lifecycle#window.on('closed') - window ID ${window.id}`);
-
-			// update window count
-			this.windowCounter--;
-
-			// clear window listeners
-			windowListeners.dispose();
-
-			// if there are no more code windows opened, fire the onWillShutdown event, unless
-			// we are on macOS where it is perfectly fine to close the last window and
-			// the application continues running (unless quit was actually requested)
-			if (this.windowCounter === 0 && (!isMacintosh || this._quitRequested)) {
-				this.fireOnWillShutdown(ShutdownReason.QUIT);
+				const generation = prototypeDocumentGeneration(window.webContents);
+				if (generation === undefined || await this.onBeforeUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE) !== false) {
+					this.handleWindowUnloadVeto(true);
+					return;
+				}
+				authorized.set(window, generation);
 			}
-		}));
+			for (const [window, generation] of authorized) {
+				if (prototypeDocumentGeneration(window.webContents) !== generation || await this.onWillUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE) === 'interrupted') {
+					this.handleWindowUnloadVeto(true);
+					return;
+				}
+			}
+			for (const window of windows) {
+				revokePrototypeDocument(window.webContents, 'host-shutdown');
+				this._onBeforeCloseWindow.fire(window);
+			}
+			// Only this coordinator owns native teardown; children close with the host.
+			host.destroy();
+		} catch (error) {
+			this.logService.error(error);
+			this.handleWindowUnloadVeto(true);
+		} finally { setPrototypeHostClosing(false); }
 	}
 
 	registerAuxWindow(auxWindow: IAuxiliaryWindow): void {
@@ -507,6 +521,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	}
 
 	async reload(window: ICodeWindow, cli?: NativeParsedArgs): Promise<void> {
+		if (prototypeHostClosing || this.closingProjects.has(window.id)) { return; }
 
 		// Only reload when the window has not vetoed this
 		const veto = await this.unload(window, UnloadReason.RELOAD);

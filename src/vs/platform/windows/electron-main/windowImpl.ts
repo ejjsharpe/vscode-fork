@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
-import { createPrototypeWorkbench, selectPrototypeWorkbench } from './prototypeWorkbenchHost.js';
+import { createPrototypeWorkbench, selectPrototypeWorkbench, replacePrototypeWorkbench, removePrototypeWorkbench, setPrototypeRecovery, prototypeHostClosing } from './prototypeWorkbenchHost.js';
 import electron, { BrowserWindowConstructorOptions, Display } from 'electron';
 import { DeferredPromise, RunOnceScheduler, timeout, Delayer } from '../../../base/common/async.js';
 import { CancellationToken } from '../../../base/common/cancellation.js';
@@ -35,8 +35,8 @@ import { IApplicationStorageMainService, IStorageMainService } from '../../stora
 import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 import { ThemeIcon } from '../../../base/common/themables.js';
 import { IThemeMainService } from '../../theme/electron-main/themeMainService.js';
-import { getMenuBarVisibility, IFolderToOpen, INativeWindowConfiguration, IWindowSettings, IWorkspaceToOpen, MenuBarVisibility, hasNativeTitlebar, useNativeFullScreen, DEFAULT_CUSTOM_TITLEBAR_HEIGHT, TitlebarStyle, MenuSettings, getMacOSWindowControlsPosition } from '../../window/common/window.js';
-import { defaultBrowserWindowOptions, getAllWindowsExcludingOffscreen, IWindowsMainService, OpenContext, WindowStateValidator } from './windows.js';
+import { getMenuBarVisibility, INativeWindowConfiguration, IWindowSettings, MenuBarVisibility, hasNativeTitlebar, useNativeFullScreen, DEFAULT_CUSTOM_TITLEBAR_HEIGHT, TitlebarStyle, MenuSettings, getMacOSWindowControlsPosition } from '../../window/common/window.js';
+import { defaultBrowserWindowOptions, getAllWindowsExcludingOffscreen, WindowStateValidator } from './windows.js';
 import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, toWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 import { IWorkspacesManagementMainService } from '../../workspaces/electron-main/workspacesManagementMainService.js';
 import { IWindowState, ICodeWindow, ILoadEvent, WindowMode, WindowError, LoadReason, defaultWindowState, IBaseWindow } from '../../window/electron-main/window.js';
@@ -186,6 +186,14 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 	get win() { return this._win; }
 	protected hostedView: electron.WebContentsView | undefined;
 	get webContents() { return this.hostedView?.webContents ?? this._win!.webContents; }
+	protected readonly logicalCloseListener = this._register(new MutableDisposable());
+	protected registerLogicalClose(): void {
+		this.logicalCloseListener.value = Event.fromNodeEventEmitter(this.hostedView ? this.webContents : this._win!, this.hostedView ? 'destroyed' : 'closed')(() => {
+			if (this.hostedView) { removePrototypeWorkbench(this.id); }
+			this._onDidClose.fire();
+			this.dispose();
+		});
+	}
 	protected setWin(win: electron.BrowserWindow, options?: BrowserWindowConstructorOptions): void {
 		this._win = win;
 		// Electron requires the overlay to have been enabled when the window was created.
@@ -212,11 +220,7 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 
 			this._onDidUnmaximize.fire();
 		}));
-		this._register(Event.fromNodeEventEmitter(win, 'closed')(() => {
-			this._onDidClose.fire();
-
-			this.dispose();
-		}));
+		this.registerLogicalClose();
 		this._register(Event.fromNodeEventEmitter(win, 'focus')(() => {
 			this.clearNotifyFocus();
 
@@ -774,7 +778,6 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		@ILifecycleMainService private readonly lifecycleMainService: ILifecycleMainService,
 		@IProductService private readonly productService: IProductService,
 		@IProtocolMainService protocolMainService: IProtocolMainService,
-		@IWindowsMainService private readonly windowsMainService: IWindowsMainService,
 		@IStateService stateService: IStateService,
 		@IInstantiationService instantiationService: IInstantiationService
 	) {
@@ -807,6 +810,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 			// Create the browser window
 			mark('code/willCreateCodeBrowserWindow');
+			this.prototypeOptions = options;
 			const hosted = createPrototypeWorkbench(options, !!config.isSessionsWindow);
 			this._win = hosted.host;
 			this.hostedView = hosted.view;
@@ -857,6 +861,11 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	private readyState = ReadyState.NONE;
+	private prototypeOptions!: BrowserWindowConstructorOptions;
+	private recovery: Promise<void> | undefined;
+	private recoverySerial = 0;
+	private logicallyClosed = false;
+	private readonly rendererListeners = this._register(new DisposableStore());
 
 	setReady(): void {
 		this.logService.trace(`window#load: window reported ready (id: ${this._id})`);
@@ -902,23 +911,23 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		});
 	}
 
-	private registerListeners(): void {
+	private registerRendererListeners(): void {
 
 		// Window error conditions to handle
-		this._register(Event.fromNodeEventEmitter(this._win, 'unresponsive')(() => this.onWindowError(WindowError.UNRESPONSIVE)));
-		this._register(Event.fromNodeEventEmitter(this._win, 'responsive')(() => this.onWindowError(WindowError.RESPONSIVE)));
-		this._register(Event.fromNodeEventEmitter(this.webContents, 'render-process-gone', (event, details) => details)(details => this.onWindowError(WindowError.PROCESS_GONE, { ...details })));
-		this._register(Event.fromNodeEventEmitter(this.webContents, 'did-fail-load', (event, exitCode, reason) => ({ exitCode, reason }))(({ exitCode, reason }) => this.onWindowError(WindowError.LOAD, { reason, exitCode })));
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'unresponsive')(() => this.onWindowError(WindowError.UNRESPONSIVE)));
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'responsive')(() => this.onWindowError(WindowError.RESPONSIVE)));
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'render-process-gone', (event, details) => details)(details => this.onWindowError(WindowError.PROCESS_GONE, { ...details })));
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'did-fail-load', (event, exitCode, reason) => ({ exitCode, reason }))(({ exitCode, reason }) => this.onWindowError(WindowError.LOAD, { reason, exitCode })));
 
 		// Prevent windows/iframes from blocking the unload
 		// through DOM events. We have our own logic for
 		// unloading a window that should not be confused
 		// with the DOM way.
 		// (https://github.com/microsoft/vscode/issues/122736)
-		this._register(Event.fromNodeEventEmitter<electron.Event>(this.webContents, 'will-prevent-unload')(event => event.preventDefault()));
+		this.rendererListeners.add(Event.fromNodeEventEmitter<electron.Event>(this.webContents, 'will-prevent-unload')(event => event.preventDefault()));
 
 		// Remember that we loaded
-		this._register(Event.fromNodeEventEmitter(this.webContents, 'did-finish-load')(() => {
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'did-finish-load')(() => {
 
 			// Associate properties from the load request if provided
 			if (this.pendingLoadConfig) {
@@ -927,6 +936,13 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				this.pendingLoadConfig = undefined;
 			}
 		}));
+
+		this.webContents.removeAllListeners('devtools-reload-page');
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'devtools-reload-page')(() => this.lifecycleMainService.reload(this)));
+	}
+
+	private registerListeners(): void {
+		this.registerRendererListeners();
 
 		// Window (Un)Maximize
 		this._register(this.onDidMaximize(() => {
@@ -1005,6 +1021,9 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				this.logService.error(`CodeWindow: failed to load (reason: ${details?.reason || '<unknown>'}, code: ${details?.exitCode || '<unknown>'})`);
 				break;
 		}
+
+		if (this.logicallyClosed || this.recovery) { return; }
+		if (type === WindowError.PROCESS_GONE) { this.readyState = ReadyState.NONE; }
 
 		// Telemetry
 		type WindowErrorClassification = {
@@ -1133,58 +1152,61 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	private async destroyWindow(reopen: boolean, skipRestoreEditors: boolean): Promise<void> {
-		const workspace = this._config?.workspace;
+		if (this.logicallyClosed || prototypeHostClosing) { return; }
+		if (!reopen) { this.close(); return; }
+		if (this.recovery) { return this.recovery; }
+		const serial = ++this.recoverySerial;
+		this.recovery = this.recoverPrototypeWorkbench(serial, skipRestoreEditors).finally(() => { this.recovery = undefined; });
+		return this.recovery;
+	}
 
-		// check to discard editor state first
-		if (skipRestoreEditors && workspace) {
-			try {
-				const workspaceStorage = this.storageMainService.workspaceStorage(workspace);
-				await workspaceStorage.init();
-				workspaceStorage.delete('memento/workbench.parts.editor');
-				await workspaceStorage.close();
-			} catch (error) {
-				this.logService.error(error);
-			}
-		}
-
-		// 'close' event will not be fired on destroy(), so signal crash via explicit event
-		this._onDidDestroy.fire();
-
+	private async recoverPrototypeWorkbench(serial: number, skipRestoreEditors: boolean): Promise<void> {
+		const configuration = { ...this._config! };
 		try {
-			// ask the windows service to open a new fresh window if specified
-			if (reopen && this._config) {
-
-				// We have to reconstruct a openable from the current workspace
-				let uriToOpen: IWorkspaceToOpen | IFolderToOpen | undefined = undefined;
-				let forceEmpty = undefined;
-				if (isSingleFolderWorkspaceIdentifier(workspace)) {
-					uriToOpen = { folderUri: workspace.uri };
-				} else if (isWorkspaceIdentifier(workspace)) {
-					uriToOpen = { workspaceUri: workspace.configPath };
-				} else {
-					forceEmpty = true;
-				}
-
-				// Delegate to windows service
-				const window = (await this.windowsMainService.open({
-					context: OpenContext.API,
-					userEnv: this._config.userEnv,
-					cli: {
-						...this.environmentMainService.args,
-						_: [] // we pass in the workspace to open explicitly via `urisToOpen`
-					},
-					urisToOpen: uriToOpen ? [uriToOpen] : undefined,
-					forceEmpty,
-					forceNewWindow: true,
-					remoteAuthority: this.remoteAuthority
-				})).at(0);
-				window?.focus();
+			setPrototypeRecovery(this.id, localize('recoveringProject', "Recovering…"), undefined, () => this.close());
+			if (configuration.workspace && !await this.validateWorkspaceBeforeReload(configuration)) { throw new Error('Workspace is unavailable'); }
+			if (skipRestoreEditors && configuration.workspace) {
+				const storage = this.storageMainService.workspaceStorage(configuration.workspace);
+				await storage.init();
+				storage.delete('memento/workbench.parts.editor');
+				await storage.close();
 			}
-		} finally {
-			// make sure to destroy the window as its renderer process is gone. do this
-			// after the code for reopening the window, to prevent the entire application
-			// from quitting when the last window closes as a result.
-			this._win?.destroy();
+			if (this.logicallyClosed || serial !== this.recoverySerial || prototypeHostClosing) { return; }
+			// Keep the logical tab/configuration; only its failed document and view are replaced.
+			this.rendererListeners.clear();
+			this.logicalCloseListener.clear();
+			revokePrototypeDocument(this.webContents, 'recovery');
+			this.hostedView = replacePrototypeWorkbench(this.id, this.prototypeOptions);
+			this.registerLogicalClose();
+			this.registerRendererListeners();
+			this.readyState = ReadyState.NONE;
+			this.whenReadyCallbacks.length = 0; // Never replay queued commands from the failed document.
+			delete configuration.filesToOpenOrCreate;
+			delete configuration.filesToDiff;
+			delete configuration.filesToMerge;
+			delete configuration.filesToWait;
+			delete configuration.continueOn;
+			configuration.isInitialStartup = false;
+			const listeners = new DisposableStore();
+			try {
+				await new Promise<void>((resolve, reject) => {
+					listeners.add(this.onDidSignalReady(() => resolve()));
+					listeners.add(this.onDidClose(() => reject(new Error('Project closed during recovery'))));
+					listeners.add(Event.fromNodeEventEmitter(this.webContents, 'did-fail-load')(() => reject(new Error('Replacement load failed'))));
+					listeners.add(Event.fromNodeEventEmitter(this.webContents, 'render-process-gone')(() => reject(new Error('Replacement crashed'))));
+					const timer = setTimeout(() => reject(new Error('Replacement did not become ready')), 30000);
+					listeners.add(toDisposable(() => clearTimeout(timer)));
+					this.load(configuration, { isReload: true });
+				});
+			} finally { listeners.dispose(); }
+			if (!this.logicallyClosed && serial === this.recoverySerial) { setPrototypeRecovery(this.id, undefined); }
+		} catch (error) {
+			this.logService.error('Project recovery failed', error);
+			if (!this.logicallyClosed && serial === this.recoverySerial) {
+				revokePrototypeDocument(this.webContents, 'recovery-failed');
+				this.readyState = ReadyState.NONE;
+				setPrototypeRecovery(this.id, localize('projectRecoveryFailed', "Recovery failed"), () => { void this.destroyWindow(true, false); }, () => this.close());
+			}
 		}
 	}
 
@@ -1662,7 +1684,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	close(): void {
-		throw new Error('PROTOTYPE: project close is not implemented; Stage 1 routing probe only');
+		void this.lifecycleMainService.close(this);
 	}
 
 	sendWhenReady(channel: string, token: CancellationToken, ...args: unknown[]): void {
@@ -1815,6 +1837,9 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	override dispose(): void {
+		this.logicallyClosed = true;
+		this.recoverySerial++;
+		this.whenReadyCallbacks.length = 0;
 		super.dispose();
 
 		// Deregister the loggers for this window
