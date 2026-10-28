@@ -25,18 +25,47 @@ function reviewSyncResourceHandle(syncResourceHandle: ISyncResourceHandle): ISyn
 	return { created: syncResourceHandle.created, uri: URI.revive(syncResourceHandle.uri) };
 }
 
-export class UserDataSyncServiceChannel implements IServerChannel {
+export class UserDataSyncServiceChannel extends Disposable implements IServerChannel {
+	private readonly manualTaskOwners = new Map<string, unknown>();
 
 	private readonly manualSyncTasks = new Map<string, IUserDataManualSyncTask>();
-	private readonly onManualSynchronizeResources = new Emitter<ManualSyncTaskEvent<[SyncResource, URI[]][]>>();
+	private readonly onManualSynchronizeResources = this._register(new Emitter<ManualSyncTaskEvent<[SyncResource, URI[]][]>>());
 
 	constructor(
 		private readonly service: IUserDataSyncService,
 		private readonly userDataProfilesService: IUserDataProfilesService,
-		private readonly logService: ILogService
-	) { }
+		private readonly logService: ILogService,
+		private readonly authority?: { validate(ctx: unknown): void; onDidRemoveConnection?: Event<{ ctx: string }> }
+	) {
+		super();
+		if (authority?.onDidRemoveConnection) {
+			this._register(authority.onDidRemoveConnection(({ ctx }) => {
+				for (const [id, owner] of this.manualTaskOwners) {
+					if (owner === ctx) { this.releaseTask(id); }
+				}
+			}));
+		}
+	}
 
-	listen(_: unknown, event: string): Event<any> {
+	private validate(context: unknown): void {
+		if (this._store.isDisposed) { throw new Error('Sync connection expired'); }
+		this.authority?.validate(context);
+	}
+
+	private releaseTask(id: string): void {
+		const task = this.manualSyncTasks.get(this.createKey(id));
+		this.manualTaskOwners.delete(id);
+		this.manualSyncTasks.delete(this.createKey(id));
+		void task?.stop().catch(error => this.logService.error(error));
+	}
+
+	override dispose(): void {
+		for (const id of this.manualTaskOwners.keys()) { this.releaseTask(id); }
+		super.dispose();
+	}
+
+	listen(context: unknown, event: string): Event<any> {
+		this.validate(context);
 		switch (event) {
 			// sync
 			case 'onDidChangeStatus': return this.service.onDidChangeStatus;
@@ -48,7 +77,7 @@ export class UserDataSyncServiceChannel implements IServerChannel {
 			case 'onDidResetRemote': return this.service.onDidResetRemote;
 
 			// manual sync
-			case 'manualSync/onSynchronizeResources': return this.onManualSynchronizeResources.event;
+			case 'manualSync/onSynchronizeResources': return Event.filter(this.onManualSynchronizeResources.event, event => this.manualTaskOwners.get(event.manualSyncTaskId) === context);
 		}
 
 		throw new Error(`[UserDataSyncServiceChannel] Event not found: ${event}`);
@@ -56,7 +85,9 @@ export class UserDataSyncServiceChannel implements IServerChannel {
 
 	async call(context: any, command: string, args?: any): Promise<any> {
 		try {
+			this.validate(context);
 			const result = await this._call(context, command, args);
+			this.validate(context);
 			return result;
 		} catch (e) {
 			this.logService.error(e);
@@ -81,7 +112,7 @@ export class UserDataSyncServiceChannel implements IServerChannel {
 			case 'getRemoteActivityData': return this.service.saveRemoteActivityData(URI.revive(args[0]));
 			case 'extractActivityData': return this.service.extractActivityData(URI.revive(args[0]), URI.revive(args[1]));
 
-			case 'createManualSyncTask': return this.createManualSyncTask();
+			case 'createManualSyncTask': return this.createManualSyncTask(context);
 		}
 
 		// manual sync
@@ -89,12 +120,13 @@ export class UserDataSyncServiceChannel implements IServerChannel {
 			const manualSyncTaskCommand = command.substring('manualSync/'.length);
 			const manualSyncTaskId = args[0];
 			const manualSyncTask = this.getManualSyncTask(manualSyncTaskId);
+			if (this.manualTaskOwners.get(manualSyncTaskId) !== context) { throw new Error('Foreign manual sync task'); }
 			args = (<Array<any>>args).slice(1);
 
 			switch (manualSyncTaskCommand) {
 				case 'merge': return manualSyncTask.merge();
-				case 'apply': return manualSyncTask.apply().then(() => this.manualSyncTasks.delete(this.createKey(manualSyncTask.id)));
-				case 'stop': return manualSyncTask.stop().finally(() => this.manualSyncTasks.delete(this.createKey(manualSyncTask.id)));
+				case 'apply': return manualSyncTask.apply().then(() => { this.manualTaskOwners.delete(manualSyncTask.id); return this.manualSyncTasks.delete(this.createKey(manualSyncTask.id)); });
+				case 'stop': return manualSyncTask.stop().finally(() => { this.manualTaskOwners.delete(manualSyncTask.id); return this.manualSyncTasks.delete(this.createKey(manualSyncTask.id)); });
 			}
 		}
 
@@ -109,8 +141,11 @@ export class UserDataSyncServiceChannel implements IServerChannel {
 		return manualSyncTask;
 	}
 
-	private async createManualSyncTask(): Promise<string> {
+	private async createManualSyncTask(context: unknown): Promise<string> {
 		const manualSyncTask = await this.service.createManualSyncTask();
+		try { this.validate(context); }
+		catch (error) { await manualSyncTask.stop(); throw error; }
+		this.manualTaskOwners.set(manualSyncTask.id, context);
 		this.manualSyncTasks.set(this.createKey(manualSyncTask.id), manualSyncTask);
 		return manualSyncTask.id;
 	}

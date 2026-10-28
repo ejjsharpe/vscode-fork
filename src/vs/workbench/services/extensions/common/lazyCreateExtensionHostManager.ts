@@ -17,7 +17,7 @@ import { IExtensionHostManager } from './extensionHostManagers.js';
 import { IExtensionDescriptionDelta } from './extensionHostProtocol.js';
 import { IResolveAuthorityResult } from './extensionHostProxy.js';
 import { ExtensionRunningLocation } from './extensionRunningLocation.js';
-import { ActivationKind, ExtensionActivationReason, ExtensionHostStartup, IExtensionHost, IExtensionInspectInfo, IInternalExtensionService } from './extensions.js';
+import { IExtensionHostRawProfileSession, ActivationKind, ExtensionActivationReason, ExtensionHostStartup, IExtensionHost, IExtensionInspectInfo, IInternalExtensionService } from './extensions.js';
 import { ResponsiveState } from './rpcProtocol.js';
 
 /**
@@ -155,6 +155,12 @@ export class LazyCreateExtensionHostManager extends Disposable implements IExten
 			return this._actual.activationEventIsDone(activationEvent);
 		}
 		return true;
+	}
+
+	public async startProfile(): Promise<IExtensionHostRawProfileSession> {
+		await this._startCalled.wait();
+		if (!this._actual) { throw new Error('No local extension host'); }
+		return this._actual.startProfile();
 	}
 
 	public async getInspectPort(tryEnableInspector: boolean): Promise<IExtensionInspectInfo | undefined> {

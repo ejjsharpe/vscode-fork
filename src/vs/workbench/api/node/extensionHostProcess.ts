@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { initializeExtensionHostInspector } from '../../../platform/extensions/node/extensionHostProfiling.js';
 import minimist from 'minimist';
 import * as nativeWatchdog from '@vscode/native-watchdog';
 import * as net from 'net';
@@ -16,7 +17,7 @@ import { Promises } from '../../../base/node/pfs.js';
 import { IMessagePassingProtocol } from '../../../base/parts/ipc/common/ipc.js';
 import { BufferedEmitter, PersistentProtocol, ProtocolConstants } from '../../../base/parts/ipc/common/ipc.net.js';
 import { NodeSocket, WebSocketNodeSocket } from '../../../base/parts/ipc/node/ipc.net.js';
-import type { MessagePortMain, MessageEvent as UtilityMessageEvent } from '../../../base/parts/sandbox/node/electronTypes.js';
+import { isUtilityProcess, type MessagePortMain, type MessageEvent as UtilityMessageEvent } from '../../../base/parts/sandbox/node/electronTypes.js';
 import { boolean } from '../../../editor/common/config/editorOptions.js';
 import product from '../../../platform/product/common/product.js';
 import { ExtensionHostMain, IExitFn } from '../common/extensionHostMain.js';
@@ -29,6 +30,9 @@ import '../common/extHost.common.services.js';
 import './extHost.node.services.js';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
+
+// Attest the actual child inspector before extension code can run or block its JS thread.
+if (isUtilityProcess(process)) { initializeExtensionHostInspector(process.env, message => process.parentPort.postMessage(message)); }
 
 interface ParsedExtHostArgs {
 	transformURIs?: boolean;

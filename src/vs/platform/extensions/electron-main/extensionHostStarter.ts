@@ -3,10 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { generateUuid } from '../../../base/common/uuid.js';
+import { prototypeBinding } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { IV8Profile } from '../../profiling/common/profiling.js';
+import { ExtensionHostProfiling, extensionHostProfileNonceEnv } from '../node/extensionHostProfiling.js';
 import { Promises } from '../../../base/common/async.js';
 import { canceled } from '../../../base/common/errors.js';
 import { Event } from '../../../base/common/event.js';
-import { Disposable, IDisposable } from '../../../base/common/lifecycle.js';
+import { Disposable, DisposableMap, DisposableStore, IDisposable } from '../../../base/common/lifecycle.js';
 import { extensionHostGraceTimeMs, IExtensionHostProcessOptions, IExtensionHostStarter } from '../common/extensionHostStarter.js';
 import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
 import { ILogService } from '../../log/common/log.js';
@@ -22,6 +26,7 @@ export class ExtensionHostStarter extends Disposable implements IDisposable, IEx
 	private static _lastId: number = 0;
 
 	private readonly _extHosts = new Map<string, WindowUtilityProcess>();
+	private readonly _profiling = this._register(new DisposableMap<string, { capture: ExtensionHostProfiling; dispose(): void }>());
 	private _shutdown = false;
 
 	constructor(
@@ -62,7 +67,7 @@ export class ExtensionHostStarter extends Disposable implements IDisposable, IEx
 	}
 
 	onDynamicMessage(id: string): Event<unknown> {
-		return this._getExtHost(id).onMessage;
+		return Event.filter(this._getExtHost(id).onMessage, message => !message || typeof message !== 'object' || (message as { type?: unknown }).type !== 'vscode:extension-host-inspector');
 	}
 
 	onDynamicExit(id: string): Event<{ code: number; signal: string }> {
@@ -77,6 +82,7 @@ export class ExtensionHostStarter extends Disposable implements IDisposable, IEx
 		const extHost = new WindowUtilityProcess(this._logService, this._windowsMainService, this._telemetryService, this._lifecycleMainService);
 		this._extHosts.set(id, extHost);
 		const disposable = extHost.onExit(({ pid, code, signal }) => {
+			this._profiling.deleteAndDispose(id);
 			disposable.dispose();
 			this._logService.info(`Extension host with pid ${pid} exited with code: ${code}, signal: ${signal}.`);
 			setTimeout(() => {
@@ -102,17 +108,38 @@ export class ExtensionHostStarter extends Disposable implements IDisposable, IEx
 		return { id };
 	}
 
-	async start(id: string, opts: IExtensionHostProcessOptions): Promise<{ pid: number | undefined }> {
+	async start(id: string, opts: IExtensionHostProcessOptions & { nativeConnectionContext?: string }): Promise<{ pid: number | undefined }> {
 		if (this._shutdown) {
 			throw canceled();
 		}
 		const extHost = this._getExtHost(id);
+		if (this._profiling.has(id)) { throw new Error('Extension host already started'); }
+		const context = opts.nativeConnectionContext;
+		if (context) { prototypeBinding(context); }
+		const nonce = generateUuid();
+		let actualPid: number | undefined;
+		let pendingStartup: unknown;
+		const lifetime = new DisposableStore();
+		const capture = lifetime.add(new ExtensionHostProfiling(nonce, () => actualPid, () => {
+			if (context) { prototypeBinding(context); }
+			if (this._shutdown || this._extHosts.get(id) !== extHost) { throw new Error('Extension host profiling owner expired'); }
+		}));
+		lifetime.add(Event.once(extHost.onSpawn)(pid => {
+			actualPid = pid;
+			if (pendingStartup) { capture.acceptStartupMessage(pendingStartup); pendingStartup = undefined; }
+		}));
+		lifetime.add(extHost.onMessage(message => {
+			if (typeof actualPid === 'undefined' && message && typeof message === 'object' && (message as { type?: unknown }).type === 'vscode:extension-host-inspector') { pendingStartup = message; }
+			else { capture.acceptStartupMessage(message); }
+		}));
+		this._profiling.set(id, { capture, dispose: () => lifetime.dispose() });
 		const args = ['--skipWorkspaceStorageLock'];
 		if (this._configurationService.getValue<boolean>('extensions.supportNodeGlobalNavigator')) {
 			args.push('--supportGlobalNavigator');
 		}
 		extHost.start({
 			...opts,
+			env: { ...opts.env, [extensionHostProfileNonceEnv]: nonce },
 			type: 'extensionHost',
 			name: 'extension-host',
 			entryPoint: 'vs/workbench/api/node/extensionHostProcess',
@@ -126,6 +153,18 @@ export class ExtensionHostStarter extends Disposable implements IDisposable, IEx
 		});
 		const pid = await Event.toPromise(extHost.onSpawn);
 		return { pid };
+	}
+
+	async startCpuProfile(id: string): Promise<string> {
+		const owner = this._profiling.get(id);
+		if (!owner) { throw new Error('Extension host profiling unavailable'); }
+		return owner.capture.startCpuProfile();
+	}
+
+	async stopCpuProfile(id: string, handle: string): Promise<IV8Profile> {
+		const owner = this._profiling.get(id);
+		if (!owner) { throw new Error('Extension host profiling unavailable'); }
+		return owner.capture.stopCpuProfile(handle);
 	}
 
 	async enableInspectPort(id: string): Promise<boolean> {
@@ -148,6 +187,7 @@ export class ExtensionHostStarter extends Disposable implements IDisposable, IEx
 			// already gone!
 			return;
 		}
+		this._profiling.deleteAndDispose(id);
 		extHostProcess.kill();
 		extHostProcess.dispose();
 		this._extHosts.delete(id);

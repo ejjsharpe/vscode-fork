@@ -16,7 +16,7 @@ import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/c
 import { IAuxiliaryWindowsMainService } from '../../../auxiliaryWindow/electron-main/auxiliaryWindows.js';
 import { IAuxiliaryWindow } from '../../../auxiliaryWindow/electron-main/auxiliaryWindow.js';
 import { ICodeWindow } from '../../../window/electron-main/window.js';
-import { prototypeNativeChannel } from '../../electron-main/prototypeNativeChannel.js';
+import { prototypeExtensionChannel, prototypeNativeChannel } from '../../electron-main/prototypeNativeChannel.js';
 import { IWindowsMainService } from '../../electron-main/windows.js';
 
 suite('Hosted native command ownership', () => {
@@ -81,4 +81,25 @@ suite('Hosted native command ownership', () => {
 		await assert.rejects(prototypeNativeChannel(service, windows, auxiliaries).call(parent.context, 'focusWindow', [10]), /revoked document\/connection/);
 		assert.deepStrictEqual(effects, []);
 	});
+	test('extension profiling targets only an owned process and expires with its connection', async () => {
+		const parent = createDocument(10);
+		const other = createDocument(20);
+		const windows = upcastPartial<IWindowsMainService>({ getWindowById: id => id === 10 ? upcastPartial<ICodeWindow>({ id, webContents: parent.contents }) : id === 20 ? upcastPartial<ICodeWindow>({ id, webContents: other.contents }) : undefined });
+		const effects: string[] = [];
+		const source: IServerChannel<string> = {
+			async call<T>(_ctx: string, command: string) {
+				effects.push(command);
+				return (command === 'createExtensionHost' ? { id: 'owned-process' } : 'owned-profile') as T;
+			},
+			listen: () => Event.None
+		};
+		const channel = prototypeExtensionChannel(source, windows, store);
+		await channel.call(parent.context, 'createExtensionHost', []);
+		await assert.rejects(channel.call(other.context, 'startCpuProfile', ['owned-process']), /extension-host owner\/lifetime/);
+		assert.strictEqual(await channel.call(parent.context, 'startCpuProfile', ['owned-process']), 'owned-profile');
+		revokePrototypeConnection(parent.context);
+		await assert.rejects(channel.call(parent.context, 'stopCpuProfile', ['owned-process', 'owned-profile']), /revoked document\/connection/);
+		assert.deepStrictEqual(effects, ['createExtensionHost', 'startCpuProfile', 'kill']);
+	});
+
 });
