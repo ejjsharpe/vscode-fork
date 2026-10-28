@@ -26,6 +26,10 @@ export class MessagePortProtocolServer<TContext> extends Disposable implements I
 
 	private readonly _transports = new Map<TContext, MessagePortProtocolTransport>();
 
+	constructor(private readonly resolveNativeClientId?: (context: TContext) => string | undefined) {
+		super();
+	}
+
 	listen<T>(ctx: TContext, event: string): Event<T> {
 		switch (event) {
 			case 'frame':
@@ -96,7 +100,7 @@ export class MessagePortProtocolServer<TContext> extends Disposable implements I
 
 		let transport = this._transports.get(ctx);
 		if (!transport) {
-			transport = new MessagePortProtocolTransport();
+			transport = new MessagePortProtocolTransport(this.resolveNativeClientId?.(ctx));
 			authenticateAgentHostTransport(transport);
 			this._transports.set(ctx, transport);
 
@@ -114,6 +118,10 @@ export class MessagePortProtocolServer<TContext> extends Disposable implements I
 
 class MessagePortProtocolTransport extends Disposable implements IProtocolTransport {
 	readonly transportKind = AgentHostTransportKind.MessagePort;
+
+	constructor(readonly nativeClientId?: string) {
+		super();
+	}
 
 	private readonly _onFrame = this._register(new Emitter<string>());
 	readonly onFrame = this._onFrame.event;

@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import type { IV8Profile } from '../../profiling/common/profiling.js';
 import type { ChatHomeWorkspace } from '../../workspace/common/chatHomeWorkspace.js';
 import type { AgentChatMoveDestination } from './agentHostChatMove.js';
 import type { IAgentHostManagedWorktree, IAgentHostWorktreeCleanupStatus } from './agentHostWorktreeCleanup.js';
@@ -900,6 +901,9 @@ export interface IMissionControlCredentialSealingRequest {
 
 export interface IAgentHostManagementService {
 	readonly _serviceBrand: undefined;
+	/** Named local process diagnostics; no caller-selected inspector endpoint. */
+	startCpuProfile?(): Promise<string>;
+	stopCpuProfile?(handle: string): Promise<IV8Profile>;
 	/** Opt-in Mission Control ingress configured through trusted local IPC. */
 	configureMissionControl(options: IMissionControlOptions | undefined, withdrawingAccountId?: string): Promise<void>;
 	sealMissionControlCredential(request: IMissionControlCredentialSealingRequest): Promise<string>;
@@ -1657,6 +1661,10 @@ export interface IAgentHostService extends IAgentConnection {
 	 * @see https://github.com/github/copilot-agent-runtime/issues/26495
 	 */
 	addMcpServerConfiguration?(provider: AgentProvider, name: string, config: IMcpServerConfiguration): Promise<void>;
+
+	/** Profiles the owning local host through a separately authenticated diagnostics connection. */
+	startCpuProfile?(): Promise<string>;
+	stopCpuProfile?(handle: string): Promise<IV8Profile>;
 
 	/** Start connecting to the agent host if it has not already started. */
 	startAgentHost(): void;

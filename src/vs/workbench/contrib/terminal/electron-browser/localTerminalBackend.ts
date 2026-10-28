@@ -328,6 +328,7 @@ export class LocalTerminalBackend extends BaseTerminalBackend implements ITermin
 	}
 
 	async getTerminalLayoutInfo(): Promise<ITerminalsLayoutInfo | undefined> {
+		await this._connectToDirectProxy();
 		const workspaceId = this._getWorkspaceId();
 		const layoutArgs: IGetTerminalLayoutInfoArgs = { workspaceId };
 

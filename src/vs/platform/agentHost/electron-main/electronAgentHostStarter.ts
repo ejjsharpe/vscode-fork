@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { localize } from '../../../nls.js';
 import { DeferredPromise } from '../../../base/common/async.js';
 import { Disposable, DisposableMap, DisposableStore, toDisposable } from '../../../base/common/lifecycle.js';
 import { Emitter } from '../../../base/common/event.js';
@@ -33,6 +34,7 @@ import { deepClone } from '../../../base/common/objects.js';
 import '../common/agentHostStarter.config.contribution.js';
 import { AgentHostAhpJsonlLoggingEnvVar } from '../common/ahpJsonlLogger.js';
 import { AgentHostWakeNetworkMonitor } from '../common/agentHostWakeNetworkMonitor.js';
+import { onPrototypeDocumentRevoked, prototypeBinding, prototypeDocumentGeneration, prototypeRequestContext, revokePrototypeConnection } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 
 /** The distributed notification macOS posts when it changes which apps it trusts for Accessibility. */
 const MacAccessibilityTrustChangedNotification = 'com.apple.accessibility.api';
@@ -47,7 +49,8 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 		this._logService.info(`AgentHostStarter: network is ${online ? 'online' : 'offline'} after wake`);
 		this._reportSystemNetworkOnline();
 	}));
-	private readonly _windowSenders = new Map<number, WebContents>();
+	private readonly _windowSenders = new Map<number, { contents: WebContents; generation: number }>();
+	private readonly _clientOwners = new Map<string, { contentsId: number; generation: number }>();
 	private readonly _windowSenderCleanup = this._register(new DisposableMap<number>());
 
 	private readonly _onRequestConnection = this._register(new Emitter<IAgentHostStartRequest>());
@@ -87,7 +90,14 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 
 		// Capture the enterprise OTel policy the renderer forwards before it requests a
 		// connection (FIFO per sender ensures this lands before the spawn in `start()`).
-		const onOTelPolicy = (_e: IpcMainEvent, policy: unknown, ready: unknown) => {
+		const onOTelPolicy = (event: IpcMainEvent, ...args: unknown[]) => {
+			if (args.length !== 3) { return; }
+			let context: string;
+			try { context = prototypeRequestContext(event, args[2]); } catch (error) { this._logService.error(error); return; }
+			const allowed = prototypeBinding(context).scope.role === 'agents';
+			revokePrototypeConnection(context);
+			if (!allowed) { this._logService.trace('Rejected non-owner Agent Host policy change'); return; }
+			const [policy, ready] = args;
 			if (this._otelPolicyState.update(policy, this.utilityProcess !== undefined, ready === true)) {
 				this._logService.info('Agent Host enterprise OTel policy changed; restarting the Agent Host');
 				this._notifyWindowsWillRestart();
@@ -100,13 +110,23 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 		}));
 
 		// Listen for new windows to establish a direct MessagePort connection to the agent host
-		const onWindowConnection = (e: IpcMainEvent, nonce: string) => { void this._onWindowConnection(e, nonce); };
+		const onWindowConnection = (e: IpcMainEvent, ...args: unknown[]) => { void this._onWindowConnection(e, args).catch(error => this._logService.error(error)); };
 		validatedIpcMain.on('vscode:createAgentHostMessageChannel', onWindowConnection);
 		this._register(toDisposable(() => {
 			validatedIpcMain.removeListener('vscode:createAgentHostMessageChannel', onWindowConnection);
 		}));
 
-		const onRestart = () => {
+		const onProfilingConnection = (e: IpcMainEvent, ...args: unknown[]) => { void this._onWindowConnection(e, args, true).catch(error => this._logService.error(error)); };
+		validatedIpcMain.on('vscode:createAgentHostProfilingMessageChannel', onProfilingConnection);
+		this._register(toDisposable(() => validatedIpcMain.removeListener('vscode:createAgentHostProfilingMessageChannel', onProfilingConnection)));
+
+		const onRestart = (event: IpcMainEvent, ...args: unknown[]) => {
+			if (args.length !== 1) { return; }
+			let context: string;
+			try { context = prototypeRequestContext(event, args[0]); } catch (error) { this._logService.error(error); return; }
+			const allowed = prototypeBinding(context).scope.role === 'agents';
+			revokePrototypeConnection(context);
+			if (!allowed) { this._logService.error('Rejected non-owner Agent Host restart'); return; }
 			this._notifyWindowsWillRestart();
 			this._onRequestRestart.fire();
 		};
@@ -114,6 +134,7 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 		this._register(toDisposable(() => {
 			validatedIpcMain.removeListener(AgentHostRestartIpcChannel, onRestart);
 		}));
+		this._register(onPrototypeDocumentRevoked(({ contents }) => this._windowSenderCleanup.deleteAndDispose(contents.id)));
 
 		if (isMacintosh) {
 			// Unlike Electron's `resume` event, macOS posts the did-wake notification
@@ -336,18 +357,29 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 		});
 	}
 
-	private async _onWindowConnection(e: IpcMainEvent, nonce: string): Promise<void> {
-		if (e.sender.isDestroyed()) {
+	private async _onWindowConnection(e: IpcMainEvent, args: unknown[], profiling = false): Promise<void> {
+		if (args.length !== (profiling ? 2 : 3) || typeof args[0] !== 'string' || (!profiling && (typeof args[1] !== 'string' || !args[1] || args[1].length > 200))) { throw new Error('Rejected Agent Host connection arguments'); }
+		const nonce = args[0];
+		const clientId = profiling ? undefined : args[1] as string;
+		const credential = args[profiling ? 1 : 2];
+		const responseChannel = profiling ? 'vscode:createAgentHostProfilingMessageChannelResult' : 'vscode:createAgentHostMessageChannelResult';
+		const context = prototypeRequestContext(e, credential);
+		const binding = prototypeBinding(context);
+		if (binding.scope.role === 'auxiliary' || (!profiling && binding.scope.role !== 'agents')) {
+			e.sender.send(responseChannel, { nonce, error: localize('projectAgentOwner', "Project conversations must attach through the persistent Agents owner."), fatal: true });
+			revokePrototypeConnection(context);
 			return;
 		}
-
-		this._trackWindowSender(e.sender);
+		if (clientId !== undefined) {
+			const owner = this._clientOwners.get(clientId);
+			if (owner && (owner.contentsId !== e.sender.id || owner.generation !== binding.generation)) { revokePrototypeConnection(context); throw new Error('Rejected foreign or retired Agent Host client identity'); }
+			this._clientOwners.set(clientId, { contentsId: e.sender.id, generation: binding.generation });
+			this._trackWindowSender(e.sender);
+		}
 
 		if (this._exitSettled) {
 			await this._exitSettled;
-			if (e.sender.isDestroyed()) {
-				return;
-			}
+			try { prototypeBinding(context); } catch (error) { revokePrototypeConnection(context); throw error; }
 		}
 
 		let startPromise: Promise<void> | undefined;
@@ -369,22 +401,23 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 			if (!utilityProcess) {
 				throw new Error('Agent Host process is not running.');
 			}
-			const port = utilityProcess.connect();
-			if (e.sender.isDestroyed()) {
-				port.close();
-				return;
-			}
-			e.sender.postMessage('vscode:createAgentHostMessageChannelResult', nonce, [port]);
+			prototypeBinding(context);
+			const port = utilityProcess.connect(undefined, context, clientId);
+			try { prototypeBinding(context); } catch (error) { port.close(); throw error; }
+			e.sender.postMessage(responseChannel, nonce, [port]);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			this._logService.error(`AgentHostStarter: cannot create window connection: ${message}`);
-			if (!e.sender.isDestroyed()) {
-				e.sender.send('vscode:createAgentHostMessageChannelResult', {
+			let current = false;
+			try { prototypeBinding(context); current = true; } catch { }
+			if (current) {
+				e.sender.send(responseChannel, {
 					nonce,
 					error: message,
 					fatal: error instanceof AgentHostStartError && error.fatal,
 				});
 			}
+			revokePrototypeConnection(context);
 		}
 	}
 
@@ -397,9 +430,9 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 	}
 
 	private _notifyWindowsWillRestart(): void {
-		for (const sender of this._windowSenders.values()) {
-			if (!sender.isDestroyed()) {
-				sender.send(AgentHostWillRestartIpcChannel);
+		for (const { contents, generation } of this._windowSenders.values()) {
+			if (prototypeDocumentGeneration(contents) === generation) {
+				contents.send(AgentHostWillRestartIpcChannel);
 			}
 		}
 	}
@@ -408,7 +441,9 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 		if (this._windowSenders.has(sender.id)) {
 			return;
 		}
-		this._windowSenders.set(sender.id, sender);
+		const generation = prototypeDocumentGeneration(sender);
+		if (generation === undefined) { throw new Error('Rejected retired Agent Host observer'); }
+		this._windowSenders.set(sender.id, { contents: sender, generation });
 		const onDestroyed = () => this._windowSenderCleanup.deleteAndDispose(sender.id);
 		sender.once('destroyed', onDestroyed);
 		this._windowSenderCleanup.set(sender.id, toDisposable(() => {

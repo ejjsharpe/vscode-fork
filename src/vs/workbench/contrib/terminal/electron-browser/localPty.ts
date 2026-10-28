@@ -74,7 +74,7 @@ export class LocalPty extends BasePty implements ITerminalChildProcess {
 		if (!this._proxy.freePortKillProcess) {
 			throw new Error('freePortKillProcess does not exist on the local pty service');
 		}
-		return this._proxy.freePortKillProcess(port);
+		return this._proxy.freePortKillProcess(port, this.id);
 	}
 
 	async refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]> {

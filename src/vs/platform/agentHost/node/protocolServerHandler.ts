@@ -2888,6 +2888,9 @@ export class ProtocolServerHandler extends Disposable implements IAgentHostClien
 	}
 
 	private _verifyRelayClient(transport: IProtocolTransport, clientId: string): void {
+		if (transport.nativeClientId !== undefined && transport.nativeClientId !== clientId) {
+			throw new ProtocolError(JsonRpcErrorCodes.InvalidParams, 'Client ID does not match native connection');
+		}
 		if (transport.relayClientId !== undefined && transport.relayClientId !== clientId) {
 			throw new ProtocolError(JsonRpcErrorCodes.InvalidParams, 'Client ID does not match relay lane');
 		}

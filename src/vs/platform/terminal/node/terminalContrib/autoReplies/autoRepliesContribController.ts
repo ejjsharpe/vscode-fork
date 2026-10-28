@@ -8,8 +8,8 @@ import type { IPtyServiceContribution, ITerminalChildProcess } from '../../../co
 import { TerminalAutoResponder } from './terminalAutoResponder.js';
 
 export class AutoRepliesPtyServiceContribution implements IPtyServiceContribution {
-	private readonly _autoReplies: Map<string, string> = new Map();
-	private readonly _terminalProcesses: Map<number, ITerminalChildProcess> = new Map();
+	private readonly _autoReplies: Map<number | undefined, Map<string, string>> = new Map();
+	private readonly _terminalProcesses: Map<number, { process: ITerminalChildProcess; workbench?: number }> = new Map();
 	private readonly _autoResponders: Map<number, Map<string, TerminalAutoResponder>> = new Map();
 
 	constructor(
@@ -17,29 +17,32 @@ export class AutoRepliesPtyServiceContribution implements IPtyServiceContributio
 	) {
 	}
 
-	async installAutoReply(match: string, reply: string) {
-		this._autoReplies.set(match, reply);
+	async installAutoReply(match: string, reply: string, workbench?: number) {
+		let replies = this._autoReplies.get(workbench);
+		if (!replies) { replies = new Map(); this._autoReplies.set(workbench, replies); }
+		replies.set(match, reply);
 		// If the auto reply exists on any existing terminals it will be overridden
 		for (const persistentProcessId of this._autoResponders.keys()) {
-			const process = this._terminalProcesses.get(persistentProcessId);
-			if (!process) {
+			const entry = this._terminalProcesses.get(persistentProcessId);
+			if (!entry) {
 				this._logService.error('Could not find terminal process to install auto reply');
 				continue;
 			}
-			this._processInstallAutoReply(persistentProcessId, process, match, reply);
+			if (entry.workbench === workbench) { this._processInstallAutoReply(persistentProcessId, entry.process, match, reply); }
 		}
 	}
 
-	async uninstallAllAutoReplies() {
-		for (const match of this._autoReplies.keys()) {
-			for (const processAutoResponders of this._autoResponders.values()) {
-				processAutoResponders.get(match)?.dispose();
-				processAutoResponders.delete(match);
-			}
+	async uninstallAllAutoReplies(workbench?: number) {
+		this._autoReplies.delete(workbench);
+		for (const [id, entry] of this._terminalProcesses) {
+			if (entry.workbench !== workbench) { continue; }
+			const responders = this._autoResponders.get(id);
+			for (const responder of responders?.values() ?? []) { responder.dispose(); }
+			responders?.clear();
 		}
 	}
 
-	handleProcessReady(persistentProcessId: number, process: ITerminalChildProcess): void {
+	handleProcessReady(persistentProcessId: number, process: ITerminalChildProcess, workbench?: number): void {
 		// Ready fires again when a persistent process is reattached, dispose the old responders
 		const existingAutoResponders = this._autoResponders.get(persistentProcessId);
 		if (existingAutoResponders) {
@@ -47,9 +50,9 @@ export class AutoRepliesPtyServiceContribution implements IPtyServiceContributio
 				e.dispose();
 			}
 		}
-		this._terminalProcesses.set(persistentProcessId, process);
+		this._terminalProcesses.set(persistentProcessId, { process, workbench });
 		this._autoResponders.set(persistentProcessId, new Map());
-		for (const [match, reply] of this._autoReplies.entries()) {
+		for (const [match, reply] of this._autoReplies.get(workbench)?.entries() ?? []) {
 			this._processInstallAutoReply(persistentProcessId, process, match, reply);
 		}
 	}
