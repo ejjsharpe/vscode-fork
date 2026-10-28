@@ -118,8 +118,8 @@
 
 			send(channel: string, ...args: unknown[]): void {
 				if (validateIPC(channel)) {
-					if (channel === 'vscode:reloadWindow' || channel.startsWith('vscode:getDiagnosticInfoResponse')) {
-						// Never queue a reload or diagnostic reply for later authorization.
+					if (channel === 'vscode:reloadWindow' || channel === 'vscode:contextmenu' || channel.startsWith('vscode:getDiagnosticInfoResponse')) {
+						// Never replay document-bound UI requests or replies after authorization.
 						ipcRenderer.send(channel, ...args, documentNonce);
 						return;
 					}
