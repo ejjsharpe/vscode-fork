@@ -11,7 +11,7 @@ import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/c
 import { runWithFakedTimers } from '../../../../base/test/common/virtualScheduling/index.js';
 import { INativeEnvironmentService } from '../../../environment/common/environment.js';
 import { IExtensionsProfileScannerService, IProfileExtensionsScanOptions } from '../../common/extensionsProfileScannerService.js';
-import { AbstractExtensionsScannerService, ExtensionScannerInput, IExtensionsScannerService, IScannedExtensionManifest, Translations } from '../../common/extensionsScannerService.js';
+import { NativeExtensionsScannerService, ExtensionScannerInput, IExtensionsScannerService, IScannedExtensionManifest, Translations } from '../../common/extensionsScannerService.js';
 import { ExtensionsProfileScannerService } from '../../node/extensionsProfileScannerService.js';
 import { ExtensionType, getManifestCacheFileName, IExtensionManifest, TargetPlatform } from '../../../extensions/common/extensions.js';
 import { IFileService } from '../../../files/common/files.js';
@@ -31,7 +31,7 @@ const ROOT = URI.file('/ROOT');
 // Comfortably longer than the throttle the scanner uses before it validates a cache hit
 const CACHE_VALIDATION_DELAY = 10_000;
 
-class ExtensionsScannerService extends AbstractExtensionsScannerService implements IExtensionsScannerService {
+class ExtensionsScannerService extends NativeExtensionsScannerService implements IExtensionsScannerService {
 
 	constructor(
 		@IUserDataProfilesService userDataProfilesService: IUserDataProfilesService,
@@ -46,12 +46,12 @@ class ExtensionsScannerService extends AbstractExtensionsScannerService implemen
 		super(
 			URI.file(nativeEnvironmentService.builtinExtensionsPath),
 			URI.file(nativeEnvironmentService.extensionsPath),
-			joinPath(nativeEnvironmentService.userHome, '.vscode-oss-dev', 'extensions', 'control.json'),
+			nativeEnvironmentService.userHome,
 			userDataProfilesService.defaultProfile,
 			userDataProfilesService, extensionsProfileScannerService, fileService, logService, nativeEnvironmentService, productService, uriIdentityService, instantiationService);
 	}
 
-	protected async getTranslations(language: string): Promise<Translations> {
+	protected override async getTranslations(language: string): Promise<Translations> {
 		return translations;
 	}
 
@@ -80,7 +80,7 @@ suite('NativeExtensionsScanerService Test', () => {
 			extensionsPath: userExtensionsLocation.fsPath,
 			cacheHome: joinPath(ROOT, 'cache'),
 		});
-		instantiationService.stub(IProductService, { version: '1.66.0', builtInExtensionsEnabledWithAutoUpdates: [] });
+		instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', builtInExtensionsEnabledWithAutoUpdates: [] });
 		const uriIdentityService = disposables.add(new UriIdentityService(fileService));
 		instantiationService.stub(IUriIdentityService, uriIdentityService);
 		const userDataProfilesService = disposables.add(new UserDataProfilesService(environmentService, fileService, uriIdentityService, logService));
@@ -240,8 +240,9 @@ suite('NativeExtensionsScanerService Test', () => {
 		assert.deepStrictEqual(actual[1].identifier, { id: 'pub.name2' });
 	});
 
-	test('scan system extensions include additional builtin extensions', async () => {
+	test('scan system extensions uses this application control and ignores Code OSS control', async () => {
 		instantiationService.stub(IProductService, {
+			dataFolderName: '.escode-dev',
 			version: '1.66.0',
 			builtInExtensionsEnabledWithAutoUpdates: [],
 			builtInExtensions: [
@@ -252,7 +253,9 @@ suite('NativeExtensionsScanerService Test', () => {
 		await anExtension(anExtensionManifest({ 'name': 'name2', 'publisher': 'pub' }), joinPath(ROOT, 'additional'));
 		const extensionLocation = await anExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub' }), joinPath(ROOT, 'additional'));
 		await aSystemExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.0.1' }));
-		await instantiationService.get(IFileService).writeFile(joinPath(instantiationService.get(INativeEnvironmentService).userHome, '.vscode-oss-dev', 'extensions', 'control.json'), VSBuffer.fromString(JSON.stringify({ 'pub.name2': 'disabled', 'pub.name': extensionLocation.fsPath })));
+		const foreignExtensionLocation = await anExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.0.2' }), joinPath(ROOT, 'foreign'));
+		await instantiationService.get(IFileService).writeFile(joinPath(ROOT, '.vscode-oss-dev', 'extensions', 'control.json'), VSBuffer.fromString(JSON.stringify({ 'pub.name': foreignExtensionLocation.fsPath })));
+		await instantiationService.get(IFileService).writeFile(joinPath(ROOT, '.escode-dev', 'extensions', 'control.json'), VSBuffer.fromString(JSON.stringify({ 'pub.name2': 'disabled', 'pub.name': extensionLocation.fsPath })));
 		const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
 
 		const actual = await testObject.scanSystemExtensions({ checkControlFile: true });
@@ -350,7 +353,7 @@ suite('NativeExtensionsScanerService Test', () => {
 	suite('auto update builtin extensions', () => {
 
 		test('scan user extension with matching product version is included', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
 			await aUserExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.66.1' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
 
@@ -361,7 +364,7 @@ suite('NativeExtensionsScanerService Test', () => {
 		});
 
 		test('scan user extension with different version is included when forceAutoUpdate is enabled', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
 			await aUserExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.67.0' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
 
@@ -372,7 +375,7 @@ suite('NativeExtensionsScanerService Test', () => {
 		});
 
 		test('scan user extension not in autoUpdateBuiltinExtensions is not filtered', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.other'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.other'] });
 			await aUserExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.67.0' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
 
@@ -382,7 +385,7 @@ suite('NativeExtensionsScanerService Test', () => {
 		});
 
 		test('scan picks latest version when multiple versions exist', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
 			await aUserExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.66.1' }));
 			await aUserExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.67.0' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
@@ -394,7 +397,7 @@ suite('NativeExtensionsScanerService Test', () => {
 		});
 
 		test('scan all extensions prefers matching user extension over system extension', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
 			await aSystemExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.66.0' }));
 			await aUserExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.66.1' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
@@ -408,7 +411,7 @@ suite('NativeExtensionsScanerService Test', () => {
 		});
 
 		test('scan all extensions picks user extension with newer version over system extension', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
 			await aSystemExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.66.0' }));
 			await aUserExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.67.0' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
@@ -422,7 +425,7 @@ suite('NativeExtensionsScanerService Test', () => {
 		});
 
 		test('system extension has autoUpdate set to true when in autoUpdateBuiltinExtensions and quality is stable', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
 			await aSystemExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
 
@@ -433,7 +436,7 @@ suite('NativeExtensionsScanerService Test', () => {
 		});
 
 		test('system extension has autoUpdate set to false when not in autoUpdateBuiltinExtensions', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.other'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'stable', builtInExtensionsEnabledWithAutoUpdates: ['pub.other'] });
 			await aSystemExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
 
@@ -444,7 +447,7 @@ suite('NativeExtensionsScanerService Test', () => {
 		});
 
 		test('system extension has autoUpdate set to false when quality is not stable', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'insider', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'insider', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
 			await aSystemExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
 
@@ -455,7 +458,7 @@ suite('NativeExtensionsScanerService Test', () => {
 		});
 
 		test('scan user extension is excluded when autoUpdate is disabled (non-stable quality)', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'insider', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'insider', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
 			await aUserExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.66.1' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
 
@@ -465,7 +468,7 @@ suite('NativeExtensionsScanerService Test', () => {
 		});
 
 		test('scan all extensions uses system version when autoUpdate is disabled (non-stable quality)', async () => {
-			instantiationService.stub(IProductService, { version: '1.66.0', quality: 'insider', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
+			instantiationService.stub(IProductService, { dataFolderName: '.escode-dev', version: '1.66.0', quality: 'insider', builtInExtensionsEnabledWithAutoUpdates: ['pub.name'] });
 			await aSystemExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.66.0' }));
 			await aUserExtension(anExtensionManifest({ 'name': 'name', 'publisher': 'pub', version: '1.66.1' }));
 			const testObject: IExtensionsScannerService = disposables.add(instantiationService.createInstance(ExtensionsScannerService));
