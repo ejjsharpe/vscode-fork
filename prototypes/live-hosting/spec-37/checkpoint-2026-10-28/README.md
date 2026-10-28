@@ -34,6 +34,8 @@ The next unblocked ticket is [#39 — Open and switch independent project tabs](
 
 Review range: PR base `ec9a1750b4d8b1a8a0ff7de7e722f69c6e1c32e3...403375db5f1794d95849d795ceecbf8553d2dfdb`. Findings were recorded without beginning another repair cycle.
 
+The [combined two-axis report](review.md) preserves both reviews separately.
+
 - **Standards:** [report](review-standards.md): IPC server listener/emitter teardown ownership (#40); protocol metadata reader placement (#50); connector lease lifecycle duplication (judgment, #40).
 - **Spec:** [report](review-spec.md): Choose Project retry/dismissal defect (#51), missing extension-backed home support (#50/#51), intentionally unfinished ticket work and current-source runtime gaps.
 
