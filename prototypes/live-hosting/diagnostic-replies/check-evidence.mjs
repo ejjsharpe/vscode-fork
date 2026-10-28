@@ -1,0 +1,36 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const read = name => JSON.parse(fs.readFileSync(new URL(`evidence/${name}.json`, import.meta.url), 'utf8'));
+assert.equal(read('baseline').result[0].hostName, 'foreign-forgery');
+assert.equal(read('baseline').leakedAfterTimeout, 1);
+assert.deepEqual(read('empty-reply-before').types, ['string']);
+assert.deepEqual(read('empty-reply-after').types, ['undefined', 'string']);
+const ownership = read('ownership-final');
+assert.equal(ownership.result.length, 8);
+assert.equal(ownership.remainingListeners, 0);
+assert.equal(ownership.remoteRuntimeTested, false);
+const transition = read('transitions-final');
+assert.equal(transition.metadataPreparation.dispatches, 0);
+assert.equal(transition.auxiliary.legitimateWaitPreserved, true);
+assert.equal(transition.remainingListeners, 0);
+assert.deepEqual(read('prebootstrap').received.map(x => x.credentialType), ['undefined']);
+assert.equal(read('prebootstrap').noDelayedCredentialledReplay, true);
+const destruction = read('destruction-final');
+assert.match(destruction.result[0].errorMessage, /interrupted/);
+assert.equal(destruction.remainingListener, 0);
+assert.equal(destruction.hostDestroyed, false);
+assert.equal(read('reload-final').realWireReloadCalls, 1);
+const close = read('close-final');
+assert.equal(close.retryResult.samePromise, true);
+assert.deepEqual(close.retryResult.outcomes.map(x => x.status), ['rejected', 'rejected', 'rejected']);
+assert.equal(close.pending, false);
+const host = read('host-final');
+assert.equal(host.unload, 'interrupted');
+assert.equal(host.hostAlive, true);
+assert.equal(host.laterReady, true);
+assert.equal(read('runtime').workbenches.length, 3);
+assert.equal(read('cleanup').gracefulShutdownTest, false);
+assert.equal(read('failures-and-reruns').length, 6);
+console.log('Saved diagnostic evidence is consistent; this does not rerun the product.');

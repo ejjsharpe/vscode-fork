@@ -1,0 +1,33 @@
+[
+  {
+    "case": "initial launcher lifetime",
+    "observed": "CDP ready was reported, but the main inspector later refused the connection. No baseline conclusion from this launch.",
+    "action": "Relaunched in a retained terminal."
+  },
+  {
+    "case": "probe started before readiness",
+    "observed": "isReady was false; no request channel was created. The harness tried to send to undefined and failed.",
+    "action": "Added a bounded wait for actual readiness; reran."
+  },
+  {
+    "case": "genuine empty reply rejected",
+    "observed": "The candidate timed out instead of accepting the renderer no-connection reply. The wire trace contained one string argument: the credential, without a payload slot.",
+    "action": "The renderer now sends explicit undefined. Later wire trace contained undefined then string; final live control passed.",
+    "kind": "candidate defect repaired"
+  },
+  {
+    "case": "immediate post-replacement trace timeout",
+    "observed": "The standalone trace received no reply within five seconds immediately after replacement. A later explicit trace succeeded.",
+    "limit": "Receiver registration ordering was not traced. Source registers this contribution at LifecyclePhase.Eventually; that is a possible explanation, not a traced runtime fact. Startup diagnostic availability remains unvalidated."
+  },
+  {
+    "case": "six-second inherited Close probe wait",
+    "observed": "Interruption assertions passed, but lifecycleReady was still false after six seconds. Later inspection reported true.",
+    "action": "Copied the probe with a bounded readiness/outcome wait. Final rerun passed; original report/script retained."
+  },
+  {
+    "case": "destruction report accessor",
+    "observed": "The pending diagnostic interrupted, its listener was removed and the neighbour remained valid, then report construction failed because w.win was null after disposal.",
+    "action": "Capture the native host before destruction. Final control passed."
+  }
+]

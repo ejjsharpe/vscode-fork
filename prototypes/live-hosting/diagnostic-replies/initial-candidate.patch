@@ -1,0 +1,69 @@
+--- a/src/vs/platform/diagnostics/electron-main/diagnosticsMainService.ts
++++ b/src/vs/platform/diagnostics/electron-main/diagnosticsMainService.ts
+@@ -6 +6,2 @@
+-import { app, BrowserWindow, Event as IpcEvent } from 'electron';
++import { randomUUID } from 'node:crypto';
++import { app, BrowserWindow, IpcMainEvent } from 'electron';
+@@ -8 +9 @@
+-import { CancellationToken } from '../../../base/common/cancellation.js';
++import { onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+@@ -52 +53,7 @@
+-			const replyChannel = `vscode:getDiagnosticInfoResponse${window.id}`;
++			const contents = window.webContents;
++			const generation = prototypeDocumentGeneration(contents);
++			const unavailable = (errorMessage: string): IRemoteDiagnosticError => ({ hostName: remoteAuthority, errorMessage });
++			if (generation === undefined || !window.isReady) {
++				return unavailable(`Diagnostic document for '${remoteAuthority}' is not ready.`);
++			}
++			const replyChannel = `vscode:getDiagnosticInfoResponse${randomUUID()}`;
+@@ -56,0 +64,3 @@
++			if (prototypeDocumentGeneration(contents) !== generation) {
++				return unavailable(`Diagnostic request for '${remoteAuthority}' was interrupted.`);
++			}
+@@ -59,6 +69,13 @@
+-				window.sendWhenReady('vscode:getDiagnosticInfo', CancellationToken.None, { replyChannel, args });
+-
+-				validatedIpcMain.once(replyChannel, (_: IpcEvent, data: IRemoteDiagnosticInfo) => {
+-					// No data is returned if getting the connection fails.
+-					if (!data) {
+-						resolve({ hostName: remoteAuthority, errorMessage: `Unable to resolve connection to '${remoteAuthority}'.` });
++				let settled = false;
++				const finish = (data: IDiagnosticInfo | IRemoteDiagnosticError) => {
++					if (settled) { return; }
++					settled = true;
++					validatedIpcMain.removeListener(replyChannel, listener);
++					revocation.dispose();
++					clearTimeout(timeout);
++					resolve(data);
++				};
++				const listener = (event: IpcMainEvent, data: IRemoteDiagnosticInfo | undefined, nonce: unknown, ...extra: unknown[]) => {
++					if (extra.length || !prototypeDocumentOwnsReply(contents, generation, event, nonce)) {
++						this.logService.warn('Rejected diagnostic reply from an unrelated or expired document.');
++						return;
+@@ -66,2 +83,6 @@
+-
+-					resolve(data);
++					finish(data ?? unavailable(`Unable to resolve connection to '${remoteAuthority}'.`));
++				};
++				const revocation = onPrototypeDocumentRevoked(event => {
++					if (event.contents === contents && event.generation === generation) {
++						finish(unavailable(`Diagnostic request for '${remoteAuthority}' was interrupted.`));
++					}
+@@ -69,4 +90,8 @@
+-
+-				setTimeout(() => {
+-					resolve({ hostName: remoteAuthority, errorMessage: `Connection to '${remoteAuthority}' could not be established` });
+-				}, 5000);
++				const timeout = setTimeout(() => finish(unavailable(`Connection to '${remoteAuthority}' could not be established`)), 5000);
++				validatedIpcMain.on(replyChannel, listener);
++				try {
++					// Dispatch only to the captured document; never queue into a replacement.
++					window.send('vscode:getDiagnosticInfo', { replyChannel, args });
++				} catch {
++					finish(unavailable(`Unable to request diagnostics from '${remoteAuthority}'.`));
++				}
+--- a/src/vs/base/parts/sandbox/electron-browser/preload.ts
++++ b/src/vs/base/parts/sandbox/electron-browser/preload.ts
+@@ -126 +126 @@
+-					if ((['vscode:hello', 'vscode:message', 'vscode:disconnect'].includes(channel) || /^vscode:(ok|cancel|reply)/.test(channel))) {
++					if ((['vscode:hello', 'vscode:message', 'vscode:disconnect'].includes(channel) || /^vscode:(ok|cancel|reply|getDiagnosticInfoResponse)/.test(channel))) {

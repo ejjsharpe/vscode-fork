@@ -1,0 +1,17 @@
+{
+  "syntheticRemoteAuthority": true,
+  "realWireForeignReply": true,
+  "result": [
+    {
+      "hostName": "foreign-forgery",
+      "errorMessage": "foreign accepted"
+    }
+  ],
+  "timedOut": [
+    {
+      "hostName": "diagnostic-probe",
+      "errorMessage": "Connection to 'diagnostic-probe' could not be established"
+    }
+  ],
+  "leakedAfterTimeout": 1
+}

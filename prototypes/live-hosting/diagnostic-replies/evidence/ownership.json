@@ -1,0 +1,55 @@
+{
+  "syntheticRemoteAuthority": true,
+  "remoteRuntimeTested": false,
+  "result": [
+    {
+      "case": "foreign and extra arguments rejected without consuming listener; own reply accepted",
+      "realWire": true
+    },
+    {
+      "case": "concurrent operations use distinct channels and settle independently; duplicate ignored",
+      "realWire": true
+    },
+    {
+      "case": "missing/guessed credential, non-main frame and wrong sender with copied credential rejected",
+      "injectedMainEvents": true
+    },
+    {
+      "case": "actual RemoteAgentDiagnosticListener replies without remote connection",
+      "realWire": true,
+      "result": [
+        {
+          "hostName": "diagnostic-probe",
+          "errorMessage": "Unable to resolve connection to 'diagnostic-probe'."
+        }
+      ]
+    },
+    {
+      "case": "timeout removes listener; late reply ignored",
+      "realWire": true,
+      "result": [
+        {
+          "hostName": "diagnostic-probe",
+          "errorMessage": "Connection to 'diagnostic-probe' could not be established"
+        }
+      ]
+    },
+    {
+      "case": "replacement interrupts old wait, expired credential and old channel cannot settle fresh wait; neighbour unchanged",
+      "unexpectedRealReplacement": true,
+      "expiredCredentialInjected": true,
+      "before": 3,
+      "after": 4
+    },
+    {
+      "case": "unready window returns error without queue or automatic replay",
+      "injectedReadiness": true
+    },
+    {
+      "case": "send exception removes listener and returns visible diagnostic error",
+      "injectedSendFailure": true
+    }
+  ],
+  "rejectionsLogged": 8,
+  "remainingListeners": 0
+}

@@ -1,0 +1,70 @@
+{
+  "originalOutcome": {
+    "resolved": false,
+    "error": "Error: Close interrupted"
+  },
+  "retryAtBootstrap": {
+    "ready": true,
+    "lifecycleReady": false,
+    "generation": 8
+  },
+  "retryResult": {
+    "samePromise": true,
+    "outcomes": [
+      {
+        "status": "rejected",
+        "error": "Error: Close interrupted"
+      },
+      {
+        "status": "rejected",
+        "error": "Error: Close interrupted"
+      },
+      {
+        "status": "rejected",
+        "error": "Error: Close interrupted"
+      }
+    ]
+  },
+  "ready": true,
+  "loading": false,
+  "generation": 8,
+  "pending": false,
+  "shell": "Agents (100000)\nProject 1 (100001)\nProject 2 (100002) Close interrupted Close",
+  "requests": [
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onWillUnload",
+      "before": false
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    }
+  ],
+  "results": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "interrupted"
+    }
+  ]
+}

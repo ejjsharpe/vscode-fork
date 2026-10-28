@@ -1,0 +1,22 @@
+{
+  "syntheticRemoteAuthority": true,
+  "metadataPreparation": {
+    "injectedDelay": true,
+    "realReplacement": true,
+    "dispatches": 0,
+    "result": [
+      {
+        "hostName": "diagnostic-probe",
+        "errorMessage": "Diagnostic request for 'diagnostic-probe' was interrupted."
+      }
+    ]
+  },
+  "auxiliary": {
+    "realWire": true,
+    "isolatedAuxiliaryPreloadWindow": true,
+    "registeredAppAuxiliary": false,
+    "foreignReplyRejected": true,
+    "legitimateWaitPreserved": true
+  },
+  "remainingListeners": 0
+}
