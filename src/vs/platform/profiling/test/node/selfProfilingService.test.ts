@@ -19,7 +19,7 @@ suite('SelfProfilingService', () => {
 		const session = upcastPartial<Session>({
 			connect: () => { connected = true; },
 			disconnect: () => { connected = false; },
-			post: (_method: string, _params: object, callback: (error: Error | null, result: unknown) => void) => callback(null, { profile })
+			post: (...args: unknown[]) => (args.at(-1) as (error: Error | null, result?: object) => void)(null, { profile })
 		});
 		const service = store.add(new SelfProfilingService(() => session));
 		const id = await service.startProfiling();
@@ -33,7 +33,7 @@ suite('SelfProfilingService', () => {
 		const session = upcastPartial<Session>({
 			connect: () => { connected = true; },
 			disconnect: () => { connected = false; },
-			post: (_method: string, _params: object, callback: (error: Error | null, result: unknown) => void) => { void enabled.p.then(() => callback(null, undefined)); }
+			post: (...args: unknown[]) => { void enabled.p.then(() => (args.at(-1) as (error: Error | null) => void)(null)); }
 		});
 		const service = store.add(new SelfProfilingService(() => session));
 		const pending = service.startProfiling();
