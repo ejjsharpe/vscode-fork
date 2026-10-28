@@ -513,6 +513,8 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 					this.handleWindowUnloadVeto(true);
 					return;
 				}
+				// Shutdown safeguards must be visible in the workbench being asked.
+				if (prototypeLifecycleReady(window.webContents)) { window.focus(); }
 				const generation = prototypeDocumentGeneration(window.webContents);
 				const outcome = !prototypeLifecycleReady(window.webContents) || generation === undefined ? 'interrupted' : await this.onBeforeUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE);
 				if (outcome !== false || generation === undefined) {
