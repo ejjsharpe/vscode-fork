@@ -1,0 +1,242 @@
+{
+  "own": 100001,
+  "results": [
+    {
+      "claimed": "window:100000",
+      "command": "getProcessId",
+      "args": [
+        100001
+      ],
+      "result": 89661
+    },
+    {
+      "claimed": "window:100000",
+      "command": "getProcessId",
+      "args": [
+        100000
+      ],
+      "rejected": "Error: Rejected caller ID impersonation"
+    },
+    {
+      "claimed": "window:100000",
+      "command": "getProcessId",
+      "args": [
+        999999
+      ],
+      "rejected": "Error: Rejected caller ID impersonation"
+    },
+    {
+      "claimed": "window:100000",
+      "command": "getNativeWindowHandle",
+      "args": [
+        100001,
+        100000
+      ],
+      "rejected": "Error: Rejected explicit target"
+    },
+    {
+      "claimed": "window:100000",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "targetWindowId": 100000
+        }
+      ],
+      "rejected": "Error: Rejected foreign/unknown target targetWindowId"
+    },
+    {
+      "claimed": "window:100000",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "targetWindowId": 999999
+        }
+      ],
+      "rejected": "Error: Rejected foreign/unknown target targetWindowId"
+    },
+    {
+      "claimed": "window:100000",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "nested": {
+            "targetWindowId": 100000
+          }
+        }
+      ],
+      "rejected": "Error: Rejected foreign/unknown target targetWindowId"
+    },
+    {
+      "claimed": "window:100000",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "targetWindowId": 100001
+        }
+      ],
+      "result": false
+    },
+    {
+      "claimed": "shared-process",
+      "command": "getProcessId",
+      "args": [
+        100001
+      ],
+      "result": 89661
+    },
+    {
+      "claimed": "shared-process",
+      "command": "getProcessId",
+      "args": [
+        100000
+      ],
+      "rejected": "Error: Rejected caller ID impersonation"
+    },
+    {
+      "claimed": "shared-process",
+      "command": "getProcessId",
+      "args": [
+        999999
+      ],
+      "rejected": "Error: Rejected caller ID impersonation"
+    },
+    {
+      "claimed": "shared-process",
+      "command": "getNativeWindowHandle",
+      "args": [
+        100001,
+        100000
+      ],
+      "rejected": "Error: Rejected explicit target"
+    },
+    {
+      "claimed": "shared-process",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "targetWindowId": 100000
+        }
+      ],
+      "rejected": "Error: Rejected foreign/unknown target targetWindowId"
+    },
+    {
+      "claimed": "shared-process",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "targetWindowId": 999999
+        }
+      ],
+      "rejected": "Error: Rejected foreign/unknown target targetWindowId"
+    },
+    {
+      "claimed": "shared-process",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "nested": {
+            "targetWindowId": 100000
+          }
+        }
+      ],
+      "rejected": "Error: Rejected foreign/unknown target targetWindowId"
+    },
+    {
+      "claimed": "shared-process",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "targetWindowId": 100001
+        }
+      ],
+      "result": false
+    },
+    {
+      "claimed": "window:100001",
+      "command": "getProcessId",
+      "args": [
+        100001
+      ],
+      "result": 89661
+    },
+    {
+      "claimed": "window:100001",
+      "command": "getProcessId",
+      "args": [
+        100000
+      ],
+      "rejected": "Error: Rejected caller ID impersonation"
+    },
+    {
+      "claimed": "window:100001",
+      "command": "getProcessId",
+      "args": [
+        999999
+      ],
+      "rejected": "Error: Rejected caller ID impersonation"
+    },
+    {
+      "claimed": "window:100001",
+      "command": "getNativeWindowHandle",
+      "args": [
+        100001,
+        100000
+      ],
+      "rejected": "Error: Rejected explicit target"
+    },
+    {
+      "claimed": "window:100001",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "targetWindowId": 100000
+        }
+      ],
+      "rejected": "Error: Rejected foreign/unknown target targetWindowId"
+    },
+    {
+      "claimed": "window:100001",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "targetWindowId": 999999
+        }
+      ],
+      "rejected": "Error: Rejected foreign/unknown target targetWindowId"
+    },
+    {
+      "claimed": "window:100001",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "nested": {
+            "targetWindowId": 100000
+          }
+        }
+      ],
+      "rejected": "Error: Rejected foreign/unknown target targetWindowId"
+    },
+    {
+      "claimed": "window:100001",
+      "command": "isMaximized",
+      "args": [
+        100001,
+        {
+          "targetWindowId": 100001
+        }
+      ],
+      "result": false
+    }
+  ]
+}

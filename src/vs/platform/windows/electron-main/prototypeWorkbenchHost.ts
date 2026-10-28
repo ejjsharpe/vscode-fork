@@ -56,3 +56,11 @@ export function createPrototypeWorkbench(options: electron.BrowserWindowConstruc
 	selectPrototypeWorkbench(id);
 	return { host, view, id };
 }
+
+// Main-owned registry: a client's handshake cannot choose its workbench or role.
+export function prototypeContext(contents: electron.WebContents): string {
+	for (const [id, entry] of views) {
+		if (entry.view.webContents === contents) { return `window:${id}`; }
+	}
+	return `unregistered:${contents.id}`;
+}

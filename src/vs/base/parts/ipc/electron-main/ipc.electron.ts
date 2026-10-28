@@ -30,7 +30,7 @@ export class Server extends IPCServer {
 
 	private static readonly Clients = new Map<number, IDisposable>();
 
-	private static getOnDidClientConnect(): Event<ClientConnectionEvent> {
+	private static getOnDidClientConnect(resolveContext?: (contents: WebContents) => string): Event<ClientConnectionEvent> {
 		const onHello = Event.fromNodeEventEmitter<WebContents>(validatedIpcMain, 'vscode:hello', ({ sender }) => sender);
 
 		return Event.map(onHello, webContents => {
@@ -54,13 +54,31 @@ export class Server extends IPCServer {
 
 				onDidClientReconnect.dispose();
 			});
-			const protocol = new ElectronProtocol(webContents, onMessage);
+			// A response belongs to this document and connection, never its replacement.
+			const frame = webContents.mainFrame;
+			const invalidate = () => reconnectDisposable.dispose();
+			webContents.once('render-process-gone', invalidate);
+			webContents.once('destroyed', invalidate);
+			const navigating = (_event: Electron.Event, _url: string, inPlace: boolean, mainFrame: boolean) => {
+				if (mainFrame && !inPlace) { invalidate(); }
+			};
+			webContents.on('did-start-navigation', navigating);
+			Event.once(onDidClientDisconnect)(() => {
+				webContents.removeListener('render-process-gone', invalidate);
+				webContents.removeListener('destroyed', invalidate);
+				webContents.removeListener('did-start-navigation', navigating);
+			});
+			const protocol = new ElectronProtocol({ send: (channel, message) => {
+				if (Server.Clients.get(id) === reconnectDisposable && !frame.isDestroyed()) {
+					frame.send(channel, message);
+				}
+			} }, onMessage);
 
-			return { protocol, onDidClientDisconnect };
+			return { protocol, onDidClientDisconnect, context: resolveContext?.(webContents) };
 		});
 	}
 
-	constructor() {
-		super(Server.getOnDidClientConnect());
+	constructor(resolveContext?: (contents: WebContents) => string) {
+		super(Server.getOnDidClientConnect(resolveContext));
 	}
 }

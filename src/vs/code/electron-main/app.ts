@@ -3,6 +3,10 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { prototypeContext } from '../../platform/windows/electron-main/prototypeWorkbenchHost.js';
+import { prototypeNativeChannel, prototypeExtensionChannel } from '../../platform/windows/electron-main/prototypeNativeChannel.js';
+
+
 import { app, BrowserWindow, desktopCapturer, globalShortcut, powerMonitor, protocol, screen as electronScreen, session, Session, systemPreferences, WebFrameMain } from 'electron';
 import { addUNCHostToAllowlist, disableUNCAccessRestrictions } from '../../base/node/unc.js';
 import { validatedIpcMain } from '../../base/parts/ipc/electron-main/ipcMain.js';
@@ -731,7 +735,7 @@ export class CodeApplication extends Disposable {
 		}
 
 		// Main process server (electron IPC based)
-		const mainProcessElectronServer = new ElectronIPCServer();
+		const mainProcessElectronServer = new ElectronIPCServer(prototypeContext);
 		Event.once(this.lifecycleMainService.onWillShutdown)(e => {
 			if (e.reason === ShutdownReason.KILL) {
 				// When we go down abnormally, make sure to free up
@@ -1467,7 +1471,7 @@ export class CodeApplication extends Disposable {
 				'onDidProgressZipFile'
 			]
 		});
-		mainProcessElectronServer.registerChannel('nativeHost', nativeHostChannel);
+		mainProcessElectronServer.registerChannel('nativeHost', prototypeNativeChannel(nativeHostChannel, accessor.get(IWindowsMainService)));
 		sharedProcessClient.then(client => client.registerChannel('nativeHost', nativeHostChannel));
 
 		const tryoutHandoff = disposables.add(accessor.get(IInstantiationService).createInstance(OnboardingTryoutHandoff));
@@ -1531,7 +1535,7 @@ export class CodeApplication extends Disposable {
 
 		// Extension Host Starter
 		const extensionHostStarterChannel = ProxyChannel.fromService(accessor.get(IExtensionHostStarter), disposables);
-		mainProcessElectronServer.registerChannel(ipcExtensionHostStarterChannelName, extensionHostStarterChannel);
+		mainProcessElectronServer.registerChannel(ipcExtensionHostStarterChannelName, prototypeExtensionChannel(extensionHostStarterChannel, accessor.get(IWindowsMainService)));
 
 		// Utility Process Worker
 		const utilityProcessWorkerChannel = ProxyChannel.fromService(accessor.get(IUtilityProcessWorkerMainService), disposables);

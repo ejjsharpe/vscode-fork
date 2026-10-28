@@ -492,6 +492,7 @@ export class WindowUtilityProcess extends UtilityProcess {
 
 		// Establish & exchange message ports
 		const windowPort = this.connect(configuration.payload);
+		console.log('[hosting-probe] port', JSON.stringify({ workbench: responseWindow.id, webContents: responseWindow.webContents.id, channel: configuration.responseChannel }));
 		responseWindow.webContents.postMessage(configuration.responseChannel, configuration.responseNonce, [windowPort]);
 
 		return true;
@@ -509,7 +510,12 @@ export class WindowUtilityProcess extends UtilityProcess {
 			const terminate = graceTime && graceTime > 0
 				? () => this.waitForExit(graceTime)
 				: () => this.kill();
-			this._register(Event.filter(this.lifecycleMainService.onWillLoadWindow, e => e.window.win === window)(terminate));
+			this._register(Event.filter(this.lifecycleMainService.onWillLoadWindow, e => e.window.id === configuration.responseWindowId)(terminate));
+			const contents = this.windowsMainService.getWindowById(configuration.responseWindowId)?.webContents;
+			if (contents) {
+				this._register(Event.fromNodeEventEmitter(contents, 'destroyed')(terminate));
+				this._register(Event.fromNodeEventEmitter(contents, 'render-process-gone')(terminate));
+			}
 			this._register(Event.fromNodeEventEmitter(window, 'closed')(terminate));
 		}
 	}

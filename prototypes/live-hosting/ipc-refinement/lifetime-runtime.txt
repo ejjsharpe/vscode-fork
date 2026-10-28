@@ -1,0 +1,24 @@
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[hosting-probe] loaded {"id":100000,"nativeHost":1,"webContents":2,"pid":91360,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/sessions/electron-browser/sessions-dev.html"}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[hosting-probe] loaded {"id":100001,"nativeHost":1,"webContents":3,"pid":91366,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":91380,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:startExtensionHostMessagePortResult"}
+[91334:1028/091941.643861:INFO:CONSOLE:116] "%c INFO color: #33f Started local extension host with pid 91387.", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/platform/log/common/log.js (116)
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[hosting-probe] port {"workbench":100001,"webContents":3,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100001,"webContents":3,"channel":"vscode:startExtensionHostMessagePortResult"}
+[91334:1028/091949.075917:INFO:CONSOLE:116] "%c INFO color: #33f Started local extension host with pid 91813.", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/platform/log/common/log.js (116)
+[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:startExtensionHostMessagePortResult"}
+[91334:1028/091949.114741:INFO:CONSOLE:116] "%c INFO color: #33f Started local extension host with pid 91814.", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/platform/log/common/log.js (116)
+[90m[main 2026-10-28T09:20:12.300Z][0m Extension host with pid 91814 exited with code: 0, signal: unknown.
+[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":91380,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:startExtensionHostMessagePortResult"}
+[91334:1028/092016.654715:INFO:CONSOLE:116] "%c INFO color: #33f Started local extension host with pid 91851.", source: vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/f/work/escode-prototype/out/vs/platform/log/common/log.js (116)

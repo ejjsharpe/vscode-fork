@@ -1,5 +1,7 @@
 # Disposable live-workbench hosting probe
 
+For the follow-up experiment, see [IPC refinement: failed renderer-lifetime gate](ipc-refinement/README.md). The report below preserves the first experiment.
+
 **Verdict: incomplete Stage 1; sender-binding acceptance gate failed. Not evidence of full feasibility or of fundamental Electron infeasibility. Creator review pending. Do not merge.**
 
 Question: [Validate the selected hosting architecture with live workbenches](https://github.com/ejjsharpe/escode/issues/23), under [One-window IDE with project tabs and shared Agents](https://github.com/ejjsharpe/escode/issues/16).
