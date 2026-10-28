@@ -46,9 +46,9 @@
 	//#region Resolve Configuration
 
 	let configuration: ISandboxConfiguration | undefined = undefined;
+	const windowConfigIpcChannel = parseArgv('vscode-window-config');
 
 	const resolveConfiguration: Promise<ISandboxConfiguration> = (async () => {
-		const windowConfigIpcChannel = parseArgv('vscode-window-config');
 		if (!windowConfigIpcChannel) {
 			throw new Error('Preload: did not find expected vscode-window-config in renderer process arguments list.');
 		}
@@ -57,7 +57,8 @@
 			validateIPC(windowConfigIpcChannel);
 
 			// Resolve configuration from electron-main
-			const resolvedConfiguration: ISandboxConfiguration = configuration = await ipcRenderer.invoke(windowConfigIpcChannel);
+			await documentAuthorized;
+			const resolvedConfiguration: ISandboxConfiguration = configuration = await ipcRenderer.invoke(windowConfigIpcChannel, documentNonce);
 
 			// Apply `userEnv` directly
 			Object.assign(process.env, resolvedConfiguration.userEnv);
@@ -139,7 +140,7 @@
 			invoke(channel: string, ...args: unknown[]): Promise<unknown> {
 				validateIPC(channel);
 
-				if (channel === 'vscode:fetchShellEnv' || channel === 'vscode:notifyZoomLevel') {
+				if (channel === windowConfigIpcChannel || channel === 'vscode:fetchShellEnv' || channel === 'vscode:notifyZoomLevel') {
 					return ipcRenderer.invoke(channel, ...args, documentNonce);
 				}
 				return ipcRenderer.invoke(channel, ...args);

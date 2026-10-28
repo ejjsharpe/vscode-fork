@@ -831,7 +831,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 		//#region create browser window
 		{
-			this.configObjectUrl = this._register(protocolMainService.createIPCObjectUrl<INativeWindowConfiguration>());
+			this.configObjectUrl = this._register(protocolMainService.createIPCObjectUrl<INativeWindowConfiguration>(() => this.webContents));
 
 			// Load window state
 			const [state, hasMultipleDisplays] = this.restoreWindowState(config.state);
