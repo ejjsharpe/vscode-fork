@@ -98,6 +98,7 @@ import { ISSHRemoteAgentHostMainService, SSH_REMOTE_AGENT_HOST_CHANNEL } from '.
 import { SSHRemoteAgentHostMainService } from '../../../platform/agentHost/node/sshRemoteAgentHostService.js';
 import { DEV_CONTAINER_AGENT_HOST_CHANNEL, IDevContainerAgentHostMainService } from '../../../platform/agentHost/common/devContainerAgentHost.js';
 import { createDevContainerAgentHostChannel } from '../../../platform/agentHost/common/devContainerAgentHostIpc.js';
+import { createSSHRemoteAgentHostChannel, createTunnelAgentHostChannel, createWSLRemoteAgentHostChannel, IRemoteAgentHostChannelAuthority } from '../../../platform/agentHost/common/remoteAgentHostIpc.js';
 import { DevContainerAgentHostMainService } from '../../../platform/agentHost/node/devContainerAgentHostService.js';
 import { IWSLRemoteAgentHostMainService, WSL_REMOTE_AGENT_HOST_CHANNEL } from '../../../platform/agentHost/common/wslRemoteAgentHost.js';
 import { WSLRemoteAgentHostMainService } from '../../../platform/agentHost/node/wslRemoteAgentHostService.js';
@@ -535,20 +536,24 @@ class SharedProcessMain extends Disposable implements IClientConnectionFilter {
 		this.server.registerChannel('localGit', localGitChannel);
 
 		// SSH Remote Agent Host
-		const sshRemoteAgentHostChannel = ProxyChannel.fromService(accessor.get(ISSHRemoteAgentHostMainService), this._store);
+		const remoteAgentHostAuthority: IRemoteAgentHostChannelAuthority = {
+			getScope: ctx => this.server.getConnectionScope(ctx),
+			onDidRemoveConnection: this.server.onDidRemoveConnection
+		};
+		const sshRemoteAgentHostChannel = createSSHRemoteAgentHostChannel(accessor.get(ISSHRemoteAgentHostMainService), this._store, remoteAgentHostAuthority);
 		this.server.registerChannel(SSH_REMOTE_AGENT_HOST_CHANNEL, sshRemoteAgentHostChannel);
 
 		// Dev Container Agent Host
 		// Deliver inspection facts before a rejected connect RPC disposes its listeners.
-		const devContainerAgentHostChannel = createDevContainerAgentHostChannel(accessor.get(IDevContainerAgentHostMainService), this._store);
+		const devContainerAgentHostChannel = createDevContainerAgentHostChannel(accessor.get(IDevContainerAgentHostMainService), this._store, remoteAgentHostAuthority);
 		this.server.registerChannel(DEV_CONTAINER_AGENT_HOST_CHANNEL, devContainerAgentHostChannel);
 
 		// WSL Remote Agent Host
-		const wslRemoteAgentHostChannel = ProxyChannel.fromService(accessor.get(IWSLRemoteAgentHostMainService), this._store);
+		const wslRemoteAgentHostChannel = createWSLRemoteAgentHostChannel(accessor.get(IWSLRemoteAgentHostMainService), this._store, remoteAgentHostAuthority);
 		this.server.registerChannel(WSL_REMOTE_AGENT_HOST_CHANNEL, wslRemoteAgentHostChannel);
 
 		// Tunnel Agent Host
-		const tunnelAgentHostChannel = ProxyChannel.fromService(accessor.get(ITunnelAgentHostMainService), this._store);
+		const tunnelAgentHostChannel = createTunnelAgentHostChannel(accessor.get(ITunnelAgentHostMainService), this._store, remoteAgentHostAuthority);
 		this.server.registerChannel(TUNNEL_AGENT_HOST_CHANNEL, tunnelAgentHostChannel);
 
 	}
