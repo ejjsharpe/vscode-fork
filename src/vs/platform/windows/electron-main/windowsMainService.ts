@@ -527,7 +527,7 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 		} else {
 			const chatRequestFolder = openConfig.cli._[0]; // chat request gets cwd() as folder to open
 			if (chatRequestFolder) {
-				windowHandlingChatRequest = findWindowOnWorkspaceOrFolder(usedWindows, URI.file(chatRequestFolder));
+				windowHandlingChatRequest = findWindowOnWorkspaceOrFolder(usedWindows, { uri: URI.file(chatRequestFolder) }, openConfig.remoteAuthority);
 			}
 		}
 
@@ -636,67 +636,30 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 		}
 
 		// Handle workspaces to open (instructed and to restore)
-		const allWorkspacesToOpen = distinct(workspacesToOpen, workspace => workspace.workspace.id); // prevent duplicates
+		const allWorkspacesToOpen = distinct(workspacesToOpen, workspace => `${workspace.workspace.id}:${workspace.remoteAuthority?.toLowerCase() ?? ''}`); // prevent duplicates
 		if (allWorkspacesToOpen.length > 0) {
 
-			// Check for existing instances
-			const windowsOnWorkspace = coalesce(allWorkspacesToOpen.map(workspaceToOpen => findWindowOnWorkspaceOrFolder(this.getWindows(), workspaceToOpen.workspace.configPath)));
-			if (windowsOnWorkspace.length > 0) {
-				const windowOnWorkspace = windowsOnWorkspace[0];
-				const filesToOpenInWindow = isEqualAuthority(filesToOpen?.remoteAuthority, windowOnWorkspace.remoteAuthority) ? filesToOpen : undefined;
-
-				// Do open files
-				addUsedWindow(this.doOpenFilesInExistingWindow(openConfig, windowOnWorkspace, filesToOpenInWindow), !!filesToOpenInWindow);
-
-				openFolderInNewWindow = true; // any other folders to open must open in new window then
-			}
-
-			// Open remaining ones
 			for (const workspaceToOpen of allWorkspacesToOpen) {
-				if (windowsOnWorkspace.some(window => window.openedWorkspace && window.openedWorkspace.id === workspaceToOpen.workspace.id)) {
-					continue; // ignore folders that are already open
-				}
-
 				const remoteAuthority = workspaceToOpen.remoteAuthority;
 				const filesToOpenInWindow = isEqualAuthority(filesToOpen?.remoteAuthority, remoteAuthority) ? filesToOpen : undefined;
-
-				// Do open folder
-				addUsedWindow(await this.doOpenFolderOrWorkspace(openConfig, workspaceToOpen, openFolderInNewWindow, filesToOpenInWindow), !!filesToOpenInWindow);
-
-				openFolderInNewWindow = true; // any other folders to open must open in new window then
+				const existing = findWindowOnWorkspaceOrFolder(this.getWindows(), workspaceToOpen.workspace, remoteAuthority);
+				addUsedWindow(existing
+					? this.doOpenFilesInExistingWindow(openConfig, existing, filesToOpenInWindow)
+					: await this.doOpenFolderOrWorkspace(openConfig, workspaceToOpen, openFolderInNewWindow, filesToOpenInWindow), !!filesToOpenInWindow);
+				openFolderInNewWindow = true;
 			}
 		}
 
 		// Handle folders to open (instructed and to restore)
-		const allFoldersToOpen = distinct(foldersToOpen, folder => extUriBiasedIgnorePathCase.getComparisonKey(folder.workspace.uri)); // prevent duplicates
-		if (allFoldersToOpen.length > 0) {
-
-			// Check for existing instances
-			const windowsOnFolderPath = coalesce(allFoldersToOpen.map(folderToOpen => findWindowOnWorkspaceOrFolder(this.getWindows(), folderToOpen.workspace.uri)));
-			if (windowsOnFolderPath.length > 0) {
-				const windowOnFolderPath = windowsOnFolderPath[0];
-				const filesToOpenInWindow = isEqualAuthority(filesToOpen?.remoteAuthority, windowOnFolderPath.remoteAuthority) ? filesToOpen : undefined;
-
-				// Do open files
-				addUsedWindow(this.doOpenFilesInExistingWindow(openConfig, windowOnFolderPath, filesToOpenInWindow), !!filesToOpenInWindow);
-
-				openFolderInNewWindow = true; // any other folders to open must open in new window then
-			}
-
-			// Open remaining ones
-			for (const folderToOpen of allFoldersToOpen) {
-				if (windowsOnFolderPath.some(window => isSingleFolderWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqual(window.openedWorkspace.uri, folderToOpen.workspace.uri))) {
-					continue; // ignore folders that are already open
-				}
-
-				const remoteAuthority = folderToOpen.remoteAuthority;
-				const filesToOpenInWindow = isEqualAuthority(filesToOpen?.remoteAuthority, remoteAuthority) ? filesToOpen : undefined;
-
-				// Do open folder
-				addUsedWindow(await this.doOpenFolderOrWorkspace(openConfig, folderToOpen, openFolderInNewWindow, filesToOpenInWindow), !!filesToOpenInWindow);
-
-				openFolderInNewWindow = true; // any other folders to open must open in new window then
-			}
+		const allFoldersToOpen = distinct(foldersToOpen, folder => `${extUriBiasedIgnorePathCase.getComparisonKey(folder.workspace.uri)}:${folder.remoteAuthority?.toLowerCase() ?? ''}`);
+		for (const folderToOpen of allFoldersToOpen) {
+			const remoteAuthority = folderToOpen.remoteAuthority;
+			const filesToOpenInWindow = isEqualAuthority(filesToOpen?.remoteAuthority, remoteAuthority) ? filesToOpen : undefined;
+			const existing = findWindowOnWorkspaceOrFolder(this.getWindows(), folderToOpen.workspace, remoteAuthority);
+			addUsedWindow(existing
+				? this.doOpenFilesInExistingWindow(openConfig, existing, filesToOpenInWindow)
+				: await this.doOpenFolderOrWorkspace(openConfig, folderToOpen, openFolderInNewWindow, filesToOpenInWindow), !!filesToOpenInWindow);
+			openFolderInNewWindow = true;
 		}
 
 		// Handle empty to restore
@@ -1462,7 +1425,7 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 
 		cliArgs = cliArgs.filter(path => {
 			const uri = URI.file(path);
-			if (findWindowOnWorkspaceOrFolder(this.getWindows(), uri)) {
+			if (findWindowOnWorkspaceOrFolder(this.getWindows(), hasWorkspaceFileExtension(uri) ? { configPath: uri } : { uri }, getRemoteAuthority(uri))) {
 				return false;
 			}
 
@@ -1471,7 +1434,7 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 
 		folderUris = folderUris.filter(folderUriStr => {
 			const folderUri = this.cliArgToUri(folderUriStr);
-			if (folderUri && findWindowOnWorkspaceOrFolder(this.getWindows(), folderUri)) {
+			if (folderUri && findWindowOnWorkspaceOrFolder(this.getWindows(), { uri: folderUri }, getRemoteAuthority(folderUri))) {
 				return false;
 			}
 
@@ -1480,7 +1443,7 @@ export class WindowsMainService extends Disposable implements IWindowsMainServic
 
 		fileUris = fileUris.filter(fileUriStr => {
 			const fileUri = this.cliArgToUri(fileUriStr);
-			if (fileUri && findWindowOnWorkspaceOrFolder(this.getWindows(), fileUri)) {
+			if (fileUri && findWindowOnWorkspaceOrFolder(this.getWindows(), { configPath: fileUri }, getRemoteAuthority(fileUri))) {
 				return false;
 			}
 
