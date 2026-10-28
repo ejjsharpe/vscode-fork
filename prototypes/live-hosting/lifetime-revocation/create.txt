@@ -1,0 +1,18 @@
+### Result
+{"own":100002,"id":"4","control":false,"controlMeaning":"Authorized unstarted scratch host returns false; no inspector enabled"}
+### Ran Playwright code
+```js
+await (async page => {
+ return await page.evaluate(async () => {
+  const base = location.href.slice(0, location.href.indexOf('/out/') + 5);
+  const {Client} = await import(base+'vs/base/parts/ipc/electron-browser/ipc.electron.js');
+  const own = window.vscode.context.configuration().windowId;
+  const client = window.lifetimeClient = new Client(`window:${own}:document:999:connection:999`);
+  const {id} = await client.getChannel('extensionHostStarter').call('createExtensionHost',[]);
+  const control = await client.getChannel('extensionHostStarter').call('enableInspectPort',[id]);
+  sessionStorage.setItem('lifetimeOldHost',id);
+  return {own,id,control,controlMeaning:'Authorized unstarted scratch host returns false; no inspector enabled'};
+ });
+}
+)(page);
+```

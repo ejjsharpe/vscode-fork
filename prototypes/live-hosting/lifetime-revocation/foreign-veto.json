@@ -1,0 +1,16 @@
+{
+  "targetWebContents": 4,
+  "sourceWebContents": 3,
+  "request": {
+    "okChannel": "vscode:ok0",
+    "cancelChannel": "vscode:cancel0",
+    "reason": 3
+  },
+  "before": 1,
+  "after": 0,
+  "sender": {
+    "sender": 3,
+    "url": "vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/w-2/work/escode-prototype/out/vs/code/electron-browser/workbench/workbench-dev.html"
+  },
+  "targetTitle": "Disposable lifetime veto probe • Untitled-1 — multi (Workspace)"
+}

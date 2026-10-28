@@ -1,0 +1,114 @@
+--- a/src/vs/platform/windows/electron-main/prototypeNativeChannel.ts
++++ b/src/vs/platform/windows/electron-main/prototypeNativeChannel.ts
+@@ -10,7 +10,7 @@
+ import { IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
+ import { IWindowsMainService } from './windows.js';
+ 
+-const ownMethods = new Set(`reload getProcessId getNativeWindowHandle isFullScreen toggleFullScreen isMaximized maximizeWindow unmaximizeWindow minimizeWindow moveWindowTop isWindowAlwaysOnTop toggleWindowAlwaysOnTop setWindowAlwaysOnTop positionWindow updateWindowControls updateWindowAccentColor focusWindow setMinimumSize saveWindowSplash setBackgroundThrottling showMessageBox showSaveDialog showOpenDialog startFileDrag setRepresentedFilename setDocumentEdited setApplicationBadge getScreenshot triggerPaste updateTouchBar notifyReady resolveProxy openDevTools toggleDevTools profileRenderer getAgentHostEditorState updateAgentHostEditorState claimAgentsWindowInvitation markAgentsWindowInvitationShown releaseAgentsWindowInvitation syncSystemWideKeybindings`.split(' '));
++const ownMethods = new Set(`getProcessId getNativeWindowHandle isFullScreen toggleFullScreen isMaximized maximizeWindow unmaximizeWindow minimizeWindow moveWindowTop isWindowAlwaysOnTop toggleWindowAlwaysOnTop setWindowAlwaysOnTop positionWindow updateWindowControls updateWindowAccentColor focusWindow setMinimumSize saveWindowSplash setBackgroundThrottling showMessageBox showSaveDialog showOpenDialog startFileDrag setRepresentedFilename setDocumentEdited setApplicationBadge getScreenshot triggerPaste updateTouchBar notifyReady resolveProxy openDevTools toggleDevTools profileRenderer getAgentHostEditorState updateAgentHostEditorState claimAgentsWindowInvitation markAgentsWindowInvitationShown releaseAgentsWindowInvitation syncSystemWideKeybindings`.split(' '));
+ const appMethods = new Set(`getWindowCount getActiveWindowId getActiveWindowPosition getWindows getCursorScreenPoint showItemInFolder openExternal moveItemToTrash getMediaAccessStatus requestScreenCaptureAccess isAdmin getOSStatistics getFreeDiskSpace getOSProperties getOSVirtualMachineHint isGPUCompositingEnabled getOSColorScheme hasWSLFeatureInstalled readClipboardText readImage writeImage writeClipboardText readClipboardFindText writeClipboardFindText writeClipboardBuffer readClipboardBuffer hasClipboard resolveProxyWithPackage readProxyConfigWithPackage lookupAuthorization lookupKerberosAuthorization loadCertificates isPortFree findFreePort windowsGetStringRegKey getSystemIdleState getSystemIdleTime getCurrentThermalState isOnBatteryPower`.split(' '));
+ const ownEvents = new Set(`onDidOpenMainWindow onDidTriggerWindowSystemContextMenu onDidMaximizeWindow onDidUnmaximizeWindow onDidChangeWindowFullScreen onDidBlurMainWindow onDidFocusMainWindow onDidBlurMainOrAuxiliaryWindow onDidFocusMainOrAuxiliaryWindow onDidChangeWindowAlwaysOnTop`.split(' '));
+ const appEvents = new Set(`onDidSuspendOS onDidResumeOS onDidChangeOnBatteryPower onDidChangeThermalState onDidChangeSpeedLimit onWillShutdownOS onDidLockScreen onDidUnlockScreen onDidChangeColorScheme onDidChangePassword onDidChangeDisplay onDidChangeGPUCompositing onDidChangeAgentHostEditorState`.split(' '));
+@@ -100,39 +100,3 @@
+ 		}
+ 	};
+ }
+-
+-// Renderer workers have a separate owner from provider-owned agent processes.
+-export function prototypeWorkerChannel(channel: IServerChannel<string>, windows: IWindowsMainService): IServerChannel<string> {
+-	const owners = new Map<string, { context: string; configuration: import('../../utilityProcess/common/utilityProcessWorkerService.js').IUtilityProcessWorkerConfiguration }>();
+-	onPrototypeConnectionRevoked(context => {
+-		for (const [key, owner] of owners) {
+-			if (owner.context === context) {
+-				owners.delete(key);
+-				void channel.call(context, 'disposeWorker', [owner.configuration]).catch(error => console.error('[lifetime-probe] worker cleanup failed', error));
+-			}
+-		}
+-	});
+-	return {
+-		async call<T>(context: string, command: string, args: unknown[], token?: CancellationToken): Promise<T> {
+-			const window = caller(context, windows);
+-			if (!Array.isArray(args) || args.length !== 1) { throw new Error('Rejected worker arguments'); }
+-			const configuration = args[0] as import('../../utilityProcess/common/utilityProcessWorkerService.js').IUtilityProcessWorkerCreateConfiguration;
+-			if (!configuration || configuration.reply?.windowId !== window.id || !['vs/platform/files/node/watcher/watcherMain', 'vs/platform/localTranscription/node/localTranscriptionMain'].includes(configuration.process?.moduleId)) {
+-				throw new Error('Rejected worker owner/module');
+-			}
+-			checkTargets(configuration, window.id);
+-			const key = `${window.id}:${configuration.process.moduleId}`;
+-			if (command === 'disposeWorker') {
+-				if (owners.get(key)?.context !== context) { throw new Error('Rejected worker connection'); }
+-				owners.delete(key);
+-			} else if (command === 'createWorker') {
+-				if (!configuration.reply.channel?.startsWith('vscode:') || typeof configuration.reply.nonce !== 'string') { throw new Error('Rejected worker reply'); }
+-				owners.set(key, { context, configuration });
+-			} else { throw new Error('Rejected worker operation'); }
+-			const result = await channel.call<T>(context, command, args, token);
+-			prototypeBinding(context);
+-			return result;
+-		},
+-		listen() { throw new Error('Rejected worker event'); }
+-	};
+-}
+--- a/src/vs/code/electron-main/app.ts
++++ b/src/vs/code/electron-main/app.ts
+@@ -4,7 +4,7 @@
+  *--------------------------------------------------------------------------------------------*/
+ 
+ import { bindPrototypeConnection } from '../../base/parts/ipc/electron-main/prototypeLifetime.js';
+-import { prototypeNativeChannel, prototypeExtensionChannel, prototypeWorkerChannel } from '../../platform/windows/electron-main/prototypeNativeChannel.js';
++import { prototypeNativeChannel, prototypeExtensionChannel } from '../../platform/windows/electron-main/prototypeNativeChannel.js';
+ 
+ 
+ import { app, BrowserWindow, desktopCapturer, globalShortcut, powerMonitor, protocol, screen as electronScreen, session, Session, systemPreferences, WebFrameMain } from 'electron';
+@@ -1539,7 +1539,7 @@
+ 
+ 		// Utility Process Worker
+ 		const utilityProcessWorkerChannel = ProxyChannel.fromService(accessor.get(IUtilityProcessWorkerMainService), disposables);
+-		mainProcessElectronServer.registerChannel(ipcUtilityProcessWorkerChannelName, prototypeWorkerChannel(utilityProcessWorkerChannel, accessor.get(IWindowsMainService)));
++		mainProcessElectronServer.registerChannel(ipcUtilityProcessWorkerChannelName, utilityProcessWorkerChannel);
+ 	}
+ 
+ 	private async openFirstWindow(accessor: ServicesAccessor, initialProtocolUrls: IInitialProtocolUrls | undefined): Promise<ICodeWindow[]> {
+--- a/src/vs/base/parts/ipc/electron-main/prototypeLifetime.ts
++++ b/src/vs/base/parts/ipc/electron-main/prototypeLifetime.ts
+@@ -67,8 +67,3 @@
+ 	}
+ 	return binding;
+ }
+-
+-export function prototypeDocumentGeneration(contents: WebContents): number | undefined {
+-	const document = documents.get(contents.id);
+-	return document?.nonce ? document.generation : undefined;
+-}
+--- a/src/vs/platform/utilityProcess/electron-main/utilityProcess.ts
++++ b/src/vs/platform/utilityProcess/electron-main/utilityProcess.ts
+@@ -3,7 +3,6 @@
+  *  Licensed under the MIT License. See License.txt in the project root for license information.
+  *--------------------------------------------------------------------------------------------*/
+ 
+-import { prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+ import { BrowserWindow, Details, MessageChannelMain, app, utilityProcess, UtilityProcess as ElectronUtilityProcess } from 'electron';
+ import { Disposable } from '../../../base/common/lifecycle.js';
+ import { Emitter, Event } from '../../../base/common/event.js';
+@@ -482,9 +481,6 @@
+ 			return true;
+ 		}
+ 
+-		const generation = prototypeDocumentGeneration(responseWindow.webContents);
+-		if (generation === undefined) { return false; }
+-
+ 		// Start utility process
+ 		const started = super.doStart(configuration);
+ 		if (!started) {
+@@ -497,11 +493,6 @@
+ 		// Establish & exchange message ports
+ 		const windowPort = this.connect(configuration.payload);
+ 		console.log('[hosting-probe] port', JSON.stringify({ workbench: responseWindow.id, webContents: responseWindow.webContents.id, channel: configuration.responseChannel }));
+-		if (prototypeDocumentGeneration(responseWindow.webContents) !== generation) {
+-			windowPort.close();
+-			this.kill();
+-			return false;
+-		}
+ 		responseWindow.webContents.postMessage(configuration.responseChannel, configuration.responseNonce, [windowPort]);
+ 
+ 		return true;

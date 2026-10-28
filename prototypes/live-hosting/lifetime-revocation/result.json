@@ -1,0 +1,12 @@
+{
+  "own": 100002,
+  "oldHost": "4",
+  "stale": {
+    "accepted": false,
+    "rejected": "Error: Rejected extension-host owner/lifetime"
+  },
+  "fresh": {
+    "id": "6"
+  },
+  "control": false
+}

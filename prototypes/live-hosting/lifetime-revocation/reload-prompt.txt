@@ -1,0 +1,13 @@
+### Result
+{"requests":[{"okChannel":"vscode:ok0","cancelChannel":"vscode:cancel0","reason":3}],"text":"multi (Workspace)\nOpen in Agents\nSign In\nRestricted Mode is intended for safe code browsing. Trust this workspace to enable all features.\nManageLearn More\n1\nExplorer\nmulti (Workspace)\nmulti-a\nmulti-b\nOutline\nTimeline\nWelcome\nDisposable lifetime veto probe\nUntitled-1\nText Editor\n1\nDisposable lifetime veto probe\nChat\nBuild with Agent\n\nAI responses may be inaccurate\n\nGenerate Agent Instructions to onboard AI onto your codebase.\n\nDisposable lifetime veto probe\nAgent\nModels\nLocal\nDefault permissions\n Restricted Mode\n 0 \n 0\nPlain Text\nLF\nUTF-8\nSpaces: 4\nLn 1, Col 31"}
+### Ran Playwright code
+```js
+await (async page => {
+ await page.keyboard.press('F1');
+ await page.getByRole('textbox', {name:'Type the name of a command to run.'}).fill('>Developer: Reload Window');
+ await page.getByRole('option', {name:/^Developer: Reload Window/}).first().click();
+ await page.waitForTimeout(1000);
+ return {requests:await page.evaluate(()=>window.lifetimeUnloadRequests),text:await page.locator('body').innerText()};
+}
+)(page);
+```

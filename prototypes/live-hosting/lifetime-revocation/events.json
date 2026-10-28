@@ -1,0 +1,13 @@
+{
+  "own": 100002,
+  "events": [
+    {
+      "name": "onDidMaximizeWindow",
+      "value": 100002
+    },
+    {
+      "name": "onDidUnmaximizeWindow",
+      "value": 100002
+    }
+  ]
+}

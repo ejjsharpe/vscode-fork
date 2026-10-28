@@ -1,0 +1,35 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const read = name => JSON.parse(fs.readFileSync(new URL(name+'.json',import.meta.url),'utf8'));
+const created = read('create');
+const result = read('result');
+assert.equal(result.oldHost,created.id);
+assert.equal(created.control,false);
+assert.equal(result.control,false);
+assert.equal(result.stale.accepted,false);
+assert.match(result.stale.rejected,/owner\/lifetime/);
+assert.notEqual(result.fresh.id,created.id);
+const cases = read('caller-results').results;
+assert.equal(cases.length,24);
+assert.equal(cases.filter(row=>row.rejected).length,18);
+const worker = read('connection-worker-bounded');
+assert.equal(worker.oldConnection.accepted,false);
+assert.equal(worker.foreign.accepted,false);
+assert.deepEqual(worker.delivered,{received:true,ports:1});
+assert.equal(worker.termination.result.reason.code,0);
+const event = read('events-force');
+assert.deepEqual(event.events.map(event=>event.name),['onDidMaximizeWindow','onDidUnmaximizeWindow']);
+assert.ok(event.events.every(value=>value.value===event.own));
+const veto = read('foreign-veto');
+assert.notEqual(veto.sourceWebContents,veto.targetWebContents);
+assert.equal(veto.sender.sender,veto.sourceWebContents);
+assert.equal(veto.before,1);
+assert.equal(veto.after,0);
+assert.match(veto.targetTitle,/Untitled-1/);
+const log=fs.readFileSync(new URL('reload-runtime.log',import.meta.url),'utf8');
+const generations=log.split('\n').filter(line=>line.startsWith('[lifetime-probe] bootstrap ')).map(line=>JSON.parse(line.slice('[lifetime-probe] bootstrap '.length))).filter(row=>row.workbench===result.own);
+assert.equal(new Set(generations.map(row=>row.webContents)).size,1);
+assert.equal(new Set(generations.map(row=>row.generation)).size,2);
+console.log('Saved evidence consistent: sampled revocation/worker checks pass; foreign lifecycle cancellation FAILED isolation. Not full acceptance.');

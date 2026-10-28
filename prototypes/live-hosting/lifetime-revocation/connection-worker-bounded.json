@@ -1,0 +1,27 @@
+{
+  "own": 100002,
+  "host": {
+    "id": "5"
+  },
+  "before": false,
+  "oldConnection": {
+    "accepted": false,
+    "rejected": "Error: Rejected extension-host owner/lifetime"
+  },
+  "foreign": {
+    "accepted": false,
+    "rejected": "Error: Rejected worker owner/module"
+  },
+  "delivered": {
+    "received": true,
+    "ports": 1
+  },
+  "termination": {
+    "result": {
+      "reason": {
+        "code": 0,
+        "signal": "unknown"
+      }
+    }
+  }
+}

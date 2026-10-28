@@ -1,0 +1,10 @@
+{
+  "requests": [
+    {
+      "okChannel": "vscode:ok0",
+      "cancelChannel": "vscode:cancel0",
+      "reason": 3
+    }
+  ],
+  "text": "multi (Workspace)\nOpen in Agents\nSign In\nRestricted Mode is intended for safe code browsing. Trust this workspace to enable all features.\nManageLearn More\n1\nExplorer\nmulti (Workspace)\nmulti-a\nmulti-b\nOutline\nTimeline\nWelcome\nDisposable lifetime veto probe\nUntitled-1\nText Editor\n1\nDisposable\u00a0lifetime\u00a0veto\u00a0probe\nChat\nBuild with Agent\n\nAI responses may be inaccurate\n\nGenerate Agent Instructions to onboard AI onto your codebase.\n\nDisposable lifetime veto probe\nAgent\nModels\nLocal\nDefault permissions\n Restricted Mode\n 0 \n 0\nPlain Text\nLF\nUTF-8\nSpaces: 4\nLn 1, Col 31"
+}

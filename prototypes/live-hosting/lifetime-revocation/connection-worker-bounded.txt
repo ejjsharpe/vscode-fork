@@ -1,0 +1,46 @@
+### Result
+{"own":100002,"host":{"id":"5"},"before":false,"oldConnection":{"accepted":false,"rejected":"Error: Rejected extension-host owner/lifetime"},"foreign":{"accepted":false,"rejected":"Error: Rejected worker owner/module"},"delivered":{"received":true,"ports":1},"termination":{"result":{"reason":{"code":0,"signal":"unknown"}}}}
+### Ran Playwright code
+```js
+await (async page => {
+ return await page.evaluate(async () => {
+  const steps = window.lifetimeSteps = [];
+  const timeout = promise => Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error('probe timeout')),8000))]);
+  const base = location.href.slice(0, location.href.indexOf('/out/') + 5);
+  const {Client} = await import(base+'vs/base/parts/ipc/electron-browser/ipc.electron.js');
+  const own = window.vscode.context.configuration().windowId;
+  const first = new Client(`window:${own}`);
+  const host = await first.getChannel('extensionHostStarter').call('createExtensionHost',[]);
+  steps.push({host});
+  const before = await first.getChannel('extensionHostStarter').call('enableInspectPort',[host.id]);
+  first.dispose();
+  steps.push({before});
+  const second = new Client(`window:${own}:document:1:connection:1`);
+  let oldConnection;
+  try { oldConnection = {accepted:true,result:await second.getChannel('extensionHostStarter').call('enableInspectPort',[host.id])}; }
+  catch(error) { oldConnection = {accepted:false,rejected:String(error)}; }
+  steps.push({oldConnection});
+  const workers = second.getChannel('utilityProcessWorker');
+  const configuration = { process: {moduleId:'vs/platform/files/node/watcher/watcherMain',type:'fileWatcher',name:'lifetime-probe'}, reply:{windowId:own,channel:'vscode:lifetime-worker',nonce:crypto.randomUUID()} };
+  let foreign;
+  try { foreign = {accepted:true,result:await workers.call('disposeWorker',[{...configuration,reply:{...configuration.reply,windowId:100000}}])}; }
+  catch(error) { foreign = {accepted:false,rejected:String(error)}; }
+  steps.push({foreign});
+  const port = new Promise(resolve => {
+   const listener = event => { if(event.data === configuration.reply.nonce) { window.removeEventListener('message',listener); event.ports.forEach(port=>port.close()); resolve({received:true,ports:event.ports.length}); } };
+   window.addEventListener('message',listener);
+   setTimeout(()=>{window.removeEventListener('message',listener);resolve({received:false});},5000);
+  });
+  window.vscode.ipcMessagePort.acquire(configuration.reply.channel,configuration.reply.nonce);
+  const pending = workers.call('createWorker',[configuration]).then(result=>({result}),error=>({error:String(error)}));
+  const delivered = await port;
+  steps.push({delivered});
+  await timeout(workers.call('disposeWorker',[configuration]));
+  steps.push({disposed:true});
+  const termination = await timeout(pending);
+  second.dispose();
+  return {own,host,before,oldConnection,foreign,delivered,termination};
+ }).catch(async error=>({error:String(error),steps:await page.evaluate(()=>window.lifetimeSteps)}));
+}
+)(page);
+```

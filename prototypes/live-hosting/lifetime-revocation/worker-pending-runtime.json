@@ -1,0 +1,94 @@
+{
+  "metrics": [
+    {
+      "pid": 97381,
+      "type": "Browser"
+    },
+    {
+      "pid": 97394,
+      "type": "GPU"
+    },
+    {
+      "pid": 97395,
+      "type": "Utility",
+      "name": "Network Service"
+    },
+    {
+      "pid": 97409,
+      "type": "Tab"
+    },
+    {
+      "pid": 97417,
+      "type": "Tab"
+    },
+    {
+      "pid": 97431,
+      "type": "Tab"
+    },
+    {
+      "pid": 97432,
+      "type": "Tab"
+    },
+    {
+      "pid": 97433,
+      "type": "Utility",
+      "name": "agentHost-1"
+    },
+    {
+      "pid": 97434,
+      "type": "Utility",
+      "name": "shared-process-2"
+    },
+    {
+      "pid": 97435,
+      "type": "Utility",
+      "name": "fileWatcher-3"
+    },
+    {
+      "pid": 97436,
+      "type": "Utility",
+      "name": "extensionHost-4"
+    },
+    {
+      "pid": 97452,
+      "type": "Utility",
+      "name": "fileWatcher-5"
+    },
+    {
+      "pid": 97454,
+      "type": "Utility",
+      "name": "extensionHost-7"
+    },
+    {
+      "pid": 98074,
+      "type": "Utility",
+      "name": "fileWatcher-10"
+    }
+  ],
+  "contents": [
+    {
+      "id": 4,
+      "title": "Welcome — multi (Workspace)",
+      "loading": false,
+      "destroyed": false
+    },
+    {
+      "id": 3,
+      "title": "Welcome — single",
+      "loading": false,
+      "destroyed": false
+    },
+    {
+      "id": 2,
+      "title": "Agents",
+      "loading": false,
+      "destroyed": false
+    },
+    {
+      "id": 1,
+      "title": "Disposable hosting probe",
+      "loading": false,
+      "destroyed": false
+    }
+  ]
+}
