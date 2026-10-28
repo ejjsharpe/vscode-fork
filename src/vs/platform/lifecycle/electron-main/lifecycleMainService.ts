@@ -4,7 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 
 import electron from 'electron';
-import { revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { randomUUID } from 'node:crypto';
+import { onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply, revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { validatedIpcMain } from '../../../base/parts/ipc/electron-main/ipcMain.js';
 import { Barrier, Promises, timeout } from '../../../base/common/async.js';
 import { Emitter, Event } from '../../../base/common/event.js';
@@ -239,7 +240,6 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	get phase(): LifecycleMainPhase { return this._phase; }
 
 	private readonly windowToCloseRequest = new Set<number>();
-	private oneTimeListenerTokenGenerator = 0;
 	private windowCounter = 0;
 
 	private pendingQuitPromise: Promise<boolean> | undefined = undefined;
@@ -544,7 +544,12 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 
 		// first ask the window itself if it vetos the unload
 		const windowUnloadReason = this._quitRequested ? UnloadReason.QUIT : reason;
+		const generation = prototypeDocumentGeneration(window.webContents);
 		const veto = await this.onBeforeUnloadWindowInRenderer(window, windowUnloadReason);
+		if (veto === 'interrupted') {
+			this.trace('Lifecycle unload interrupted before acknowledgement');
+			return this.handleWindowUnloadVeto(true);
+		}
 		if (veto) {
 			this.trace(`Lifecycle#unload() - veto in renderer (window ID ${window.id})`);
 
@@ -552,7 +557,12 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		}
 
 		// finally if there are no vetos, unload the renderer
-		await this.onWillUnloadWindowInRenderer(window, windowUnloadReason);
+		if (generation === undefined || generation !== prototypeDocumentGeneration(window.webContents) ||
+			await this.onWillUnloadWindowInRenderer(window, windowUnloadReason) === 'interrupted') {
+			this.trace('Lifecycle unload interrupted during cleanup');
+			return this.handleWindowUnloadVeto(true);
+		}
+		revokePrototypeDocument(window.webContents, 'acknowledged-unload');
 
 		return false;
 	}
@@ -579,42 +589,46 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		}
 	}
 
-	private onBeforeUnloadWindowInRenderer(window: ICodeWindow, reason: UnloadReason): Promise<boolean /* veto */> {
-		return new Promise<boolean>(resolve => {
-			const oneTimeEventToken = this.oneTimeListenerTokenGenerator++;
-			const okChannel = `vscode:ok${oneTimeEventToken}`;
-			const cancelChannel = `vscode:cancel${oneTimeEventToken}`;
-
-			const cleanup = (value: boolean) => {
-				validatedIpcMain.removeListener(okChannel, okListener);
-				validatedIpcMain.removeListener(cancelChannel, cancelListener);
-				resolve(value);
+	// THROWAWAY: a wait owns one document and phase; rejected messages never consume it.
+	private waitForPrototypeLifecycle(window: ICodeWindow, requestChannel: string, reason: UnloadReason, before: boolean): Promise<'ok' | 'cancel' | 'interrupted'> {
+		const contents = window.webContents;
+		const generation = prototypeDocumentGeneration(contents);
+		if (generation === undefined) { return Promise.resolve('interrupted'); }
+		return new Promise(resolve => {
+			const token = randomUUID();
+			const channels = before ? [`vscode:ok${token}`, `vscode:cancel${token}`] : [`vscode:reply${token}`];
+			let settled = false;
+			const finish = (result: 'ok' | 'cancel' | 'interrupted') => {
+				if (settled) { return; }
+				settled = true;
+				for (let i = 0; i < channels.length; i++) { validatedIpcMain.removeListener(channels[i], listeners[i]); }
+				revocation.dispose();
+				console.log('[lifecycle-reply-probe]', JSON.stringify({ workbench: window.id, generation, phase: requestChannel, result }));
+				resolve(result);
 			};
-
-			const okListener = () => {
-				cleanup(false); // no veto
-			};
-
-			const cancelListener = () => {
-				cleanup(true); // veto
-			};
-
-			validatedIpcMain.on(okChannel, okListener);
-			validatedIpcMain.on(cancelChannel, cancelListener);
-
-			window.send('vscode:onBeforeUnload', { okChannel, cancelChannel, reason });
+			const listeners = channels.map((channel, index) => (event: electron.IpcMainEvent, windowId: unknown, nonce: unknown) => {
+				if (!prototypeDocumentOwnsReply(contents, generation, event, nonce) || windowId !== window.id) {
+					console.log('[lifecycle-reply-probe] rejected', JSON.stringify({ channel, sender: event.sender.id, expected: contents.id, generation }));
+					return;
+				}
+				finish(index === 1 ? 'cancel' : 'ok');
+			});
+			const revocation = onPrototypeDocumentRevoked(event => {
+				if (event.contents === contents && event.generation === generation) { finish('interrupted'); }
+			});
+			for (let i = 0; i < channels.length; i++) { validatedIpcMain.on(channels[i], listeners[i]); }
+			window.send(requestChannel, before ? { okChannel: channels[0], cancelChannel: channels[1], reason } : { replyChannel: channels[0], reason });
 		});
 	}
 
-	private onWillUnloadWindowInRenderer(window: ICodeWindow, reason: UnloadReason): Promise<void> {
-		return new Promise<void>(resolve => {
-			const oneTimeEventToken = this.oneTimeListenerTokenGenerator++;
-			const replyChannel = `vscode:reply${oneTimeEventToken}`;
+	private async onBeforeUnloadWindowInRenderer(window: ICodeWindow, reason: UnloadReason): Promise<boolean | 'interrupted'> {
+		const result = await this.waitForPrototypeLifecycle(window, 'vscode:onBeforeUnload', reason, true);
+		return result === 'interrupted' ? result : result === 'cancel';
+	}
 
-			validatedIpcMain.once(replyChannel, () => resolve());
-
-			window.send('vscode:onWillUnload', { replyChannel, reason });
-		});
+	private async onWillUnloadWindowInRenderer(window: ICodeWindow, reason: UnloadReason): Promise<'ok' | 'interrupted'> {
+		const result = await this.waitForPrototypeLifecycle(window, 'vscode:onWillUnload', reason, false);
+		return result === 'ok' ? 'ok' : 'interrupted';
 	}
 
 	quit(willRestart?: boolean): Promise<boolean /* veto */> {

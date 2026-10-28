@@ -14,6 +14,8 @@ const documents = new Map<number, { generation: number; nonce?: string; workbenc
 const bindings = new Map<string, { contents: WebContents; generation: number; workbench: number }>();
 const revoked = new Emitter<string>();
 export const onPrototypeConnectionRevoked = revoked.event;
+const documentRevoked = new Emitter<{ contents: WebContents; generation: number; reason: string }>();
+export const onPrototypeDocumentRevoked = documentRevoked.event;
 
 export function revokePrototypeConnection(context: string): void {
 	if (bindings.delete(context)) { revoked.fire(context); }
@@ -22,7 +24,9 @@ export function revokePrototypeConnection(context: string): void {
 export function revokePrototypeDocument(contents: WebContents, reason: string): void {
 	const document = documents.get(contents.id);
 	if (!document) { return; }
+	const wasLive = document.nonce !== undefined;
 	document.nonce = undefined;
+	if (wasLive) { documentRevoked.fire({ contents, generation: document.generation, reason }); }
 	for (const [context, binding] of bindings) {
 		if (binding.contents === contents) { revokePrototypeConnection(context); }
 	}
@@ -71,4 +75,10 @@ export function prototypeBinding(context: string) {
 export function prototypeDocumentGeneration(contents: WebContents): number | undefined {
 	const document = documents.get(contents.id);
 	return document?.nonce ? document.generation : undefined;
+}
+
+export function prototypeDocumentOwnsReply(contents: WebContents, generation: number, event: Electron.IpcMainEvent, nonce: unknown): boolean {
+	const document = documents.get(contents.id);
+	return event.sender === contents && !contents.isDestroyed() && event.senderFrame === contents.mainFrame &&
+		document?.generation === generation && !!document.nonce && nonce === document.nonce;
 }

@@ -118,7 +118,7 @@
 
 			send(channel: string, ...args: unknown[]): void {
 				if (validateIPC(channel)) {
-					if (['vscode:hello', 'vscode:message', 'vscode:disconnect'].includes(channel)) {
+					if ((['vscode:hello', 'vscode:message', 'vscode:disconnect'].includes(channel) || /^vscode:(ok|cancel|reply)/.test(channel))) {
 						if (!documentNonce) { pendingTransport.push([channel, args]); }
 						else { ipcRenderer.send(channel, ...args, documentNonce); }
 					} else { ipcRenderer.send(channel, ...args); }
