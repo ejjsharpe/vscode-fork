@@ -1,0 +1,34 @@
+{
+  "ready": true,
+  "generation": 4,
+  "loading": false,
+  "contents": 4,
+  "pendingClose": true,
+  "pendingUnload": true,
+  "requests": [
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    }
+  ],
+  "results": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "interrupted"
+    }
+  ],
+  "shell": "Agents (100000)\nProject 1 (100001)\nProject 2 (100002) Close pending",
+  "renderer": {
+    "state": "complete",
+    "workbench": true
+  }
+}

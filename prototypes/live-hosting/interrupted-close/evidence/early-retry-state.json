@@ -1,0 +1,49 @@
+{
+  "requests": [
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    }
+  ],
+  "results": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "interrupted"
+    }
+  ],
+  "windows": [
+    {
+      "id": 100000,
+      "ready": true,
+      "closePending": false
+    },
+    {
+      "id": 100001,
+      "ready": true,
+      "closePending": false
+    },
+    {
+      "id": 100002,
+      "ready": true,
+      "closePending": true
+    }
+  ],
+  "pendingUnload": [
+    100002
+  ],
+  "pendingCloses": [
+    100002
+  ],
+  "closing": [
+    100002
+  ]
+}

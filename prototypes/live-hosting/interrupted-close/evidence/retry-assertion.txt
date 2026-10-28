@@ -1,0 +1,9 @@
+file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-9/work/escode-prototype/prototypes/live-hosting/lifecycle-replies/inspect.mjs:14
+if(result.error || result.result?.exceptionDetails) {throw new Error(JSON.stringify(result));}
+                                                           ^
+
+Error: {"id":1,"result":{"result":{"type":"object","subtype":"error","className":"AssertionError","description":"AssertionError: Explicit Close remained pending after the replacement workbench became ready\n\ntrue !== false\n\n    at <anonymous>:4:28\n    at <anonymous>:6:3","objectId":"9189503849115124063.1.1"},"exceptionDetails":{"exceptionId":1,"text":"Uncaught","lineNumber":151,"columnNumber":2,"scriptId":"382","exception":{"type":"object","subtype":"error","className":"AssertionError","description":"AssertionError: Explicit Close remained pending after the replacement workbench became ready\n\ntrue !== false\n\n    at <anonymous>:4:28\n    at <anonymous>:6:3","objectId":"9189503849115124063.1.2"}}}}
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/w-9/work/escode-prototype/prototypes/live-hosting/lifecycle-replies/inspect.mjs:14:60
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.22.1

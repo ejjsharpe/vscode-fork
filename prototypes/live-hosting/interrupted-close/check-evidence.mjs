@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const read = name => JSON.parse(fs.readFileSync(new URL(`evidence/${name}.json`, import.meta.url)));
+const before = read('before-interruption');
+assert.equal(before.outcomes.every(o => !o.resolved && o.error === 'Error: Close interrupted'), true);
+assert.deepEqual([before.coalesced, before.notifications, before.registered, before.logicalDisposed], [true, 0, true, false]);
+assert.equal(before.shell.includes('Close interrupted'), true);
+const retry = read('repeat-bootstrap-retry');
+assert.deepEqual([retry.retryAtBootstrap.ready, retry.request.loading, retry.loading, retry.pending], [true, true, false, true]);
+assert.deepEqual([read('final-repeat-state').pending, read('onboarding-finished-control').clicked, read('onboarding-finished-control').pending], [true, true, true]);
+console.log('Saved evidence agrees: before-unload repair sampled; explicit retry fails. Not an acceptance pass.');

@@ -1,0 +1,44 @@
+{
+  "originalOutcome": {
+    "resolved": false,
+    "error": "Error: Close interrupted"
+  },
+  "retryAtBootstrap": {
+    "ready": true,
+    "generation": 4
+  },
+  "request": {
+    "channel": "vscode:onBeforeUnload",
+    "generation": 4,
+    "loading": true
+  },
+  "retryResult": {
+    "pending": true
+  },
+  "ready": true,
+  "loading": false,
+  "generation": 4,
+  "pending": true,
+  "shell": "Agents (100000)\nProject 1 (100001)\nProject 2 (100002) Close pending",
+  "requests": [
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    }
+  ],
+  "results": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "interrupted"
+    }
+  ]
+}
