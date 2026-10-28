@@ -368,7 +368,7 @@ export interface IPtyService {
 	/**
 	 * Sets the native handle (HWND) of the window hosting the terminal (Windows with conpty.dll only).
 	 */
-	setParentWindow(id: number, handle: VSBuffer): Promise<void>;
+	setParentWindow(id: number, handle: VSBuffer, windowId?: number, resolveNativeParent?: () => Promise<VSBuffer>): Promise<void>;
 	getInitialCwd(id: number): Promise<string>;
 	getCwd(id: number): Promise<string>;
 	acknowledgeDataEvent(id: number, charCount: number): Promise<void>;
@@ -858,7 +858,7 @@ export interface ITerminalChildProcess {
 	/**
 	 * Sets the native handle (HWND) of the window hosting the terminal (Windows with conpty.dll only).
 	 */
-	setParentWindow?(handle: VSBuffer): void | Promise<void>;
+	setParentWindow?(handle: VSBuffer, windowId?: number): void | Promise<void>;
 
 	/**
 	 * Acknowledge a data event has been parsed by the terminal, this is used to implement flow

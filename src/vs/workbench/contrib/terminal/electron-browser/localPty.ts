@@ -66,8 +66,8 @@ export class LocalPty extends BasePty implements ITerminalChildProcess {
 		this._proxy.clearBuffer?.(this.id);
 	}
 
-	setParentWindow(handle: VSBuffer): Promise<void> {
-		return this._proxy.setParentWindow(this.id, handle);
+	setParentWindow(handle: VSBuffer, windowId?: number): Promise<void> {
+		return this._proxy.setParentWindow(this.id, handle, windowId);
 	}
 
 	freePortKillProcess(port: string): Promise<{ port: string; processId: string }> {

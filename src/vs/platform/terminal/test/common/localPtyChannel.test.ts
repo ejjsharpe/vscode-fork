@@ -11,6 +11,7 @@ import { upcastPartial } from '../../../../base/test/common/mock.js';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/common/utils.js';
 import { createLocalPtyChannel } from '../../common/localPtyChannel.js';
 import { ILocalPtyService } from '../../common/terminal.js';
+import { VSBuffer } from '../../../../base/common/buffer.js';
 
 type PtyEventData<K extends keyof ILocalPtyService> = ILocalPtyService[K] extends Event<infer T> ? T : never;
 
@@ -157,6 +158,18 @@ suite('LocalPtyChannel', () => {
 		deepStrictEqual(own, '/one');
 	});
 
+	test('delivers the final owned exit after the native process registry removes its handle', async () => {
+		const exits = store.add(new Emitter<{ id: number; event: number; owner: { workbench: number; workspaceId: string } }>());
+		const received: number[] = [];
+		const service = upcastPartial<ILocalPtyService>({ onProcessExit: exits.event, getProcessOwner: async () => undefined });
+		const channel = createLocalPtyChannel(service, store.add(new DisposableStore()), () => ({ role: 'project', workbench: 51, generation: 1, workspaceId: 'one' }));
+		store.add(channel.listen<{ id: number }>('one', 'onProcessExit')(exit => received.push(exit.id)));
+		exits.fire({ id: 1, event: 0, owner: { workbench: 51, workspaceId: 'one' } });
+		exits.fire({ id: 2, event: 0, owner: { workbench: 52, workspaceId: 'two' } });
+		await timeout(0);
+		deepStrictEqual(received, [1]);
+	});
+
 	test('binds restore, grace time and port cleanup to the current terminal owner', async () => {
 		const calls: unknown[] = [];
 		const service = upcastPartial<ILocalPtyService>({
@@ -193,5 +206,32 @@ suite('LocalPtyChannel', () => {
 		await proceed.complete();
 		await rejects(pending, /Revoked/);
 		deepStrictEqual(killed, false);
+	});
+
+	test('revalidates the live native target after a queued PTY setter resumes', async () => {
+		const started = new DeferredPromise<void>();
+		const proceed = new DeferredPromise<void>();
+		let nativeTargetLive = true;
+		let attached = false;
+		const handle = VSBuffer.fromString('own-native-handle');
+		const service = upcastPartial<ILocalPtyService>({
+			getProcessOwner: async () => ({ workbench: 51, workspaceId: 'one' }),
+			setParentWindow: async (_id, _handle, _targetId, resolveNativeParent) => {
+				await started.complete();
+				await proceed.p;
+				await resolveNativeParent!();
+				attached = true;
+			}
+		});
+		const channel = createLocalPtyChannel(service, store.add(new DisposableStore()), () => ({ role: 'project', workbench: 51, generation: 1, workspaceId: 'one' }), Event.None, true, async (_context, supplied, targetId) => {
+			if (!nativeTargetLive || targetId !== 52 || !handle.equals(supplied)) { throw new Error('Native target expired'); }
+			return handle;
+		});
+		const pending = channel.call('one', 'setParentWindow', [1, handle, 52]);
+		await started.p;
+		nativeTargetLive = false;
+		await proceed.complete();
+		await rejects(pending, /expired/);
+		deepStrictEqual(attached, false);
 	});
 });

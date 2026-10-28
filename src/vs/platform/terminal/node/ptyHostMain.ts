@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { DefaultURITransformer } from '../../../base/common/uriIpc.js';
-import { ProxyChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { ProxyChannel, StaticRouter } from '../../../base/parts/ipc/common/ipc.js';
 import { Server as ChildProcessServer } from '../../../base/parts/ipc/node/ipc.cp.js';
 import { Server as UtilityProcessServer } from '../../../base/parts/ipc/node/ipc.mp.js';
 import { localize } from '../../../nls.js';
@@ -23,7 +23,7 @@ import { isUtilityProcess } from '../../../base/parts/sandbox/node/electronTypes
 import { timeout } from '../../../base/common/async.js';
 import { DisposableStore } from '../../../base/common/lifecycle.js';
 import { markNodeCompileCacheReady } from '../../../base/node/nodeCompileCache.js';
-import { createLocalPtyChannel } from '../common/localPtyChannel.js';
+import { createLocalPtyChannel, ptyNativeParentChannelName } from '../common/localPtyChannel.js';
 import { Event } from '../../../base/common/event.js';
 
 startPtyHost();
@@ -88,7 +88,7 @@ async function startPtyHost() {
 	// Init pty service
 	const ptyService = new PtyService(logService, productService, reconnectConstants, simulatedLatency);
 	const utilityServer = server instanceof UtilityProcessServer ? server : undefined;
-	const ptyServiceChannel = createLocalPtyChannel(ptyService, disposables, utilityServer ? context => utilityServer.getConnectionScope(context) : undefined, utilityServer ? Event.map(utilityServer.onDidRemoveConnection, connection => connection.ctx) : Event.None, true);
+	const ptyServiceChannel = createLocalPtyChannel(ptyService, disposables, utilityServer ? context => utilityServer.getConnectionScope(context) : undefined, utilityServer ? Event.map(utilityServer.onDidRemoveConnection, connection => connection.ctx) : Event.None, true, utilityServer ? (context, handle, targetWindowId) => utilityServer.getChannel(ptyNativeParentChannelName, new StaticRouter(candidate => candidate === 'main')).call('resolve', [context, handle, targetWindowId]) : undefined);
 	server.registerChannel(TerminalIpcChannels.PtyHost, ptyServiceChannel);
 
 	// Register a channel for direct communication via Message Port
