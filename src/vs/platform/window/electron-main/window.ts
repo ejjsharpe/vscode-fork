@@ -80,7 +80,7 @@ export interface ICodeWindow extends IBaseWindow {
 	reload(cli?: NativeParsedArgs): void;
 
 	close(): void;
-	disposePrototypeWorkbench(): Promise<void>;
+	disposePrototypeWorkbench(afterUnload?: boolean): Promise<void>;
 	setPrototypeClosePending(pending: boolean, failed?: boolean): void;
 	interruptPrototypeShutdown(): void;
 

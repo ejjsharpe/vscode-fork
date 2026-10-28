@@ -244,6 +244,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	private readonly prototypeWindows = new Map<number, ICodeWindow>();
 	private readonly prototypeHosts = new WeakSet<electron.BrowserWindow>();
 	private readonly closingProjects = new Set<number>();
+	private readonly closeTargets = new Map<number, ICodeWindow>();
 	private readonly pendingProjectCloses = new Map<number, DeferredPromise<void>>();
 	private readonly completedHostCleanup = new Map<number, electron.WebContents>();
 	private windowCounter = 0;
@@ -452,11 +453,11 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	}
 
 	close(window: ICodeWindow): Promise<void> {
-		if (!this.prototypeWindows.has(window.id)) { return window.disposePrototypeWorkbench(); }
 		const existing = this.pendingProjectCloses.get(window.id);
 		if (existing) { return existing.p; }
 		const pending = new DeferredPromise<void>();
 		this.pendingProjectCloses.set(window.id, pending);
+		this.closeTargets.set(window.id, window);
 		window.setPrototypeClosePending(true);
 		if (!prototypeHostClosing) { void this.finishPrototypeClose(window); }
 		return pending.p;
@@ -469,10 +470,11 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		this.closingProjects.add(window.id);
 		let failed = false;
 		try {
-			if (!this.prototypeWindows.has(window.id)) { return; }
-			if (this.completedHostCleanup.get(window.id) !== window.webContents && await this.unload(window, UnloadReason.CLOSE)) { return; }
-			this._onBeforeCloseWindow.fire(window);
-			await window.disposePrototypeWorkbench();
+			if (this.prototypeWindows.has(window.id)) {
+				if (this.completedHostCleanup.get(window.id) !== window.webContents && await this.unload(window, UnloadReason.CLOSE)) { return; }
+				this._onBeforeCloseWindow.fire(window);
+			}
+			await window.disposePrototypeWorkbench(true);
 		} catch (error) {
 			failed = true;
 			reportPrototypeCloseFailure(window.id);
@@ -481,6 +483,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		} finally {
 			this.closingProjects.delete(window.id);
 			this.pendingProjectCloses.delete(window.id);
+			this.closeTargets.delete(window.id);
 			this.completedHostCleanup.delete(window.id);
 			if (this.prototypeWindows.has(window.id)) { window.setPrototypeClosePending(false, failed); }
 			if (!failed) { await pending.complete(); }
@@ -519,7 +522,20 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 				revokePrototypeDocument(window.webContents, 'host-shutdown');
 				this._onBeforeCloseWindow.fire(window);
 			}
-			// Only this coordinator owns native teardown; children close with the host.
+			// Complete logical cleanup before reporting coordinated native shutdown success.
+			const results = await Promise.allSettled(windows.map(window => window.disposePrototypeWorkbench(true)));
+			for (let index = 0; index < windows.length; index++) {
+				const pending = this.pendingProjectCloses.get(windows[index].id);
+				const result = results[index];
+				if (pending) {
+					if (result.status === 'rejected') { await pending.error(result.reason); }
+					else { await pending.complete(); }
+					this.pendingProjectCloses.delete(windows[index].id);
+					this.closeTargets.delete(windows[index].id);
+				}
+			}
+			const failures = results.filter(result => result.status === 'rejected');
+			if (failures.length) { throw new AggregateError(failures.map(result => result.reason), 'Host project disposal failed'); }
 			host.destroy();
 		} catch (error) {
 			this.logService.error(error);
@@ -530,9 +546,8 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 				if (!host.isDestroyed() && this.prototypeWindows.has(window.id)) { window.interruptPrototypeShutdown(); }
 			}
 			for (const id of this.pendingProjectCloses.keys()) {
-				const window = this.prototypeWindows.get(id);
+				const window = this.closeTargets.get(id);
 				if (window) { void this.finishPrototypeClose(window); }
-				else { await this.pendingProjectCloses.get(id)?.complete(); this.pendingProjectCloses.delete(id); }
 			}
 		}
 	}

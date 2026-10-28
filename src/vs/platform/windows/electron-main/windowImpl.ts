@@ -187,7 +187,7 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 	protected hostedView: electron.WebContentsView | undefined;
 	protected hostedContents: electron.WebContents | undefined;
 	private logicalCloseNotified = false;
-	private logicalDisposing = false;
+	private logicalDisposal: Promise<void> | undefined;
 	private logicalDisposed = false;
 	private logicalCloseError: unknown;
 	get webContents() {
@@ -201,39 +201,44 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 	protected registerLogicalClose(): void {
 		this.hostedContents = this.hostedView?.webContents;
 		this.logicalCloseListener.value = Event.fromNodeEventEmitter(this.hostedContents ?? this._win!, this.hostedView ? 'destroyed' : 'closed')(() => {
-			try { this.finishLogicalClose(); }
-			catch (error) { this.logService.error(error); reportPrototypeCloseFailure(this.id); }
+			void this.disposePrototypeWorkbench().catch(error => { this.logService.error(error); reportPrototypeCloseFailure(this.id); });
 		});
 	}
 	private finishLogicalClose(): void {
-		if (this.logicalDisposing || this.logicalDisposed) { return; }
-		this.logicalDisposing = true;
 		const errors: unknown[] = [];
-		try {
-			try { if (this.hostedView) { removePrototypeWorkbench(this.id); } } catch (error) { errors.push(error); }
-			if (!this.logicalCloseNotified) {
-				this.logicalCloseNotified = true;
-				this._onDidClose.fire();
-			}
-			try { this.dispose(); } catch (error) { errors.push(error); }
-			this.logicalCloseError = errors.length ? new AggregateError(errors, 'Logical project disposal failed') : undefined;
-			this.logicalDisposed = errors.length === 0;
-		} finally { this.logicalDisposing = false; }
+		try { if (this.hostedView) { removePrototypeWorkbench(this.id); } } catch (error) { errors.push(error); }
+		if (!this.logicalCloseNotified) {
+			this.logicalCloseNotified = true;
+			this._onDidClose.fire();
+		}
+		try { this.dispose(); } catch (error) { errors.push(error); }
+		this.logicalCloseError = errors.length ? new AggregateError(errors, 'Logical project disposal failed') : undefined;
+		this.logicalDisposed = errors.length === 0;
 		if (this.logicalCloseError) { throw this.logicalCloseError; }
 	}
-	async disposePrototypeWorkbench(): Promise<void> {
-		const contents = this.hostedContents;
-		if (contents && !contents.isDestroyed()) {
-			await new Promise<void>((resolve, reject) => {
-				const destroyed = () => resolve();
-				contents.once('destroyed', destroyed);
-				try { contents.close({ waitForBeforeUnload: false }); }
-				catch (error) { contents.removeListener('destroyed', destroyed); reject(error); }
-			});
-			// A destruction callback error belongs to this Close, even if a later retry succeeds.
-			if (this.logicalCloseError) { throw this.logicalCloseError; }
-		}
-		this.finishLogicalClose();
+	disposePrototypeWorkbench(): Promise<void> {
+		if (this.logicalDisposal) { return this.logicalDisposal; }
+		if (this.logicalDisposed) { return Promise.resolve(); }
+		const pending = new DeferredPromise<void>();
+		// Publish before destruction or cleanup can synchronously reenter disposal.
+		this.logicalDisposal = pending.p;
+		void (async () => {
+			try {
+				const contents = this.hostedContents;
+				if (contents && !contents.isDestroyed()) {
+					await new Promise<void>((resolve, reject) => {
+						const destroyed = () => resolve();
+						contents.once('destroyed', destroyed);
+						try { contents.close({ waitForBeforeUnload: false }); }
+						catch (error) { contents.removeListener('destroyed', destroyed); reject(error); }
+					});
+				}
+				this.finishLogicalClose();
+				await pending.complete();
+			} catch (error) { await pending.error(error); }
+			finally { this.logicalDisposal = undefined; }
+		})();
+		return pending.p;
 	}
 	protected setWin(win: electron.BrowserWindow, options?: BrowserWindowConstructorOptions): void {
 		this._win = win;
@@ -1196,6 +1201,13 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				this.stopCollectingJScallStacks();
 				break;
 		}
+	}
+
+	override disposePrototypeWorkbench(afterUnload = false): Promise<void> {
+		if (!afterUnload && this.hostedContents && !this.hostedContents.isDestroyed()) {
+			return this.lifecycleMainService.close(this);
+		}
+		return super.disposePrototypeWorkbench();
 	}
 
 	setPrototypeClosePending(pending: boolean, failed = false): void {
