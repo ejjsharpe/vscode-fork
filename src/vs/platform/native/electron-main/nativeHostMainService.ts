@@ -53,6 +53,7 @@ import { randomPath } from '../../../base/common/extpath.js';
 import { CancellationToken, CancellationTokenSource } from '../../../base/common/cancellation.js';
 import { GPUCompositingState } from './gpuCompositingState.js';
 import { AgentHostEditorUpdate, AgentsWindowInvitationState, IAgentHostEditorState, IAgentsWindowInvitation } from '../../chat/common/agentsWindowInvitation.js';
+import { focusPrototypeProjectTabs } from '../../windows/electron-main/prototypeWorkbenchHost.js';
 import { IApplicationStorageMainService } from '../../storage/electron-main/storageMainService.js';
 
 export interface INativeHostMainService extends AddFirstParameterToFunctions<ICommonNativeHostService, Promise<unknown> /* only methods, not events */, number | undefined /* window ID */> { }
@@ -505,6 +506,11 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 	async focusWindow(windowId: number | undefined, options?: INativeHostOptions & { mode?: FocusMode }): Promise<void> {
 		const window = this.windowById(options?.targetWindowId, windowId);
 		window?.focus({ mode: options?.mode ?? FocusMode.Transfer });
+	}
+
+	async focusProjectTabs(windowId: number | undefined): Promise<void> {
+		const window = typeof windowId === 'number' ? this.windowsMainService.getWindowById(windowId) : undefined;
+		if (window && !focusPrototypeProjectTabs(window.id)) { window.webContents.focus(); }
 	}
 
 	async setMinimumSize(windowId: number | undefined, width: number | undefined, height: number | undefined): Promise<void> {

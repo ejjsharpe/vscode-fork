@@ -342,6 +342,9 @@ export interface ICommonNativeHostService {
 	 */
 	focusWindow(options?: INativeHostOptions & { mode?: FocusMode }): Promise<void>;
 
+	/** Focus the shared project navigation without changing the selected view. */
+	focusProjectTabs(): Promise<void>;
+
 	// Dialogs
 	showMessageBox(options: MessageBoxOptions & INativeHostOptions): Promise<MessageBoxReturnValue>;
 	showSaveDialog(options: SaveDialogOptions & INativeHostOptions): Promise<SaveDialogReturnValue>;

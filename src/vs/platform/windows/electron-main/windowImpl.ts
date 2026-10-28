@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { revokePrototypeDocument, retirePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
-import { createPrototypeWorkbench, selectPrototypeWorkbench, replacePrototypeWorkbench, removePrototypeWorkbench, reportPrototypeCloseFailure, setPrototypeRecovery, prototypeHostClosing } from './prototypeWorkbenchHost.js';
+import { createPrototypeWorkbench, selectPrototypeWorkbench, updatePrototypeWorkbench, replacePrototypeWorkbench, removePrototypeWorkbench, reportPrototypeCloseFailure, setPrototypeRecovery, prototypeHostClosing } from './prototypeWorkbenchHost.js';
 import electron, { BrowserWindowConstructorOptions, Display } from 'electron';
 import { DeferredPromise, RunOnceScheduler, timeout, Delayer, raceCancellationError } from '../../../base/common/async.js';
 import { CancellationToken, CancellationTokenSource } from '../../../base/common/cancellation.js';
@@ -267,11 +267,12 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 			this._onDidUnmaximize.fire();
 		}));
 		this.registerLogicalClose();
-		this._register(Event.fromNodeEventEmitter(win, 'focus')(() => {
-			this.clearNotifyFocus();
-
-			this._lastFocusTime = Date.now();
-		}));
+		if (!this.hostedView) {
+			this._register(Event.fromNodeEventEmitter(win, 'focus')(() => {
+				this.clearNotifyFocus();
+				this._lastFocusTime = Date.now();
+			}));
+		}
 		this._register(Event.fromNodeEventEmitter(this._win, 'enter-full-screen')(() => this._onDidEnterFullScreen.fire()));
 		this._register(Event.fromNodeEventEmitter(this._win, 'leave-full-screen')(() => this._onDidLeaveFullScreen.fire()));
 		this._register(Event.fromNodeEventEmitter(this._win, 'always-on-top-changed', (_, alwaysOnTop) => alwaysOnTop)(alwaysOnTop => this._onDidChangeAlwaysOnTop.fire(alwaysOnTop)));
@@ -511,7 +512,7 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 		}
 	}
 
-	private clearNotifyFocus(): void {
+	protected clearNotifyFocus(): void {
 		this.notifyFocusDisposable.clear();
 	}
 
@@ -531,7 +532,7 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 		// However, in scenarios where the window has multiple child views (e.g. browser WebContentsViews),
 		// the last focused view in the window may not be the workbench.
 		// So we explicitly focus the workbench web contents here to ensure it gets focus.
-		selectPrototypeWorkbench(this.id);
+		if (this.hostedView) { selectPrototypeWorkbench(this.id); }
 		this.webContents.focus();
 	}
 
@@ -964,6 +965,10 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	private registerRendererListeners(): void {
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'focus')(() => {
+			this.clearNotifyFocus();
+			this._lastFocusTime = Date.now();
+		}));
 
 		// Window error conditions to handle
 		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'unresponsive')(() => this.onWindowError(WindowError.UNRESPONSIVE)));
@@ -1392,6 +1397,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 	load(configuration: INativeWindowConfiguration, options: ILoadOptions = Object.create(null)): void {
 		this.logService.trace(`window#load: attempt to load window (id: ${this._id})`);
+		updatePrototypeWorkbench(this.id, configuration.workspace, configuration.remoteAuthority, this.configurationService.getValue<boolean>('accessibility.verbosity.projectTabs') !== false);
 
 		// Clear Document Edited if needed
 		if (this.isDocumentEdited()) {
