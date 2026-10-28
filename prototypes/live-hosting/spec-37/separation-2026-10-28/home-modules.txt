@@ -1,0 +1,8 @@
+src/vs/platform/agentHost/test/electron-browser/agentHostProtocolClient.test.ts
+src/vs/platform/agentHost/test/node/agentHostDatabase.test.ts
+src/vs/platform/agentHost/test/node/agentService.test.ts
+src/vs/platform/agentHost/test/node/protocolServerHandler.test.ts
+src/vs/sessions/contrib/providers/agentHost/test/browser/localAgentHostSessionsProvider.test.ts
+src/vs/sessions/services/sessions/test/browser/sessionNavigation.test.ts
+src/vs/sessions/services/sessions/test/browser/sessionsManagementService.test.ts
+src/vs/workbench/contrib/chat/test/browser/agentSessions/agentHostChatContribution.test.ts

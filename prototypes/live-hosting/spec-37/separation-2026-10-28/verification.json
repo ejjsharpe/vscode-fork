@@ -1,0 +1,60 @@
+{
+  "implementationCommit": "42e2c9a7eaf220b326eaf5f99b2d5f13be983dc0",
+  "cleanBase": "ec9a1750b4d8b1a8a0ff7de7e722f69c6e1c32e3",
+  "preservedCheckpoint": "d71ae1f23b018cfc7f99616d24f187dc96375ea6",
+  "prototypeFixtureCommit": "e403648fdfa94c3471023a5ec6fd8aabb9db01db",
+  "node": "v24.22.1",
+  "electron": "43.8.3",
+  "checks": {
+    "clientBuild": "pass",
+    "fullClientTypecheck": "pass",
+    "focused33Modules": {
+      "passed": 289
+    },
+    "filtered8HomeModules": {
+      "passed": 300,
+      "pending": 2,
+      "failed": 2
+    },
+    "isolatedMetadataRace": {
+      "passed": 1,
+      "failed": 2
+    },
+    "changedRegressionTestFilesPreserved": 41,
+    "treeAndAncestry": "one implementation commit directly on clean base; no prototype-only ancestors; no prototype directory/evidence in implementation tree",
+    "whitespaceAndScriptSyntax": "pass",
+    "archiveFixturePreparationHashesAndRunnerSyntax": "pass"
+  },
+  "limitations": [
+    "No desktop acceptance rerun",
+    "Provider work/sign-in deferred",
+    "Authorization probes paused",
+    "#35 staged acceptance and separate creator verdict incomplete"
+  ],
+  "files": {
+    "build.log": {
+      "sha256": "7ac15445cdfaa040c5352ad89f2bab9cf5d2b1f125d9c9d20037f2c68948ea82"
+    },
+    "typecheck.log": {
+      "sha256": "10cb3c7ee9e25dd15d4e4c1fd3ebea9095424819d916bfbb25acec7ac368d0a4"
+    },
+    "focused-tests.log": {
+      "sha256": "fad7b80a4147311944735075648d8e702972f2a4486efd017fc4eba45c907f52"
+    },
+    "home-tests.log": {
+      "sha256": "307d4dcfc9f4ac790960ff7bce44c56d2e0214957de2b994828741fb8394c4b2"
+    },
+    "metadata-race-tests.log": {
+      "sha256": "c5dc82e18a573ac5814a98f31bf4ac74005eb0d76b58530254764afb0c2d6fac"
+    },
+    "focused-modules.txt": {
+      "sha256": "47e9c3d5fa9f42bf6697639851f83336ca4445d4b0a54f4fcd8b2b4751395697"
+    },
+    "home-modules.txt": {
+      "sha256": "7fcbe2e2aa67d9ba0d8dcd8890a1fb21502d03e35aec0e503171fb98e11c6bc0"
+    },
+    "tests.txt": {
+      "sha256": "33aa3ce3044a3080c566bada058b005eb306f932d86a3e9d839d8be23cecebaa"
+    }
+  }
+}

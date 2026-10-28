@@ -1,0 +1,48 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/.build/crashes'
+(node:58292) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:58292) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:58292) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  AgentService (node dispatcher)[0m
+[0m    additional chat working directories[0m
+    [31m  1) normalized workspace finalization serializes disposal across central metadata persistence[0m
+[58287:1028/224834.711124:INFO:CONSOLE:237] "Error: Trying to add a disposable to a DisposableMap that has already been disposed of. The added object will be leaked!
+    at DisposableMap.set (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/base/common/lifecycle.js:582:20)
+    at AgentService._schedulePeerChatCleanupRepair (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/platform/agentHost/node/agentService.js:7994:34)
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/platform/agentHost/node/agentService.js:6343:20
+    at async AgentService.disposeChat (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/platform/agentHost/node/agentService.js:6305:7)
+    at async Promise.all (index 1)", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/test/unit/electron/renderer.js (237)
+    [31m  2) normalized workspace finalization serializes disposal across central metadata persistence[0m
+    [32m  ✔[0m[90m single-chat workspace replacement waits for an in-flight chat creation and refuses to move its workspace[0m
+
+
+[92m [0m[32m 1 passing[0m[90m (135ms)[0m
+[31m  2 failing[0m
+
+[0m  1) AgentService (node dispatcher)
+       additional chat working directories
+         normalized workspace finalization serializes disposal across central metadata persistence:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+[0m[90m
+  Error: Cannot persist metadata for missing normalized chat ahp-chat://peer/Y29waWxvdDovZmJmMDMxZDMtNzViNy00ZDVmLWFjYWUtYWJmYmIyMjIwNzlm
+      at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/platform/agentHost/node/agentHostPeerChatStore.js:412:19
+      at async AgentService.setChatHomeWorkspace (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/platform/agentHost/node/agentService.js:5484:5)
+      at async AgentService.setChatWorkingDirectory (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/platform/agentHost/node/agentService.js:10700:5)
+      at async Promise.all (index 0)
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/platform/agentHost/test/node/agentService.test.js:11180:7)
+[0m
+[0m  2) AgentService (node dispatcher)
+       additional chat working directories
+         normalized workspace finalization serializes disposal across central metadata persistence:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Error: Unexpected console output in test run. Please ensure no console.[log|error|info|warn] usage in tests or runtime errors.
+      at new AssertionError (node:internal/assert/assertion_error:380:5)
+      at Context.<anonymous> (renderer.js:328:32)
+[0m
+
+
