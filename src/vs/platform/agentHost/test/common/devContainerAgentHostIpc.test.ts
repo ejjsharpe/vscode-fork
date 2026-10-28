@@ -46,7 +46,7 @@ suite('Dev Container Agent Host IPC', () => {
 		const events = store.add(new Emitter<{ connectionId: string; supported: boolean }>());
 		const service = new class extends mock<IDevContainerAgentHostMainService>() {
 			override readonly onDidChangeSandboxSupport = events.event;
-			override async connect() {
+			override async connect(): Promise<never> {
 				events.fire({ connectionId: 'after', supported: true });
 				throw new Error('Connect refused');
 			}

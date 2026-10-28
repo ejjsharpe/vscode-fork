@@ -14,7 +14,6 @@ import { CancellationError, getErrorMessage, isCancellationError } from '../../.
 import { Emitter, Event } from '../../../base/common/event.js';
 import { join, posix } from '../../../base/common/path.js';
 import { StopWatch } from '../../../base/common/stopwatch.js';
-import { URI } from '../../../base/common/uri.js';
 import { hasKey } from '../../../base/common/types.js';
 import { findExecutable } from '../../../base/node/processes.js';
 import { SequencerByKey } from '../../../base/common/async.js';

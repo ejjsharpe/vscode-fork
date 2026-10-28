@@ -13,7 +13,7 @@ import { mock } from '../../../../base/test/common/mock.js';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/common/utils.js';
 import { ISSHConnectResult, ISSHRemoteAgentHostMainService, SSHAuthMethod } from '../../common/sshRemoteAgentHost.js';
 import { IWSLRemoteAgentHostMainService } from '../../common/wslRemoteAgentHost.js';
-import { ITunnelAgentHostMainService } from '../../common/tunnelAgentHost.js';
+import { ITunnelAgentHostMainService, ITunnelConnectResult } from '../../common/tunnelAgentHost.js';
 import { IDevContainerAgentHostMainService } from '../../common/devContainerAgentHost.js';
 import { createSSHRemoteAgentHostChannel, createWSLRemoteAgentHostChannel, createTunnelAgentHostChannel, createOwnedDevContainerAgentHostChannel } from '../../common/remoteAgentHostIpc.js';
 
@@ -39,6 +39,7 @@ suite('Remote Agent Host ownership IPC', () => {
 	}
 	const config = { host: 'host', username: 'user', name: 'Host', authMethod: SSHAuthMethod.Agent, sshConfigHost: 'alias' };
 	const result: ISSHConnectResult = { connectionId: 'lease', address: 'ssh:alias', name: 'Host', config, connectionToken: undefined };
+	const tunnelResult: ITunnelConnectResult = { connectionId: 'lease', address: 'tunnel:host', name: 'Host', connectionToken: 'token', selected: { serverType: 'standalone', instanceId: 'instance', role: 'primary', lifecycle: 'managed' } };
 
 	class SSHBoundary extends mock<ISSHRemoteAgentHostMainService>() {
 		readonly requests = disposables.add(new Emitter<{ requestId: string; connectionKey: string; displayHost: string; username: string; name: string; instructions: string; prompts: [] }>());
@@ -168,7 +169,7 @@ suite('Remote Agent Host ownership IPC', () => {
 		const effects: string[] = [];
 		const service = new class extends mock<ITunnelAgentHostMainService>() {
 			override prepareSelection() { return selection.p; }
-			override async completeSelection(id: string) { effects.push(`complete:${id}`); return { ...result }; }
+			override async completeSelection(id: string) { effects.push(`complete:${id}`); return tunnelResult; }
 			override async cancelSelection(id: string) { effects.push(`cancel:${id}`); }
 			override async disconnect(id: string) { effects.push(`disconnect:${id}`); }
 		}();
@@ -191,7 +192,7 @@ suite('Remote Agent Host ownership IPC', () => {
 		const deleting = new DeferredPromise<void>();
 		const service = new class extends mock<ITunnelAgentHostMainService>() {
 			override deleteTunnel() { return deleting.p; }
-			override async connect() { return result; }
+			override async connect() { return tunnelResult; }
 		}();
 		const channel = createTunnelAgentHostChannel(service, disposables.add(new DisposableStore()), authority());
 		const removed = channel.call('a', 'deleteTunnel', ['token', 'github', 'tunnel', 'cluster']);

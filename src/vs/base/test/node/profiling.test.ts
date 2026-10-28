@@ -15,7 +15,7 @@ suite('Owned inspector profiling', () => {
 
 	test('expiry while enabling the external profiler prevents later sampling and start effects', async () => {
 		const entered = new DeferredPromise<void>();
-		const enabled = new DeferredPromise<object>();
+		const enabled = new DeferredPromise<void>();
 		let live = true;
 		let closed = 0;
 		const effects: string[] = [];
@@ -25,15 +25,15 @@ suite('Owned inspector profiling', () => {
 			Debugger: upcastPartial<Client['Debugger']>({ enable: async () => ({ debuggerId: 'debugger' }) }),
 			Profiler: upcastPartial<Client['Profiler']>({
 				enable: async () => { void entered.complete(); return enabled.p; },
-				setSamplingInterval: async () => { effects.push('sampling'); return {}; },
-				start: async () => { effects.push('start'); return {}; }
+				setSamplingInterval: async () => { effects.push('sampling'); },
+				start: async () => { effects.push('start'); }
 			})
 		});
 		const pending = startProfiling({ port: 1, checkForPaused: true, validateOwner: () => { if (!live) { throw new Error('Expired'); } } }, async () => client);
 		await entered.p;
 		const rejected = assert.rejects(pending, /Expired/);
 		live = false;
-		await enabled.complete({});
+		await enabled.complete();
 		await rejected;
 		assert.deepStrictEqual(effects, []);
 		assert.strictEqual(closed, 1);
