@@ -1,0 +1,31 @@
+{
+  "setup": [
+    {
+      "failure": "Prelaunch could not resolve gulp-merge-json",
+      "repair": "Copied independent build/node_modules from the matching baseline, then prelaunch succeeded."
+    }
+  ],
+  "productUI": [
+    {
+      "failure": "Shell tab click performed selection but Playwright waited for canceled navigation",
+      "attempts": "noWaitAfter on locator click, then locator evaluation still waited; DOM-measured pointer clicks avoid locator navigation waits."
+    },
+    {
+      "failure": "Early Close shortcut during onboarding did not yield an automatable completion; native app discovery timed out",
+      "repair": "Stopped only the disposable instance and relaunched with custom dialogs and explicit fixture settings. Later normal Close Window reported an unclassified operation. The earlier native-confirmation explanation was an unproven hypothesis, not an established cause; forced exit is not graceful-shutdown acceptance."
+    },
+    {
+      "failure": "New shortcut with chat focused did not create a text file",
+      "repair": "Use the actual command palette and exact New Untitled Text File entry."
+    },
+    {
+      "failure": "The recently used command gained an accessible-name suffix, so an exact name including its shortcut timed out",
+      "repair": "Match the observed command title prefix, excluding the distinct Compare command; rerun passed."
+    },
+    {
+      "failure": "Ordinary Close Window command reports Unclassified/coordinator-only native operation: closeWindow",
+      "status": "Observed functional failure. Adapter unchanged while authorization investigation is paused; no project-close pass claimed."
+    }
+  ],
+  "userSteering": "After the user reported a Codex content restriction, authorization probes stopped. Continued work is ordinary product UI. Remaining authorization coverage is unvalidated; no restriction override was attempted."
+}

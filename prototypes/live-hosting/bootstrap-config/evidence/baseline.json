@@ -1,0 +1,32 @@
+{
+  "own": {
+    "accepted": true,
+    "own": true
+  },
+  "foreign": {
+    "accepted": true,
+    "own": false
+  },
+  "auxiliary": {
+    "accepted": true,
+    "own": false
+  },
+  "extra": {
+    "accepted": true,
+    "own": true
+  },
+  "allOwn": [
+    {
+      "accepted": true,
+      "own": true
+    },
+    {
+      "accepted": true,
+      "own": true
+    },
+    {
+      "accepted": true,
+      "own": true
+    }
+  ]
+}

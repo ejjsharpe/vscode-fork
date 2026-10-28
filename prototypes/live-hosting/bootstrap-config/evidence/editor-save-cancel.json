@@ -1,0 +1,10 @@
+{
+  "editorCancelPreservedText": true,
+  "editorCancelPreservedDirtyState": true,
+  "saveSelected": true,
+  "neighbourDirtyEditorPreserved": true,
+  "singleEditorClosed": true,
+  "diskTextMatches": true,
+  "ordinaryProjectCloseWindowFailed": "Unclassified/coordinator-only native operation: closeWindow",
+  "scope": "editor close safeguards only, not project-close acceptance"
+}

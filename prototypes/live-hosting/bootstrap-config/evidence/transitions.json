@@ -1,0 +1,23 @@
+{
+  "actualReplacement": true,
+  "earlyExplicitRequestRejected": true,
+  "preloadBootstrapSucceeded": true,
+  "noExplicitReplay": true,
+  "freshExplicitRequestSucceeded": true,
+  "injectedMissingGuessedExtraForeignFrameAndExpiredRejected": true,
+  "neighbourGenerationPreserved": true,
+  "requests": [
+    {
+      "authenticated": false,
+      "accepted": false
+    },
+    {
+      "authenticated": true,
+      "accepted": true
+    },
+    {
+      "authenticated": true,
+      "accepted": true
+    }
+  ]
+}
