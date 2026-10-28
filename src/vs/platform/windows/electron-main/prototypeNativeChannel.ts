@@ -9,6 +9,7 @@ import { CancellationToken } from '../../../base/common/cancellation.js';
 import { Event } from '../../../base/common/event.js';
 import { IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
 import { IWindowsMainService } from './windows.js';
+import { IAuxiliaryWindowsMainService } from '../../auxiliaryWindow/electron-main/auxiliaryWindows.js';
 
 const ownMethods = new Set(`closeWindow reload getProcessId getNativeWindowHandle isFullScreen toggleFullScreen isMaximized maximizeWindow unmaximizeWindow minimizeWindow moveWindowTop isWindowAlwaysOnTop toggleWindowAlwaysOnTop setWindowAlwaysOnTop positionWindow updateWindowControls updateWindowAccentColor focusWindow focusProjectTabs setMinimumSize saveWindowSplash setBackgroundThrottling showMessageBox showSaveDialog showOpenDialog startFileDrag setRepresentedFilename setDocumentEdited setApplicationBadge getScreenshot triggerPaste updateTouchBar notifyReady resolveProxy openDevTools toggleDevTools profileRenderer getAgentHostEditorState updateAgentHostEditorState claimAgentsWindowInvitation markAgentsWindowInvitationShown releaseAgentsWindowInvitation syncSystemWideKeybindings`.split(' '));
 const appMethods = new Set(`getWindowCount getActiveWindowId getActiveWindowPosition getWindows getCursorScreenPoint showItemInFolder openExternal moveItemToTrash getMediaAccessStatus requestScreenCaptureAccess isAdmin getOSStatistics getFreeDiskSpace getOSProperties getOSVirtualMachineHint isGPUCompositingEnabled getOSColorScheme hasWSLFeatureInstalled readClipboardText readImage writeImage writeClipboardText readClipboardFindText writeClipboardFindText writeClipboardBuffer readClipboardBuffer hasClipboard resolveProxyWithPackage readProxyConfigWithPackage lookupAuthorization lookupKerberosAuthorization loadCertificates isPortFree findFreePort windowsGetStringRegKey getSystemIdleState getSystemIdleTime getCurrentThermalState isOnBatteryPower`.split(' '));
@@ -16,43 +17,65 @@ const ownEvents = new Set(`onDidOpenMainWindow onDidTriggerWindowSystemContextMe
 const appEvents = new Set(`onDidSuspendOS onDidResumeOS onDidChangeOnBatteryPower onDidChangeThermalState onDidChangeSpeedLimit onWillShutdownOS onDidLockScreen onDidUnlockScreen onDidChangeColorScheme onDidChangePassword onDidChangeDisplay onDidChangeGPUCompositing onDidChangeAgentHostEditorState`.split(' '));
 
 function caller(context: string, windows: IWindowsMainService) {
-	const window = windows.getWindowById(prototypeBinding(context).workbench);
-	if (!window || window.webContents.isDestroyed()) { throw new Error('Rejected unregistered or stale caller'); }
+	const binding = prototypeBinding(context);
+	const window = windows.getWindowById(binding.workbench);
+	if (!window || window.webContents !== binding.contents || window.webContents.isDestroyed()) { throw new Error('Rejected unregistered or stale caller'); }
 	return window;
 }
 
-function checkTargets(value: unknown, id: number): void {
+function checkTargets(value: unknown, id: number, auxiliaryIds?: ReadonlySet<number>): void {
 	if (!value || typeof value !== 'object') { return; }
 	for (const [key, target] of Object.entries(value)) {
-		if (['windowId', 'targetWindowId', 'responseWindowId'].includes(key) && target !== undefined && target !== id) {
+		if (['windowId', 'targetWindowId', 'responseWindowId'].includes(key) && target !== undefined && target !== id && !(typeof target === 'number' && auxiliaryIds?.has(target))) {
 			throw new Error(`Rejected foreign/unknown target ${key}`);
 		}
-		checkTargets(target, id);
+		checkTargets(target, id, auxiliaryIds);
 	}
 }
 
-export function prototypeNativeChannel(channel: IServerChannel<string>, windows: IWindowsMainService): IServerChannel<string> {
+export function prototypeNativeChannel(channel: IServerChannel<string>, windows: IWindowsMainService, auxiliaryWindows?: IAuxiliaryWindowsMainService): IServerChannel<string> {
+	const auxiliaryMethods = new Set('closeWindow getNativeWindowHandle isFullScreen toggleFullScreen isMaximized maximizeWindow unmaximizeWindow minimizeWindow moveWindowTop isWindowAlwaysOnTop toggleWindowAlwaysOnTop setWindowAlwaysOnTop positionWindow updateWindowControls focusWindow showMessageBox showSaveDialog showOpenDialog setRepresentedFilename setDocumentEdited'.split(' '));
+	const dialogMethods = new Set(['showMessageBox', 'showSaveDialog', 'showOpenDialog']);
+	const auxiliaryIds = (id: number) => new Set(auxiliaryWindows?.getWindows().filter(window => window.parentId === id && auxiliaryWindows.getWindowByWebContents(window.webContents) === window).map(window => window.id));
 	return {
 		async call<T>(context: string, command: string, args: unknown[], token?: CancellationToken) {
 			const window = caller(context, windows);
 			if (!Array.isArray(args) || args[0] !== window.id) { throw new Error('Rejected caller ID impersonation'); }
 			if (!ownMethods.has(command) && !appMethods.has(command)) { throw new Error(`Unclassified/coordinator-only native operation: ${command}`); }
-			checkTargets(args.slice(1), window.id);
-			if (command === 'getNativeWindowHandle' && args[1] !== window.id) { throw new Error('Rejected explicit target'); }
+			const permittedAuxiliaries = auxiliaryMethods.has(command) ? auxiliaryIds(window.id) : undefined;
+			checkTargets(args.slice(1), window.id, permittedAuxiliaries);
+			if (command === 'getNativeWindowHandle' && args[1] !== window.id && !(typeof args[1] === 'number' && permittedAuxiliaries?.has(args[1]))) { throw new Error('Rejected explicit target'); }
 			if (command === 'focusProjectTabs' && args.length !== 1) { throw new Error('Rejected project navigation arguments'); }
 			prototypeBinding(context);
 			if (command === 'notifyReady') { markPrototypeLifecycleReady(context); }
-			const result = await channel.call<T>(context, command, args, token);
+			let callArgs = args;
+			if (dialogMethods.has(command)) {
+				if (args.length !== 2) { throw new Error('Rejected native dialog arguments'); }
+				// Main-only guard follows the originating connection through the native dialog queue.
+				callArgs = [...args, () => { prototypeBinding(context); }];
+			}
+			if (command === 'profileRenderer') {
+				if (args.length !== 3 || typeof args[1] !== 'string' || typeof args[2] !== 'number' || !Number.isFinite(args[2]) || args[2] < 0) { throw new Error('Rejected renderer profile arguments'); }
+				callArgs = [...args, () => { prototypeBinding(context); }];
+			}
+			if (command === 'positionWindow') {
+				if (args.length < 2 || args.length > 3) { throw new Error('Rejected native position arguments'); }
+				callArgs = [args[0], args[1], args[2], () => { prototypeBinding(context); }];
+			}
+			const result = await channel.call<T>(context, command, callArgs, token);
 			prototypeBinding(context);
 			return result;
 		},
 		listen(context, event, arg) {
 			const window = caller(context, windows);
-			if (appEvents.has(event)) { return channel.listen(context, event, arg); }
+			if (appEvents.has(event)) { return Event.filter(channel.listen(context, event, arg), () => {
+				try { prototypeBinding(context); return true; } catch { return false; }
+			}); }
 			if (!ownEvents.has(event)) { throw new Error(`Unclassified native event: ${event}`); }
 			return Event.filter(channel.listen(context, event, arg), value => {
 				const target = typeof value === 'number' ? value : (value as { windowId?: number })?.windowId;
-				return target === window.id;
+				try { prototypeBinding(context); } catch { return false; }
+				return target === window.id || typeof target === 'number' && auxiliaryIds(window.id).has(target);
 			});
 		}
 	};

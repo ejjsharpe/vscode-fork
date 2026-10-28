@@ -6,6 +6,8 @@
 import { app, BrowserWindow, BaseWindow, KeyboardEvent, Menu, MenuItem, MenuItemConstructorOptions, WebContents } from 'electron';
 import { WorkbenchActionExecutedClassification, WorkbenchActionExecutedEvent } from '../../../base/common/actions.js';
 import { RunOnceScheduler } from '../../../base/common/async.js';
+import { prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { ICodeWindow } from '../../window/electron-main/window.js';
 import { CancellationToken } from '../../../base/common/cancellation.js';
 import { mnemonicMenuLabel } from '../../../base/common/labels.js';
 import { isMacintosh, language } from '../../../base/common/platform.js';
@@ -63,6 +65,7 @@ export class Menubar extends Disposable {
 	private menubarMenus: { [id: string]: IMenubarMenu };
 
 	private keybindings: { [commandId: string]: IMenubarKeybinding };
+	private menuOwner: { window: ICodeWindow; contents: WebContents; generation: number } | undefined;
 
 	private readonly fallbackMenuHandlers: { [id: string]: (menuItem: MenuItem, browserWindow: BaseWindow | undefined, event: KeyboardEvent) => void } = Object.create(null);
 
@@ -208,6 +211,12 @@ export class Menubar extends Disposable {
 	}
 
 	updateMenu(menubarData: IMenubarData, windowId: number) {
+		const window = this.windowsMainService.getWindowById(windowId);
+		if (!window || this.windowsMainService.getFocusedWindow() !== window) { return; }
+		const contents = window.webContents;
+		const generation = prototypeDocumentGeneration(contents);
+		if (generation === undefined) { return; }
+		this.menuOwner = { window, contents, generation };
 		this.menubarMenus = menubarData.menus;
 		this.keybindings = menubarData.keybindings;
 
@@ -684,7 +693,11 @@ export class Menubar extends Disposable {
 
 	private createMenuItem(labelOpt: string, commandId: string, enabledOpt?: boolean, checkedOpt?: boolean): MenuItem {
 		const label = this.mnemonicLabel(labelOpt);
+		const owner = this.menuOwner;
 		const click = (menuItem: MenuItem & IMenuItemWithKeybinding, window: BaseWindow | undefined, event: KeyboardEvent) => {
+			try {
+				if (!owner || owner.contents.isDestroyed() || owner.window.webContents !== owner.contents || prototypeDocumentGeneration(owner.contents) !== owner.generation || this.windowsMainService.getFocusedWindow() !== owner.window) { return; }
+			} catch { return; }
 			const userSettingsLabel = menuItem ? menuItem.userSettingsLabel : null;
 			if (userSettingsLabel && event.triggeredByAccelerator) {
 				this.runActionInRenderer({ type: 'keybinding', userSettingsLabel });
@@ -748,14 +761,14 @@ export class Menubar extends Disposable {
 				return contextSpecificHandlers.inNoWindow();
 			}
 
-			// DevTools focused
-			if (activeWindow.webContents.isDevToolsFocused() &&
-				activeWindow.webContents.devToolsWebContents) {
-				return contextSpecificHandlers.inDevTools(activeWindow.webContents.devToolsWebContents);
+			const contents = this.windowsMainService.getWindowByBrowserWindow(activeWindow)?.webContents ?? activeWindow.webContents;
+			// DevTools belongs to the selected logical workbench, not the shell renderer.
+			if (contents.isDevToolsFocused() && contents.devToolsWebContents) {
+				return contextSpecificHandlers.inDevTools(contents.devToolsWebContents);
 			}
 
 			// Focus is not in the workbench webContents
-			if (!activeWindow.webContents.isFocused()) {
+			if (!contents.isFocused()) {
 				return contextSpecificHandlers.inNoWindow();
 			}
 
@@ -770,10 +783,12 @@ export class Menubar extends Disposable {
 		// returning their parent windows as target to support running
 		// actions via the main window.
 		let activeBrowserWindow = BrowserWindow.getFocusedWindow();
+		let auxiliaryParent: number | undefined;
 		if (activeBrowserWindow) {
 			const auxiliaryWindowCandidate = this.auxiliaryWindowsMainService.getWindowByWebContents(activeBrowserWindow.webContents);
 			if (auxiliaryWindowCandidate) {
-				activeBrowserWindow = this.windowsMainService.getWindowById(auxiliaryWindowCandidate.parentId)?.win ?? null;
+				auxiliaryParent = auxiliaryWindowCandidate.parentId;
+				activeBrowserWindow = this.windowsMainService.getWindowById(auxiliaryParent)?.win ?? null;
 			}
 		}
 
@@ -789,7 +804,7 @@ export class Menubar extends Disposable {
 			}
 		}
 
-		const activeWindow = activeBrowserWindow ? this.windowsMainService.getWindowById(activeBrowserWindow.id) : undefined;
+		const activeWindow = auxiliaryParent !== undefined ? this.windowsMainService.getWindowById(auxiliaryParent) : activeBrowserWindow ? this.windowsMainService.getWindowByBrowserWindow(activeBrowserWindow) : undefined;
 		if (activeWindow) {
 			this.logService.trace('menubar#runActionInRenderer', invocation);
 

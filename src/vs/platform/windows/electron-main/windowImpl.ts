@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { revokePrototypeDocument, retirePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { revokePrototypeDocument, retirePrototypeDocument, prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { createPrototypeWorkbench, selectPrototypeWorkbench, updatePrototypeWorkbench, replacePrototypeWorkbench, removePrototypeWorkbench, reportPrototypeCloseFailure, setPrototypeRecovery, prototypeHostClosing } from './prototypeWorkbenchHost.js';
 import electron, { BrowserWindowConstructorOptions, Display } from 'electron';
 import { DeferredPromise, RunOnceScheduler, timeout, Delayer, raceCancellationError } from '../../../base/common/async.js';
@@ -1788,14 +1788,19 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	sendWhenReady(channel: string, token: CancellationToken, ...args: unknown[]): void {
-		if (this.isReady) {
+		const contents = this.webContents;
+		const generation = prototypeDocumentGeneration(contents);
+		// Native commands never wait for a different document to become their target.
+		if (this.hostedView && generation === undefined && (channel === 'vscode:runAction' || channel === 'vscode:runKeybinding')) { return; }
+		const deliver = () => {
+			if (token.isCancellationRequested || contents.isDestroyed() || generation !== undefined && prototypeDocumentGeneration(contents) !== generation) { return; }
+			try { if (this.webContents !== contents) { return; } } catch { return; }
 			this.send(channel, ...args);
+		};
+		if (this.isReady) {
+			deliver();
 		} else {
-			this.ready().then(() => {
-				if (!token.isCancellationRequested) {
-					this.send(channel, ...args);
-				}
-			});
+			void this.ready().then(deliver);
 		}
 	}
 

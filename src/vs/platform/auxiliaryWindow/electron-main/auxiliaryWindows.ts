@@ -20,7 +20,7 @@ export interface IAuxiliaryWindowsMainService {
 	readonly onDidChangeAlwaysOnTop: Event<{ window: IAuxiliaryWindow; alwaysOnTop: boolean }>;
 	readonly onDidTriggerSystemContextMenu: Event<{ readonly window: IAuxiliaryWindow; readonly x: number; readonly y: number }>;
 
-	createWindow(details: HandlerDetails): BrowserWindowConstructorOptions;
+	createWindow(details: HandlerDetails, opener: WebContents, parentId: number): BrowserWindowConstructorOptions;
 	registerWindow(webContents: WebContents): void;
 
 	getWindowByWebContents(webContents: WebContents): IAuxiliaryWindow | undefined;
