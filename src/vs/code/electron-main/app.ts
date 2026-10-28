@@ -1330,7 +1330,7 @@ export class CodeApplication extends Disposable {
 			graceTime: LocalReconnectConstants.GraceTime,
 			shortGraceTime: LocalReconnectConstants.ShortGraceTime,
 			scrollback: this.configurationService.getValue<number>(TerminalSettingId.PersistentSessionScrollback) ?? 100
-		}, this.configurationService, this.environmentMainService, this.lifecycleMainService, this.logService);
+		}, this.configurationService, this.environmentMainService, this.lifecycleMainService, this.logService, id => this.windowsMainService?.getWindowById(id), () => this.auxiliaryWindowsMainService?.getWindows() ?? []);
 		const ptyHostService = new PtyHostService(
 			ptyHostStarter,
 			this.configurationService,

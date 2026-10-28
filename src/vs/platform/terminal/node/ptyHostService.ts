@@ -268,8 +268,8 @@ export class PtyHostService extends Disposable implements IPtyHostService {
 	clearBuffer(id: number): Promise<void> {
 		return this._proxy.clearBuffer(id);
 	}
-	setParentWindow(id: number, handle: VSBuffer): Promise<void> {
-		return this._proxy.setParentWindow(id, handle);
+	setParentWindow(id: number, handle: VSBuffer, windowId?: number): Promise<void> {
+		return this._proxy.setParentWindow(id, handle, windowId);
 	}
 	acknowledgeDataEvent(id: number, charCount: number): Promise<void> {
 		return this._proxy.acknowledgeDataEvent(id, charCount);

@@ -3,6 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { ChatHomeWorkspace, chatHomeWorkspaceValidator } from '../../workspace/common/chatHomeWorkspace.js';
+import { AgentHostChatHomeWorkspaceCapabilityMetaKey } from './meta/agentChatHomeWorkspaceMeta.js';
 import { ValidatorBase, vArray, vBoolean, vEnum, vObj, vOptionalProp, vString, type ValidationError, type ValidatorType } from '../../../base/common/validation.js';
 import { LoadClientCertificatesExtensionMethod, loadClientCertificatesResultValidator } from './clientCertificatesProtocol.js';
 import type { IJSONSchema } from '../../../base/common/jsonSchema.js';
@@ -94,6 +96,8 @@ export const MoveAgentHostSessionExtensionMethod = 'vscode/moveSession';
  * `createChat` does with `vscode.chatWorkspace`; gated by the same `vscode.createChatWorkspace` capability.
  */
 export const SetChatWorkspaceExtensionMethod = 'vscode/setChatWorkspace';
+export const GetChatHomeWorkspaceExtensionMethod = 'vscode/getChatHomeWorkspace';
+export const SetChatHomeWorkspaceExtensionMethod = 'vscode/setChatHomeWorkspace';
 export const ReadSavedChatExtensionMethod = 'vscode/readSavedChat';
 export const DeleteAutomationExtensionMethod = 'vscode/deleteAutomation';
 export const AcknowledgeAutomationDeletionExtensionMethod = 'vscode/acknowledgeAutomationDeletion';
@@ -127,6 +131,7 @@ export interface IAgentHostExtensionInitializeResultMeta extends Record<string, 
 	readonly [AgentHostDetachedWorktreeCapabilityMetaKey]?: true;
 	/** Present when `createChat` honors a requested chat workspace (folder, worktree or scratch folder). */
 	readonly [AgentHostCreateChatWorkspaceCapabilityMetaKey]?: true;
+	readonly [AgentHostChatHomeWorkspaceCapabilityMetaKey]?: true;
 	/** Present when `createSession` honors an imported conversation on `_meta`. */
 	readonly [AgentHostCreateSessionImportCapabilityMetaKey]?: true;
 	readonly [AgentHostSavedChatCapabilityMetaKey]?: true;
@@ -150,7 +155,7 @@ export interface IAgentHostExtensionInitializeResult extends InitializeResult {
 	readonly _meta?: IAgentHostExtensionInitializeResultMeta;
 }
 
-export function getAgentHostExtensionInitializeResultMeta(artifactRemoval = true, devContainers = false, timing = false, sessionImport = false, savedChat = false, savedChatContinuation = false, sessionMove = false, artifactIntegrations = false, copilotExtensions = false, automationHistory = false): IAgentHostExtensionInitializeResultMeta {
+export function getAgentHostExtensionInitializeResultMeta(artifactRemoval = true, devContainers = false, timing = false, sessionImport = false, savedChat = false, savedChatContinuation = false, sessionMove = false, artifactIntegrations = false, copilotExtensions = false, automationHistory = false, chatHomeWorkspace = false): IAgentHostExtensionInitializeResultMeta {
 	return {
 		[AgentHostDebugLogsCancellationCapabilityMetaKey]: true,
 		[AgentHostSessionUrisCapabilityMetaKey]: true,
@@ -159,6 +164,7 @@ export function getAgentHostExtensionInitializeResultMeta(artifactRemoval = true
 		[AgentHostChatStateFileCapabilityMetaKey]: true,
 		[AgentHostDetachedWorktreeCapabilityMetaKey]: true,
 		[AgentHostCreateChatWorkspaceCapabilityMetaKey]: true,
+		...(chatHomeWorkspace ? { [AgentHostChatHomeWorkspaceCapabilityMetaKey]: true as const } : {}),
 		[AgentHostCreateSessionImportCapabilityMetaKey]: true,
 		[AgentHostAutonomousAutomationsCapabilityMetaKey]: true,
 		[AgentHostArtifactRemovalCapabilityMetaKey]: artifactRemoval ? true : undefined,
@@ -217,6 +223,9 @@ export const stopBackgroundWorkParamsValidator = vObj({
 export const importSessionParamsValidator = vObj({ session: vString() });
 
 /** `workspace` has the shape of the `vscode.chatWorkspace` `createChat` `_meta` value. */
+export const getChatHomeWorkspaceParamsValidator = vObj({ chat: vString() });
+export const setChatHomeWorkspaceParamsValidator = vObj({ chat: vString(), homeWorkspace: chatHomeWorkspaceValidator });
+
 export const setChatWorkspaceParamsValidator = vObj({ chat: vString(), workspace: chatWorkspaceValueValidator });
 
 class StringOrNullValidator extends ValidatorBase<string | null> {
@@ -307,6 +316,8 @@ export interface IAgentHostExtensionCommandMap {
 	[StageCreateSessionImportChunkExtensionMethod]: { params: ValidatorType<typeof stageCreateSessionImportChunkParamsValidator>; result: void };
 	[ImportSessionExtensionMethod]: { params: ValidatorType<typeof importSessionParamsValidator>; result: void };
 	[MoveAgentHostSessionExtensionMethod]: { params: ValidatorType<typeof moveSessionParamsValidator>; result: { session: string } };
+	[GetChatHomeWorkspaceExtensionMethod]: { params: ValidatorType<typeof getChatHomeWorkspaceParamsValidator>; result: { homeWorkspace?: ChatHomeWorkspace } };
+	[SetChatHomeWorkspaceExtensionMethod]: { params: ValidatorType<typeof setChatHomeWorkspaceParamsValidator>; result: void };
 	[SetChatWorkspaceExtensionMethod]: { params: ValidatorType<typeof setChatWorkspaceParamsValidator>; result: void };
 	[ReportAgentHostFirstResponseExtensionMethod]: { params: IAgentHostFirstResponseDiagnostic; result: void };
 	[ReportChatUserInteractionExtensionMethod]: { params: IChatUserInteractionTiming; result: void };

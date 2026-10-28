@@ -2875,6 +2875,7 @@ export class AgentHostDatabase implements IAgentHostDatabase {
 			return actual.uri === chat.chat && actual.order === chat.order
 				&& actual.kind === (chat.chat === defaultChat ? 'default' : 'peer')
 				&& actual.summary === chat.metadata?.summary && actual.titleSource === chat.metadata?.titleSource
+				&& stableStringify(actual.homeWorkspace) === stableStringify(chat.metadata?.homeWorkspace)
 				&& (actual.interactivity ?? ChatInteractivity.Full) === (chat.metadata?.interactivity ?? ChatInteractivity.Full)
 				&& origin === expectedOrigin && stableStringify(actual.workingDirectories) === stableStringify(chat.workingDirectories)
 				&& actual.isRead === chat.isRead && (actual.archived ?? false) === chat.archived
@@ -3686,6 +3687,7 @@ export class AgentHostDatabase implements IAgentHostDatabase {
 			const legacyChat = legacyByUri.get(chat.chat);
 			const metadata: IAgentHostChatV2MetadataData = {
 				...(actual.summary === undefined ? {} : { summary: actual.summary }),
+				...(actual.homeWorkspace === undefined ? {} : { homeWorkspace: actual.homeWorkspace }),
 				...(actual.titleSource === undefined ? {} : { titleSource: actual.titleSource }),
 				interactivity: actual.interactivity ?? ChatInteractivity.Full,
 				...(actual.changes === undefined ? {} : { changes: actual.changes }),

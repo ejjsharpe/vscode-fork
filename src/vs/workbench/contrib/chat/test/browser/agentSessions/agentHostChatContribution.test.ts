@@ -1324,8 +1324,12 @@ function createSessionListController(disposables: DisposableStore, instantiation
 	return disposables.add(instantiationService.createInstance(AgentHostSessionListController, sessionType, provider, sessionListStore, description, 'local', useSessionTitleForDefaultChat));
 }
 
-function createContribution(disposables: DisposableStore, opts?: { backendSessionScheme?: string; authServiceOverride?: Partial<IAuthenticationService>; workingDirectoryResolver?: { resolve(sessionResource: URI): URI | undefined; isNewSession?: (sessionResource: URI) => boolean }; languageModels?: ReadonlyMap<string, ILanguageModelChatMetadata>; provisionalServiceOverride?: Partial<IAgentHostUntitledProvisionalSessionService>; languageModelToolsServiceOverride?: Partial<ILanguageModelToolsService>; configOverrides?: Record<string, unknown>; provider?: string; chatSessionsServiceOverride?: Partial<IChatSessionsService>; chatDebugServiceOverride?: Partial<IChatDebugService>; remoteAgentHostServiceOverride?: Partial<IRemoteAgentHostService>; customizationServiceOverride?: IAgentHostCustomizationService; agentHostTerminalServiceOverride?: Partial<IAgentHostTerminalService>; languageModelsServiceOverride?: Partial<ILanguageModelsService>; workspaceFolders?: readonly URI[]; hideAutoExplainability?: boolean; pendingTreatment?: Promise<void>; requiresWorkspaceTrust?: boolean; retainConsumedSteeringMessages?: boolean; supportsComputerUseSetup?: boolean; computerUseSetupService?: IComputerUseSetupService; useSessionTitleForDefaultChat?: boolean }) {
+function createContribution(disposables: DisposableStore, opts?: { remoteAuthority?: string; backendSessionScheme?: string; authServiceOverride?: Partial<IAuthenticationService>; workingDirectoryResolver?: { resolve(sessionResource: URI): URI | undefined; isNewSession?: (sessionResource: URI) => boolean }; languageModels?: ReadonlyMap<string, ILanguageModelChatMetadata>; provisionalServiceOverride?: Partial<IAgentHostUntitledProvisionalSessionService>; languageModelToolsServiceOverride?: Partial<ILanguageModelToolsService>; configOverrides?: Record<string, unknown>; provider?: string; chatSessionsServiceOverride?: Partial<IChatSessionsService>; chatDebugServiceOverride?: Partial<IChatDebugService>; remoteAgentHostServiceOverride?: Partial<IRemoteAgentHostService>; customizationServiceOverride?: IAgentHostCustomizationService; agentHostTerminalServiceOverride?: Partial<IAgentHostTerminalService>; languageModelsServiceOverride?: Partial<ILanguageModelsService>; workspaceFolders?: readonly URI[]; hideAutoExplainability?: boolean; pendingTreatment?: Promise<void>; requiresWorkspaceTrust?: boolean; retainConsumedSteeringMessages?: boolean; supportsComputerUseSetup?: boolean; computerUseSetupService?: IComputerUseSetupService; useSessionTitleForDefaultChat?: boolean }) {
 	const { instantiationService, agentHostService, chatAgentService, chatWidgetService, chatService, openerService, trustController, modelService, workingCopyService, accessibilitySignalCalls, editingSessionProviders, textFileRetention } = createTestServices(disposables, opts?.workingDirectoryResolver, opts?.authServiceOverride, opts?.languageModels, opts?.provisionalServiceOverride, false, opts?.languageModelToolsServiceOverride, opts?.configOverrides, opts?.chatSessionsServiceOverride, opts?.chatDebugServiceOverride, opts?.remoteAgentHostServiceOverride, opts?.customizationServiceOverride, opts?.agentHostTerminalServiceOverride, opts?.languageModelsServiceOverride, opts?.workspaceFolders);
+
+	if (opts?.remoteAuthority) {
+		instantiationService.stub(IWorkbenchEnvironmentService, { isSessionsWindow: false, remoteAuthority: opts.remoteAuthority });
+	}
 
 	if (opts?.hideAutoExplainability || opts?.pendingTreatment) {
 		const pending = opts?.pendingTreatment;
@@ -6385,6 +6389,27 @@ suite('AgentHostChatContribution', () => {
 			});
 		});
 
+		test('editor chat creation records its exact saved multi-folder home and preserves explicit No Workspace', () => runWithFakedTimers({ useFakeTimers: true }, async () => {
+			const homes: unknown[] = [];
+			for (const noWorkspace of [false, true]) {
+				const { instantiationService, listController, sessionHandler, agentHostService, chatAgentService } = createContribution(disposables, {
+					workspaceFolders: [URI.file('/workspace/a'), URI.file('/workspace/b')],
+					remoteAuthority: 'ssh-remote+build',
+					...(noWorkspace ? { provisionalServiceOverride: { getInitialSessionMetadata: () => ({ 'vscode.chatHomeWorkspace': null }) } } : {}),
+				});
+				const context = instantiationService.get(IWorkspaceContextService);
+				const workspace = context.getWorkspace();
+				sinon.stub(context, 'getWorkspace').returns({ ...workspace, configuration: URI.file('/workspace/project.code-workspace') });
+				const item = await listController.newChatSessionItem({ prompt: 'Hello' }, CancellationToken.None);
+				assert.ok(item);
+				const { turnPromise, session, turnId, fire } = await startTurn(sessionHandler, agentHostService, chatAgentService, disposables, { message: 'Hello', sessionResource: item.resource });
+				fire({ type: 'chat/turnComplete', endedAt: '2025-01-01T00:00:00.000Z', session, turnId } as ChatAction);
+				await turnPromise;
+				homes.push(agentHostService.createSessionCalls[0]._meta?.['vscode.chatHomeWorkspace']);
+			}
+			assert.deepStrictEqual(homes, [{ kind: 'workspace', uri: 'file:///workspace/project.code-workspace', remoteAuthority: 'ssh-remote+build' }, null]);
+		}));
+
 		test('newChatSessionItem creates final-looking resource used for requested backend session', () => runWithFakedTimers({ useFakeTimers: true }, async () => {
 			const { listController, sessionHandler, agentHostService, chatAgentService } = createContribution(disposables);
 
@@ -6428,7 +6453,7 @@ suite('AgentHostChatContribution', () => {
 				metadata: agentHostService.createSessionCalls[0]._meta,
 			}, {
 				resourceQuery: '',
-				metadata: { [VSCODE_EPHEMERAL_SESSION_META_KEY]: true },
+				metadata: { [VSCODE_EPHEMERAL_SESSION_META_KEY]: true, 'vscode.chatHomeWorkspace': null },
 			});
 			assert.strictEqual(listController.isNewSession(item.resource), false, 'materialization must clear the pending marker');
 
@@ -17179,7 +17204,7 @@ suite('AgentHostChatContribution', () => {
 				_meta: agentHostService.createSessionCalls[0]._meta,
 			}, {
 				config: { isolation: 'folder' },
-				_meta: { multiRoot: { workspaceFile: 'file:///workspace/demo.code-workspace' } },
+				_meta: { multiRoot: { workspaceFile: 'file:///workspace/demo.code-workspace' }, 'vscode.chatHomeWorkspace': { kind: 'workspace', uri: 'file:///workspace/demo.code-workspace' } },
 			});
 		}));
 

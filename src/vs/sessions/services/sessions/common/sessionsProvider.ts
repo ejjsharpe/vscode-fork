@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import type { ChatHomeWorkspace } from '../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { CancellationToken } from '../../../../base/common/cancellation.js';
 import type { IAgentHostManagedWorktree, IAgentHostWorktreeCleanupStatus } from '../../../../platform/agentHost/common/agentHostWorktreeCleanup.js';
 import { Event } from '../../../../base/common/event.js';
@@ -204,6 +205,8 @@ export interface IForkChatOptions {
 
 /** Provider options applied when creating a new session draft. */
 export interface ISessionsProviderCreateSessionOptions {
+	/** Explicit exact home selected by the caller. */
+	readonly homeWorkspace?: ChatHomeWorkspace;
 	/** Whether this draft configures an Automation rather than an interactive session. */
 	readonly isAutomationDraft?: boolean;
 	/** Initial provider metadata to associate with the session. */
@@ -315,6 +318,8 @@ export function getHarnessPresentationOrDefault(provider: Pick<ISessionsProvider
  * Options for {@link ISessionsProvider.createNewChat}.
  */
 export interface ICreateNewChatOptions {
+	/** Exact home chosen by the project or Agents presentation. */
+	readonly homeWorkspace?: ChatHomeWorkspace;
 	/**
 	 * The harness the new peer chat should use, chosen among the session's
 	 * `ISessionCapabilities.supportsChatHarnesses`. Absent means the session's harness.
@@ -827,6 +832,8 @@ export interface ISessionsProvider {
 	 * `prompt` names a new worktree. Rejects with a {@link NestedChatWorkspaceError} when the workspace cannot be
 	 * applied (the host refused, or the chat already started), leaving the chat as it was.
 	 */
+	/** Deliberately reassigns the existing chat without copying or sending it. */
+	setChatHomeWorkspace?(sessionId: string, chat: URI, home: ChatHomeWorkspace): Promise<void>;
 	applyNestedChatWorkspace(sessionId: string, chat: URI, workspace: INestedChatWorkspace, prompt: string): Promise<void>;
 
 	/**
