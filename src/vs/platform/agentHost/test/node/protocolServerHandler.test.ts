@@ -9295,6 +9295,34 @@ suite('ProtocolServerHandler', () => {
 			});
 		});
 
+		test('chat home requests use the recorded owner after a chat move', async () => {
+			const owner = URI.from({ scheme: 'copilot', path: '/home-owner' }).toString();
+			stateManager.createSession(makeSessionSummary());
+			stateManager.createSession(makeSessionSummary(owner));
+			const chat = buildChatUri(sessionUri, 'moved-home');
+			stateManager.addChat(owner, chat, creationTimeChatStorageResource(owner, chat, buildDefaultChatUri(owner)));
+			const home = { kind: 'workspace' as const, uri: 'file:///project/shared.code-workspace', remoteAuthority: 'ssh-remote+host' };
+			const assignments: unknown[] = [];
+			Object.assign(agentService, {
+				async getChatHomeWorkspace(session: URI, addressedChat: URI) {
+					assert.deepStrictEqual([session.toString(), addressedChat.toString()], [owner, chat]);
+					return home;
+				},
+				async setChatHomeWorkspace(session: URI, addressedChat: URI, value: unknown) {
+					assignments.push({ owner: session.toString(), chat: addressedChat.toString(), home: value });
+				},
+			});
+			const transport = connectClient('client-home', undefined, undefined, { [AgentHostSessionUrisCapabilityMetaKey]: true, [AgentHostChatUrisCapabilityMetaKey]: true });
+			const reading = waitForResponse(transport, 2);
+			transport.simulateMessage(request(2, 'vscode/getChatHomeWorkspace', { chat }));
+			const readResponse = await reading as { result?: unknown };
+			const assigning = waitForResponse(transport, 3);
+			transport.simulateMessage(request(3, 'vscode/setChatHomeWorkspace', { chat, homeWorkspace: null }));
+			await assigning;
+
+			assert.deepStrictEqual({ read: readResponse.result, assignments }, { read: { homeWorkspace: home }, assignments: [{ owner, chat, home: null }] });
+		});
+
 		test('setChatWorkspace forwards to the recorded owner of the chat and rejects invalid params', async () => {
 			const owner = URI.from({ scheme: 'copilot', path: '/workspace-owner' }).toString();
 			stateManager.createSession(makeSessionSummary());

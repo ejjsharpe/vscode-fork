@@ -10,11 +10,19 @@ import { escape } from '../../../base/common/strings.js';
 import { basename } from '../../../base/common/resources.js';
 import { IWorkspaceIdentifier, ISingleFolderWorkspaceIdentifier, isWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 import { localize } from '../../../nls.js';
+import { Emitter } from '../../../base/common/event.js';
 import { registerPrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 
 let host: electron.BrowserWindow | undefined;
 let nextId = 100000;
 let selected: number | undefined;
+const selectionChanged = new Emitter<{ previous: number | undefined; id: number }>();
+export const onDidSelectPrototypeWorkbench = selectionChanged.event;
+
+/** Resolves a native host to its selected logical workbench, including shell focus. */
+export function getSelectedPrototypeWorkbench(window: electron.BrowserWindow): number | undefined {
+	return window === host && selected !== undefined && views.has(selected) ? selected : undefined;
+}
 let shellReady = false;
 let helpHint = true;
 const views = new Map<number, { view: electron.WebContentsView; contents: electron.WebContents; label: string; path: string; agents: boolean; state?: string; retry?: () => void; close?: () => void }>();
@@ -73,8 +81,7 @@ export function replacePrototypeWorkbench(id: number, options: electron.BrowserW
 	entry.contents = view.webContents;
 	host.contentView.removeChildView(old);
 	if (!oldContents.isDestroyed()) { oldContents.close({ waitForBeforeUnload: false }); }
-	host.contentView.addChildView(view);
-	view.setVisible(selected === id);
+	view.setVisible(false);
 	if (selected === id) { selectPrototypeWorkbench(id); }
 	return view;
 }
@@ -91,13 +98,20 @@ export function selectPrototypeWorkbench(id: number): void {
 	if (!target || target.contents.isDestroyed() || !host) {
 		throw new Error(`Unknown/disposed prototype workbench ${id}`);
 	}
+	const previous = selected;
 	selected = id;
 	for (const [key, entry] of views) {
-		entry.view.setVisible(key === id);
+		if (key !== id) {
+			entry.view.setVisible(false);
+			host.contentView.removeChildView(entry.view);
+		}
 	}
+	host.contentView.addChildView(target.view);
+	target.view.setVisible(true);
 	const [width, height] = host.getContentSize();
 	target.view.setBounds({ x: 0, y: 42, width, height: Math.max(0, height - 42) });
 	target.contents.focus();
+	if (previous !== id) { selectionChanged.fire({ previous, id }); }
 	renderShell();
 	console.log('[hosting-probe] selected', JSON.stringify({ id, nativeHost: host.id, webContents: target.contents.id }));
 }
@@ -228,6 +242,10 @@ export function createPrototypeWorkbench(options: electron.BrowserWindowConstruc
 			else { views.get(id)?.close?.(); }
 		});
 		host.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+		host.on('focus', () => {
+			const contents = selected === undefined ? undefined : views.get(selected)?.contents;
+			if (contents && !contents.isDestroyed()) { contents.focus(); }
+		});
 		host.on('resize', () => {
 			const view = selected === undefined ? undefined : views.get(selected)?.view;
 			const [width, height] = host!.getContentSize();

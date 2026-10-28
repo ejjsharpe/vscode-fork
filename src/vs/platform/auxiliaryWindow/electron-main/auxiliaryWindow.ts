@@ -23,7 +23,7 @@ export class AuxiliaryWindow extends BaseWindow implements IAuxiliaryWindow {
 	override get webContents() { return this.auxiliaryWebContents; }
 
 	readonly id: number;
-	parentId = -1;
+
 
 	override get win() {
 		if (!super.win) {
@@ -39,6 +39,7 @@ export class AuxiliaryWindow extends BaseWindow implements IAuxiliaryWindow {
 		private readonly auxiliaryWebContents: WebContents,
 		private readonly windowOptions: BrowserWindowConstructorOptions | undefined,
 		private readonly disableMaximize: boolean,
+		readonly parentId: number,
 		@IEnvironmentMainService environmentMainService: IEnvironmentMainService,
 		@ILogService logService: ILogService,
 		@IConfigurationService configurationService: IConfigurationService,

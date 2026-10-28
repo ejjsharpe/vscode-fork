@@ -5796,6 +5796,17 @@ suite('SessionsManagementService', () => {
 		}]);
 	});
 
+	test('explicit home creation is refused when its provider cannot persist chat ownership', () => {
+		const session = stubSession({ sessionId: 's1', providerId: 'test' });
+		const provider = new class extends TestSessionsProvider {
+			override resolveWorkspace(): ISessionWorkspace {
+				return { uri: URI.parse('test:///folder'), label: 'Test', icon: Codicon.folder, folders: [], requiresWorkspaceTrust: false, isVirtualWorkspace: false };
+			}
+		}(session);
+		const { service } = createSessionsManagementService(session, disposables, provider);
+		assert.throws(() => service.createNewSession(URI.parse('test:///folder'), { homeWorkspace: { kind: 'folder', uri: 'test:///folder' } }), /cannot change the chat's project/);
+	});
+
 	test('createNewSession rejects permissions when the provider cannot apply them', () => {
 		const session = stubSession({ sessionId: 's1', providerId: 'test' });
 		const provider = new class extends TestSessionsProvider {
@@ -7569,6 +7580,27 @@ suite('SessionsManagementService', () => {
 	});
 
 	suite('createNewChatInSession', () => {
+
+		test('an explicit home reaches creation instead of reusing an unrelated draft', async () => {
+			const untitledChat: IChat = { ...stubChat, resource: URI.parse('test:///untitled'), status: constObservable(SessionStatus.Untitled) };
+			const session = stubSession({ sessionId: 'exact-home', providerId: 'test', chats: constObservable([untitledChat]) });
+			const homeWorkspace = { kind: 'workspace' as const, uri: 'file:///project/shared.code-workspace', remoteAuthority: 'ssh-remote+host' };
+			const createdChat: IChat = { ...stubChat, resource: URI.parse('test:///created'), homeWorkspace: constObservable(homeWorkspace) };
+			let requestedHome;
+			const provider = new class extends TestSessionsProvider {
+				constructor() { super(session); }
+				override async setChatHomeWorkspace(): Promise<void> { }
+				override async createNewChat(_sessionId?: string, _prompt?: string, options?: ICreateNewChatOptions): Promise<IChat> {
+					requestedHome = options?.homeWorkspace;
+					return createdChat;
+				}
+			};
+			const { service } = createSessionsManagementService(session, disposables, provider);
+
+			const result = await service.createNewChatInSession(session, { homeWorkspace });
+
+			assert.deepStrictEqual({ resource: result?.resource.toString(), requestedHome }, { resource: createdChat.resource.toString(), requestedHome: homeWorkspace });
+		});
 
 		test('reuses an existing untitled chat instead of creating a new one', async () => {
 			const untitledChat: IChat = { ...stubChat, resource: URI.parse('test:///untitled'), status: constObservable(SessionStatus.Untitled) };

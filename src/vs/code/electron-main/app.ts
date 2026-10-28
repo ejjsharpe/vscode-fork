@@ -8,7 +8,7 @@ import { prototypeNativeChannel, prototypeExtensionChannel, prototypeWorkerChann
 import { prototypeBrowserGroupChannel, prototypeBrowserViewChannel } from '../../platform/browserView/electron-main/prototypeBrowserChannel.js';
 
 
-import { app, BrowserWindow, desktopCapturer, globalShortcut, powerMonitor, protocol, screen as electronScreen, session, Session, systemPreferences, WebFrameMain } from 'electron';
+import { app, BrowserWindow, desktopCapturer, dialog, globalShortcut, powerMonitor, protocol, screen as electronScreen, session, Session, systemPreferences, WebFrameMain } from 'electron';
 import { addUNCHostToAllowlist, disableUNCAccessRestrictions } from '../../base/node/unc.js';
 import { validatedIpcMain } from '../../base/parts/ipc/electron-main/ipcMain.js';
 import { hostname, release } from 'os';
@@ -606,12 +606,13 @@ export class CodeApplication extends Disposable {
 			contents.setWindowOpenHandler(details => {
 
 				// about:blank windows can open with our default options
-				if (details.url === 'about:blank') {
+				const parentId = this.windowsMainService?.getWindowByWebContents(contents)?.id ?? this.auxiliaryWindowsMainService?.getWindowByWebContents(contents)?.parentId;
+				if (details.url === 'about:blank' && parentId !== undefined) {
 					this.logService.trace('[aux window] webContents#setWindowOpenHandler: Allowing auxiliary window to open on about:blank');
 
 					return {
 						action: 'allow',
-						overrideBrowserWindowOptions: this.auxiliaryWindowsMainService?.createWindow(details)
+						overrideBrowserWindowOptions: this.auxiliaryWindowsMainService?.createWindow(details, contents, parentId)
 					};
 				}
 
@@ -1276,7 +1277,7 @@ export class CodeApplication extends Disposable {
 		services.set(IAuxiliaryWindowsMainService, new SyncDescriptor(AuxiliaryWindowsMainService, undefined, false));
 
 		// Dialogs
-		const dialogMainService = new DialogMainService(this.logService, this.productService);
+		const dialogMainService = new DialogMainService(dialog, this.logService, this.productService);
 		services.set(IDialogMainService, dialogMainService);
 
 		// Launch
@@ -1503,7 +1504,7 @@ export class CodeApplication extends Disposable {
 				'onDidProgressZipFile'
 			]
 		});
-		mainProcessElectronServer.registerChannel('nativeHost', prototypeNativeChannel(nativeHostChannel, accessor.get(IWindowsMainService)));
+		mainProcessElectronServer.registerChannel('nativeHost', prototypeNativeChannel(nativeHostChannel, accessor.get(IWindowsMainService), accessor.get(IAuxiliaryWindowsMainService)));
 		sharedProcessClient.then(client => client.registerChannel('nativeHost', nativeHostChannel));
 
 		const tryoutHandoff = disposables.add(accessor.get(IInstantiationService).createInstance(OnboardingTryoutHandoff));

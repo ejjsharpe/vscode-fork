@@ -3,10 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { BrowserWindow, BrowserWindowConstructorOptions, HandlerDetails, WebContents, app } from 'electron';
+import { BrowserWindow, BrowserWindowConstructorOptions, HandlerDetails, WebContents, app, webContents as electronWebContents } from 'electron';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { Disposable, DisposableStore, toDisposable } from '../../../base/common/lifecycle.js';
 import { FileAccess } from '../../../base/common/network.js';
+import { onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply, registerPrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { validatedIpcMain } from '../../../base/parts/ipc/electron-main/ipcMain.js';
 import { AuxiliaryWindow, IAuxiliaryWindow } from './auxiliaryWindow.js';
 import { IAuxiliaryWindowsMainService } from './auxiliaryWindows.js';
@@ -36,7 +37,8 @@ export class AuxiliaryWindowsMainService extends Disposable implements IAuxiliar
 
 	private readonly windows = new Map<number /* webContents ID */, AuxiliaryWindow>();
 
-	private readonly pendingWindowOptionsQueue: { readonly options: BrowserWindowConstructorOptions; readonly disableMaximize: boolean }[] = [];
+	private readonly pendingWindowOptions = new Map<number, { opener: WebContents; generation: number | undefined; parentId: number; options: BrowserWindowConstructorOptions; disableMaximize: boolean }[]>();
+	private readonly owners = new Map<number, { opener: WebContents; generation: number | undefined }>();
 
 	constructor(
 		@IInstantiationService private readonly instantiationService: IInstantiationService,
@@ -45,6 +47,12 @@ export class AuxiliaryWindowsMainService extends Disposable implements IAuxiliar
 		super();
 
 		this.registerListeners();
+		this._register(onPrototypeDocumentRevoked(event => {
+			this.pendingWindowOptions.delete(event.contents.id);
+			for (const [id, owner] of this.owners) {
+				if (owner.opener === event.contents && owner.generation === event.generation) { this.windows.get(id)?.win?.destroy(); }
+			}
+		}));
 	}
 
 	private registerListeners(): void {
@@ -80,24 +88,31 @@ export class AuxiliaryWindowsMainService extends Disposable implements IAuxiliar
 			}
 		});
 
-		validatedIpcMain.handle('vscode:registerAuxiliaryWindow', async (event, mainWindowId: number) => {
+		validatedIpcMain.handle('vscode:registerAuxiliaryWindow', async (event, mainWindowId: number, nonce: unknown) => {
 			const auxiliaryWindow = this.getWindowByWebContents(event.sender);
 			if (auxiliaryWindow) {
 				this.logService.trace('[aux window] vscode:registerAuxiliaryWindow: Registering auxiliary window to main window');
 
-				auxiliaryWindow.parentId = mainWindowId;
+				const generation = prototypeDocumentGeneration(event.sender);
+				if (generation === undefined || !prototypeDocumentOwnsReply(event.sender, generation, event, nonce) || auxiliaryWindow.parentId !== mainWindowId) {
+					throw new Error('Rejected auxiliary parent impersonation');
+				}
 			}
 
+			if (!auxiliaryWindow) { throw new Error('Rejected unregistered auxiliary window'); }
 			return event.sender.id;
 		});
 	}
 
-	createWindow(details: HandlerDetails): BrowserWindowConstructorOptions {
+	createWindow(details: HandlerDetails, opener: WebContents, parentId: number): BrowserWindowConstructorOptions {
 		const { state, overrides, disableMaximize } = this.computeWindowStateAndOverrides(details);
 		const options = this.instantiationService.invokeFunction(defaultBrowserWindowOptions, state, overrides, {
 			preload: FileAccess.asFileUri('vs/base/parts/sandbox/electron-browser/preload-aux.js').fsPath
 		});
-		this.pendingWindowOptionsQueue.push({ options, disableMaximize });
+		if (opener.isDestroyed() || prototypeDocumentGeneration(opener) === undefined || !Number.isSafeInteger(parentId) || parentId < 0) { throw new Error('Rejected auxiliary opener'); }
+		const pending = this.pendingWindowOptions.get(opener.id) ?? [];
+		pending.push({ opener, generation: prototypeDocumentGeneration(opener), parentId, options, disableMaximize });
+		this.pendingWindowOptions.set(opener.id, pending);
 		return options;
 	}
 
@@ -167,12 +182,25 @@ export class AuxiliaryWindowsMainService extends Disposable implements IAuxiliar
 	registerWindow(webContents: WebContents): void {
 		const disposables = new DisposableStore();
 
-		const pendingWindowOptions = this.pendingWindowOptionsQueue.shift();
+		const opener = webContents.opener && electronWebContents.fromFrame(webContents.opener);
+		const pending = opener && this.pendingWindowOptions.get(opener.id);
+		const pendingWindowOptions = pending?.shift();
+		if (pending?.length === 0) { this.pendingWindowOptions.delete(opener!.id); }
+		if (!opener || webContents.opener !== opener.mainFrame || !pendingWindowOptions || pendingWindowOptions.opener !== opener || opener.isDestroyed() || prototypeDocumentGeneration(opener) !== pendingWindowOptions.generation) {
+			webContents.close({ waitForBeforeUnload: false });
+			this.logService.error('Rejected unregistered or expired auxiliary opener');
+			return;
+		}
 
-		const auxiliaryWindow = this.instantiationService.createInstance(AuxiliaryWindow, webContents, pendingWindowOptions?.options, pendingWindowOptions?.disableMaximize ?? false);
+		registerPrototypeDocument(webContents, pendingWindowOptions.parentId, { role: 'auxiliary' });
+		const auxiliaryWindow = this.instantiationService.createInstance(AuxiliaryWindow, webContents, pendingWindowOptions.options, pendingWindowOptions.disableMaximize, pendingWindowOptions.parentId);
+		this.owners.set(auxiliaryWindow.id, { opener, generation: pendingWindowOptions.generation });
 
 		this.windows.set(auxiliaryWindow.id, auxiliaryWindow);
-		disposables.add(toDisposable(() => this.windows.delete(auxiliaryWindow.id)));
+		disposables.add(toDisposable(() => {
+			this.windows.delete(auxiliaryWindow.id);
+			this.owners.delete(auxiliaryWindow.id);
+		}));
 
 		disposables.add(auxiliaryWindow.onDidMaximize(() => this._onDidMaximizeWindow.fire(auxiliaryWindow)));
 		disposables.add(auxiliaryWindow.onDidUnmaximize(() => this._onDidUnmaximizeWindow.fire(auxiliaryWindow)));
@@ -187,7 +215,8 @@ export class AuxiliaryWindowsMainService extends Disposable implements IAuxiliar
 	getWindowByWebContents(webContents: WebContents): AuxiliaryWindow | undefined {
 		const window = this.windows.get(webContents.id);
 
-		return window?.matches(webContents) ? window : undefined;
+		const owner = this.owners.get(webContents.id);
+		return !webContents.isDestroyed() && window?.matches(webContents) && owner && !owner.opener.isDestroyed() && prototypeDocumentGeneration(owner.opener) === owner.generation ? window : undefined;
 	}
 
 	getFocusedWindow(): IAuxiliaryWindow | undefined {

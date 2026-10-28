@@ -50,10 +50,11 @@ import { IConfigurationService } from '../../configuration/common/configuration.
 import { IProxyAuthService } from './auth.js';
 import { AuthInfo, Credentials, IRequestService } from '../../request/common/request.js';
 import { randomPath } from '../../../base/common/extpath.js';
+import { prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { CancellationToken, CancellationTokenSource } from '../../../base/common/cancellation.js';
 import { GPUCompositingState } from './gpuCompositingState.js';
 import { AgentHostEditorUpdate, AgentsWindowInvitationState, IAgentHostEditorState, IAgentsWindowInvitation } from '../../chat/common/agentsWindowInvitation.js';
-import { focusPrototypeProjectTabs } from '../../windows/electron-main/prototypeWorkbenchHost.js';
+import { focusPrototypeProjectTabs, onDidSelectPrototypeWorkbench } from '../../windows/electron-main/prototypeWorkbenchHost.js';
 import { IApplicationStorageMainService } from '../../storage/electron-main/storageMainService.js';
 
 export interface INativeHostMainService extends AddFirstParameterToFunctions<ICommonNativeHostService, Promise<unknown> /* only methods, not events */, number | undefined /* window ID */> { }
@@ -120,10 +121,14 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 				Event.map(this.auxiliaryWindowsMainService.onDidChangeAlwaysOnTop, e => ({ windowId: e.window.id, alwaysOnTop: e.alwaysOnTop }))
 			);
 
-			this.onDidBlurMainWindow = Event.filter(Event.fromNodeEventEmitter(app, 'browser-window-blur', (event, window: BrowserWindow) => window.id), windowId => !!this.windowsMainService.getWindowById(windowId));
+			this.onDidBlurMainWindow = Event.any(
+				Event.map(Event.filter(Event.fromNodeEventEmitter(app, 'browser-window-blur', (event, window: BrowserWindow) => this.windowsMainService.getWindowByBrowserWindow(window)), window => !!window), window => window!.id),
+				Event.map(Event.filter(onDidSelectPrototypeWorkbench, event => event.previous !== undefined), event => event.previous!)
+			);
 			this.onDidFocusMainWindow = Event.any(
 				Event.map(Event.filter(Event.map(this.windowsMainService.onDidChangeWindowsCount, () => this.windowsMainService.getLastActiveWindow()), window => !!window), window => window!.id),
-				Event.filter(Event.fromNodeEventEmitter(app, 'browser-window-focus', (event, window: BrowserWindow) => window.id), windowId => !!this.windowsMainService.getWindowById(windowId))
+				Event.map(Event.filter(Event.fromNodeEventEmitter(app, 'browser-window-focus', (event, window: BrowserWindow) => this.windowsMainService.getWindowByBrowserWindow(window)), window => !!window), window => window!.id),
+				Event.map(onDidSelectPrototypeWorkbench, event => event.id)
 			);
 
 			this.onDidBlurMainOrAuxiliaryWindow = Event.any(
@@ -449,8 +454,9 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 		window?.win?.setAlwaysOnTop(alwaysOnTop);
 	}
 
-	async positionWindow(windowId: number | undefined, position: IRectangle, options?: INativeHostOptions): Promise<void> {
+	async positionWindow(windowId: number | undefined, position: IRectangle, options?: INativeHostOptions, validateCaller?: () => void): Promise<void> {
 		const window = this.windowById(options?.targetWindowId, windowId);
+		const validateOwner = this.validateWindowOwner(window, validateCaller);
 		if (window?.win) {
 			if (window.win.isFullScreen()) {
 				const fullscreenLeftFuture = Event.toPromise(Event.once(Event.fromNodeEventEmitter(window.win, 'leave-full-screen')));
@@ -458,6 +464,7 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 				await fullscreenLeftFuture;
 			}
 
+			validateOwner();
 			window.win.setBounds(position);
 		}
 	}
@@ -646,19 +653,30 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 
 	//#region Dialog
 
-	async showMessageBox(windowId: number | undefined, options: MessageBoxOptions & INativeHostOptions): Promise<MessageBoxReturnValue> {
-		const window = this.windowById(options?.targetWindowId, windowId);
-		return this.dialogMainService.showMessageBox(options, window?.win ?? undefined);
+	private validateWindowOwner(window: ICodeWindow | IAuxiliaryWindow | undefined, validateCaller?: () => void): () => void {
+		const contents = window?.webContents;
+		const generation = contents && prototypeDocumentGeneration(contents);
+		return () => {
+			validateCaller?.();
+			if (contents && (contents.isDestroyed() || window?.webContents !== contents || prototypeDocumentGeneration(contents) !== generation)) {
+				throw new Error('Rejected expired dialog owner');
+			}
+		};
 	}
 
-	async showSaveDialog(windowId: number | undefined, options: SaveDialogOptions & INativeHostOptions): Promise<SaveDialogReturnValue> {
+	async showMessageBox(windowId: number | undefined, options: MessageBoxOptions & INativeHostOptions, validateCaller?: () => void): Promise<MessageBoxReturnValue> {
 		const window = this.windowById(options?.targetWindowId, windowId);
-		return this.dialogMainService.showSaveDialog(options, window?.win ?? undefined);
+		return this.dialogMainService.showMessageBox(options, window?.win ?? undefined, this.validateWindowOwner(window, validateCaller));
 	}
 
-	async showOpenDialog(windowId: number | undefined, options: OpenDialogOptions & INativeHostOptions): Promise<OpenDialogReturnValue> {
+	async showSaveDialog(windowId: number | undefined, options: SaveDialogOptions & INativeHostOptions, validateCaller?: () => void): Promise<SaveDialogReturnValue> {
 		const window = this.windowById(options?.targetWindowId, windowId);
-		return this.dialogMainService.showOpenDialog(options, window?.win ?? undefined);
+		return this.dialogMainService.showSaveDialog(options, window?.win ?? undefined, this.validateWindowOwner(window, validateCaller));
+	}
+
+	async showOpenDialog(windowId: number | undefined, options: OpenDialogOptions & INativeHostOptions, validateCaller?: () => void): Promise<OpenDialogReturnValue> {
+		const window = this.windowById(options?.targetWindowId, windowId);
+		return this.dialogMainService.showOpenDialog(options, window?.win ?? undefined, this.validateWindowOwner(window, validateCaller));
 	}
 
 	async pickFileFolderAndOpen(windowId: number | undefined, options: INativeOpenDialogOptions): Promise<void> {
@@ -1437,13 +1455,13 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 
 	// #region Performance
 
-	async profileRenderer(windowId: number | undefined, session: string, duration: number): Promise<IV8Profile> {
+	async profileRenderer(windowId: number | undefined, session: string, duration: number, validateCaller?: () => void): Promise<IV8Profile> {
 		const window = this.codeWindowById(windowId);
 		if (!window?.win) {
 			throw new Error();
 		}
 
-		const profiler = new WindowProfiler(window.win, session, this.logService);
+		const profiler = new WindowProfiler(window.webContents, session, this.validateWindowOwner(window, validateCaller), this.logService);
 		const result = await profiler.inspect(duration);
 		return result;
 	}

@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { CHAT_HOME_WORKSPACE_METADATA_KEY, chatHomeWorkspaceValidator } from '../../workspace/common/chatHomeWorkspace.js';
 import { equals } from '../../../base/common/arrays.js';
 import { toErrorMessage } from '../../../base/common/errorMessage.js';
 import { Limiter, RunOnceScheduler } from '../../../base/common/async.js';
@@ -645,6 +646,13 @@ export class AgentHostPeerChatStore implements IAgentHostPeerChatPersistenceServ
 			return { metadata: { ...chat.metadata, changes: changes?.content } };
 		}
 		switch (key) {
+			case CHAT_HOME_WORKSPACE_METADATA_KEY: {
+				const home = chatHomeWorkspaceValidator.validate(JSON.parse(value));
+				if (home.error) {
+					throw new Error(home.error.message);
+				}
+				return { metadata: { ...chat.metadata, homeWorkspace: home.content } };
+			}
 			case CHAT_PROVIDER_DATA_METADATA_KEY: return { providerData: value || null };
 			case CHAT_ORIGIN_METADATA_KEY: return { origin: value || null };
 			case CHAT_INHERITED_TURN_METADATA_KEY: return { inheritedTurnId: value || null };

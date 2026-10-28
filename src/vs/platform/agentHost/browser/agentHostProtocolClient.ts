@@ -5,6 +5,8 @@
 
 // Protocol client for communicating with an agent host process.
 
+import { CHAT_HOME_WORKSPACE_METADATA_KEY, ChatHomeWorkspace, chatHomeWorkspaceValidator } from '../../workspace/common/chatHomeWorkspace.js';
+import { readInitialChatHomeWorkspaceMeta, supportsAgentHostChatHomeWorkspace } from '../common/meta/agentChatHomeWorkspaceMeta.js';
 import { supportsSandboxCertificateInstallation, supportsSandboxCertificateRemoval, supportsSandboxCertificateRotation } from '../common/meta/agentSandboxCertificate.js';
 import { InstallSandboxCertificateExtensionMethod, RemoveSandboxCertificateExtensionMethod, RotateSandboxCertificateExtensionMethod } from '../common/sandboxCertificateProtocol.js';
 import { DeferredPromise, disposableTimeout, IntervalTimer, raceCancellationError, TimeoutTimer } from '../../../base/common/async.js';
@@ -42,7 +44,7 @@ import { AGENT_HOST_DEBUG_LOGS_CHUNK_BYTES, AGENT_HOST_DEBUG_LOGS_MAX_ENTRIES, I
 import { readAgentHostAuthenticationEncryption, type IAgentHostAuthenticationEncryption } from '../common/meta/agentHostAuthenticationEncryption.js';
 import { sealAgentHostCredential } from './agentHostCredentialSealing.js';
 import { supportsAgentHostDebugLogsCancellation } from '../common/meta/agentHostDebugLogsMeta.js';
-import { AcknowledgeAutomationDeletionExtensionMethod, CancelWorktreeDiskUsageExtensionMethod, MeasureWorktreeDiskUsageExtensionMethod, AgentHostSessionMoveUnsupportedError, MoveAgentHostSessionExtensionMethod, supportsAgentHostSessionMove, CompleteSavedChatContinuationExtensionMethod, CancelAgentHostDebugLogsExtensionMethod, ClaimAgentHostDetachedWorktreeExtensionMethod, CollectAgentHostDebugLogsExtensionMethod, CreateAgentHostDetachedWorktreeExtensionMethod, DeleteAgentHostDetachedWorktreeExtensionMethod, GetAgentHostSessionStateFileExtensionMethod, ImportSessionExtensionMethod, ListAgentExtensionsExtensionMethod, ReadAgentHostDebugLogsChunkExtensionMethod, ReconcileAgentHostDetachedWorktreesExtensionMethod, RemoveSessionArtifactExtensionMethod, ReportAgentHostFirstResponseExtensionMethod, ReportChatUserInteractionExtensionMethod, RequestAgentHostMcpAuthenticationExtensionMethod, RequestAgentHostWorkspaceTrustExtensionMethod, SetAgentExtensionEnabledExtensionMethod, SetAgentHostDetachedWorktreeArchivedExtensionMethod, SetChatWorkspaceExtensionMethod, StopBackgroundWorkExtensionMethod, DeleteAutomationExtensionMethod, supportsAgentHostChatStateFile, supportsAgentHostCreateChatWorkspace, supportsAgentHostDevContainers, type IAgentHostExtensionCommandMap, type IAgentHostExtensionInitializeResult, type IAgentHostExtensionServerCommandMap, type IAgentHostMcpAuthenticationRequest, ReadSavedChatExtensionMethod, ArtifactIntegrationExtensionMethod, ArtifactIntegrationUpdateNotification, ClientArtifactIntegrationExtensionMethod, ClientArtifactIntegrationUpdateExtensionMethod, RegisterClientArtifactIntegrationsExtensionMethod } from '../common/agentHostExtensionProtocol.js';
+import { AcknowledgeAutomationDeletionExtensionMethod, CancelWorktreeDiskUsageExtensionMethod, MeasureWorktreeDiskUsageExtensionMethod, AgentHostSessionMoveUnsupportedError, MoveAgentHostSessionExtensionMethod, supportsAgentHostSessionMove, CompleteSavedChatContinuationExtensionMethod, CancelAgentHostDebugLogsExtensionMethod, ClaimAgentHostDetachedWorktreeExtensionMethod, CollectAgentHostDebugLogsExtensionMethod, CreateAgentHostDetachedWorktreeExtensionMethod, DeleteAgentHostDetachedWorktreeExtensionMethod, GetAgentHostSessionStateFileExtensionMethod, ImportSessionExtensionMethod, ListAgentExtensionsExtensionMethod, ReadAgentHostDebugLogsChunkExtensionMethod, ReconcileAgentHostDetachedWorktreesExtensionMethod, RemoveSessionArtifactExtensionMethod, ReportAgentHostFirstResponseExtensionMethod, ReportChatUserInteractionExtensionMethod, RequestAgentHostMcpAuthenticationExtensionMethod, RequestAgentHostWorkspaceTrustExtensionMethod, SetAgentExtensionEnabledExtensionMethod, SetAgentHostDetachedWorktreeArchivedExtensionMethod, GetChatHomeWorkspaceExtensionMethod, SetChatHomeWorkspaceExtensionMethod, SetChatWorkspaceExtensionMethod, StopBackgroundWorkExtensionMethod, DeleteAutomationExtensionMethod, supportsAgentHostChatStateFile, supportsAgentHostCreateChatWorkspace, supportsAgentHostDevContainers, type IAgentHostExtensionCommandMap, type IAgentHostExtensionInitializeResult, type IAgentHostExtensionServerCommandMap, type IAgentHostMcpAuthenticationRequest, ReadSavedChatExtensionMethod, ArtifactIntegrationExtensionMethod, ArtifactIntegrationUpdateNotification, ClientArtifactIntegrationExtensionMethod, ClientArtifactIntegrationUpdateExtensionMethod, RegisterClientArtifactIntegrationsExtensionMethod } from '../common/agentHostExtensionProtocol.js';
 import { supportsAgentHostAutomationHistory } from '../common/meta/agentHostAutomationsMeta.js';
 import { supportsAgentHostCopilotExtensions } from '../common/meta/agentHostCopilotExtensionsMeta.js';
 import { supportsAgentHostSavedChat, supportsAgentHostSavedChatContinuation } from '../common/meta/agentHostSavedChatMeta.js';
@@ -2006,6 +2008,13 @@ export class AgentHostProtocolClient extends Disposable implements IAgentConnect
 	 * Create a new session on the remote agent host.
 	 */
 	createSession(config?: IAgentCreateSessionConfig): Promise<URI> {
+		const home = readInitialChatHomeWorkspaceMeta(config);
+		if (home === 'invalid') {
+			throw new Error('Invalid chat home workspace');
+		}
+		if (home !== undefined) {
+			this._requireChatHomeWorkspace();
+		}
 		const provider = config?.provider;
 		if (!provider) {
 			throw new Error('Cannot create remote agent host session without a provider.');
@@ -2653,6 +2662,9 @@ export class AgentHostProtocolClient extends Disposable implements IAgentConnect
 	}
 
 	async createChat(session: URI, chat: URI, options?: IAgentCreateChatRequestOptions): Promise<void> {
+		if (options?.homeWorkspace !== undefined) {
+			this._requireChatHomeWorkspace();
+		}
 		const workspace = options?.workspace;
 		// A host that does not advertise the extension would ignore the request and create a chat in the session's workspace.
 		if (workspace && !supportsAgentHostCreateChatWorkspace(this._initializeResult.get())) {
@@ -2683,10 +2695,40 @@ export class AgentHostProtocolClient extends Disposable implements IAgentConnect
 					...(options.sideChat.selection ? { selection: options.sideChat.selection } : {}),
 				}
 			} : {}),
-			...(workspace ? {
-				_meta: withCreateChatWorkspaceMeta(undefined, workspace.kind === 'folder' ? { ...workspace, folder: fromAgentHostUri(workspace.folder) } : workspace),
+			...(workspace || options?.homeWorkspace !== undefined ? {
+				_meta: { ...(workspace ? withCreateChatWorkspaceMeta(undefined, workspace.kind === 'folder' ? { ...workspace, folder: fromAgentHostUri(workspace.folder) } : workspace) : {}), ...(options?.homeWorkspace !== undefined ? { [CHAT_HOME_WORKSPACE_METADATA_KEY]: options.homeWorkspace } : {}) },
 			} : {}),
 		});
+	}
+
+	async getChatHomeWorkspace(chat: URI): Promise<ChatHomeWorkspace | undefined> {
+		if (!supportsAgentHostChatHomeWorkspace(this._initializeResult.get())) {
+			return undefined;
+		}
+		const result = await this._sendExtensionRequest(GetChatHomeWorkspaceExtensionMethod, { chat: chat.toString() });
+		if (result.homeWorkspace === undefined) {
+			return undefined;
+		}
+		const validated = chatHomeWorkspaceValidator.validate(result.homeWorkspace);
+		if (validated.error) {
+			throw new Error(validated.error.message);
+		}
+		return validated.content;
+	}
+
+	async setChatHomeWorkspace(chat: URI, home: ChatHomeWorkspace): Promise<void> {
+		this._requireChatHomeWorkspace();
+		const validated = chatHomeWorkspaceValidator.validate(home);
+		if (validated.error) {
+			throw new Error(validated.error.message);
+		}
+		await this._sendExtensionRequest(SetChatHomeWorkspaceExtensionMethod, { chat: chat.toString(), homeWorkspace: validated.content });
+	}
+
+	private _requireChatHomeWorkspace(): void {
+		if (!supportsAgentHostChatHomeWorkspace(this._initializeResult.get())) {
+			throw new Error(localize('agentHost.chatHomeWorkspaceUnsupported', "This agent host can't persist a chat's project."));
+		}
 	}
 
 	async setChatWorkspace(chat: URI, workspace: IAgentCreateChatWorkspace): Promise<void> {

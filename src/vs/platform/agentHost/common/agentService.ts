@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import type { IV8Profile } from '../../profiling/common/profiling.js';
+import type { ChatHomeWorkspace } from '../../workspace/common/chatHomeWorkspace.js';
 import type { AgentChatMoveDestination } from './agentHostChatMove.js';
 import type { IAgentHostManagedWorktree, IAgentHostWorktreeCleanupStatus } from './agentHostWorktreeCleanup.js';
 import type { CancellationToken } from '../../../base/common/cancellation.js';
@@ -1088,6 +1089,10 @@ export interface IAgentService {
 	 * backing to it. Throws, leaving the chat unchanged, for the default chat, a forked, side or spawned chat, a chat
 	 * with a turn or pending message, or a provider that can't give a chat its own working directory.
 	 */
+	/** Reads exact per-chat ownership without attaching a presentation or starting execution. */
+	getChatHomeWorkspace?(session: URI, chat: URI): Promise<ChatHomeWorkspace | undefined>;
+	/** Records an explicit assignment without changing the conversation or granting tool access. */
+	setChatHomeWorkspace?(session: URI, chat: URI, home: ChatHomeWorkspace): Promise<void>;
 	setChatWorkspace(session: URI, chat: URI, workspace: IAgentCreateChatWorkspace, credentials?: IAgentHostCredentialSource): Promise<void>;
 
 	/** Dispose an additional chat created via {@link createChat}. */
@@ -1553,6 +1558,8 @@ export interface IAgentConnection {
 	 * the folder, worktree or scratch folder and rebinds the chat to it. Rejects
 	 * without a request when the host doesn't advertise `vscode.createChatWorkspace`.
 	 */
+	getChatHomeWorkspace?(chat: URI): Promise<ChatHomeWorkspace | undefined>;
+	setChatHomeWorkspace?(chat: URI, home: ChatHomeWorkspace): Promise<void>;
 	setChatWorkspace(chat: URI, workspace: IAgentCreateChatWorkspace): Promise<void>;
 	/** Dispose an additional chat created via {@link createChat}. */
 	disposeChat(chat: URI): Promise<void>;
