@@ -1,0 +1,9 @@
+{
+  "realRendererPopupAdapter": true,
+  "realNativeMenu": true,
+  "programmaticNativeDismissal": true,
+  "result": {
+    "hidden": 1,
+    "clicked": 0
+  }
+}

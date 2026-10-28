@@ -1,0 +1,53 @@
+{
+  "startupPassed": false,
+  "events": [
+    {
+      "kind": "lifecycle-ready",
+      "at": 1793208429114
+    },
+    {
+      "kind": "dispatch",
+      "at": 1793208429114
+    },
+    {
+      "kind": "renderer",
+      "message": "[diagnostic-startup-trace] receiver installed 1793208431708",
+      "at": 1793208431708
+    },
+    {
+      "kind": "first-outcome",
+      "at": 1793208434116,
+      "result": [
+        {
+          "hostName": "startup-probe",
+          "errorMessage": "Connection to 'startup-probe' could not be established"
+        }
+      ]
+    },
+    {
+      "kind": "dispatch",
+      "at": 1793208434117
+    },
+    {
+      "kind": "renderer",
+      "message": "[diagnostic-startup-trace] request received 1793208434118",
+      "at": 1793208434119
+    },
+    {
+      "kind": "later-outcome",
+      "at": 1793208434119,
+      "result": [
+        {
+          "hostName": "startup-probe",
+          "errorMessage": "Unable to resolve connection to 'startup-probe'."
+        }
+      ]
+    }
+  ],
+  "remainingListeners": [
+    0,
+    0
+  ],
+  "neighbourUnchanged": true,
+  "syntheticRemoteAuthority": true
+}

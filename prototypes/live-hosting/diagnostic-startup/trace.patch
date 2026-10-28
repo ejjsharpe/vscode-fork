@@ -1,0 +1,6 @@
+--- a/src/vs/workbench/contrib/remote/electron-browser/remote.contribution.ts
++++ b/src/vs/workbench/contrib/remote/electron-browser/remote.contribution.ts
+@@ -44,0 +45 @@
++		console.info('[diagnostic-startup-trace] receiver installed', Date.now());
+@@ -45,0 +47 @@
++			console.info('[diagnostic-startup-trace] request received', Date.now());

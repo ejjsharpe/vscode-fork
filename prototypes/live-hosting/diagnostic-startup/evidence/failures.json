@@ -1,0 +1,35 @@
+{
+  "failures": [
+    {
+      "case": "detached launch inspector unavailable",
+      "outcome": "ECONNREFUSED",
+      "repair": "retain launch terminal",
+      "rerun": "connected"
+    },
+    {
+      "case": "initial timing harness",
+      "outcome": "inspector timeout",
+      "repair": "correct console signature and increase overall harness bound",
+      "rerun": "baseline reproduced"
+    },
+    {
+      "case": "legacy contribution Starting phase",
+      "outcome": "receiver installation deadline failed",
+      "repair": "supported registerWorkbenchContribution2 BlockStartup API",
+      "rerun": "startup passed"
+    },
+    {
+      "case": "first final transition probe",
+      "outcome": "20-second lifecycle-ready deadline failed after metadata interruption checks",
+      "repair": "none; inspect and rerun unchanged",
+      "rerun": "passed",
+      "causeEstablished": false
+    },
+    {
+      "case": "menu baseline harness return value",
+      "outcome": "object could not be cloned",
+      "repair": "return boolean after installing listeners",
+      "rerun": "baseline stale dismissal reproduced"
+    }
+  ]
+}

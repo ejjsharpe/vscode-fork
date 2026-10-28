@@ -1,0 +1,43 @@
+{
+  "startupPassed": true,
+  "events": [
+    {
+      "kind": "lifecycle-ready",
+      "at": 1793208895964
+    },
+    {
+      "kind": "dispatch",
+      "at": 1793208895965
+    },
+    {
+      "kind": "first-outcome",
+      "at": 1793208896026,
+      "result": [
+        {
+          "hostName": "startup-probe",
+          "errorMessage": "Unable to resolve connection to 'startup-probe'."
+        }
+      ]
+    },
+    {
+      "kind": "dispatch",
+      "at": 1793208896026
+    },
+    {
+      "kind": "later-outcome",
+      "at": 1793208896030,
+      "result": [
+        {
+          "hostName": "startup-probe",
+          "errorMessage": "Unable to resolve connection to 'startup-probe'."
+        }
+      ]
+    }
+  ],
+  "remainingListeners": [
+    0,
+    0
+  ],
+  "neighbourUnchanged": true,
+  "syntheticRemoteAuthority": true
+}

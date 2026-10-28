@@ -1,0 +1,17 @@
+{
+  "replacementReceivedOldCallbacks": true,
+  "received": [
+    {
+      "kind": "click",
+      "args": [
+        -1
+      ]
+    },
+    {
+      "kind": "close",
+      "id": 91420
+    }
+  ],
+  "realRendererIPC": true,
+  "nativePopupHeldAndCallbacksInvokedByProbe": true
+}

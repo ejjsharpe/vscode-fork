@@ -1,0 +1,58 @@
+{
+  "startupPassed": true,
+  "events": [
+    {
+      "kind": "renderer",
+      "message": "[diagnostic-startup-trace] receiver installed 1793208506867",
+      "at": 1793208506867
+    },
+    {
+      "kind": "lifecycle-ready",
+      "at": 1793208507015
+    },
+    {
+      "kind": "dispatch",
+      "at": 1793208507015
+    },
+    {
+      "kind": "renderer",
+      "message": "[diagnostic-startup-trace] request received 1793208507137",
+      "at": 1793208507137
+    },
+    {
+      "kind": "first-outcome",
+      "at": 1793208507137,
+      "result": [
+        {
+          "hostName": "startup-probe",
+          "errorMessage": "Unable to resolve connection to 'startup-probe'."
+        }
+      ]
+    },
+    {
+      "kind": "dispatch",
+      "at": 1793208507137
+    },
+    {
+      "kind": "renderer",
+      "message": "[diagnostic-startup-trace] request received 1793208507146",
+      "at": 1793208507147
+    },
+    {
+      "kind": "later-outcome",
+      "at": 1793208507147,
+      "result": [
+        {
+          "hostName": "startup-probe",
+          "errorMessage": "Unable to resolve connection to 'startup-probe'."
+        }
+      ]
+    }
+  ],
+  "remainingListeners": [
+    0,
+    0
+  ],
+  "neighbourUnchanged": true,
+  "syntheticRemoteAuthority": true
+}

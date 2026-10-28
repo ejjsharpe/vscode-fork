@@ -1,0 +1,11 @@
+{
+  "realWirePrebootstrapSend": true,
+  "received": [
+    {
+      "senderMatches": true,
+      "credentialType": "undefined",
+      "readyState": "interactive"
+    }
+  ],
+  "noDelayedCredentialledReplay": true
+}
