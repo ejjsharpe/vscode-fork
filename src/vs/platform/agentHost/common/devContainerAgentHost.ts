@@ -3,11 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { extUriBiasedIgnorePathCase } from '../../../base/common/resources.js';
+import { URI } from '../../../base/common/uri.js';
+import { localize } from '../../../nls.js';
 import { Event } from '../../../base/common/event.js';
 import { CancellationToken } from '../../../base/common/cancellation.js';
 import { createDecorator } from '../../instantiation/common/instantiation.js';
 import { IRelayChannel } from './relayTransport.js';
-import { IDevContainerRepository, IDevContainerSampleSource } from './devContainerSamples.js';
+import { devContainerSamples, devContainerSampleUri, IDevContainerRepository, IDevContainerSampleSource } from './devContainerSamples.js';
 
 export const DEV_CONTAINER_AGENT_HOST_CHANNEL = 'devContainerAgentHost';
 export const VSCODE_REMOTE_CONTAINERS_SESSION_ENV = 'VSCODE_REMOTE_CONTAINERS_SESSION';
@@ -74,8 +77,20 @@ export interface IDevContainerAgentHostMainService extends IRelayChannel {
 	isDockerAvailable(): Promise<boolean>;
 	/** Local desktop discovery only; not exposed by remote protocol clients. */
 	listDevContainers?(token: CancellationToken): Promise<readonly IDiscoveredDevContainer[]>;
-	connect(config: IDevContainerAgentHostConfig): Promise<IDevContainerAgentHostConnectResult>;
+	connect(config: IDevContainerAgentHostConfig, token?: CancellationToken): Promise<IDevContainerAgentHostConnectResult>;
 	disconnect(connectionId: string): Promise<void>;
-	stopContainer(source: string | IDevContainerSampleSource): Promise<boolean>;
-	removeContainer(source: string | IDevContainerSampleSource): Promise<boolean>;
+	stopContainer(source: string | IDevContainerSampleSource, token?: CancellationToken, validate?: () => void): Promise<boolean>;
+	removeContainer(source: string | IDevContainerSampleSource, token?: CancellationToken, validate?: () => void): Promise<boolean>;
+}
+
+/** Stable source identity used by container operations and IPC ownership checks. */
+export function getDevContainerAgentHostSourceKey(source: string | IDevContainerSampleSource): string {
+	if (typeof source === 'string') {
+		return extUriBiasedIgnorePathCase.getComparisonKey(URI.file(source));
+	}
+	const sample = devContainerSamples.find(sample => sample.id === source.sampleId);
+	if (!sample) {
+		throw new Error(localize('devContainerAgentHost.unknownSample', "Unknown Dev Container sample: {0}", source.sampleId));
+	}
+	return devContainerSampleUri(sample).toString();
 }

@@ -6,6 +6,7 @@
 import assert from 'assert';
 import * as cp from 'child_process';
 import { EventEmitter } from 'events';
+import { CancellationTokenSource } from '../../../../base/common/cancellation.js';
 import { DeferredPromise, timeout } from '../../../../base/common/async.js';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/common/utils.js';
 import { runWithFakedTimers } from '../../../../base/test/common/timeTravelScheduler.js';
@@ -105,6 +106,33 @@ function createService(): TestableWSLRemoteAgentHostMainService {
 
 suite('WSL Remote Agent Host Service', () => {
 	const disposables = ensureNoDisposablesAreLeakedInTestSuite();
+
+	test('does not spawn a remote host after its pending owner expires', async () => {
+		const service = disposables.add(createService());
+		const source = disposables.add(new CancellationTokenSource());
+		const connecting = service.connect({ distro: 'Ubuntu', name: 'Ubuntu' }, source.token);
+		source.cancel();
+		service.resolvePlatform();
+		await Promise.resolve();
+		service.children[0]?.emitStdout('ws://127.0.0.1:3000?tkn=token\n');
+		await assert.rejects(connecting, error => error instanceof Error && error.name === 'Canceled');
+		assert.strictEqual(service.children.length, 0);
+	});
+
+	test('one expired caller cannot cancel the other caller sharing its bootstrap', async () => {
+		const service = disposables.add(createService());
+		const source = disposables.add(new CancellationTokenSource());
+		const first = service.connect({ distro: 'Ubuntu', name: 'Ubuntu' }, source.token);
+		const rejected = assert.rejects(first, error => error instanceof Error && error.name === 'Canceled');
+		const second = service.connect({ distro: 'Ubuntu', name: 'Ubuntu' });
+		source.cancel();
+		service.resolvePlatform();
+		await Promise.resolve();
+		service.children[0].emitStdout('ws://127.0.0.1:3000?tkn=token\n');
+		await rejected;
+		const connection = await second;
+		assert.deepStrictEqual({ address: connection.address, killed: service.children[0].killCalls, relays: service.webSockets.length }, { address: 'wsl:Ubuntu', killed: 0, relays: 1 });
+	});
 
 	test('shares one bootstrap while allocating separate relay leases', async () => {
 		const service = disposables.add(createService());
@@ -264,14 +292,14 @@ suite('WSL Remote Agent Host Service', () => {
 		});
 	}
 
-	test('WebSocket open failure on an existing session closes all leases and the next connect re-bootstraps', async () => {
+	test('a failed relay acquisition preserves existing leases and the shared bootstrap', async () => {
 		const service = disposables.add(createService());
 		const first = service.connect({ distro: 'Ubuntu', name: 'Ubuntu' });
 		service.resolvePlatform();
 		await Promise.resolve();
 		service.children[0].emitStdout('ws://127.0.0.1:3000?tkn=token\n');
 		const firstResult = await first;
-		const other = await service.connect({ distro: 'Ubuntu', name: 'Ubuntu' });
+		await service.connect({ distro: 'Ubuntu', name: 'Ubuntu' });
 		const closed: string[] = [];
 		const relayClosed: string[] = [];
 		disposables.add(service.onDidCloseConnection(id => closed.push(id)));
@@ -284,25 +312,20 @@ suite('WSL Remote Agent Host Service', () => {
 		pendingSocket.error(new Error('dead endpoint'));
 		await rejected;
 
-		const replacement = service.connect({ distro: 'Ubuntu', name: 'Ubuntu' });
-		await Promise.resolve();
-		service.children[1].emitStdout('ws://127.0.0.1:3001?tkn=new-token\n');
-		await replacement;
+		await service.connect({ distro: 'Ubuntu', name: 'Ubuntu' });
 
 		assert.deepStrictEqual({
 			closed,
 			relayClosed,
 			spawnCount: service.children.length,
 			oldKillCalls: service.children[0].killCalls,
-			replacementKillCalls: service.children[1].killCalls,
 			urls: service.webSocketUrls,
 		}, {
-			closed: [firstResult.connectionId, other.connectionId],
-			relayClosed: [firstResult.connectionId, firstResult.connectionId, other.connectionId],
-			spawnCount: 2,
-			oldKillCalls: 1,
-			replacementKillCalls: 0,
-			urls: ['ws://127.0.0.1:3000?tkn=token', 'ws://127.0.0.1:3000?tkn=token', 'ws://127.0.0.1:3000?tkn=token', 'ws://127.0.0.1:3001?tkn=new-token'],
+			closed: [],
+			relayClosed: [firstResult.connectionId],
+			spawnCount: 1,
+			oldKillCalls: 0,
+			urls: ['ws://127.0.0.1:3000?tkn=token', 'ws://127.0.0.1:3000?tkn=token', 'ws://127.0.0.1:3000?tkn=token', 'ws://127.0.0.1:3000?tkn=token'],
 		});
 	});
 

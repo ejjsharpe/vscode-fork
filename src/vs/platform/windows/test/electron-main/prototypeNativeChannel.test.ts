@@ -8,7 +8,7 @@ import { EventEmitter } from 'events';
 import sinon from 'sinon';
 import type { WebContents } from 'electron';
 import { Event } from '../../../../base/common/event.js';
-import { toDisposable } from '../../../../base/common/lifecycle.js';
+import { DisposableStore, toDisposable } from '../../../../base/common/lifecycle.js';
 import { IServerChannel } from '../../../../base/parts/ipc/common/ipc.js';
 import { bindPrototypeConnection, registerPrototypeDocument, revokePrototypeConnection } from '../../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { upcastPartial } from '../../../../base/test/common/mock.js';
@@ -93,7 +93,7 @@ suite('Hosted native command ownership', () => {
 			},
 			listen: () => Event.None
 		};
-		const channel = prototypeExtensionChannel(source, windows, store);
+		const channel = prototypeExtensionChannel(source, windows, store.add(new DisposableStore()));
 		await channel.call(parent.context, 'createExtensionHost', []);
 		await assert.rejects(channel.call(other.context, 'startCpuProfile', ['owned-process']), /extension-host owner\/lifetime/);
 		assert.strictEqual(await channel.call(parent.context, 'startCpuProfile', ['owned-process']), 'owned-profile');

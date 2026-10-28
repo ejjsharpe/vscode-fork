@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { CancellationToken } from '../../../base/common/cancellation.js';
 import { Event } from '../../../base/common/event.js';
 import { IDisposable } from '../../../base/common/lifecycle.js';
 import { createDecorator } from '../../instantiation/common/instantiation.js';
@@ -136,7 +137,7 @@ export interface IWSLRemoteAgentHostMainService {
 	isWSLAvailable(): Promise<boolean>;
 	listDistros(): Promise<IWSLDistro[]>;
 	listRunningDistros(): Promise<string[]>;
-	connect(config: IWSLAgentHostConfig): Promise<IWSLConnectResult>;
+	connect(config: IWSLAgentHostConfig, token?: CancellationToken): Promise<IWSLConnectResult>;
 	disconnect(distro: string): Promise<void>;
-	reconnect(distro: string, name: string, remoteAgentHostCommand?: string, userInitiated?: boolean, expectedConnectionId?: string): Promise<IWSLConnectResult>;
+	reconnect(distro: string, name: string, remoteAgentHostCommand?: string, userInitiated?: boolean, expectedConnectionId?: string, token?: CancellationToken): Promise<IWSLConnectResult>;
 }
