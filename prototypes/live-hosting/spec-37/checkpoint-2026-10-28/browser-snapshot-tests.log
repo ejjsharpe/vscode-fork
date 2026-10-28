@@ -1,0 +1,35 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:49303) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:49303) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:49303) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  Native browser ownership[0m
+  [32m  ✔[0m[90m rejects foreign handles and nested hosts while retaining current-owner access[0m
+  [32m  ✔[0m[90m preserves the native initial snapshot that unblocks current-owner browser creation[0m
+  [32m  ✔[0m[90m destroys a browser group that completes after its delegated owner expires[0m
+
+[0m  BrowserViewWorkbenchService[0m
+  [32m  ✔[0m[90m preserves restored metadata on early disposal without overriding fresh native state[0m
+  [32m  ✔[0m[90m delivers close to later consumers and retains a replacement with the same ID[0m
+  [32m  ✔[0m[90m keeps unlisted views out of workbench discovery across hydration and creation events[0m
+  [32m  ✔[0m[90m cleans event lifetimes when embedded canvas models are repeatedly disposed[0m
+  [32m  ✔[0m[90m binds views to their resolved network and storage partition, and uses the local network for hosts that cannot proxy[0m
+  [32m  ✔[0m[90m uses configured storage only when the saved session has no scope[0m
+  [32m  ✔[0m[90m fails tabs saved on another remote in windows without a network resolver[0m
+  [32m  ✔[0m[90m waits for a host to report whether it can proxy browsers[0m
+  [32m  ✔[0m[90m applies current restrictions without changing the saved session request[0m
+  [32m  ✔[0m[90m uses the window remote network with the window workspace storage for remote workspace views[0m
+  [32m  ✔[0m[90m does not create a view closed while its shared network proxy starts[0m
+  [32m  ✔[0m[90m uses the proxy of a provider that replaced the one starting it[0m
+  [32m  ✔[0m[90m does not keep a view whose creation failed to start its proxy[0m
+  [32m  ✔[0m[90m restarts the proxy of restored views after it failed to start[0m
+  [32m  ✔[0m[90m releases a proxy whose last view closed while it was published[0m
+
+
+[92m [0m[32m 19 passing[0m[90m (50ms)[0m
+

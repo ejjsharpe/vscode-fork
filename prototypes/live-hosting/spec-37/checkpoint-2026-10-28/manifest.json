@@ -1,0 +1,82 @@
+{
+  "integrationBranch": "integration/spec-37-complete",
+  "sourceCommit": "403375db5f1794d95849d795ceecbf8553d2dfdb",
+  "reviewBase": "ec9a1750b4d8b1a8a0ff7de7e722f69c6e1c32e3",
+  "pr": "https://github.com/ejjsharpe/escode/pull/60",
+  "closedTickets": [
+    38
+  ],
+  "openSpec": 37,
+  "openTickets": [
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57
+  ],
+  "checkboxesSatisfied": {
+    "38": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "39": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "40": [
+      2,
+      6
+    ],
+    "41": [
+      3,
+      5,
+      6
+    ],
+    "50": [
+      1,
+      2,
+      4,
+      5,
+      6
+    ],
+    "51": [
+      2,
+      3,
+      6
+    ]
+  },
+  "nextUnblocked": {
+    "number": 39,
+    "title": "Open and switch independent project tabs",
+    "url": "https://github.com/ejjsharpe/escode/issues/39"
+  },
+  "restrictions": [
+    "Provider work/sign-in deferred",
+    "Authorization probes paused",
+    "No production merge",
+    "Full staged runtime acceptance and separate creator verdict remain #35"
+  ],
+  "workers": "All implementation and review workers ended; explore_native will not be resumed. #42 performed read-only exploration only.",
+  "uncommittedSourceChanges": [],
+  "localEvidenceRoot": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work",
+  "childWorktrees": "All own implementer checkouts inspected clean; committed changes integrated. Branches retained. Clean checkouts eligible for cleanup; no unfinished source checkout needs retention."
+}

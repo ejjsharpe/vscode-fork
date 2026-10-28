@@ -1,0 +1,83 @@
+{
+  "source": "403375db5f1794d95849d795ceecbf8553d2dfdb",
+  "runtime": "/tmp/esc-cp38-yc6pfhob",
+  "foreignBefore": {
+    "/Users/elliotsharpe/Library/Application Support/Code": {
+      "exists": true,
+      "mtime_ns": 1793226105314610727
+    },
+    "/Users/elliotsharpe/Library/Application Support/Code - OSS": {
+      "exists": false,
+      "mtime_ns": null
+    },
+    "/Users/elliotsharpe/Library/Application Support/Code OSS": {
+      "exists": false,
+      "mtime_ns": null
+    },
+    "/Users/elliotsharpe/Library/Application Support/escode Dev": {
+      "exists": false,
+      "mtime_ns": null
+    },
+    "/Users/elliotsharpe/.vscode-oss-dev": {
+      "exists": true,
+      "mtime_ns": 1793134268443646907
+    },
+    "/Users/elliotsharpe/.escode-dev": {
+      "exists": true,
+      "mtime_ns": 1793222875627330422
+    }
+  },
+  "foreignAfter": {
+    "/Users/elliotsharpe/Library/Application Support/Code": {
+      "exists": true,
+      "mtime_ns": 1793226105314610727
+    },
+    "/Users/elliotsharpe/Library/Application Support/Code - OSS": {
+      "exists": false,
+      "mtime_ns": null
+    },
+    "/Users/elliotsharpe/Library/Application Support/Code OSS": {
+      "exists": false,
+      "mtime_ns": null
+    },
+    "/Users/elliotsharpe/Library/Application Support/escode Dev": {
+      "exists": false,
+      "mtime_ns": null
+    },
+    "/Users/elliotsharpe/.vscode-oss-dev": {
+      "exists": true,
+      "mtime_ns": 1793134268443646907
+    },
+    "/Users/elliotsharpe/.escode-dev": {
+      "exists": true,
+      "mtime_ns": 1793222875627330422
+    }
+  },
+  "foreignMetadataUnchanged": true,
+  "foreignObservationLimit": "Existence and directory mtime only; not a full filesystem audit or proof of all reads.",
+  "results": [
+    {
+      "launch": "first",
+      "passed": true,
+      "windows": [
+        {
+          "title": "escode Dev",
+          "destroyed": false
+        }
+      ],
+      "pid": 51030
+    },
+    {
+      "launch": "repeat",
+      "passed": true,
+      "windows": [
+        {
+          "title": "escode",
+          "destroyed": false
+        }
+      ],
+      "pid": 51216
+    }
+  ],
+  "allTestMainsExited": true
+}

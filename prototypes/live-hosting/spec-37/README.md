@@ -2,6 +2,8 @@
 
 Disposable integration of [spec #37](https://github.com/ejjsharpe/escode/issues/37), based on the retained-view baseline `d6f73d25b56` and the feature documentation branch. [PR #60](https://github.com/ejjsharpe/escode/pull/60) remains draft. This record does not certify the separate [runtime acceptance gate #35](https://github.com/ejjsharpe/escode/issues/35) or authorize a production merge.
 
+Orchestration stopped on 28 October 2026. The [partial checkpoint and continuation handoffs](checkpoint-2026-10-28/README.md) supersede the progress wording below; the historical observations retain their original source boundaries.
+
 ## Standalone startup and retained project tabs
 
 Named batch: standalone first/repeat startup and single-folder/saved-multi-folder navigation. Source `cf36c4a7d2bcd71d83bd9a19f8d4b5908140fd27`; macOS arm64, Node `24.22.1`, Electron `43.8.3`. Independently copied dependencies/outputs were refreshed with `npm run install-fast`, then rebuilt using `npm run build-fast`. No dependency directory is shared or symlinked between worktrees.
@@ -33,4 +35,4 @@ Supporting source checks for this slice passed: 23 focused dialog/native/finder/
 
 ## Outstanding coverage
 
-The remaining ticket graph is in progress. Exact chat routing/persistence, cross-renderer presentation state, independent tools/approval ownership, native service/resource scopes, project lifecycle races, ordinary opening/profiles/restoration, unavailable homes and attention are not established by the bounded observations above. Full native usability, actual remotes, Windows/Linux, provider continuity and capacity remain unperformed. Provider work/sign-in remains deferred, authorization probes remain paused, and #35 retains its full staged evidence requirements and separate creator verdict.
+The remaining ticket graph is stopped at the linked checkpoint. Later source integration and bounded checks are recorded there; exact chat routing, cross-renderer presentation state, independent tools/approval ownership, complete native service/resource validation, project lifecycle races, ordinary opening/profiles/restoration, unavailable homes and attention remain incomplete. Full native usability, actual remotes, Windows/Linux, provider continuity and capacity remain unperformed. Provider work/sign-in remains deferred, authorization probes remain paused, and #35 retains its full staged evidence requirements and separate creator verdict.
