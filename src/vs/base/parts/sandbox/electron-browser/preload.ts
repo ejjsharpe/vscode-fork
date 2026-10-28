@@ -11,8 +11,11 @@
 
 	let documentNonce: string | undefined;
 	const pendingTransport: Array<[string, unknown[]]> = [];
+	let authorizeDocument!: () => void;
+	const documentAuthorized = new Promise<void>(resolve => { authorizeDocument = resolve; });
 	ipcRenderer.once('vscode:prototype-bootstrap', (_event: Electron.IpcRendererEvent, nonce: string) => {
 		documentNonce = nonce;
+		authorizeDocument();
 		for (const [channel, args] of pendingTransport.splice(0)) { ipcRenderer.send(channel, ...args, documentNonce); }
 	});
 
@@ -89,7 +92,10 @@
 		// `shellEnv` from the main side
 		const [userEnv, shellEnv] = await Promise.all([
 			(async () => (await resolveConfiguration).userEnv)(),
-			ipcRenderer.invoke('vscode:fetchShellEnv')
+			(async () => {
+				await documentAuthorized;
+				return ipcRenderer.invoke('vscode:fetchShellEnv', documentNonce);
+			})()
 		]);
 
 		return { ...process.env, ...shellEnv, ...userEnv };
@@ -133,6 +139,9 @@
 			invoke(channel: string, ...args: unknown[]): Promise<unknown> {
 				validateIPC(channel);
 
+				if (channel === 'vscode:fetchShellEnv') {
+					return ipcRenderer.invoke(channel, ...args, documentNonce);
+				}
 				return ipcRenderer.invoke(channel, ...args);
 			},
 

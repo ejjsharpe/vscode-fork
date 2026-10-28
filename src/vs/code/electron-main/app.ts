@@ -665,29 +665,20 @@ export class CodeApplication extends Disposable {
 
 		//#region Bootstrap IPC Handlers
 
-		validatedIpcMain.handle('vscode:fetchShellEnv', event => {
-
-			// Prefer to use the args and env from the target window
-			// when resolving the shell env. It is possible that
-			// a first window was opened from the UI but a second
-			// from the CLI and that has implications for whether to
-			// resolve the shell environment or not.
-			//
-			// Window can be undefined for e.g. the shared process
-			// that is not part of our windows registry!
-			const window = this.windowsMainService?.getWindowByWebContents(event.sender); // Note: this can be `undefined` for the shared process
-			let args: NativeParsedArgs;
-			let env: IProcessEnvironment;
-			if (window?.config) {
-				args = window.config;
-				env = { ...process.env, ...window.config.userEnv };
-			} else {
-				args = this.environmentMainService.args;
-				env = process.env;
+		validatedIpcMain.handle('vscode:fetchShellEnv', async (event, ...credentials: unknown[]) => {
+			const window = this.windowsMainService?.getWindowByWebContents(event.sender);
+			const generation = prototypeDocumentGeneration(event.sender);
+			if (!window?.config || generation === undefined || credentials.length !== 1 || !prototypeDocumentOwnsReply(window.webContents, generation, event, credentials[0])) {
+				throw new Error('Rejected stale or unauthorized shell environment request');
 			}
 
-			// Resolve shell env
-			return this.resolveShellEnvironment(args, env, false);
+			// Do not fall back to application environment for unrecognized renderers.
+			const contents = window.webContents;
+			const shellEnv = await this.resolveShellEnvironment(window.config, { ...process.env, ...window.config.userEnv }, false);
+			if (!prototypeDocumentOwnsReply(contents, generation, event, credentials[0])) {
+				throw new Error('Shell environment request interrupted');
+			}
+			return shellEnv;
 		});
 
 		validatedIpcMain.on('vscode:toggleDevTools', event => event.sender.toggleDevTools());

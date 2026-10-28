@@ -85,7 +85,7 @@ export function prototypeDocumentGeneration(contents: WebContents): number | und
 	return document?.nonce ? document.generation : undefined;
 }
 
-export function prototypeDocumentOwnsReply(contents: WebContents, generation: number, event: Electron.IpcMainEvent, nonce: unknown): boolean {
+export function prototypeDocumentOwnsReply(contents: WebContents, generation: number, event: Electron.IpcMainEvent | Electron.IpcMainInvokeEvent, nonce: unknown): boolean {
 	const document = documents.get(contents.id);
 	return event.sender === contents && !contents.isDestroyed() && event.senderFrame === contents.mainFrame &&
 		document?.generation === generation && !!document.nonce && nonce === document.nonce;
