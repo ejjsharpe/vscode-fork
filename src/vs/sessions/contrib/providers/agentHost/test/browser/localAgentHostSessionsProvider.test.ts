@@ -3128,6 +3128,24 @@ suite('LocalAgentHostSessionsProvider', () => {
 		});
 	}));
 
+	test('recorded chat homes survive cached discovery and weaker later metadata', () => runWithFakedTimers<void>({ useFakeTimers: true }, async () => {
+		const storageService = disposables.add(new InMemoryStorageService());
+		const chat = URI.parse('agent-host-chat:/home-cached/default');
+		const home = { kind: 'workspace' as const, uri: 'file:///home/user/overlap.code-workspace', remoteAuthority: 'ssh-remote+build' };
+		await persistCachedSessions(disposables, storageService, [createSession('home-cached', {
+			chats: [{ chat, kind: 'default', homeWorkspace: home }],
+			_meta: { 'vscode.chatHomeWorkspaces': { [chat.toString()]: home } },
+		})]);
+		const nextHost = new MockAgentHostService();
+		disposables.add(toDisposable(() => nextHost.dispose()));
+		nextHost.setAuthenticationPending(true);
+		const provider = createProvider(disposables, nextHost, undefined, { storageService });
+		const session = provider.getSessions().find(candidate => candidate.resource.path === '/home-cached')!;
+		const before = session.mainChat.get().homeWorkspace?.get();
+		fireSessionSummaryChanged(nextHost, 'home-cached', { _meta: {} });
+		assert.deepStrictEqual([before, session.mainChat.get().homeWorkspace?.get()], [home, home]);
+	}));
+
 	test('hydrated quick chat stays workspace-less after reload despite a scratch working directory', () => runWithFakedTimers<void>({ useFakeTimers: true }, async () => {
 		// Regression #324581: a committed quick chat persisted into the startup
 		// cache carries a scratch cwd. The adapter seeds its session-kind at
@@ -4716,6 +4734,34 @@ suite('LocalAgentHostSessionsProvider', () => {
 
 	// ---- Session lifecycle -------
 
+	test('an invalid explicit chat home is refused instead of replaced by the picked folder', () => {
+		const provider = createProvider(disposables, agentHost);
+		assert.throws(() => provider.createNewSession(URI.parse('file:///home/user/my-project'), provider.sessionTypes[0].id, {
+			metadata: { 'vscode.chatHomeWorkspace': { kind: 'folder', uri: 'relative/path' } },
+		}), /invalid/i);
+	});
+
+	test('a pending draft cannot report a different explicit chat home as successfully created', async () => {
+		const provider = createProvider(disposables, agentHost);
+		const session = provider.createNewSession(URI.file('/home/user/project'), provider.sessionTypes[0].id);
+		await assert.rejects(provider.createNewChat(session.sessionId, undefined, { homeWorkspace: null }), /Choose the pending chat's project when creating its session/);
+		assert.deepStrictEqual(session.mainChat.get().homeWorkspace?.get(), { kind: 'folder', uri: 'file:///home/user/project' });
+	});
+
+	test('new project chats record exact homes while quick chats record intentional No Workspace', () => {
+		const provider = createProvider(disposables, agentHost);
+		const folder = provider.createNewSession(URI.parse('file:///home/user/my-project'), provider.sessionTypes[0].id);
+		const workspace = provider.createNewSession(URI.parse('file:///home/user/my-project'), provider.sessionTypes[0].id, {
+			homeWorkspace: { kind: 'workspace', uri: 'file:///home/user/saved.code-workspace', remoteAuthority: 'ssh-remote+build' },
+		});
+		const quick = provider.createQuickChat(provider.sessionTypes[0].id);
+		assert.deepStrictEqual([folder.mainChat.get().homeWorkspace?.get(), workspace.mainChat.get().homeWorkspace?.get(), quick.mainChat.get().homeWorkspace?.get()], [
+			{ kind: 'folder', uri: 'file:///home/user/my-project' },
+			{ kind: 'workspace', uri: 'file:///home/user/saved.code-workspace', remoteAuthority: 'ssh-remote+build' },
+			null,
+		]);
+	});
+
 	test('createNewSession returns session with correct fields', () => {
 		const provider = createProvider(disposables, agentHost);
 		const workspaceUri = URI.parse('file:///home/user/my-project');
@@ -4810,6 +4856,7 @@ suite('LocalAgentHostSessionsProvider', () => {
 		await timeout(0);
 
 		assert.deepStrictEqual(agentHost.createSessionConfigs.at(-1)?.metadata, {
+			'vscode.chatHomeWorkspace': { kind: 'folder', uri: 'file:///home/user/my-project' },
 			github: { owner: 'microsoft', repo: 'vscode', pullRequestUrl: 'https://github.com/microsoft/vscode/pull/42' },
 		});
 	});
@@ -8884,7 +8931,7 @@ suite('LocalAgentHostSessionsProvider', () => {
 		});
 		await timeout(0);
 
-		assert.deepStrictEqual(agentHost.createSessionConfigs[0]?.metadata, withSessionCreationReference({ existing: 'value' }, {
+		assert.deepStrictEqual(agentHost.createSessionConfigs[0]?.metadata, withSessionCreationReference({ existing: 'value', 'vscode.chatHomeWorkspace': { kind: 'folder', uri: 'file:///home/user/project' } }, {
 			session: 'agent-host-copilotcli:/parent',
 			chat: 'agent-host-chat:/parent/default',
 			turnId: 'turn-1',

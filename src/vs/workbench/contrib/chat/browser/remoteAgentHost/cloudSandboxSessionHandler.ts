@@ -548,6 +548,16 @@ export class CloudSandboxSessionHandler extends Disposable implements IChatSessi
 		}
 	}
 
+	get getChatHomeWorkspace(): IChatSessionContentProvider['getChatHomeWorkspace'] {
+		const provider = this._liveProvider;
+		return provider?.getChatHomeWorkspace ? resource => provider.getChatHomeWorkspace!(resource) : undefined;
+	}
+
+	get setChatHomeWorkspace(): IChatSessionContentProvider['setChatHomeWorkspace'] {
+		const provider = this._liveProvider;
+		return provider?.setChatHomeWorkspace ? (resource, home) => provider.setChatHomeWorkspace!(resource, home) : undefined;
+	}
+
 	get updateChatSessionMetadata(): IChatSessionContentProvider['updateChatSessionMetadata'] {
 		const provider = this._liveProvider;
 		return provider?.updateChatSessionMetadata ? (resource, metadata) => provider.updateChatSessionMetadata!(resource, metadata) : undefined;
