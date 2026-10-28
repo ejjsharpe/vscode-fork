@@ -66,7 +66,7 @@ class RemoteAgentDiagnosticListener implements IWorkbenchContribution {
 						ipcRenderer.send(request.replyChannel, { hostName, errorMessage });
 					});
 			} else {
-				ipcRenderer.send(request.replyChannel);
+				ipcRenderer.send(request.replyChannel, undefined);
 			}
 		});
 	}

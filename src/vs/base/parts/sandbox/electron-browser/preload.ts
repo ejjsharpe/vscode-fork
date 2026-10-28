@@ -118,8 +118,8 @@
 
 			send(channel: string, ...args: unknown[]): void {
 				if (validateIPC(channel)) {
-					if (channel === 'vscode:reloadWindow') {
-						// Never queue a reload for later bootstrap/readiness.
+					if (channel === 'vscode:reloadWindow' || channel.startsWith('vscode:getDiagnosticInfoResponse')) {
+						// Never queue a reload or diagnostic reply for later authorization.
 						ipcRenderer.send(channel, ...args, documentNonce);
 						return;
 					}
