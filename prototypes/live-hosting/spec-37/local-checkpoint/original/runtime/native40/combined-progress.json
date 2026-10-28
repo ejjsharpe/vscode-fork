@@ -1,0 +1,39 @@
+{
+  "source": "1ce038f7de9edbee2133ac100f032034e0c463cc",
+  "beforeInactive": {
+    "time": 1793225760.647973,
+    "extension-progress.jsonl": 39,
+    "terminal-progress.log": 18,
+    "task-progress.log": 19,
+    "debug-progress.log": 19
+  },
+  "atDetach": {
+    "time": 1793225811.82095,
+    "extension-progress.jsonl": 90,
+    "terminal-progress.log": 69,
+    "task-progress.log": 70,
+    "debug-progress.log": 70
+  },
+  "selectedAtDetach": "Agents; CUA native AX contains only shell + Agents, both project views absent",
+  "gitChangeWhileInactive": {
+    "time": 1793225833.7741199,
+    "path": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/single/inactive-context.txt"
+  },
+  "afterInactive": {
+    "time": 1793225852.062728,
+    "extension-progress.jsonl": 130,
+    "terminal-progress.log": 109,
+    "task-progress.log": 110,
+    "debug-progress.log": 110
+  },
+  "atUserFreeze": {
+    "time": 1793225954.2113001,
+    "extension-progress.jsonl": 232,
+    "terminal-progress.log": 211,
+    "task-progress.log": 212,
+    "debug-progress.log": 212
+  },
+  "minimized": "Cmd+M attempted; native minimized state not established. No minimized progress pass claimed.",
+  "browser": "Failed at1ce038: optimistic URL/title, no loopback GET. Root cause fixed in4943 and merged403375; native rerun unperformed at user freeze.",
+  "cleanup": "User requested orchestration stop. Terminating exact isolated main and verified remaining scratch heartbeat processes; no graceful shutdown acceptance claim."
+}

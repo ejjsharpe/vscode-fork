@@ -1,0 +1,45 @@
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> escode-dev@1.145.0 typecheck-client
+> tsc --project ./src/tsconfig.json --noEmit --skipLibCheck
+
+src/vs/base/test/node/profiling.test.ts(27,5): error TS2322: Type '() => Promise<object>' is not assignable to type '(sessionId?: string | undefined) => Promise<void>'.
+  Type 'Promise<object>' is not assignable to type 'Promise<void>'.
+    Type 'object' is not assignable to type 'void'.
+src/vs/base/test/node/profiling.test.ts(28,5): error TS2322: Type '() => Promise<{}>' is not assignable to type '(params: SetSamplingIntervalRequest, sessionId?: string | undefined) => Promise<void>'.
+  Type 'Promise<{}>' is not assignable to type 'Promise<void>'.
+    Type '{}' is not assignable to type 'void'.
+src/vs/base/test/node/profiling.test.ts(29,5): error TS2322: Type '() => Promise<{}>' is not assignable to type '(sessionId?: string | undefined) => Promise<void>'.
+  Type 'Promise<{}>' is not assignable to type 'Promise<void>'.
+    Type '{}' is not assignable to type 'void'.
+src/vs/platform/agentHost/node/devContainerAgentHostService.ts(17,10): error TS6133: 'URI' is declared but its value is never read.
+src/vs/platform/agentHost/test/common/devContainerAgentHostIpc.test.ts(49,19): error TS2416: Property 'connect' in type '(Anonymous class)' is not assignable to the same property in base type 'IDevContainerAgentHostMainService'.
+  Type '() => Promise<void>' is not assignable to type '(config: IDevContainerAgentHostConfig, token?: CancellationToken | undefined) => Promise<IDevContainerAgentHostConnectResult>'.
+    Type 'Promise<void>' is not assignable to type 'Promise<IDevContainerAgentHostConnectResult>'.
+      Type 'void' is not assignable to type 'IDevContainerAgentHostConnectResult'.
+src/vs/platform/agentHost/test/common/devContainerAgentHostIpc.test.ts(54,54): error TS2345: Argument of type '(Anonymous class)' is not assignable to parameter of type 'IDevContainerAgentHostMainService'.
+  The types returned by 'connect(...)' are incompatible between these types.
+    Type 'Promise<void>' is not assignable to type 'Promise<IDevContainerAgentHostConnectResult>'.
+      Type 'void' is not assignable to type 'IDevContainerAgentHostConnectResult'.
+src/vs/platform/agentHost/test/common/remoteAgentHostIpc.test.ts(171,19): error TS2416: Property 'completeSelection' in type '(Anonymous class)' is not assignable to the same property in base type 'ITunnelAgentHostMainService'.
+  Type '(id: string) => Promise<{ connectionId: string; address: string; name: string; connectionToken: string | undefined; config: ISSHAgentHostConfigSanitized; sshConfigHost?: string | undefined; serverType?: AgentHostServerType | undefined; instanceId?: string | undefined; primary?: boolean | undefined; lifecycle?: SSHAg...' is not assignable to type '(selectionId: string, selection: ITunnelGatewaySelection, cancellationToken?: CancellationToken | undefined) => Promise<ITunnelConnectResult>'.
+    Type 'Promise<{ connectionId: string; address: string; name: string; connectionToken: string | undefined; config: ISSHAgentHostConfigSanitized; sshConfigHost?: string | undefined; serverType?: AgentHostServerType | undefined; instanceId?: string | undefined; primary?: boolean | undefined; lifecycle?: SSHAgentHostLifecycle...' is not assignable to type 'Promise<ITunnelConnectResult>'.
+      Property 'selected' is missing in type '{ connectionId: string; address: string; name: string; connectionToken: string | undefined; config: ISSHAgentHostConfigSanitized; sshConfigHost?: string; serverType?: AgentHostServerType; instanceId?: string; primary?: boolean; lifecycle?: SSHAgentHostLifecycle; }' but required in type 'ITunnelConnectResult'.
+src/vs/platform/agentHost/test/common/remoteAgentHostIpc.test.ts(176,48): error TS2345: Argument of type '(Anonymous class)' is not assignable to parameter of type 'ITunnelAgentHostMainService'.
+  The types returned by 'completeSelection(...)' are incompatible between these types.
+    Type 'Promise<{ connectionId: string; address: string; name: string; connectionToken: string | undefined; config: ISSHAgentHostConfigSanitized; sshConfigHost?: string | undefined; serverType?: AgentHostServerType | undefined; instanceId?: string | undefined; primary?: boolean | undefined; lifecycle?: SSHAgentHostLifecycle...' is not assignable to type 'Promise<ITunnelConnectResult>'.
+      Property 'selected' is missing in type '{ connectionId: string; address: string; name: string; connectionToken: string | undefined; config: ISSHAgentHostConfigSanitized; sshConfigHost?: string; serverType?: AgentHostServerType; instanceId?: string; primary?: boolean; lifecycle?: SSHAgentHostLifecycle; }' but required in type 'ITunnelConnectResult'.
+src/vs/platform/agentHost/test/common/remoteAgentHostIpc.test.ts(194,19): error TS2416: Property 'connect' in type '(Anonymous class)' is not assignable to the same property in base type 'ITunnelAgentHostMainService'.
+  Type '() => Promise<ISSHConnectResult>' is not assignable to type '(token: string, authProvider: "github" | "microsoft", tunnelId: string, clusterId: string, cancellationToken?: CancellationToken | undefined) => Promise<ITunnelConnectResult>'.
+    Type 'Promise<ISSHConnectResult>' is not assignable to type 'Promise<ITunnelConnectResult>'.
+      Property 'selected' is missing in type 'ISSHConnectResult' but required in type 'ITunnelConnectResult'.
+src/vs/platform/agentHost/test/common/remoteAgentHostIpc.test.ts(196,48): error TS2345: Argument of type '(Anonymous class)' is not assignable to parameter of type 'ITunnelAgentHostMainService'.
+  The types returned by 'connect(...)' are incompatible between these types.
+    Type 'Promise<ISSHConnectResult>' is not assignable to type 'Promise<ITunnelConnectResult>'.
+      Property 'selected' is missing in type 'ISSHConnectResult' but required in type 'ITunnelConnectResult'.
+src/vs/platform/windows/test/electron-main/prototypeNativeChannel.test.ts(96,62): error TS2740: Type 'Pick<DisposableStore, "add">' is missing the following properties from type 'DisposableStore': _toDispose, _isDisposed, dispose, isDisposed, and 4 more.

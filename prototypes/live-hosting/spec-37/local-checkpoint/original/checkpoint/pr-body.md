@@ -1,0 +1,35 @@
+## Summary
+
+Partial implementation checkpoint for [spec #37](https://github.com/ejjsharpe/escode/issues/37). Orchestration is stopped; continue one ticket at a time in fresh `/implement` chats. This PR stays draft and must not be merged.
+
+```text
+Shared shell + permanent Agents
+└── Retained exact-workspace projects
+    ├── Main-owned native/resource scopes
+    └── Agent Host per-chat home metadata
+```
+
+Final source: `403375db5f1794d95849d795ceecbf8553d2dfdb`. Checkpoint/handoffs: `d71ae1f23b018cfc7f99616d24f187dc96375ea6`. [Evidence, per-ticket state and separate review axes](https://github.com/ejjsharpe/escode/blob/d71ae1f23b018cfc7f99616d24f187dc96375ea6/prototypes/live-hosting/spec-37/checkpoint-2026-10-28/README.md).
+
+Completed bounded ticket: [#38](https://github.com/ejjsharpe/escode/issues/38). Partial source integrated, still open: #39, #40, #41, #50, #51. #42 has only a read-only plan. No new implementation for #43–#49 or #52–#57. Next unblocked: [#39 — Open and switch independent project tabs](https://github.com/ejjsharpe/escode/issues/39). Native dependency links remain intact.
+
+Remaining includes repaired-browser native GET/render/AX rerun, tab reuse/drag/overflow/native UX validation, extension-backed durable home adapters, Choose Project same-chat retry after dismissal/cancellation, recorded IPC disposal/metadata-layer standards findings, and the unimplemented lifecycle/opening/Project Chats/continuity/link/attention graph. Findings are documented; no new repair cycle was started.
+
+## Evidence
+
+- **Before:** foreign extension controls could influence app state; hidden project views remained in native AX; routing used the shared host ID; chats lacked exact durable homes. A native browser scope filter later dropped the synchronous initial snapshot and left navigation waiting.
+- **After:** relevant per-slice service suites and targeted checks pass. The final browser replay regression passes19 tests; full combined client typecheck and client build pass at403375. Current-source first/repeat startup passes with fresh isolated state, real Agents, one native BrowserWindow and no projects. Foreign profile existence/mtime observations are unchanged, with their limited scope recorded.
+- At earlier source1ce038, real extension/terminal/task/debug counters each advanced40ticks with project views detached; Git observed its own workspace change. Earlier Save/dirty-editor/AX checks passed at52f6f. These different-source samples are not a current-source full runtime pass. Actual repaired browser rendering/GET/AX, minimized state, real providers/remotes and the full #35 staged acceptance/creator verdict remain unperformed or incomplete.
+- Source reviews found IPC teardown and protocol metadata placement violations, a connector lease duplication judgment, and a Choose Project dismissal/cancellation retry defect. [Standards and spec reports](https://github.com/ejjsharpe/escode/blob/d71ae1f23b018cfc7f99616d24f187dc96375ea6/prototypes/live-hosting/spec-37/checkpoint-2026-10-28/review.md) are preserved separately.
+
+## Merge Danger
+
+**Door:** two-way
+
+Disposable source checkpoint; no production merge or foreign-profile/transcript migration is authorized.
+
+**Blast Radius:** desktop
+
+Native service/resource ownership, lifecycle and conversation routing remain incomplete. Provider work/sign-in stays deferred; authorization probes stay paused. Exact home identity grants no tool or trust permission. #35 retains full staged runtime acceptance and the separate creator verdict.
+
+References: #37, #38, #39, #40, #41, #42, #43, #44, #45, #46, #47, #48, #49, #50, #51, #52, #53, #54, #55, #56, #57.

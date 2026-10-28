@@ -1,0 +1,71 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:33315) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:33315) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:33315) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  LocalPtyChannel[0m
+  [32m  ✔[0m[90m does not retain subscriptions for unused process events[0m
+  [32m  ✔[0m[90m delivers live output to local listeners without replaying earlier output[0m
+  [32m  ✔[0m[90m preserves early and live lifecycle notifications[0m
+  [32m  ✔[0m[90m limits process access to the authenticated workbench and workspace[0m
+  [32m  ✔[0m[90m the renderer recovery control requests the named main coordinator while direct raw restart stays rejected[0m
+  [32m  ✔[0m[90m delivers the final owned exit after the native process registry removes its handle[0m
+  [32m  ✔[0m[90m binds restore, grace time and port cleanup to the current terminal owner[0m
+  [32m  ✔[0m[90m revokes a pending native terminal effect before its later action[0m
+  [32m  ✔[0m[90m revalidates the live native target after a queued PTY setter resumes[0m
+
+[0m  Terminal host restart coordinator[0m
+  [32m  ✔[0m[90m the current recovery control confirms all-project effects and coalesces overlapping requests[0m
+  [32m  ✔[0m[90m cancel preserves processes in every project[0m
+  [32m  ✔[0m[90m joined project Close blocks a pending all-project restart[0m
+  [32m  ✔[0m[90m a changed affected document invalidates pending native confirmation[0m
+
+[0m  WindowsFinder[0m
+  [32m  ✔[0m[90m Exact workspace requests match kind and environment, then use the most recently active match[0m
+  [32m  ✔[0m[90m New window without folder when no windows exist[0m
+  [32m  ✔[0m[90m Existing window with folder[0m
+  [32m  ✔[0m[90m More specific existing window wins[0m
+  [32m  ✔[0m[90m Workspace folder wins[0m
+
+[0m  Workbench - TerminalProcessManager[0m
+  [32m  ✔[0m[90m does not apply or serialize PATH from a different terminal host while retaining non-PATH variables[0m
+  [32m  ✔[0m[90m does not carry a historical collection into a strict-environment launch[0m
+  [32m  ✔[0m[90m clears historical PATH status when attachment falls back to a fresh launch with no eligible collection[0m
+  [32m  ✔[0m[90m ignores collection changes that affect only another terminal host[0m
+  [32m  ✔[0m[90m uses remote OS 1 and case-insensitive authority for process options and updates[0m[31m (1003ms)[0m
+  [32m  ✔[0m[90m uses remote OS 3 and case-insensitive authority for process options and updates[0m[31m (1003ms)[0m
+  [32m  ✔[0m[90m uses remote OS 2 and case-insensitive authority for process options and updates[0m[31m (1002ms)[0m
+  [32m  ✔[0m[90m does not accumulate environment variable collection listeners when relaunching[0m
+  [32m  ✔[0m[90m relaunch does not report the previous shell pid for the new process before it is ready[0m
+[0m    process persistence[0m
+[0m      local[0m
+      [32m  ✔[0m[90m regular terminal should persist[0m
+      [32m  ✔[0m[90m task terminal should not persist[0m
+      [32m  ✔[0m[90m restored terminal reattaches with the pid it was saved with[0m
+      [32m  ✔[0m[90m restored terminal starts a new process when reattaching is refused[0m
+[0m      remote[0m
+      [32m  ✔[0m[90m regular terminal should persist[0m
+      [32m  ✔[0m[90m task terminal should not persist[0m
+[0m    pty host restart[0m
+    [32m  ✔[0m[90m appends viewport-clearing newlines and ESC[H on Windows[0m
+    [32m  ✔[0m[90m does not append viewport-clearing sequence on non-Windows[0m
+    [32m  ✔[0m[90m does not append viewport-clearing sequence on Windows when rows is 0[0m
+[0m    parent window[0m
+    [32m  ✔[0m[90m sets the parent window before the process starts[0m
+    [32m  ✔[0m[90m updates the parent window only when the terminal moves to another window[0m
+    [32m  ✔[0m[90m waits for the latest window before starting when the terminal moves during startup[0m
+    [32m  ✔[0m[90m passes all bytes of the window handle through unchanged[0m
+    [32m  ✔[0m[90m does nothing when the setting is disabled[0m
+    [32m  ✔[0m[90m does not set the parent window of a process relaunched after the setting is disabled[0m
+    [32m  ✔[0m[90m sets the parent window of a process relaunched after the setting is enabled[0m
+    [32m  ✔[0m[90m uses the window the terminal moved to while the setting was disabled[0m
+    [32m  ✔[0m[90m does not send the previous window's handle when the new window's handle is not found[0m
+
+
+[92m [0m[32m 46 passing[0m[90m (3s)[0m
+

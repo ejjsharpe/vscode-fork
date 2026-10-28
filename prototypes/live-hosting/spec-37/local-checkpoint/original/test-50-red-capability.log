@@ -1,0 +1,22 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/.build/crashes'
+(node:4757) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:4757) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:4757) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  AgentHostProtocolClient[0m
+  [31m  1) refuses explicit chat home creation when the host cannot persist it[0m
+
+
+[92m [0m[32m 0 passing[0m[90m (12ms)[0m
+[31m  1 failing[0m
+
+[0m  1) AgentHostProtocolClient
+       refuses explicit chat home creation when the host cannot persist it:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/out/vs/platform/agentHost/test/electron-browser/agentHostProtocolClient.test.js:2188:12)
+[0m
+
+

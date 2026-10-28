@@ -1,0 +1,69 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:15698) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:15698) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:15698) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  LocalPtyChannel[0m
+  [32m  ✔[0m[90m does not retain subscriptions for unused process events[0m
+  [32m  ✔[0m[90m delivers live output to local listeners without replaying earlier output[0m
+  [32m  ✔[0m[90m preserves early and live lifecycle notifications[0m
+  [32m  ✔[0m[90m limits process access to the authenticated workbench and workspace[0m
+  [31m  1) binds restore, grace time and port cleanup to the current terminal owner[0m
+  [31m  2) revokes a pending native terminal effect before its later action[0m
+[15693:1028/214319.327012:INFO:CONSOLE:237] "Error: Test run should not have unexpected errors:
+Rejected coordinator-only PTY operation: freePortKillProcess
+Error: Rejected coordinator-only PTY operation: freePortKillProcess
+    at Object.call (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/terminal/common/localPtyChannel.js:109:15)
+    at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/terminal/test/common/localPtyChannel.test.js:185:29)
+    at callFn (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/node_modules/mocha/mocha.js:13313:23)
+    at Runnable$3.run (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/node_modules/mocha/mocha.js:13301:7)
+    at Runner.runTest (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/node_modules/mocha/mocha.js:14857:12)
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/node_modules/mocha/mocha.js:14980:14
+    at next (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/node_modules/mocha/mocha.js:14772:16)
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/node_modules/mocha/mocha.js:14782:9
+    at next (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/node_modules/mocha/mocha.js:14665:16)
+    at cbHookRun (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/node_modules/mocha/mocha.js:14730:9)", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (237)
+  [31m  3) revokes a pending native terminal effect before its later action[0m
+
+
+[92m [0m[32m 5 passing[0m[90m (5s)[0m
+[31m  3 failing[0m
+
+[0m  1) LocalPtyChannel
+       binds restore, grace time and port cleanup to the current terminal owner:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+[0m[90m
+  Error: Rejected coordinator-only PTY operation: reduceConnectionGraceTime
+      at Object.call (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/terminal/common/localPtyChannel.js:109:15)
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/terminal/test/common/localPtyChannel.test.js:157:19)
+[0m
+[0m  2) LocalPtyChannel
+       revokes a pending native terminal effect before its later action:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+[0m[90m
+  Error: Timeout of 5000ms exceeded. For async tests and hooks, ensure "done()" is called; if returning a Promise, ensure it resolves. (vs/platform/terminal/test/common/localPtyChannel.test)
+[0m
+[0m  3) LocalPtyChannel
+       revokes a pending native terminal effect before its later action:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Error: Test run should not have unexpected errors:
+  Rejected coordinator-only PTY operation: freePortKillProcess
+  Error: Rejected coordinator-only PTY operation: freePortKillProcess
+      at Object.call (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/terminal/common/localPtyChannel.js:109:15)
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/terminal/test/common/localPtyChannel.test.js:185:29)
+      at new AssertionError (node:internal/assert/assertion_error:380:5)
+      at Context.<anonymous> (renderer.js:328:32)
+[0m
+
+

@@ -1,0 +1,22 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:91617) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:91617) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:91617) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  LocalPtyChannel[0m
+  [31m  1) limits process access to the authenticated workbench and workspace[0m
+
+
+[92m [0m[32m 0 passing[0m[90m (5ms)[0m
+[31m  1 failing[0m
+
+[0m  1) LocalPtyChannel
+       limits process access to the authenticated workbench and workspace:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/terminal/test/common/localPtyChannel.test.js:138:9)
+[0m
+
+

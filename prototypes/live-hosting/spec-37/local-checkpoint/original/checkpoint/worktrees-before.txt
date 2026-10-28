@@ -1,0 +1,52 @@
+worktree /Users/elliotsharpe/Projects/escode
+HEAD d66618f0b9aa9ffc7545af1d84389dc66e9183e9
+branch refs/heads/main
+
+worktree /private/tmp/escode-research-workbench-hosting
+HEAD c77afb0ddd8c507dd6892bb9afce8966cea8c8df
+branch refs/heads/research/one-window-workbench-hosting
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-9/work/integration
+HEAD 67319907a061b59d905c79cd83a6c40a62e7c32a
+branch refs/heads/integration/one-window-37
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-9/work/ticket-38
+HEAD a037cd2eb5b1e16ff19ce3116b6702cc1103e5a6
+branch refs/heads/implement/38-standalone-shell
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/https-github-com-ejjsharpe-escode-issues-9/work/ticket-39
+HEAD 8352e41b0c2a055c4b06e08f5f7549d173646ccc
+branch refs/heads/implement/39-project-tabs
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration
+HEAD 403375db5f1794d95849d795ceecbf8553d2dfdb
+branch refs/heads/integration/spec-37-complete
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40
+HEAD 46648985942be15e1da2d581b4b373cdcabe8b69
+branch refs/heads/implement/spec-37-ticket-40
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-connectors
+HEAD 67ecd167c6dd48d6f2074bed32e438aa99c44eff
+branch refs/heads/implement/spec-37-ticket-40-connectors
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared
+HEAD 8ca2feb61386bb43993249c8d9dc02b5cc534e0c
+branch refs/heads/implement/spec-37-ticket-40-shared
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41
+HEAD 8f3666d77701acd32db220b8aba463219f1f06a0
+branch refs/heads/implement/spec-37-ticket-41
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-42
+HEAD 67ecd167c6dd48d6f2074bed32e438aa99c44eff
+branch refs/heads/implement/spec-37-ticket-42
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50
+HEAD 8c87c898a594b0aa896fd3e5a39980ebf22f63f7
+branch refs/heads/implement/spec-37-ticket-50
+
+worktree /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-51
+HEAD 546c7fe98a5f5047aa084599687d044336507356
+branch refs/heads/implement/spec-37-ticket-51
+

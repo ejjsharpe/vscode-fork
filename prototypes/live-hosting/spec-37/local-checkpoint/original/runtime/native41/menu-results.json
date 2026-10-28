@@ -1,0 +1,8 @@
+{
+  "source": "52f6f8033eeba687db890be54e1b39289292d105",
+  "nativeFileMenuSave": "passed",
+  "selectedMultiSaved": "multi saved through native File menu\n",
+  "inactiveSingleUnchanged": "single before native menu save\n",
+  "nativeAXOnlySelectedWorkbench": "passed",
+  "singleDirtyEditorRestored": "passed"
+}

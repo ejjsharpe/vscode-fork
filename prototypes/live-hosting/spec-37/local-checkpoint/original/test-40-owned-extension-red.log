@@ -1,0 +1,46 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/.build/crashes'
+(node:20213) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:20213) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:20213) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  ExtensionHostProfiling[0m
+  [31m  1) only its actual child startup can establish the target and only its own handle can stop[0m
+  [31m  2) revocation during inspector connection closes the late session without issuing a handle[0m
+
+
+[92m [0m[32m 1 passing[0m[90m (3ms)[0m
+[31m  2 failing[0m
+
+[0m  1) ExtensionHostProfiling
+       only its actual child startup can establish the target and only its own handle can stop:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+[0m[90m
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /unavailable/. Input:
+  
+  'Error: Not implemented'
+  
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/out/vs/platform/extensions/test/node/extensionHostProfiling.test.js:18:5)
+[0m
+[0m  2) ExtensionHostProfiling
+       revocation during inspector connection closes the late session without issuing a handle:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+[0m[90m
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Expired/. Input:
+  
+  'Error: Not implemented'
+  
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/out/vs/platform/extensions/test/node/extensionHostProfiling.test.js:43:5)
+[0m
+
+

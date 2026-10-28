@@ -1,0 +1,19 @@
+Primary shell: true
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('button', { name: 'Agents', exact: true })[22m
+[2m    - waiting for navigation to finish...[22m
+
+    at /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/tabs-smoke.mjs:43:69 {
+  log: [
+    "  - waiting for getByRole('button', { name: 'Agents', exact: true })",
+    '    - waiting for navigation to finish...'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.22.1

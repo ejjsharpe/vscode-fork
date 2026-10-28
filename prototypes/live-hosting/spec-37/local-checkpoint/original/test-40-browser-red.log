@@ -1,0 +1,25 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:1655) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:1655) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:1655) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  Native browser ownership[0m
+  [31m  1) rejects foreign handles and nested hosts while retaining current-owner access[0m
+
+
+[92m [0m[32m 1 passing[0m[90m (2ms)[0m
+[31m  1 failing[0m
+
+[0m  1) Native browser ownership
+       rejects foreign handles and nested hosts while retaining current-owner access:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/browserView/test/electron-main/prototypeBrowserChannel.test.js:32:9)
+[0m
+
+

@@ -1,0 +1,17 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/.build/crashes'
+(node:5508) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:5508) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:5508) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  AgentHostProtocolClient[0m
+  [32m  ✔[0m[90m refuses explicit chat home creation when the host cannot persist it[0m
+  [32m  ✔[0m[90m carries exact chat home creation and reassignment through a capable host[0m
+[0m    createChat[0m
+    [32m  ✔[0m[90m sends a requested chat workspace only to a host that advertises it[0m
+    [32m  ✔[0m[90m applies a chat workspace through the extension request only on a host that advertises it, mapping the folder to the host[0m
+
+
+[92m [0m[32m 4 passing[0m[90m (16ms)[0m
+

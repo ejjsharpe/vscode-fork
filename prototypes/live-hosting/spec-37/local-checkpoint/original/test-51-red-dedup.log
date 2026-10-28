@@ -1,0 +1,53 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-51/.build/crashes'
+(node:19675) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:19675) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:19675) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  SessionsManagementService[0m
+  [31m  1) explicit history open offers one non-blocking home choice after loading, without a startup wizard[0m
+
+
+[92m [0m[32m 0 passing[0m[90m (13ms)[0m
+[31m  1 failing[0m
+
+[0m  1) SessionsManagementService
+       explicit history open offers one non-blocking home choice after loading, without a startup wizard:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+           [
+             "Choose Project"
+           ]
+         ]
+      [31m-  "closedPrompts": [[0m
+      [31m-    0[0m
+      [31m-  ][0m
+      [32m+  "closedPrompts": [][0m
+         "whileLoading": 0
+       }
+      [0m[90m
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      atStartup: 0,
+      chat: 'test:/chat',
+      choices: [
+        [
+  ...
+      ],
+  +   closedPrompts: [
+  +     0
+  +   ],
+  -   closedPrompts: [],
+      whileLoading: 0
+    }
+  
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-51/out/vs/sessions/services/sessions/test/browser/sessionsManagementService.test.js:410:12)
+[0m
+
+

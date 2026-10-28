@@ -1,0 +1,35 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:86986) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:86986) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:86986) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  Authenticated document connections[0m
+[86981:1028/210507.602695:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":51,"generation":0,"reason":"bootstrap"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (237)
+[86981:1028/210507.602810:INFO:CONSOLE:237] "[lifetime-probe] bootstrap {"workbench":51,"generation":1,"webContents":412}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (237)
+[86981:1028/210507.602857:INFO:CONSOLE:237] "[lifetime-probe] connection window:51:document:1:connection:1", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (237)
+[86981:1028/210507.602979:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":51,"generation":1,"reason":"navigation"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (237)
+[86981:1028/210507.603002:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":51,"generation":1,"reason":"bootstrap"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (237)
+[86981:1028/210507.603026:INFO:CONSOLE:237] "[lifetime-probe] bootstrap {"workbench":51,"generation":2,"webContents":412}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (237)
+[86981:1028/210507.603042:INFO:CONSOLE:237] "[lifetime-probe] connection window:51:document:2:connection:2", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (237)
+[86981:1028/210507.603389:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":51,"generation":2,"reason":"destroyed"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (237)
+  [32m  ✔[0m[90m rejects foreign frames and retired credentials without changing the current owner[0m
+  [31m  1) rejects foreign frames and retired credentials without changing the current owner[0m
+
+
+[92m [0m[32m 2 passing[0m[90m (3ms)[0m
+[31m  1 failing[0m
+
+[0m  1) Authenticated document connections
+       rejects foreign frames and retired credentials without changing the current owner:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Error: Unexpected console output in test run. Please ensure no console.[log|error|info|warn] usage in tests or runtime errors.
+      at new AssertionError (node:internal/assert/assertion_error:380:5)
+      at Context.<anonymous> (renderer.js:328:32)
+[0m
+
+

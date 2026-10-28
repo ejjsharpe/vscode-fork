@@ -1,0 +1,233 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/.build/crashes'
+(node:28665) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:28665) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:28665) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  Owned inspector profiling[0m
+  [32m  ✔[0m[90m expiry while enabling the external profiler prevents later sampling and start effects[0m
+  [32m  ✔[0m[90m a connection that opens after expiry closes before any debugger command[0m
+  [32m  ✔[0m[90m an existing developer debugger pause is preserved[0m
+
+[0m  SelfProfilingService[0m
+  [32m  ✔[0m[90m profiles its own process and refuses a foreign handle[0m
+  [32m  ✔[0m[90m disposal during initialization releases the inspector without publishing a handle[0m
+
+[0m  PlaywrightChannel native ownership[0m
+  [32m  ✔[0m[90m rejects another workbench at initialization[0m
+  [32m  ✔[0m[90m current owners work while revoked owners and lifecycle methods reject[0m
+
+[0m  SharedProcessChannel[0m
+  [32m  ✔[0m[90m allows named application capabilities but refuses auxiliary and inherited methods[0m
+  [32m  ✔[0m[90m does not deliver a delayed result or buffered event after revocation[0m
+
+[0m  SharedProcessTunnelChannel[0m
+  [32m  ✔[0m[90m tunnel handles require their creator and matching project authority[0m
+  [32m  ✔[0m[90m late tunnel allocation is destroyed instead of handed to a replacement connection[0m
+
+[0m  UserDataSyncServiceChannel ownership[0m
+  [32m  ✔[0m[90m manual tasks reject foreign control and stop when the owning connection expires[0m
+  [32m  ✔[0m[90m a task created after revocation is stopped without publishing its handle[0m
+
+[0m  LocalGitChannel[0m
+  [32m  ✔[0m[90m one project cannot cancel another project operation and revocation terminates its process[0m
+  [32m  ✔[0m[90m expiry between validation and checkout prevents the later mutation[0m
+
+[0m  LocalGitService[0m
+  [32m  ✔[0m[90m clone passes scoped HTTP authentication through Git config environment variables[0m
+  [32m  ✔[0m[90m clone limits history for the default branch[0m
+  [32m  ✔[0m[90m clone limits history for main[0m
+  [32m  ✔[0m[90m clone limits history for v1.0.0[0m
+  [32m  ✔[0m[90m clone shallowly fetches and checks out a full commit SHA[0m
+  [32m  ✔[0m[90m clone removes a full-SHA repository when checkout fails[0m
+  [32m  ✔[0m[90m clone removes a full-SHA repository when pinning is cancelled[0m
+  [32m  ✔[0m[90m authenticated Git removes tracing variables case-insensitively[0m
+  [32m  ✔[0m[90m authenticated Git removes inherited extra headers and preserves other indexed config[0m
+  [32m  ✔[0m[90m authenticated Git rejects old versions and rechecks after an upgrade[0m
+  [32m  ✔[0m[90m cancelling the authentication version check does not launch a network operation[0m
+  [32m  ✔[0m[90m authenticated failures redact credentials before logging and rejecting[0m
+  [32m  ✔[0m[90m getRemoteUrl returns the origin URL[0m
+  [32m  ✔[0m[90m pull runs ff-only for normal updates[0m
+  [32m  ✔[0m[90m pull skips an immutable detached checkout when requested[0m
+  [32m  ✔[0m[90m pull still updates tracked branches when detached checkouts are skipped[0m
+  [32m  ✔[0m[90m pull recovers from diverged history by resetting to upstream[0m
+  [32m  ✔[0m[90m pull rejects hard reset recovery when working tree is dirty[0m
+  [32m  ✔[0m[90m pull rethrows non-fast-forward errors without retrying[0m
+  [32m  ✔[0m[90m pull rethrows retry failures that are not fast-forward related[0m
+  [32m  ✔[0m[90m pull succeeds on second ff-only attempt after fetch[0m
+  [32m  ✔[0m[90m pull without hard-reset option does not attempt destructive recovery[0m
+  [32m  ✔[0m[90m pull rethrows when upstream cannot be resolved during recovery[0m
+  [32m  ✔[0m[90m checkoutCommit accepts uppercase SHA and verifies HEAD[0m
+  [32m  ✔[0m[90m checkoutCommit rejects when HEAD differs after checkout[0m
+  [32m  ✔[0m[90m checkoutCommit rejects a real SHA-shaped branch that points to another commit[0m[31m (597ms)[0m
+[0m    shallow repositories[0m
+    [32m  ✔[0m[90m clones the default branch without its history[0m[31m (968ms)[0m
+    [32m  ✔[0m[90m clones main without its history[0m[31m (875ms)[0m
+    [32m  ✔[0m[90m clones v1.0.0 without its history[0m[31m (348ms)[0m
+    [32m  ✔[0m[90m fetches an older pinned commit outside the shallow history[0m[31m (718ms)[0m
+
+[0m  ExtensionHostProfiler[0m
+  [32m  ✔[0m[90m profiles through the owning extension host and stops the original session once[0m
+
+[0m  ExtensionHostProfiling[0m
+  [32m  ✔[0m[90m only its actual child startup can establish the target and only its own handle can stop[0m
+  [32m  ✔[0m[90m revocation during inspector connection closes the late session without issuing a handle[0m
+  [32m  ✔[0m[90m an old attestation cannot be adopted by a replacement process[0m
+
+[0m  Hosted native command ownership[0m
+  [32m  ✔[0m[90m permits own auxiliary controls and rejects foreign nested targets before effects[0m
+  [32m  ✔[0m[90m an auxiliary document cannot impersonate its parent[0m
+  [32m  ✔[0m[90m expired connections cannot dispatch to their surviving workbench[0m
+  [32m  ✔[0m[90m extension profiling targets only an owned process and expires with its connection[0m
+
+[0m  GitHub anonymous IPC clients[0m
+  [32m  ✔[0m[90m exposes a directly disposable, reduced facade and executes content, gist, and issue search[0m[31m (113ms)[0m
+  [32m  ✔[0m[90m keeps response text unchanged across real IPC and parses it only at the client[0m
+  [32m  ✔[0m[90m hides conditional headers and restores the original accepted status[0m
+  [32m  ✔[0m[90m transfers an empty HEAD response with status 200[0m
+  [32m  ✔[0m[90m transfers an empty GET response with status 204[0m
+  [32m  ✔[0m[90m transfers an empty GET response with status 205[0m
+  [32m  ✔[0m[90m preserves empty text responses[0m
+  [32m  ✔[0m[90m rejects malformed JSON and schema failures in the calling process without replay[0m
+  [32m  ✔[0m[90m checks expected statuses in the calling process[0m
+  [32m  ✔[0m[90m preserves SHA-256 object IDs through ref resolution and pinned raw-content IPC[0m
+  [32m  ✔[0m[90m resolves a commit and downloads exact raw text without API headers or credentials[0m
+  [32m  ✔[0m[90m transfers a raw file of exactly 0 bytes over IPC[0m
+  [32m  ✔[0m[90m transfers a raw file of exactly 1048576 bytes over IPC[0m
+  [32m  ✔[0m[90m cancels oversized raw response streams and preserves the size error over IPC[0m
+  [32m  ✔[0m[90m preserves raw HTTP status 202 across IPC[0m
+  [32m  ✔[0m[90m preserves raw HTTP status 404 across IPC[0m
+  [32m  ✔[0m[90m enforces raw-file capabilities and pinned-path validation on forged wire requests[0m
+  [32m  ✔[0m[90m extra raw wire options cannot override the URL, response limit, or timeout[0m
+  [32m  ✔[0m[90m rejects a raw redirect outside the pinned origin and revision: https://elsewhere.example/o/r/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/file[0m
+  [32m  ✔[0m[90m rejects a raw redirect outside the pinned origin and revision: /o/r/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/file[0m
+  [32m  ✔[0m[90m preserves typed error details across IPC (0: authorization)[0m
+  [32m  ✔[0m[90m preserves typed error details across IPC (1: responseTooLarge)[0m
+  [32m  ✔[0m[90m preserves typed error details across IPC (2: timeout)[0m
+  [32m  ✔[0m[90m preserves typed error details across IPC (3: timeout)[0m
+  [32m  ✔[0m[90m preserves typed error details across IPC (4: rateLimit)[0m
+  [32m  ✔[0m[90m retains the bounded read retry policy for network failures[0m
+  [32m  ✔[0m[90m rejects expired caller deadlines without dispatch[0m
+  [32m  ✔[0m[90m enforces anonymous capabilities on the server rather than trusting the facade[0m
+  [32m  ✔[0m[90m validates raw wire metadata and refuses paths outside the API endpoint[0m
+  [32m  ✔[0m[90m rejects duplicate acquisition without retaining another reference and releases idempotently[0m
+  [32m  ✔[0m[90m isolates request and release ownership between physical connections (same context: false)[0m
+  [32m  ✔[0m[90m isolates request and release ownership between physical connections (same context: true)[0m
+  [32m  ✔[0m[90m rejects stale handles after reconnecting with the same context[0m
+  [32m  ✔[0m[90m cleans up registration and registers new channels for already-connected clients[0m
+  [32m  ✔[0m[90m does not allocate for an already-cancelled acquisition[0m
+  [32m  ✔[0m[90m cancels acquisition while the shared-process connection is still pending[0m
+  [32m  ✔[0m[90m releases an allocated lease when cancellation loses the acquisition reply[0m
+  [32m  ✔[0m[90m propagates failed acquisitions without creating a client[0m
+  [32m  ✔[0m[90m repeated disposal releases each lease once and rejects further operations[0m
+  [32m  ✔[0m[90m aborts outstanding rest work and releases references on dispose[0m
+  [32m  ✔[0m[90m aborts outstanding rest work and releases references on disconnect[0m
+  [32m  ✔[0m[90m aborts outstanding rest work and releases references on registration[0m
+  [32m  ✔[0m[90m aborts outstanding rawContent work and releases references on dispose[0m
+  [32m  ✔[0m[90m aborts outstanding rawContent work and releases references on disconnect[0m
+  [32m  ✔[0m[90m aborts outstanding rawContent work and releases references on registration[0m
+  [32m  ✔[0m[90m cancels a request without releasing its client[0m
+  [32m  ✔[0m[90m disposal removes only its waiter from an anonymous read shared across connections[0m
+  [32m  ✔[0m[90m surfaces release failures and still cleans the lease up on disconnect[0m
+  [32m  ✔[0m[90m rejects malformed authenticated acquisition before requesting credentials[0m
+
+[0m  GitHub authenticated IPC clients[0m
+  [32m  ✔[0m[90m classifies commit lookup errors after IPC execution (missing=false)[0m
+  [32m  ✔[0m[90m classifies commit lookup errors after IPC execution (missing=true)[0m
+  [32m  ✔[0m[90m acquires the selected grant without fetching a token and runs notifications reads and mutations[0m
+  [32m  ✔[0m[90m preserves request priorities and API domains through IPC for every provider[0m
+  [32m  ✔[0m[90m honors noCache for typed blob reads through IPC (authenticated=false)[0m
+  [32m  ✔[0m[90m honors noCache for typed blob reads through IPC (authenticated=true)[0m[33m (55ms)[0m
+  [32m  ✔[0m[90m isolates credentials and private ETags across physical connections (same context: false)[0m
+  [32m  ✔[0m[90m isolates credentials and private ETags across physical connections (same context: true)[0m
+  [32m  ✔[0m[90m does not let another connection use or release an authenticated handle[0m
+  [32m  ✔[0m[90m coordinates verified account cooldowns across isolated connection scopes[0m
+  [32m  ✔[0m[90m drops authenticated scopes and stale handles when channel registration is replaced[0m
+  [32m  ✔[0m[90m token renewal cancels the old generation without retiring the lease or replaying its request[0m
+  [32m  ✔[0m[90m discards a token callback reply that races renewal without releasing the lease[0m
+  [32m  ✔[0m[90m disposes only one waiter when leases in the same connection share an authenticated read[0m
+  [32m  ✔[0m[90m retiring a grant affects only the matching session and owning connection[0m
+  [32m  ✔[0m[90m does not switch an existing lease when token renewal resolves a different GitHub identity[0m
+  [32m  ✔[0m[90m does not replay notifications mutations after network failure[0m
+  [32m  ✔[0m[90m does not replay notifications mutations after authentication failure[0m
+  [32m  ✔[0m[90m does not replay notifications mutations after server failure[0m
+  [32m  ✔[0m[90m returns the reaction directly over IPC (HTTP 200)[0m
+  [32m  ✔[0m[90m returns the reaction directly over IPC (HTTP 201)[0m
+  [32m  ✔[0m[90m keeps raw downloads credential-free and projects Actions redirects without following them[0m
+  [32m  ✔[0m[90m rejects acquisition for a pre-cancelled signal without contacting the broker[0m
+  [32m  ✔[0m[90m cancels acquisition while the shared-process connection is still pending[0m
+  [32m  ✔[0m[90m does not resurrect an acquisition after cancel while the credential callback is pending[0m
+  [32m  ✔[0m[90m does not resurrect an acquisition after disconnect while the credential callback is pending[0m
+  [32m  ✔[0m[90m does not resurrect an acquisition after grant change while the credential callback is pending[0m
+  [32m  ✔[0m[90m release cancels a pending acquisition without allowing its late reply to overwrite a reused ID[0m
+  [32m  ✔[0m[90m releases an authenticated lease when its acquisition reply is lost[0m
+  [32m  ✔[0m[90m bounds a stalled resolveClient credential callback[0m
+  [32m  ✔[0m[90m bounds a stalled getToken credential callback[0m
+  [32m  ✔[0m[90m cancels authenticated work and releases scopes on dispose[0m
+  [32m  ✔[0m[90m cancels authenticated work and releases scopes on disconnect[0m
+  [32m  ✔[0m[90m cancels authenticated work and releases scopes on registration[0m
+  [32m  ✔[0m[90m rejects mismatched session metadata from the credential callback[0m
+  [32m  ✔[0m[90m rejects mismatched account metadata from the credential callback[0m
+  [32m  ✔[0m[90m rejects mismatched scopes metadata from the credential callback[0m
+  [32m  ✔[0m[90m rejects mismatched issuer metadata from the credential callback[0m
+  [32m  ✔[0m[90m rejects mismatched endpoint metadata from the credential callback[0m
+  [32m  ✔[0m[90m collects REST pages over IPC and retains continuations after 304 revalidation[0m
+  [32m  ✔[0m[90m collects GraphQL pages over IPC and preserves the final cursor at an explicit limit[0m
+  [32m  ✔[0m[90m single-page GraphQL limits reject missing or repeated cursors even when partial results are allowed[0m
+  [32m  ✔[0m[90m collecting review threads leaves nested comments independently paginated[0m
+  [32m  ✔[0m[90m GraphQL collection preserves unavailable data and rejects invalid continuation or later failures[0m
+  [32m  ✔[0m[90m lists pull request connections with cursor pagination without changing REST listing[0m
+  [32m  ✔[0m[90m distinguishes absent and empty pull request connections and rejects malformed results[0m
+  [32m  ✔[0m[90m batches closing PR linkage counts and includes closed PRs[0m
+  [32m  ✔[0m[90m skips empty closing PR linkage reads and validates all numbers before dispatch[0m
+  [32m  ✔[0m[90m preserves unavailable closing PR linkage and rejects missing or malformed counts[0m
+  [32m  ✔[0m[90m does not return partial closing PR linkage when a later batch fails[0m
+  [32m  ✔[0m[90m searches recent assigned issues with update timestamps over IPC[0m
+  [32m  ✔[0m[90m searches pull requests with cursor pagination and latest commit status[0m
+  [32m  ✔[0m[90m preserves nullable PR search nodes and rejects malformed or partial results[0m
+  [32m  ✔[0m[90m validates PR listing, search, and review summary page sizes and deadlines before dispatch[0m
+  [32m  ✔[0m[90m paginates lightweight review thread summaries using the newest comment[0m
+  [32m  ✔[0m[90m preserves absent and empty review summaries and rejects malformed timestamps[0m
+  [32m  ✔[0m[90m runs typed review queries and PR mutations on the account GraphQL provider[0m
+  [32m  ✔[0m[90m preserves review comment timestamps and reply parents across reads and mutations[0m
+  [32m  ✔[0m[90m uses the exact Enterprise GraphQL endpoint rather than appending to the REST base[0m
+  [32m  ✔[0m[90m preserves GraphQL body text through IPC and only serializes variables once[0m
+  [32m  ✔[0m[90m preserves partial GraphQL error details without exposing the partial result as success[0m
+  [32m  ✔[0m[90m enforces GraphQL wire capabilities and refuses operation-selector spoofing[0m
+  [32m  ✔[0m[90m retains the GraphQL wire retry policy (mutation: false)[0m
+  [32m  ✔[0m[90m retains the GraphQL wire retry policy (mutation: true)[0m
+  [32m  ✔[0m[90m preserves dispatched GraphQL mutation deadline errors across IPC[0m
+  [32m  ✔[0m[90m cancels GraphQL mutations without replay on dispose[0m
+  [32m  ✔[0m[90m cancels GraphQL mutations without replay on disconnect[0m
+  [32m  ✔[0m[90m cancels GraphQL mutations without replay on renewal[0m
+  [32m  ✔[0m[90m does not fall back to anonymous requests when the pinned grant loses its token[0m
+[0m    Mission Control[0m
+    [32m  ✔[0m[90m task feed connections omit unused credentials after parsing the IPC response[0m
+    [32m  ✔[0m[90m executes automation, task, and environment operations through the approved Mission Control IPC profile[0m
+    [32m  ✔[0m[90m configuration reads stay uncached and preserve disabled flags through IPC[0m
+    [32m  ✔[0m[90m configuration parsing and service failures remain errors through IPC[0m
+    [32m  ✔[0m[90m serializes mutation bodies once before IPC and parses responses at the caller[0m
+    [32m  ✔[0m[90m preserves documented API diagnostics and indeterminate HTTP failures without raw bodies[0m
+    [32m  ✔[0m[90m preserves credential-free rate_limit_exceeded diagnostics across IPC[0m
+    [32m  ✔[0m[90m preserves credential-free environment_compute_terminal diagnostics across IPC[0m
+    [32m  ✔[0m[90m preserves credential-free future_code diagnostics across IPC[0m
+    [32m  ✔[0m[90m honors noCache for Mission Control reads through IPC[0m
+    [32m  ✔[0m[90m sandbox rate-limit policy survives IPC without blocking task reads[0m
+    [32m  ✔[0m[90m malformed dispatched write responses remain indeterminate[0m
+    [32m  ✔[0m[90m preserves mutation uncertainty on cancel after dispatch[0m
+    [32m  ✔[0m[90m preserves mutation uncertainty on dispose after dispatch[0m
+    [32m  ✔[0m[90m preserves mutation uncertainty on disconnect after dispatch[0m
+    [32m  ✔[0m[90m preserves mutation uncertainty on renewal after dispatch[0m
+    [32m  ✔[0m[90m cancelling an undispatched mutation does not report an uncertain outcome[0m
+    [32m  ✔[0m[90m does not allow wire flags to bypass credential-response privacy[0m
+    [32m  ✔[0m[90m sensitive environment lists are neither shared nor cached across IPC requests[0m
+    [32m  ✔[0m[90m enforces credential-GET and event-read no-retry semantics even without caller policy flags[0m
+    [32m  ✔[0m[90m retains safe-read coalescing and internal validators without exposing ETags[0m
+
+
+[92m [0m[32m 193 passing[0m[90m (7s)[0m
+

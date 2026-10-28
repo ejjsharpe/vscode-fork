@@ -1,0 +1,27 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:33133) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:33133) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:33133) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  LocalPtyChannel[0m
+  [31m  1) the renderer recovery control requests the named main coordinator while direct raw restart stays rejected[0m
+
+
+[92m [0m[32m 0 passing[0m[90m (4ms)[0m
+[31m  1 failing[0m
+
+[0m  1) LocalPtyChannel
+       the renderer recovery control requests the named main coordinator while direct raw restart stays rejected:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+[0m[90m
+  Error: Rejected coordinator-only PTY operation: restartPtyHost
+      at Object.call (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/terminal/common/localPtyChannel.js:163:15)
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/terminal/test/common/localPtyChannel.test.js:147:19)
+[0m
+
+

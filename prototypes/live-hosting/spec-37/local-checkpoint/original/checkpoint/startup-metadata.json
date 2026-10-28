@@ -1,0 +1,30 @@
+{
+  "source": "403375db5f1794d95849d795ceecbf8553d2dfdb",
+  "runtime": "/tmp/esc-cp38-yc6pfhob",
+  "foreignBefore": {
+    "/Users/elliotsharpe/Library/Application Support/Code": {
+      "exists": true,
+      "mtime_ns": 1793226105314610727
+    },
+    "/Users/elliotsharpe/Library/Application Support/Code - OSS": {
+      "exists": false,
+      "mtime_ns": null
+    },
+    "/Users/elliotsharpe/Library/Application Support/Code OSS": {
+      "exists": false,
+      "mtime_ns": null
+    },
+    "/Users/elliotsharpe/Library/Application Support/escode Dev": {
+      "exists": false,
+      "mtime_ns": null
+    },
+    "/Users/elliotsharpe/.vscode-oss-dev": {
+      "exists": true,
+      "mtime_ns": 1793134268443646907
+    },
+    "/Users/elliotsharpe/.escode-dev": {
+      "exists": true,
+      "mtime_ns": 1793222875627330422
+    }
+  }
+}

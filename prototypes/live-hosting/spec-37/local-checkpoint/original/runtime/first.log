@@ -1,0 +1,33 @@
+[90m[main 2026-10-28T21:03:53.384Z][0m StorageMainService: creating application shared storage
+[90m[main 2026-10-28T21:03:53.664Z][0m [CSS_DEV] DONE, 509 css modules (266ms)
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"navigation"}
+[90m[main 2026-10-28T21:03:54.030Z][0m update#setState disabled
+[90m[main 2026-10-28T21:03:54.391Z][0m [shared storage] Creating shared storage database at '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/shared-data/sharedStorage/state.vscdb' (wasCreated: true)
+[90m[main 2026-10-28T21:03:54.391Z][0m [shared storage] Initializing fallback application storage (path: /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/user-data/User/globalStorage/state.vscdb)
+[90m[main 2026-10-28T21:03:54.402Z][0m [shared storage] Fallback application storage initialized with 3 items
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100000,"generation":1,"webContents":2}
+[hosting-probe] loaded {"id":100000,"nativeHost":1,"webContents":2,"pid":85323,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/sessions/electron-browser/sessions-dev.html"}
+[lifetime-probe] connection window:100000:document:1:connection:1
+[90m[main 2026-10-28T21:03:56.857Z][0m AgentHostProcessManager: agent host started
+[readiness-probe] ready 1793221436996 100000 1
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:startExtensionHostMessagePortResult"}
+Unknown channel: agentHostClientByokLm
+Unknown channel: agentHostClientProxy
+Unknown channel: agentHostClientProxy
+Unknown channel: agentHostClientProxy
+Unknown channel: agentHostClientProxy
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[readiness-probe] dispatch 1793221464252 100000 1 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[readiness-probe] dispatch 1793221464261 100000 1 vscode:onWillUnload
+[90m[main 2026-10-28T21:04:24.291Z][0m Extension host with pid 85412 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-cleanup-complete"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"destroyed"}
+Debugger ending on ws://127.0.0.1:51582/151b32b0-4ade-4474-9931-f22fc5798afd
+For help, see: https://nodejs.org/learn/getting-started/debugging

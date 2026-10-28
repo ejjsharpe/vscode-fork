@@ -1,0 +1,81 @@
+[90m[main 2026-10-28T21:12:41.045Z][0m [CSS_DEV] DONE, 509 css modules (87ms)
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"navigation"}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"navigation"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"navigation"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[90m[main 2026-10-28T21:12:41.321Z][0m update#setState disabled
+[90m[main 2026-10-28T21:12:41.350Z][0m [shared storage] Creating shared storage database at '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/tabs/shared-data/sharedStorage/state.vscdb' (wasCreated: true)
+[90m[main 2026-10-28T21:12:41.350Z][0m [shared storage] Initializing fallback application storage (path: /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/tabs/user-data/User/globalStorage/state.vscdb)
+[90m[main 2026-10-28T21:12:41.352Z][0m [shared storage] Fallback application storage initialized with 3 items
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100000,"generation":1,"webContents":2}
+[hosting-probe] loaded {"id":100000,"nativeHost":1,"webContents":2,"pid":93729,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/sessions/electron-browser/sessions-dev.html"}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100001,"generation":2,"webContents":3}
+[hosting-probe] loaded {"id":100001,"nativeHost":1,"webContents":3,"pid":93730,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100002,"generation":3,"webContents":4}
+[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":93731,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+[lifetime-probe] connection window:100002:document:3:connection:1
+[lifetime-probe] connection window:100000:document:1:connection:2
+[lifetime-probe] connection window:100001:document:2:connection:3
+[90m[main 2026-10-28T21:12:46.315Z][0m AgentHostProcessManager: agent host started
+[readiness-probe] ready 1793221966607 100000 1
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[readiness-probe] ready 1793221966710 100001 2
+[readiness-probe] ready 1793221966711 100002 3
+[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100001,"webContents":3,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:startExtensionHostMessagePortResult"}
+[hosting-probe] port {"workbench":100001,"webContents":3,"channel":"vscode:startExtensionHostMessagePortResult"}
+[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:startExtensionHostMessagePortResult"}
+Unknown channel: agentHostClientByokLm
+Unknown channel: agentHostClientProxy
+Unknown channel: agentHostClientProxy
+Unknown channel: agentHostClientProxy
+Unknown channel: agentHostClientProxy
+[91m[main 2026-10-28T21:13:23.071Z][0m webContents#will-navigate: Prevented webcontent navigation
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[Event.buffer][onWillCreateProfile] potential LEAK detected: 1 events buffered for 60s without being consumed. Buffered here:
+    at Object.buffer (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/base/common/event.js:261:27)
+    at Object.fromService (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/base/parts/ipc/common/ipc.js:812:44)
+    at CodeApplication.initChannels (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-main/app.js:1009:50)
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-main/app.js:555:63
+    at InstantiationService.invokeFunction (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/platform/instantiation/common/instantiationService.js:78:14)
+    at CodeApplication.startup (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-main/app.js:555:29)
+    at async CodeMain.startup (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-main/main.js:95:7)
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[readiness-probe] dispatch 1793222033795 100000 1 vscode:onBeforeUnload
+Debugger ending on ws://127.0.0.1:52504/27eb456e-89e5-4d17-8d3d-da9d84603e57
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[readiness-probe] dispatch 1793222034381 100001 2 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[readiness-probe] dispatch 1793222034599 100002 3 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onBeforeUnload","result":"ok"}
+[readiness-probe] dispatch 1793222034767 100000 1 vscode:onWillUnload
+[90m[main 2026-10-28T21:13:55.493Z][0m Extension host with pid 93895 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-cleanup-complete"}
+[readiness-probe] dispatch 1793222035795 100001 2 vscode:onWillUnload
+[90m[main 2026-10-28T21:13:56.010Z][0m Extension host with pid 93896 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100001,"generation":2,"reason":"host-cleanup-complete"}
+[readiness-probe] dispatch 1793222036277 100002 3 vscode:onWillUnload
+[90m[main 2026-10-28T21:13:56.523Z][0m Extension host with pid 93897 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"host-cleanup-complete"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100001,"generation":2,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100001,"generation":2,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"destroyed"}

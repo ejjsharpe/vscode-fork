@@ -1,0 +1,74 @@
+[90m[main 2026-10-28T21:10:42.350Z][0m StorageMainService: creating application shared storage
+[90m[main 2026-10-28T21:10:42.451Z][0m [CSS_DEV] DONE, 509 css modules (86ms)
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"navigation"}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"navigation"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"navigation"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[90m[main 2026-10-28T21:10:42.704Z][0m update#setState disabled
+[90m[main 2026-10-28T21:10:42.763Z][0m [shared storage] Creating shared storage database at '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/tabs/shared-data/sharedStorage/state.vscdb' (wasCreated: true)
+[90m[main 2026-10-28T21:10:42.763Z][0m [shared storage] Initializing fallback application storage (path: /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/tabs/user-data/User/globalStorage/state.vscdb)
+[90m[main 2026-10-28T21:10:42.768Z][0m [shared storage] Fallback application storage initialized with 3 items
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100000,"generation":1,"webContents":2}
+[hosting-probe] loaded {"id":100000,"nativeHost":1,"webContents":2,"pid":90429,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/sessions/electron-browser/sessions-dev.html"}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100001,"generation":2,"webContents":3}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100002,"generation":3,"webContents":4}
+[hosting-probe] loaded {"id":100001,"nativeHost":1,"webContents":3,"pid":90430,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":90431,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+[lifetime-probe] connection window:100002:document:3:connection:1
+[lifetime-probe] connection window:100001:document:2:connection:2
+[lifetime-probe] connection window:100000:document:1:connection:3
+[90m[main 2026-10-28T21:10:47.609Z][0m AgentHostProcessManager: agent host started
+[readiness-probe] ready 1793221847780 100000 1
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[readiness-probe] ready 1793221847880 100001 2
+[hosting-probe] port {"workbench":100001,"webContents":3,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[readiness-probe] ready 1793221847918 100002 3
+[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:startExtensionHostMessagePortResult"}
+[hosting-probe] port {"workbench":100001,"webContents":3,"channel":"vscode:startExtensionHostMessagePortResult"}
+[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:startExtensionHostMessagePortResult"}
+Unknown channel: agentHostClientByokLm
+Unknown channel: agentHostClientProxy
+Unknown channel: agentHostClientProxy
+[91m[main 2026-10-28T21:10:51.563Z][0m webContents#will-navigate: Prevented webcontent navigation
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+Unknown channel: agentHostClientProxy
+Unknown channel: agentHostClientProxy
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[readiness-probe] dispatch 1793221881672 100000 1 vscode:onBeforeUnload
+Debugger ending on ws://127.0.0.1:52070/0c3efd20-7023-4257-8e72-1f0e69f4c93b
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[readiness-probe] dispatch 1793221881814 100001 2 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[readiness-probe] dispatch 1793221881975 100002 3 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onBeforeUnload","result":"ok"}
+[readiness-probe] dispatch 1793221882093 100000 1 vscode:onWillUnload
+[90m[main 2026-10-28T21:11:22.328Z][0m Extension host with pid 90437 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-cleanup-complete"}
+[readiness-probe] dispatch 1793221882625 100001 2 vscode:onWillUnload
+[90m[main 2026-10-28T21:11:22.704Z][0m Extension host with pid 90439 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100001,"generation":2,"reason":"host-cleanup-complete"}
+[readiness-probe] dispatch 1793221882923 100002 3 vscode:onWillUnload
+[90m[main 2026-10-28T21:11:22.999Z][0m Extension host with pid 90440 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"host-cleanup-complete"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100001,"generation":2,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100001,"generation":2,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"destroyed"}

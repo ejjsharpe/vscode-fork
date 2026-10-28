@@ -1,0 +1,866 @@
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> escode-dev@1.145.0 install-fast
+> node build/npm/fast-install.ts
+
+npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> escode-dev@1.145.0 preinstall
+> node build/npm/preinstall.ts
+
+npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+added 97 packages, and audited 98 packages in 449ms
+
+16 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+gyp info it worked if it ends with ok
+gyp info using node-gyp@11.2.0
+gyp info using node@24.22.1 | darwin | arm64
+gyp http GET https://electronjs.org/headers/v43.8.3/node-v43.8.3-headers.tar.gz
+gyp http 200 https://artifacts.electronjs.org/headers/dist/v43.8.3/node-v43.8.3-headers.tar.gz
+gyp http GET https://electronjs.org/headers/v43.8.3/SHASUMS256.txt
+gyp http 200 https://artifacts.electronjs.org/headers/dist/v43.8.3/SHASUMS256.txt
+gyp info ok 
+gyp info it worked if it ends with ok
+gyp info using node-gyp@11.2.0
+gyp info using node@24.22.1 | darwin | arm64
+gyp http GET https://nodejs.org/dist/v24.22.1/node-v24.22.1-headers.tar.gz
+gyp http 200 https://nodejs.org/dist/v24.22.1/node-v24.22.1-headers.tar.gz
+gyp http GET https://nodejs.org/dist/v24.22.1/SHASUMS256.txt
+gyp http 200 https://nodejs.org/dist/v24.22.1/SHASUMS256.txt
+gyp info ok 
+Overlaying custom header /Users/elliotsharpe/Library/Caches/node-gyp/43.8.3/include/node/v8-source-location.h
+Overlaying custom header /Users/elliotsharpe/Library/Caches/node-gyp/43.8.3/include/node/v8config.h
+(node:65036) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+> escode-dev@1.145.0 postinstall
+> node build/npm/postinstall.ts
+
+[] Removed @parcel/watcher prebuilt module /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/node_modules/@parcel/watcher-darwin-arm64
+[build] Installing dependencies...
+(node:65067) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[build] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown env config "arch". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown env config "force-process-config". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown project config "force_process_config". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[build] npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+[build] npm warn deprecated stable@0.1.8: Modern JS already guarantees Array#sort() is a stable sort, so this library is deprecated. See the compatibility table on MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#browser_compatibility
+[build] npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+[build] 
+[build] added 545 packages, and audited 546 packages in 18s
+[build] 
+[build] 113 packages are looking for funding
+[build]   run `npm fund` for details
+[build] 
+[build] 6 vulnerabilities (2 moderate, 4 high)
+[build] 
+[build] To address issues that do not require attention, run:
+[build]   npm audit fix
+[build] 
+[build] To address all issues possible (including breaking changes), run:
+[build]   npm audit fix --force
+[build] 
+[build] Some issues need review, and may require choosing
+[build] a different dependency.
+[build] 
+[build] Run `npm audit` for details.
+[remote] Installing dependencies...
+[remote] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown env config "force-process-config". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote] 
+[remote] added 143 packages, and audited 144 packages in 25s
+[remote] 
+[remote] 21 packages are looking for funding
+[remote]   run `npm fund` for details
+[remote] 
+[remote] 5 vulnerabilities (1 low, 4 high)
+[remote] 
+[remote] To address issues that do not require attention, run:
+[remote]   npm audit fix
+[remote] 
+[remote] To address all issues possible (including breaking changes), run:
+[remote]   npm audit fix --force
+[remote] 
+[remote] Some issues need review, and may require choosing
+[remote] a different dependency.
+[remote] 
+[remote] Run `npm audit` for details.
+[remote] Removed @parcel/watcher prebuilt module /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/remote/node_modules/@parcel/watcher-darwin-arm64
+[.] Running 51 npm installs with concurrency 8...
+[build/rspack] Installing dependencies...
+[build/vite] Installing dependencies...
+[extensions] Installing dependencies...
+[extensions/configuration-editing] Installing dependencies...
+[extensions/copilot] Installing dependencies...
+[extensions/css-language-features] Installing dependencies...
+[extensions/css-language-features/server] Installing dependencies...
+[extensions/debug-auto-launch] Installing dependencies...
+[extensions/configuration-editing] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/configuration-editing] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/configuration-editing] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/configuration-editing] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/configuration-editing] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/configuration-editing] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/configuration-editing] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/configuration-editing] 
+[extensions/configuration-editing] added 3 packages, and audited 4 packages in 742ms
+[extensions/configuration-editing] 
+[extensions/configuration-editing] found 0 vulnerabilities
+[extensions/debug-server-ready] Installing dependencies...
+[extensions/debug-auto-launch] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-auto-launch] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-auto-launch] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-auto-launch] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-auto-launch] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-auto-launch] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-auto-launch] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-auto-launch] 
+[extensions/debug-auto-launch] added 2 packages, and audited 3 packages in 760ms
+[extensions/debug-auto-launch] 
+[extensions/debug-auto-launch] found 0 vulnerabilities
+[extensions/emmet] Installing dependencies...
+[extensions/css-language-features] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features] 
+[extensions/css-language-features] added 12 packages, and audited 13 packages in 764ms
+[extensions/css-language-features] 
+[extensions/css-language-features] 1 package is looking for funding
+[extensions/css-language-features]   run `npm fund` for details
+[extensions/css-language-features] 
+[extensions/css-language-features] found 0 vulnerabilities
+[extensions/extension-editing] Installing dependencies...
+[extensions/css-language-features/server] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features/server] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features/server] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features/server] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features/server] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features/server] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features/server] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/css-language-features/server] 
+[extensions/css-language-features/server] added 10 packages, and audited 11 packages in 841ms
+[extensions/css-language-features/server] 
+[extensions/css-language-features/server] found 0 vulnerabilities
+[extensions/git] Installing dependencies...
+[extensions/extension-editing] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/extension-editing] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/extension-editing] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/extension-editing] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/extension-editing] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/extension-editing] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/extension-editing] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/extension-editing] 
+[extensions/extension-editing] added 15 packages, and audited 16 packages in 574ms
+[extensions/extension-editing] 
+[extensions/extension-editing] 3 packages are looking for funding
+[extensions/extension-editing]   run `npm fund` for details
+[extensions/extension-editing] 
+[extensions/extension-editing] found 0 vulnerabilities
+[extensions/git-base] Installing dependencies...
+[extensions/debug-server-ready] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-server-ready] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-server-ready] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-server-ready] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-server-ready] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-server-ready] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-server-ready] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/debug-server-ready] 
+[extensions/debug-server-ready] added 2 packages, and audited 3 packages in 617ms
+[extensions/debug-server-ready] 
+[extensions/debug-server-ready] found 0 vulnerabilities
+[extensions/github] Installing dependencies...
+[extensions/emmet] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/emmet] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/emmet] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/emmet] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/emmet] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/emmet] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/emmet] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/emmet] 
+[extensions/emmet] added 19 packages, and audited 20 packages in 611ms
+[extensions/emmet] 
+[extensions/emmet] 1 high severity vulnerability
+[extensions/emmet] 
+[extensions/emmet] To address all issues (including breaking changes), run:
+[extensions/emmet]   npm audit fix --force
+[extensions/emmet] 
+[extensions/emmet] Run `npm audit` for details.
+[extensions/github-authentication] Installing dependencies...
+[build/vite] added 29 packages, and audited 30 packages in 2s
+[build/vite] 
+[build/vite] 9 packages are looking for funding
+[build/vite]   run `npm fund` for details
+[build/vite] 
+[build/vite] 1 high severity vulnerability
+[build/vite] 
+[build/vite] To address all issues, run:
+[build/vite]   npm audit fix
+[build/vite] 
+[build/vite] Run `npm audit` for details.
+[extensions/grunt] Installing dependencies...
+[extensions/git-base] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git-base] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git-base] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git-base] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git-base] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git-base] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git-base] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git-base] 
+[extensions/git-base] added 2 packages, and audited 3 packages in 574ms
+[extensions/git-base] 
+[extensions/git-base] found 0 vulnerabilities
+[extensions/gulp] Installing dependencies...
+[extensions/gulp] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/gulp] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/gulp] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/gulp] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/gulp] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/gulp] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/gulp] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/gulp] 
+[extensions/gulp] added 2 packages, and audited 3 packages in 676ms
+[extensions/gulp] 
+[extensions/gulp] found 0 vulnerabilities
+[extensions/html-language-features] Installing dependencies...
+[extensions/github-authentication] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github-authentication] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github-authentication] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github-authentication] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github-authentication] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github-authentication] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github-authentication] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github-authentication] 
+[extensions/github-authentication] added 41 packages, and audited 42 packages in 1s
+[extensions/github-authentication] 
+[extensions/github-authentication] 6 packages are looking for funding
+[extensions/github-authentication]   run `npm fund` for details
+[extensions/github-authentication] 
+[extensions/github-authentication] found 0 vulnerabilities
+[extensions/html-language-features/server] Installing dependencies...
+[extensions/grunt] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/grunt] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/grunt] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/grunt] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/grunt] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/grunt] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/grunt] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/grunt] 
+[extensions/grunt] added 2 packages, and audited 3 packages in 876ms
+[extensions/grunt] 
+[extensions/grunt] found 0 vulnerabilities
+[extensions/ipynb] Installing dependencies...
+[extensions/github] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/github] 
+[extensions/github] added 42 packages, and audited 43 packages in 2s
+[extensions/github] 
+[extensions/github] 2 packages are looking for funding
+[extensions/github]   run `npm fund` for details
+[extensions/github] 
+[extensions/github] found 0 vulnerabilities
+[extensions/jake] Installing dependencies...
+[build/rspack] added 95 packages, and audited 96 packages in 3s
+[build/rspack] 
+[build/rspack] 15 packages are looking for funding
+[build/rspack]   run `npm fund` for details
+[build/rspack] 
+[build/rspack] 2 vulnerabilities (1 moderate, 1 high)
+[build/rspack] 
+[build/rspack] To address all issues, run:
+[build/rspack]   npm audit fix
+[build/rspack] 
+[build/rspack] Run `npm audit` for details.
+[extensions/json-language-features] Installing dependencies...
+[extensions/html-language-features/server] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features/server] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features/server] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features/server] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features/server] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features/server] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features/server] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features/server] 
+[extensions/html-language-features/server] added 11 packages, and audited 12 packages in 579ms
+[extensions/html-language-features/server] 
+[extensions/html-language-features/server] found 0 vulnerabilities
+[extensions/json-language-features/server] Installing dependencies...
+[extensions/ipynb] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/ipynb] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/ipynb] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/ipynb] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/ipynb] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/ipynb] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/ipynb] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/ipynb] 
+[extensions/ipynb] added 9 packages, and audited 10 packages in 591ms
+[extensions/ipynb] 
+[extensions/ipynb] found 0 vulnerabilities
+[extensions/markdown-language-features] Installing dependencies...
+[extensions/jake] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/jake] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/jake] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/jake] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/jake] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/jake] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/jake] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/jake] 
+[extensions/jake] added 2 packages, and audited 3 packages in 574ms
+[extensions/jake] 
+[extensions/jake] found 0 vulnerabilities
+[extensions/markdown-math] Installing dependencies...
+[extensions/html-language-features] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/html-language-features] 
+[extensions/html-language-features] added 23 packages, and audited 24 packages in 1s
+[extensions/html-language-features] 
+[extensions/html-language-features] 2 packages are looking for funding
+[extensions/html-language-features]   run `npm fund` for details
+[extensions/html-language-features] 
+[extensions/html-language-features] found 0 vulnerabilities
+[extensions/merge-conflict] Installing dependencies...
+[extensions/json-language-features] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features] 
+[extensions/json-language-features] added 23 packages, and audited 24 packages in 1s
+[extensions/json-language-features] 
+[extensions/json-language-features] 2 packages are looking for funding
+[extensions/json-language-features]   run `npm fund` for details
+[extensions/json-language-features] 
+[extensions/json-language-features] found 0 vulnerabilities
+[extensions/mermaid-markdown-features] Installing dependencies...
+[extensions/json-language-features/server] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features/server] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features/server] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features/server] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features/server] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features/server] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features/server] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/json-language-features/server] 
+[extensions/json-language-features/server] added 12 packages, and audited 13 packages in 630ms
+[extensions/json-language-features/server] 
+[extensions/json-language-features/server] found 0 vulnerabilities
+[extensions/microsoft-authentication] Installing dependencies...
+[extensions/git] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/git] 
+[extensions/git] added 35 packages, and audited 36 packages in 4s
+[extensions/git] 
+[extensions/git] 9 packages are looking for funding
+[extensions/git]   run `npm fund` for details
+[extensions/git] 
+[extensions/git] found 0 vulnerabilities
+[extensions/notebook-renderers] Installing dependencies...
+[extensions/markdown-math] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-math] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-math] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-math] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-math] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-math] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-math] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-math] 
+[extensions/markdown-math] added 5 packages, and audited 6 packages in 1s
+[extensions/markdown-math] 
+[extensions/markdown-math] 1 package is looking for funding
+[extensions/markdown-math]   run `npm fund` for details
+[extensions/markdown-math] 
+[extensions/markdown-math] 2 low severity vulnerabilities
+[extensions/markdown-math] 
+[extensions/markdown-math] Some issues need review, and may require choosing
+[extensions/markdown-math] a different dependency.
+[extensions/markdown-math] 
+[extensions/markdown-math] Run `npm audit` for details.
+[extensions/npm] Installing dependencies...
+[extensions/merge-conflict] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/merge-conflict] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/merge-conflict] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/merge-conflict] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/merge-conflict] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/merge-conflict] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/merge-conflict] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/merge-conflict] 
+[extensions/merge-conflict] added 13 packages, and audited 14 packages in 2s
+[extensions/merge-conflict] 
+[extensions/merge-conflict] 1 package is looking for funding
+[extensions/merge-conflict]   run `npm fund` for details
+[extensions/merge-conflict] 
+[extensions/merge-conflict] found 0 vulnerabilities
+[extensions/php-language-features] Installing dependencies...
+[extensions/npm] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/npm] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/npm] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/npm] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/npm] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/npm] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/npm] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/npm] 
+[extensions/npm] added 34 packages, and audited 35 packages in 1s
+[extensions/npm] 
+[extensions/npm] 6 packages are looking for funding
+[extensions/npm]   run `npm fund` for details
+[extensions/npm] 
+[extensions/npm] found 0 vulnerabilities
+[extensions/references-view] Installing dependencies...
+[extensions/php-language-features] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/php-language-features] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/php-language-features] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/php-language-features] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/php-language-features] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/php-language-features] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/php-language-features] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/php-language-features] 
+[extensions/php-language-features] added 5 packages, and audited 6 packages in 1s
+[extensions/php-language-features] 
+[extensions/php-language-features] found 0 vulnerabilities
+[extensions/search-result] Installing dependencies...
+[extensions/references-view] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/references-view] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/references-view] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/references-view] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/references-view] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/references-view] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/references-view] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/references-view] 
+[extensions/references-view] added 2 packages, and audited 3 packages in 1s
+[extensions/references-view] 
+[extensions/references-view] found 0 vulnerabilities
+[extensions/simple-browser] Installing dependencies...
+[extensions/notebook-renderers] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/notebook-renderers] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/notebook-renderers] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/notebook-renderers] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/notebook-renderers] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/notebook-renderers] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/notebook-renderers] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/notebook-renderers] 
+[extensions/notebook-renderers] added 52 packages, and audited 53 packages in 3s
+[extensions/notebook-renderers] 
+[extensions/notebook-renderers] 10 packages are looking for funding
+[extensions/notebook-renderers]   run `npm fund` for details
+[extensions/notebook-renderers] 
+[extensions/notebook-renderers] 1 high severity vulnerability
+[extensions/notebook-renderers] 
+[extensions/notebook-renderers] To address all issues, run:
+[extensions/notebook-renderers]   npm audit fix
+[extensions/notebook-renderers] 
+[extensions/notebook-renderers] Run `npm audit` for details.
+[extensions/tunnel-forwarding] Installing dependencies...
+[extensions/microsoft-authentication] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/microsoft-authentication] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/microsoft-authentication] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/microsoft-authentication] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/microsoft-authentication] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/microsoft-authentication] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/microsoft-authentication] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/microsoft-authentication] 
+[extensions/microsoft-authentication] added 60 packages, and audited 63 packages in 4s
+[extensions/microsoft-authentication] 
+[extensions/microsoft-authentication] 7 packages are looking for funding
+[extensions/microsoft-authentication]   run `npm fund` for details
+[extensions/microsoft-authentication] 
+[extensions/microsoft-authentication] 1 high severity vulnerability
+[extensions/microsoft-authentication] 
+[extensions/microsoft-authentication] To address all issues (including breaking changes), run:
+[extensions/microsoft-authentication]   npm audit fix --force
+[extensions/microsoft-authentication] 
+[extensions/microsoft-authentication] Run `npm audit` for details.
+[extensions/terminal-suggest] Installing dependencies...
+[extensions/search-result] added 2 packages, and audited 3 packages in 827ms
+[extensions/search-result] 
+[extensions/search-result] found 0 vulnerabilities
+[extensions/typescript-language-features] Installing dependencies...
+[extensions/tunnel-forwarding] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/tunnel-forwarding] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/tunnel-forwarding] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/tunnel-forwarding] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/tunnel-forwarding] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/tunnel-forwarding] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/tunnel-forwarding] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/tunnel-forwarding] 
+[extensions/tunnel-forwarding] added 2 packages, and audited 3 packages in 746ms
+[extensions/tunnel-forwarding] 
+[extensions/tunnel-forwarding] found 0 vulnerabilities
+[extensions/vscode-api-tests] Installing dependencies...
+[extensions/terminal-suggest] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/terminal-suggest] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/terminal-suggest] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/terminal-suggest] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/terminal-suggest] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/terminal-suggest] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/terminal-suggest] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/terminal-suggest] 
+[extensions/terminal-suggest] added 2 packages, and audited 3 packages in 939ms
+[extensions/terminal-suggest] 
+[extensions/terminal-suggest] found 0 vulnerabilities
+[extensions/vscode-colorize-tests] Installing dependencies...
+[extensions/markdown-language-features] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-language-features] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-language-features] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-language-features] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-language-features] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-language-features] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-language-features] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/markdown-language-features] 
+[extensions/markdown-language-features] added 119 packages, and audited 120 packages in 6s
+[extensions/markdown-language-features] 
+[extensions/markdown-language-features] 50 packages are looking for funding
+[extensions/markdown-language-features]   run `npm fund` for details
+[extensions/markdown-language-features] 
+[extensions/markdown-language-features] 7 vulnerabilities (4 low, 2 high, 1 critical)
+[extensions/markdown-language-features] 
+[extensions/markdown-language-features] To address issues that do not require attention, run:
+[extensions/markdown-language-features]   npm audit fix
+[extensions/markdown-language-features] 
+[extensions/markdown-language-features] To address all issues possible (including breaking changes), run:
+[extensions/markdown-language-features]   npm audit fix --force
+[extensions/markdown-language-features] 
+[extensions/markdown-language-features] Some issues need review, and may require choosing
+[extensions/markdown-language-features] a different dependency.
+[extensions/markdown-language-features] 
+[extensions/markdown-language-features] Run `npm audit` for details.
+[extensions/vscode-colorize-perf-tests] Installing dependencies...
+[extensions/simple-browser] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/simple-browser] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/simple-browser] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/simple-browser] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/simple-browser] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/simple-browser] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/simple-browser] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/simple-browser] 
+[extensions/simple-browser] added 15 packages, and audited 16 packages in 2s
+[extensions/simple-browser] 
+[extensions/simple-browser] 1 package is looking for funding
+[extensions/simple-browser]   run `npm fund` for details
+[extensions/simple-browser] 
+[extensions/simple-browser] found 0 vulnerabilities
+[extensions/vscode-test-resolver] Installing dependencies...
+[extensions/vscode-api-tests] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-api-tests] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-api-tests] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-api-tests] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-api-tests] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-api-tests] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-api-tests] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-api-tests] 
+[extensions/vscode-api-tests] added 24 packages, and audited 25 packages in 1s
+[extensions/vscode-api-tests] 
+[extensions/vscode-api-tests] 2 packages are looking for funding
+[extensions/vscode-api-tests]   run `npm fund` for details
+[extensions/vscode-api-tests] 
+[extensions/vscode-api-tests] 1 high severity vulnerability
+[extensions/vscode-api-tests] 
+[extensions/vscode-api-tests] To address all issues, run:
+[extensions/vscode-api-tests]   npm audit fix
+[extensions/vscode-api-tests] 
+[extensions/vscode-api-tests] Run `npm audit` for details.
+[remote/web] Installing dependencies...
+[extensions/vscode-colorize-tests] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-tests] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-tests] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-tests] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-tests] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-tests] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-tests] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-tests] 
+[extensions/vscode-colorize-tests] added 3 packages, and audited 4 packages in 734ms
+[extensions/vscode-colorize-tests] 
+[extensions/vscode-colorize-tests] found 0 vulnerabilities
+[test/automation] Installing dependencies...
+[extensions/vscode-colorize-perf-tests] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-perf-tests] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-perf-tests] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-perf-tests] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-perf-tests] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-perf-tests] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-perf-tests] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-colorize-perf-tests] 
+[extensions/vscode-colorize-perf-tests] added 3 packages, and audited 4 packages in 872ms
+[extensions/vscode-colorize-perf-tests] 
+[extensions/vscode-colorize-perf-tests] found 0 vulnerabilities
+[test/integration/browser] Installing dependencies...
+[extensions/typescript-language-features] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/typescript-language-features] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/typescript-language-features] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/typescript-language-features] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/typescript-language-features] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/typescript-language-features] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/typescript-language-features] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/typescript-language-features] 
+[extensions/typescript-language-features] added 25 packages, and audited 26 packages in 2s
+[extensions/typescript-language-features] 
+[extensions/typescript-language-features] 1 package is looking for funding
+[extensions/typescript-language-features]   run `npm fund` for details
+[extensions/typescript-language-features] 
+[extensions/typescript-language-features] found 0 vulnerabilities
+[test/monaco] Installing dependencies...
+[extensions/vscode-test-resolver] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-test-resolver] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-test-resolver] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-test-resolver] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-test-resolver] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-test-resolver] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-test-resolver] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/vscode-test-resolver] 
+[extensions/vscode-test-resolver] added 2 packages, and audited 3 packages in 973ms
+[extensions/vscode-test-resolver] 
+[extensions/vscode-test-resolver] found 0 vulnerabilities
+[test/smoke] Installing dependencies...
+[test/integration/browser] npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+[test/integration/browser] npm warn deprecated rimraf@2.7.1: Rimraf versions prior to v4 are no longer supported
+[test/integration/browser] npm warn deprecated glob@7.1.6: Glob versions prior to v9 are no longer supported
+[test/integration/browser] 
+[test/integration/browser] added 22 packages, and audited 23 packages in 1s
+[test/integration/browser] 
+[test/integration/browser] 1 package is looking for funding
+[test/integration/browser]   run `npm fund` for details
+[test/integration/browser] 
+[test/integration/browser] found 0 vulnerabilities
+[test/scenario] Installing dependencies...
+[test/automation] npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+[test/automation] npm warn deprecated glob@7.2.0: Glob versions prior to v9 are no longer supported
+[test/automation] 
+[test/automation] added 86 packages, and audited 87 packages in 1s
+[test/automation] 
+[test/automation] 12 packages are looking for funding
+[test/automation]   run `npm fund` for details
+[test/automation] 
+[test/automation] found 0 vulnerabilities
+[.vscode/extensions/vscode-selfhost-import-aid] Installing dependencies...
+[test/smoke] added 46 packages, and audited 47 packages in 1s
+[test/smoke] 
+[test/smoke] 8 packages are looking for funding
+[test/smoke]   run `npm fund` for details
+[test/smoke] 
+[test/smoke] found 0 vulnerabilities
+[.vscode/extensions/vscode-selfhost-test-provider] Installing dependencies...
+[test/scenario] added 18 packages, and audited 19 packages in 1s
+[test/scenario] 
+[test/scenario] 4 packages are looking for funding
+[test/scenario]   run `npm fund` for details
+[test/scenario] 
+[test/scenario] found 0 vulnerabilities
+[.vscode/extensions/vscode-extras] Installing dependencies...
+[remote/web] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote/web] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote/web] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote/web] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote/web] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote/web] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote/web] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[remote/web] 
+[remote/web] added 26 packages, and audited 27 packages in 3s
+[remote/web] 
+[remote/web] 1 package is looking for funding
+[remote/web]   run `npm fund` for details
+[remote/web] 
+[remote/web] 1 low severity vulnerability
+[remote/web] 
+[remote/web] To address all issues (including breaking changes), run:
+[remote/web]   npm audit fix --force
+[remote/web] 
+[remote/web] Run `npm audit` for details.
+[.vscode/extensions/vscode-pr-pinger] Installing dependencies...
+[.vscode/extensions/vscode-selfhost-import-aid] added 1 package, and audited 2 packages in 1s
+[.vscode/extensions/vscode-selfhost-import-aid] 
+[.vscode/extensions/vscode-selfhost-import-aid] found 0 vulnerabilities
+[.vscode/extensions/vscode-extras] up to date, audited 1 package in 521ms
+[.vscode/extensions/vscode-extras] 
+[.vscode/extensions/vscode-extras] found 0 vulnerabilities
+[.vscode/extensions/vscode-selfhost-test-provider] added 10 packages, and audited 11 packages in 905ms
+[.vscode/extensions/vscode-selfhost-test-provider] 
+[.vscode/extensions/vscode-selfhost-test-provider] 1 package is looking for funding
+[.vscode/extensions/vscode-selfhost-test-provider]   run `npm fund` for details
+[.vscode/extensions/vscode-selfhost-test-provider] 
+[.vscode/extensions/vscode-selfhost-test-provider] found 0 vulnerabilities
+[.vscode/extensions/vscode-pr-pinger] added 21 packages, and audited 22 packages in 1s
+[.vscode/extensions/vscode-pr-pinger] 
+[.vscode/extensions/vscode-pr-pinger] 3 moderate severity vulnerabilities
+[.vscode/extensions/vscode-pr-pinger] 
+[.vscode/extensions/vscode-pr-pinger] To address all issues (including breaking changes), run:
+[.vscode/extensions/vscode-pr-pinger]   npm audit fix --force
+[.vscode/extensions/vscode-pr-pinger] 
+[.vscode/extensions/vscode-pr-pinger] Run `npm audit` for details.
+[test/monaco] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[test/monaco] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[test/monaco] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[test/monaco] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[test/monaco] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[test/monaco] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[test/monaco] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[test/monaco] 
+[test/monaco] added 168 packages, and audited 169 packages in 4s
+[test/monaco] 
+[test/monaco] 26 packages are looking for funding
+[test/monaco]   run `npm fund` for details
+[test/monaco] 
+[test/monaco] 1 moderate severity vulnerability
+[test/monaco] 
+[test/monaco] To address all issues, run:
+[test/monaco]   npm audit fix
+[test/monaco] 
+[test/monaco] Run `npm audit` for details.
+[extensions/mermaid-markdown-features] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/mermaid-markdown-features] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/mermaid-markdown-features] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/mermaid-markdown-features] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/mermaid-markdown-features] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/mermaid-markdown-features] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/mermaid-markdown-features] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/mermaid-markdown-features] 
+[extensions/mermaid-markdown-features] added 175 packages, and audited 176 packages in 15s
+[extensions/mermaid-markdown-features] 
+[extensions/mermaid-markdown-features] 9 packages are looking for funding
+[extensions/mermaid-markdown-features]   run `npm fund` for details
+[extensions/mermaid-markdown-features] 
+[extensions/mermaid-markdown-features] 2 low severity vulnerabilities
+[extensions/mermaid-markdown-features] 
+[extensions/mermaid-markdown-features] To address all issues (including breaking changes), run:
+[extensions/mermaid-markdown-features]   npm audit fix --force
+[extensions/mermaid-markdown-features] 
+[extensions/mermaid-markdown-features] Run `npm audit` for details.
+[extensions] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions] 
+[extensions] > vscode-extensions@0.0.1 postinstall
+[extensions] > node ./postinstall.mjs
+[extensions] 
+[extensions] Removed /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/extensions/node_modules/typescript/LICENSE.txt
+[extensions] Removed /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/extensions/node_modules/typescript/README.md
+[extensions] Removed /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/extensions/node_modules/typescript/SECURITY.md
+[extensions] Removed /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/extensions/node_modules/typescript/ThirdPartyNoticeText.txt
+[extensions] Removed /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/extensions/node_modules/typescript/bin
+[extensions] removed '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/extensions/node_modules/typescript/lib/_tsc.js'
+[extensions] removed '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/extensions/node_modules/typescript/lib/tsc.js'
+[extensions] removed '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/extensions/node_modules/typescript/lib/tsserverlibrary.d.ts'
+[extensions] 
+[extensions] added 14 packages, and audited 15 packages in 26s
+[extensions] 
+[extensions] 3 packages are looking for funding
+[extensions]   run `npm fund` for details
+[extensions] 
+[extensions] found 0 vulnerabilities
+[extensions] Removed @parcel/watcher prebuilt module /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/extensions/node_modules/@parcel/watcher-darwin-arm64
+[extensions/copilot] npm warn Unknown env config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/copilot] npm warn Unknown env config "build-from-source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/copilot] npm warn Unknown env config "ms-build-id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/copilot] npm warn Unknown env config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/copilot] npm warn Unknown env config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/copilot] npm warn Unknown env config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/copilot] npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[extensions/copilot] npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+[extensions/copilot] npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+[extensions/copilot] npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+[extensions/copilot] npm warn deprecated @vscode/webview-ui-toolkit@1.4.0: This package has been deprecated, https://github.com/microsoft/vscode-webview-ui-toolkit/issues/561
+[extensions/copilot] 
+[extensions/copilot] > copilot-chat@0.73.0 postinstall
+[extensions/copilot] > tsx ./script/postinstall.ts
+[extensions/copilot] 
+[extensions/copilot] Creating symlinks for Claude session storage and instructions...
+[extensions/copilot] 
+[extensions/copilot] added 1148 packages, and audited 1149 packages in 28s
+[extensions/copilot] 
+[extensions/copilot] 256 packages are looking for funding
+[extensions/copilot]   run `npm fund` for details
+[extensions/copilot] 
+[extensions/copilot] 28 vulnerabilities (1 low, 16 moderate, 9 high, 2 critical)
+[extensions/copilot] 
+[extensions/copilot] To address issues that do not require attention, run:
+[extensions/copilot]   npm audit fix
+[extensions/copilot] 
+[extensions/copilot] To address all issues (including breaking changes), run:
+[extensions/copilot]   npm audit fix --force
+[extensions/copilot] 
+[extensions/copilot] Run `npm audit` for details.
+[.] Created symlink .claude/CLAUDE.md -> .github/copilot-instructions.md
+[.] Created symlink .claude/skills -> .agents/skills
+
+added 1 package, and audited 1593 packages in 1m
+
+261 packages are looking for funding
+  run `npm fund` for details
+
+35 vulnerabilities (4 low, 18 moderate, 13 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.

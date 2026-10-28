@@ -1,0 +1,302 @@
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> escode-dev@1.145.0 test-node
+> mocha test/unit/node/index.js --delay --ui=tdd --exit --runGlob **/platform/agentHost/test/{common,node}/{remoteAgentHostIpc,devContainerAgentHostIpc,tunnelAgentHostConnector,sshRemoteAgentHostService,wslRemoteAgentHostService,devContainerAgentHostService,tunnelAgentHostService,devContainerSandbox}.test.js
+
+
+
+  Dev Container Agent Host IPC
+    ✔ forwards discovery cancellation through the channel instead of serialized arguments
+    ✔ preserves unbuffered sandbox support facts before a connect rejection
+
+  Remote Agent Host ownership IPC
+    ✔ request cancellation reaches the pending service operation
+    ✔ prompt ownership is established by the pending connect before subscribers can reply
+    ✔ revocation suppresses events and closes a late relay allocation
+    ✔ only the connecting authority can use or renew its relay lease
+    ✔ a closed relay delivers its close only to the owner and rejects later use
+    ✔ WSL disconnect releases its own distro lease and keeps foreign leases usable
+    ✔ tunnel selections are consumed only by their owner and late selections are cancelled
+    ✔ tunnel deletion cannot race a foreign connection into its global cleanup
+    ✔ Dev Container preclaims protect progress, relay IDs and source operations
+    ✔ an old disconnect cannot erase a new owner that reuses the closed Dev Container ID
+
+  TunnelAgentHostConnector
+    ✔ does not allocate a relay after its connecting owner expires
+    ✔ derives the same base64url tokens as Node crypto, including a leading dash
+    ✔ reports relay phase failure and releases the relay without changing the rejection
+    ✔ captures observed relay close code and redacts its reason
+    ✔ uses the legacy root route for v5 and the gateway route for v6
+    ✔ closes a socket allocated after its connection attempt timed out
+    ✔ times out a relay step and disposes the relay client
+    ✔ disposes the relay client when opening the legacy socket fails
+    ✔ disposes active tunnel connections when the connector is disposed
+    ✔ logs the underlying error when a relay socket fails without a close code
+    ✔ logs normal relay socket closes without a warning
+    ✔ reports throttled relay activity while a message is still arriving
+    ✔ cleans up when the gateway inventory is malformed
+    ✔ cleans up when the gateway selection acknowledgement is malformed
+    ✔ accepts a gateway inventory replayed synchronously by the socket
+
+  Dev Container Agent Host Main Service
+    ✔ reports local certificate eligibility without injecting the AH environment (system certificates: true)
+    ✔ reports local certificate eligibility without injecting the AH environment (system certificates: false)
+    ✔ certificate forwarding with local Unix socket
+    ✔ certificate forwarding with local Windows pipe
+    ✔ certificate forwarding with SSH Docker host
+    ✔ certificate forwarding with TCP Docker host
+    ✔ certificate forwarding with forwarded Docker host
+    ✔ certificate forwarding with active remote context
+    ✔ certificate forwarding with remote context overridden by a local host
+    ✔ certificate forwarding with local context overridden by a remote host
+    ✔ does not forward certificates when Docker locality cannot be determined (exit)
+    ✔ does not forward certificates when Docker locality cannot be determined (exception)
+    ✔ a remote launcher never forwards its host certificates into containers
+    ✔ an Agent Host Dev Container CLI refreshes the shared Copilot certificate bundle before each run
+    ✔ discovers modern, legacy and volume Dev Containers without starting them
+    ✔ surfaces Docker discovery failures
+    ✔ parses the final Dev Container CLI result
+    ✔ parses Docker inspect mount information
+    ✔ resolves the bundled Dev Container CLI (92ms)
+    ✔ does not propagate debugger environment to the Dev Container CLI
+    ✔ configures Dev Container CLI certificates like Remote Containers
+    ✔ writes certificates to an owner-only cache and handles a concurrent writer
+    ✔ rejects a symlinked certificate cache directory
+    ✔ uses the inherited environment when shell environment resolution fails
+    ✔ merges the resolved shell environment with the inherited environment
+    ✔ adds the macOS Docker PATH fallback after a shell timeout without mutating the inherited environment
+    ✔ appends the macOS fallback after existing entries
+    ✔ handles an empty macOS PATH without adding the current directory
+    ✔ handles a missing macOS PATH
+    ✔ preserves a leading macOS fallback entry
+    ✔ preserves a middle macOS fallback entry ignoring case
+    ✔ preserves a trailing macOS fallback entry
+    ✔ does not mistake a partial directory name for the macOS fallback
+    ✔ leaves Linux PATH unchanged
+    ✔ leaves Windows PATH unchanged
+    ✔ disconnect cancels a launch immediately and disposes a late relay
+    ✔ disconnect in the same turn cancels a pending launch
+    ✔ reuses a standalone endpoint and exposes its relay
+    ✔ uses the sandbox override for startup and reports actual container support
+    ✔ prepares implicit Compose using the resolved launcher environment, not process.env or the workspace .env (linux)
+    ✔ prepares implicit Compose using the resolved launcher environment, not process.env or the workspace .env (darwin)
+    ✔ prepares implicit Compose using the resolved launcher environment, not process.env or the workspace .env (win32)
+    ✔ keeps the implicit Compose environment scoped to sandbox startup, exec and relay
+    ✔ continues connecting when up reuses a container without sandbox options and reports unsupported status
+    ✔ partitions the shared cache by container libc and configures it before running the CLI
+    ✔ keeps the existing CLI cache with a visible warning when sharing is unavailable
+    ✔ does not add a duplicate cache mount when the container configuration supplies it
+    ✔ caches bootstrap CLIs for each libc even when the server cache remains private
+    ✔ failure to prepare the CLI cache does not disable the shared server cache
+    ✔ forwards missing host Git identity without overwriting container identity
+    ✔ adds the exact bind-mounted repository root to Git safe.directory only when host-owned
+    ✔ logs the safe.directory configuration duration on success and failure
+    ✔ runs Dev Container exec commands with debug logging
+    ✔ stops the sample container after clone failure without removing its volume
+    ✔ stops the sample container after lifecycle failure without removing its volume
+    ✔ stops the sample container after cancellation failure without removing its volume
+    ✔ failed sample preparation does not stop containers used by other VS Code sessions
+    ✔ reports cleanup errors without hiding the sample preparation failure
+    ✔ runs the relay Dev Container exec command with debug logging
+    ✔ rejects when the relay process exits before the WebSocket opens
+    ✔ marks a newly spawned Agent Host with the VS Code session ID
+    ✔ stops and removes the container after disconnecting its relay
+    ✔ does not stop or remove a container used by another VS Code session
+    ✔ shares lifecycle state between case variants of a workspace
+    ✔ keeps automatic reconnects suspended when an explicit resume fails
+    ✔ allows a cold Agent Host to register after the short default deadline
+    ✔ installs the Alpine CLI artifact in a musl container
+
+  Dev Container sandbox configuration
+    ✔ preserves file UNC configuration authorities without accessing the network share
+    ✔ preserves vscode-fileHost UNC configuration authorities without accessing the network share
+    ✔ accepts the pinned CLI file-host configuration output
+    ✔ rejects configuration URIs outside the local file and CLI file-host schemes
+    ✔ preserves the source config and its relative paths while adding all required Docker options
+    ✔ adds a Compose override only for the configured service ("../compose.yml")
+    ✔ adds a Compose override only for the configured service (["../compose.yml","../compose.override.yml"])
+    ✔ targets the resolved Compose service while preserving substitutions in the source config
+    ✔ fails explicitly for invalid source configurations
+    ✔ discovers implicit Compose files from the launcher environment before the workspace .env
+    ✔ discovers implicit Compose files from the workspace .env using the pinned CLI syntax
+    ✔ discovers default implicit Compose files (without default override)
+    ✔ discovers default implicit Compose files (with default override)
+    ✔ preserves the first source Compose version ("version: \"3.8\" # legacy Compose\n")
+    ✔ preserves the first source Compose version ("version: 2.4\n")
+    ✔ preserves the first source Compose version ("{\"version\":\"3.7\",\"services\":{\"workspace\":{\"image\":\"test-image\"}}}")
+    ✔ reads the version from the resolved Compose filename without rewriting source substitutions
+    ✔ detects actual Docker support: all required options
+    ✔ detects actual Docker support: colon-delimited security options
+    ✔ detects actual Docker support: host without AppArmor
+    ✔ detects actual Docker support: default seccomp
+    ✔ detects actual Docker support: confined AppArmor
+    ✔ detects actual Docker support: masked proc paths
+    ✔ detects actual Docker support: read-only proc paths
+    ✔ detects actual Docker support: missing TUN
+    ✔ detects actual Docker support: read-only TUN
+    ✔ detects actual Docker support: pre-existing privileged container
+    ✔ detects actual Docker support: privileged container with explicit AppArmor confinement
+    ✔ detects actual Docker support: privileged container on a host without AppArmor
+    ✔ does not report malformed Docker inspection as unsupported
+
+  SSHRemoteAgentHostMainService - connect flow
+    ✔ does not start a remote host after its pending owner expires
+    ✔ preserves SSH dual-stack connection refused details across IPC for the connection error hover
+    ✔ preserves SSH aggregate with only an error code details across IPC for the connection error hover
+    ✔ preserves SSH aggregate with an existing message details across IPC for the connection error hover
+    ✔ preserves SSH single-address connection refused details across IPC for the connection error hover
+    ✔ allocates independent relay leases for duplicate connects
+    ✔ replaces only the expected relay lease on reconnect
+    ✔ coalesces concurrent reconnects for one expected relay lease
+    ✔ reconnect suppresses synchronous close from old relay during replacement
+    ✔ uses sshConfigHost as connection key when present
+    ✔ skips endpoint discovery and CLI install with remoteAgentHostCommand
+    ✔ spawns a dedicated standalone when no live endpoints exist
+    ✔ reuses the single live standalone deterministically without a picker
+    ✔ prompts among multiple standalones (no editors) and honors the chosen candidate
+    ✔ prompts over every live endpoint when at least one editor exists, and does not touch it
+    ✔ choosing "Start New Dedicated Agent Host" from the picker spawns, leaving other live endpoints untouched
+    ✔ cancelling the endpoint-selection picker rejects connect with cancellation and does not spawn
+    ✔ silent reconnect (userInitiated: false) with only an editor entry never prompts and spawns a new dedicated standalone rather than reusing the editor
+    ✔ silent reconnect (userInitiated: false) reuses the single live standalone deterministically without a picker
+    ✔ silent reconnect (userInitiated: false) with multiple live standalones and an editor reuses the lowest instanceId deterministically without a picker
+    ✔ cold-start reconnect() via userInitiated=false param never prompts and reuses a live standalone (proves the reconnect() API, not just connect())
+    ✔ cold-start reconnect() via userInitiated=true param still prompts when an editor entry exists
+    ✔ user-initiated reconnect (userInitiated: true) still prompts when an editor entry exists, contrasting with the silent path
+    ✔ stored "editor" preference selects the deterministic live editor without a request, even for a silent reconnect
+    ✔ stored "editor" preference with no live editor falls back to dedicated selection without a request
+    ✔ stored "editor" preference with nothing live spawns a new dedicated agent host without a request
+    ✔ stored "dedicated" preference selects dedicated even when an editor is live, without a request
+    ✔ stored "dedicated" preference with nothing live spawns a new dedicated agent host without a request
+    ✔ cold-start reconnect() threads preferredAgentLocation through to selectEndpoint and never prompts when a preference is stored
+    ✔ relay failure to a selected endpoint rereads the registry once and throws, never silently promotes or spawns
+    ✔ does not retry when relay fails on a freshly spawned agent
+    ✔ cleans up SSH client on error
+    ✔ sanitizes config in result (strips password and privateKeyPath)
+    ✔ disconnect removes connection and allows reconnect
+    ✔ fires onDidChangeConnections on connect and disconnect
+    ✔ relay messages fire onDidRelayMessage with correct connectionId
+    ✔ relay close fires onDidRelayClose with correct connectionId
+    ✔ relay activity fires onDidRelayActivity for the initial and replacement relays
+    ✔ relaySend delivers data to the correct connection
+    ✔ relaySend to unknown connectionId is a no-op
+    ✔ connects to two different hosts independently
+    ✔ disconnect one host does not affect the other
+    ✔ relay messages from two connections are distinguished by connectionId
+    ✔ reconnect after disconnect establishes a new SSH connection
+    ✔ fires progress events during connect
+    ✔ cancelling keyboard-interactive prompt rejects connect with cancellation
+    ✔ manual hosts resolve SSH configuration and release a failed proxy while authentication is pending
+    ✔ manual hosts connect with their own settings when SSH configuration cannot be resolved
+    ✔ responding to keyboard-interactive prompt does not cancel connection attempt
+    ✔ SSH client close event disposes the connection
+    ✔ refreshes an installed CLI instead of downloading it directly
+    ✔ downloads CLI when version check fails
+    ✔ warns and reuses the installed CLI when refresh fails
+    ✔ logs connection failures in the shared service
+    ✔ uses host:port as connection key without sshConfigHost
+    ✔ defaults to port 22 in connection key
+    ✔ reconnect preserves connection token and address
+    ✔ messages from superseded relay still arrive (only close is suppressed)
+    ✔ failed lease renewal preserves other leases and permits another renewal
+    ✔ a timed-out lease renewal preserves other leases and skips unbounded diagnostics (52ms)
+    ✔ bounds diagnostic SSH exec after a failed lease renewal
+    ✔ closes a relay that resolves after lease acquisition times out
+    ✔ reconnect removes old close/error listeners from shared SSH client
+    commit-pinned install
+      ✔ always invokes cleanup of old commit-keyed CLIs
+      ✔ reuses existing commit-keyed CLI without re-downloading
+      ✔ downloads from commit-pinned URL when CLI is missing
+      ✔ falls back to any usable CLI when commit-pinned download fails
+      ✔ propagates install error when no fallback CLI exists
+
+  SSHRemoteAgentHostMainService - resolveSSHConfig
+    ✔ reuses a resolved configuration per host, but never a failed or expired one
+
+  SSHRemoteAgentHostMainService - WebSocket relay
+    ✔ reports activity while a large message is still arriving over the channel (66ms)
+    ✔ stops reporting activity once the relay is closed
+
+  SSHRemoteAgentHostMainService - _buildAuthAttempts
+    ✔ Agent + no SSH_AUTH_SOCK + only id_rsa exists → publickey id_rsa, then keyboard-interactive
+    ✔ Agent + SSH_AUTH_SOCK + only id_rsa exists → agent then publickey id_rsa, then keyboard-interactive
+    ✔ Agent + SSH_AUTH_SOCK + id_ed25519 and id_rsa exist → agent then both keys in default order, then keyboard-interactive
+    ✔ Agent + SSH_AUTH_SOCK + no default keys → agent then keyboard-interactive
+    ✔ Agent + IdentityAgent uses configured agent endpoint before default keys
+    ✔ Agent + IdentityAgent SSH_AUTH_SOCK uses the default agent endpoint
+    ✔ Agent + IdentityAgent none disables the default SSH_AUTH_SOCK fallback
+    ✔ Agent + explicit privateKeyPath + SSH_AUTH_SOCK + id_rsa → agent first, then explicit, id_rsa, keyboard-interactive
+    ✔ Agent + explicit privateKeyPath that matches a default → explicit added once, then keyboard-interactive
+    ✔ Agent + explicit privateKeyPath as absolute default path → agent first, key added once
+    ✔ KeyFile + explicit path → publickey only
+    ✔ KeyFile + encrypted OpenSSH key marks attempt as encrypted
+    ✔ KeyFile + missing privateKeyPath throws
+    ✔ KeyFile + unreadable key throws with the path in the message
+    ✔ Password → password only
+
+  SSHRemoteAgentHostMainService - makeAuthHandler
+    ✔ tries none before credentials and continues with the advertised methods when rejected
+    ✔ walks attempts in order, then signals exhaustion
+    ✔ skips attempts whose method the server has rejected
+    ✔ agent attempts are kept when server allows publickey
+    ✔ keyboard-interactive routes prompts to the kbi handler and is skipped without one
+    ✔ encrypted publickey requests passphrase and passes it to ssh2
+
+  TunnelAgentHostService - correlation
+    ✔ uses the injected telemetry session and retains the operation across enumeration requests
+
+  TunnelAgentHostService - withTimeout
+    ✔ returns the operation result when it settles within the timeout
+    ✔ rethrows the operation error verbatim when it rejects before the timeout
+    ✔ throws a step-named timeout error when the operation hangs past the deadline
+    ✔ production constant is large enough to cover SDK keepalive windows
+
+  TunnelAgentHostService - gateway selection
+    ✔ completeSelection sends the selection immediately, then resolves once the gateway acknowledges
+    ✔ completeSelection throws for an unknown selection id
+    ✔ completeSelection surfaces a gateway rejection and closes pending resources without switching targets
+    ✔ completeSelection reports a transport failure as a plain error, never as a gateway rejection
+    ✔ cancelSelection disposes the pending socket and relay client, and is safe to call again or with an unknown id
+    ✔ completeSelection fails once the pending socket has already closed unexpectedly
+
+  PendingGatewaySelection
+    ✔ fires the unexpected-close callback when the socket closes before a selection is made
+    ✔ detach() prevents the unexpected-close callback from firing after ownership transfers
+    ✔ dispose() closes the socket and disposes the relay client exactly once even if called twice
+
+  NodeTunnelSocketFactory
+    ✔ reports data while a message is still arriving over the tunnel stream
+
+  WSL Remote Agent Host Service
+    ✔ does not spawn a remote host after its pending owner expires
+    ✔ one expired caller cannot cancel the other caller sharing its bootstrap
+    ✔ shares one bootstrap while allocating separate relay leases
+    ✔ keeps the shared bootstrap until its final relay lease closes
+    ✔ keeps the detached host session when the launcher exits successfully before session creation
+    ✔ keeps the detached host session when the launcher exits successfully during relay acquisition
+    ✔ keeps the detached host session when the launcher exits successfully after relay acquisition
+    ✔ child exit after ready closes all leases and the next connect bootstraps a fresh session
+    ✔ child signal after ready closes all leases and the next connect bootstraps a fresh session
+    ✔ child error after ready closes all leases and the next connect bootstraps a fresh session
+    ✔ a failed relay acquisition preserves existing leases and the shared bootstrap
+    ✔ does not stop a replacement session when an old WebSocket open fails or its child exits
+    ✔ rejects a launcher exit with code 0 before printing the ready URL
+    ✔ rejects a launcher exit with code 1 before printing the ready URL
+    ✔ rejects a failed launcher exit immediately after printing the ready URL
+    ✔ does not stop a replacement bootstrap when a failed relay acquisition belongs to the old session
+    ✔ accepts initial bootstrap output after the output-idle budget
+    ✔ fails a silent bootstrap after the initial-output startup budget
+    ✔ fails after output goes quiet for the output-idle budget
+    ✔ reports redacted, throttled server download progress
+
+  Errors
+    ✔ should not have unexpected errors in tests
+
+
+  252 passing (496ms)
+

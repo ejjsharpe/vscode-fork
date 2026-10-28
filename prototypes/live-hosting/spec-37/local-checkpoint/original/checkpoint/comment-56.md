@@ -1,0 +1,5 @@
+Not started in this orchestration; this issue stays open with every acceptance checkbox unchanged. Existing inherited baseline code is not a completion claim. No new ticket-specific implementation or required validation was completed.
+
+Remaining: all acceptance criteria in the issue body. Open native blockers: #44, #52. Continue in a fresh `/implement` chat after the native blockers close; no agent is scheduled automatically.
+
+Checkpoint source `403375db5f1794d95849d795ceecbf8553d2dfdb`; integration branch `integration/spec-37-complete`; draft [PR #60](https://github.com/ejjsharpe/escode/pull/60). [Committed handoffs, evidence and review](https://github.com/ejjsharpe/escode/blob/d71ae1f23b018cfc7f99616d24f187dc96375ea6/prototypes/live-hosting/spec-37/checkpoint-2026-10-28/README.md). Orchestration is stopped; no worker remains assigned. Provider work/sign-in stays deferred, authorization probes stay paused, no production merge is authorized, and #35 retains full staged acceptance plus the separate creator verdict.

@@ -1,0 +1,67 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/.build/crashes'
+(node:8721) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:8721) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:8721) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  AgentService (node dispatcher)[0m
+[0m    createChat scratch folders[0m
+    [32m  ✔[0m[90m an explicit No Workspace chat home remains null with a real scratch working directory[0m[33m (67ms)[0m
+[0m    createChat requested folder workspace[0m
+    [31m  1) an explicit saved workspace chat home survives peer creation with folder workspace and working-directory inputs[0m
+
+
+[92m [0m[32m 1 passing[0m[90m (134ms)[0m
+[31m  1 failing[0m
+
+[0m  1) AgentService (node dispatcher)
+       createChat requested folder workspace
+         an explicit saved workspace chat home survives peer creation with folder workspace and working-directory inputs:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+           ]
+         ]
+         "homes": [
+           {
+      [31m-      "kind": "folder"[0m
+      [31m-      "remoteAuthority": "ssh-remote+host"[0m
+      [31m-      "uri": "file:///workspace/repository"[0m
+      [31m-    }[0m
+      [31m-    {[0m
+             "kind": "workspace"
+             "remoteAuthority": "ssh-remote+host"
+             "uri": "file:///workspace/shared.code-workspace"
+           }
+      [32m+    [Circular][0m
+         ]
+       }
+      [0m[90m
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      directories: [
+        [
+          'file:///workspace/repository'
+        ],
+  ...
+        {
+  +       kind: 'folder',
+  -       kind: 'workspace',
+          remoteAuthority: 'ssh-remote+host',
+  +       uri: 'file:///workspace/repository'
+  -       uri: 'file:///workspace/shared.code-workspace'
+        },
+        {
+          kind: 'workspace',
+          remoteAuthority: 'ssh-remote+host',
+          uri: 'file:///workspace/shared.code-workspace'
+  
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/out/vs/platform/agentHost/test/node/agentService.test.js:30300:14)
+[0m
+
+

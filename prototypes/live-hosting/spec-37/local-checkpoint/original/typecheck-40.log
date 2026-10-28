@@ -1,0 +1,12 @@
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> escode-dev@1.145.0 typecheck-client
+> tsc --project ./src/tsconfig.json --noEmit --skipLibCheck
+
+src/vs/platform/browserView/test/electron-main/prototypeBrowserChannel.test.ts(20,76): error TS2740: Type '{ id: string; }' is missing the following properties from type 'BrowserSession': _trust, _history, _remote, _permissions, and 18 more.
+src/vs/platform/browserView/test/electron-main/prototypeBrowserChannel.test.ts(21,84): error TS2740: Type '{ id: string; }' is missing the following properties from type 'BrowserSession': _trust, _history, _remote, _permissions, and 18 more.

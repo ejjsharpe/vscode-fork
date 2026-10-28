@@ -1,0 +1,30 @@
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> escode-dev@1.145.0 test-node
+> mocha test/unit/node/index.js --delay --ui=tdd --exit --run src/vs/platform/agentHost/test/common/remoteAgentHostIpc.test.ts
+
+
+
+  Remote Agent Host ownership IPC
+    ✔ request cancellation reaches the pending service operation
+    ✔ prompt ownership is established by the pending connect before subscribers can reply
+    ✔ revocation suppresses events and closes a late relay allocation
+    ✔ only the connecting authority can use or renew its relay lease
+    ✔ a closed relay delivers its close only to the owner and rejects later use
+    ✔ WSL disconnect releases its own distro lease and keeps foreign leases usable
+    ✔ tunnel selections are consumed only by their owner and late selections are cancelled
+    ✔ tunnel deletion cannot race a foreign connection into its global cleanup
+    ✔ Dev Container preclaims protect progress, relay IDs and source operations
+    ✔ an old disconnect cannot erase a new owner that reuses the closed Dev Container ID
+
+  Errors
+    ✔ should not have unexpected errors in tests
+
+
+  11 passing (11ms)
+

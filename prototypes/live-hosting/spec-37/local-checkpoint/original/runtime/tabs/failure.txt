@@ -1,0 +1,6 @@
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('tab', { name: /^single/, selected: true }) to be visible[22m
+[2m    - waiting for navigation to finish...[22m
+
+    at /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/tabs-smoke.mjs:42:59

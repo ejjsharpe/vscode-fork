@@ -1,0 +1,23 @@
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+AssertionError [ERR_ASSERTION]: Only the selected project is attached
++ actual - expected
+
+  [
+    WebContentsView {},
++   WebContentsView {},
++   WebContentsView {}
+  ]
+
+    at /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/native-host-41/main.cjs:17:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [Array],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"destroyed"}

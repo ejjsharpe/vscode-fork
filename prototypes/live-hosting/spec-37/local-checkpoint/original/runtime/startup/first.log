@@ -1,0 +1,28 @@
+[90m[main 2026-10-28T21:05:12.315Z][0m StorageMainService: creating application shared storage
+[90m[main 2026-10-28T21:05:12.413Z][0m [CSS_DEV] DONE, 509 css modules (81ms)
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"navigation"}
+[90m[main 2026-10-28T21:05:12.587Z][0m update#setState disabled
+[90m[main 2026-10-28T21:05:12.629Z][0m [shared storage] Creating shared storage database at '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/startup/shared-data/sharedStorage/state.vscdb' (wasCreated: true)
+[90m[main 2026-10-28T21:05:12.630Z][0m [shared storage] Initializing fallback application storage (path: /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/startup/user-data/User/globalStorage/state.vscdb)
+[90m[main 2026-10-28T21:05:12.633Z][0m [shared storage] Fallback application storage initialized with 3 items
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100000,"generation":1,"webContents":2}
+[hosting-probe] loaded {"id":100000,"nativeHost":1,"webContents":2,"pid":87008,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/sessions/electron-browser/sessions-dev.html"}
+[lifetime-probe] connection window:100000:document:1:connection:1
+[90m[main 2026-10-28T21:05:14.603Z][0m AgentHostProcessManager: agent host started
+[readiness-probe] ready 1793221514731 100000 1
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:startExtensionHostMessagePortResult"}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[readiness-probe] dispatch 1793221515531 100000 1 vscode:onBeforeUnload
+Debugger ending on ws://127.0.0.1:51728/1aa8f1c4-fb64-4bc2-9ea5-6a6a88eabc51
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[readiness-probe] dispatch 1793221515581 100000 1 vscode:onWillUnload
+[90m[main 2026-10-28T21:05:15.604Z][0m Extension host with pid 87013 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-cleanup-complete"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"destroyed"}

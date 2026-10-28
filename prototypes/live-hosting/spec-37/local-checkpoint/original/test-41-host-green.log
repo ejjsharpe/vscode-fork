@@ -1,0 +1,10 @@
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+PASS: selected-only native attachment, retained inactive lifetime, replacement and disposal
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"destroyed"}

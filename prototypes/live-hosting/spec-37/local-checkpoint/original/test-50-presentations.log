@@ -1,0 +1,1878 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/.build/crashes'
+(node:99337) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:99337) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:99337) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  LocalAgentHostSessionsProvider[0m
+  [32m  ✔[0m[90m managed inventory includes recent repositories without a remaining session and excludes other hosts and non-file repositories[0m
+  [32m  ✔[0m[90m publishes a directly imported conversation without creating or sending another session[0m
+  [32m  ✔[0m[90m does not present an unlisted imported conversation as an empty draft[0m
+  [32m  ✔[0m[90m Copilot schema discovery prevents VS defaults and approval reports entering creation[0m
+  [32m  ✔[0m[90m standard host default survives schema-only Manual preference (explicit=false)[0m
+  [32m  ✔[0m[90m standard host default survives schema-only Manual preference (explicit=true)[0m
+  [32m  ✔[0m[90m Copilot worktree configuration resolves conditional baseBranch without writing the new branch key[0m
+  [32m  ✔[0m[90m Automation catalogue state follows local Agent Host connection lifetime[0m
+  [32m  ✔[0m[90m has correct id, label, and sessionType from rootState agents[0m
+  [32m  ✔[0m[90m leaves remote connection status absent from local sessions[0m
+  [32m  ✔[0m[90m session types update when the local host advertises additional agents[0m
+  [32m  ✔[0m[90m session types publish provider-neutral selection-time initialization[0m
+  [32m  ✔[0m[90m shares the root-state listener across session adapters[0m[33m (68ms)[0m
+  [32m  ✔[0m[90m enables canvas presentation only for local Copilot sessions[0m
+  [32m  ✔[0m[90m reports no session types before rootState hydrates[0m
+  [32m  ✔[0m[90m projects advertised canvas channels through hydration, source updates, errors and removal[0m
+  [32m  ✔[0m[90m rebinds session types when Agent Host starts with a new root subscription[0m
+  [32m  ✔[0m[90m codex external discovery notifications update the same session facade without refreshing the window[0m
+  [32m  ✔[0m[90m copilotcli external discovery notifications update the same session facade without refreshing the window[0m
+  [32m  ✔[0m[90m external adoption metadata updates the same facade via action[0m
+  [32m  ✔[0m[90m external adoption metadata updates the same facade via summary[0m
+  [32m  ✔[0m[90m external adoption metadata updates the same facade via reconnect[0m
+  [32m  ✔[0m[90m refreshes the catalog after Agent Host restart without waiting for a session notification[0m
+  [32m  ✔[0m[90m a late list response from before reconnect cannot replace the restarted host catalog[0m
+  [32m  ✔[0m[90m does not duplicate listeners when Agent Host starts after listeners bind[0m
+  [32m  ✔[0m[90m reports no session types when rootState advertises no agents[0m
+  [32m  ✔[0m[90m reports no session types after rootState resolves to an error[0m
+  [32m  ✔[0m[90m session type icons use per-agent codicons[0m
+  [32m  ✔[0m[90m recomputes protection for a selected non-default base branch when configuration changes[0m
+  [32m  ✔[0m[90m always advertises agent-host Claude[0m
+  [32m  ✔[0m[90m gates agent-host Codex in the Agents window on the provider enablement setting[0m
+  [32m  ✔[0m[90m policy-disabled saved sessions remain visible without advertising creation[0m
+  [32m  ✔[0m[90m policy-disabled history never passively restores and releases existing subscriptions (cold=false)[0m
+  [32m  ✔[0m[90m policy-disabled history never passively restores and releases existing subscriptions (cold=true)[0m
+  [32m  ✔[0m[90m policy-disabled claude history suspends changeset and feedback access (cold=false)[0m
+  [32m  ✔[0m[90m policy-disabled claude history suspends changeset and feedback access (cold=true)[0m
+  [32m  ✔[0m[90m policy-disabled codex history suspends changeset and feedback access (cold=false)[0m
+  [32m  ✔[0m[90m policy-disabled codex history suspends changeset and feedback access (cold=true)[0m
+  [32m  ✔[0m[90m policy-disabled saved rows reject mutations and honor explicit deletion[0m
+  [32m  ✔[0m[90m policy-disabled cached rows survive omission even when a sibling is listed[0m
+  [32m  ✔[0m[90m policy revoked during draft preconditions preserves the draft (removedBeforeResolve=false)[0m
+  [32m  ✔[0m[90m policy revoked during draft preconditions preserves the draft (removedBeforeResolve=true)[0m
+  [32m  ✔[0m[90m getSessions includes agent-host Claude sessions[0m
+  [32m  ✔[0m[90m session icons match the session type icon[0m
+  [32m  ✔[0m[90m resolveWorkspace builds workspace from URI[0m
+  [32m  ✔[0m[90m has no browse actions[0m
+  [32m  ✔[0m[90m batches session added and removed notifications[0m
+  [32m  ✔[0m[90m immediate session changes flush pending notification batches[0m
+  [32m  ✔[0m[90m session removed notification clears cache and metadata[0m
+  [32m  ✔[0m[90m identical session added notification is ignored[0m
+  [32m  ✔[0m[90m removing non-existent session is no-op[0m
+  [32m  ✔[0m[90m session added authoritatively updates a listed session in place[0m
+  [32m  ✔[0m[90m session metadata changes notify when observable git fields change[0m
+  [32m  ✔[0m[90m session metadata marks a folder workspace as a repository[0m
+  [32m  ✔[0m[90m session metadata exposes its creation reference[0m
+  [32m  ✔[0m[90m creation reference follows the creator's default chat once the creator becomes known[0m
+  [32m  ✔[0m[90m remote creation provenance is not remapped onto the child host[0m
+  [32m  ✔[0m[90m getSessions populates from listSessions[0m
+  [32m  ✔[0m[90m eagerly populates and fires onDidChangeSessions after construction without a getSessions() call[0m
+  [32m  ✔[0m[90m defers eager session list fetch until authentication settles[0m
+  [32m  ✔[0m[90m recovers an empty list when the initial listSessions fails, without needing a new session[0m
+  [32m  ✔[0m[90m rejected backend registration does not allocate orphaned adapters across refresh retries[0m
+  [32m  ✔[0m[90m a session whose agent reports nothing survives the refresh[0m
+  [32m  ✔[0m[90m a session missing while its agent still reports others is evicted[0m
+  [32m  ✔[0m[90m a successful empty listSessions arms no retry[0m
+  [32m  ✔[0m[90m retries with backoff until listSessions succeeds[0m
+  [32m  ✔[0m[90m does not register stable cached backend identities before native host reconciliation[0m
+  [32m  ✔[0m[90m a downgrade can update the stable cache without changing native cached identity on re-upgrade[0m
+  [32m  ✔[0m[90m skips cached local native sessions with the URI scheme as their provider while retaining healthy entries[0m
+  [32m  ✔[0m[90m removes a cache containing only poisoned local sessions without waiting for the host[0m
+  [32m  ✔[0m[90m rebuilds a poisoned local cache from copilotcli host metadata and retains it after restart[0m
+  [32m  ✔[0m[90m rebuilds a poisoned local cache from claude host metadata and retains it after restart[0m
+  [32m  ✔[0m[90m rebuilds a poisoned local cache from codex host metadata and retains it after restart[0m
+  [32m  ✔[0m[90m opaque advertised chats work from cached metadata without optional host metadata or live subscriptions[0m
+  [32m  ✔[0m[90m cache does not invent an unadvertised default chat (false)[0m
+  [32m  ✔[0m[90m cache does not invent an unadvertised default chat (true)[0m
+  [32m  ✔[0m[90m chat read state routes exact advertised resources for copilotcli:/chat-read-routing[0m
+  [32m  ✔[0m[90m chat read state routes exact advertised resources for ahp-session:/chat-read-routing[0m
+  [32m  ✔[0m[90m chat read state routes exact advertised resources for ahp-session://tenant/opaque/session[0m
+  [32m  ✔[0m[90m mixed resources and cross-provider raw IDs keep frontend identity after cache reload[0m
+  [32m  ✔[0m[90m hydrates persisted sessions on startup before the live list is available[0m
+  [32m  ✔[0m[90m hydrates current chat read state before live metadata is available[0m
+  [32m  ✔[0m[90m caches chat times and folders but not live chat status[0m
+  [32m  ✔[0m[90m hydrates persisted change stats before the live list is available[0m
+  [32m  ✔[0m[90m hydrates creation provenance before the live list is available[0m
+  [32m  ✔[0m[90m hydrates the exact remote origin from the startup cache[0m
+  [32m  ✔[0m[90m hydrates a pull request icon persisted by a metadata-only update[0m
+  [32m  ✔[0m[90m discards a legacy cache entry so read state is rebuilt from the host[0m
+  [32m  ✔[0m[90m caches session-scoped flags but never transient activity bits[0m
+  [32m  ✔[0m[90m recorded chat homes survive cached discovery and weaker later metadata[0m
+  [32m  ✔[0m[90m hydrated quick chat stays workspace-less after reload despite a scratch working directory[0m
+  [32m  ✔[0m[90m hydrated session preserves multi-root metadata after reload[0m
+  [32m  ✔[0m[90m a refresh publishes _meta and summary fields as one atomic update[0m
+  [32m  ✔[0m[90m a summaryChanged notification publishes the change chip and _meta as one atomic update[0m
+  [32m  ✔[0m[90m a reported zero changes summary is kept instead of being treated as unreported[0m
+  [32m  ✔[0m[90m a summaryChanged delta clearing the adoptable marker opens the passive state subscription[0m
+  [32m  ✔[0m[90m resolveSessionResource seeds the twin in cache when the legacy provider is absent and refresh produces no row[0m
+  [32m  ✔[0m[90m reconciles hydrated sessions against the authoritative list, pruning stale entries[0m
+  [32m  ✔[0m[90m hydrated sessions survive a failed initial listSessions[0m
+  [32m  ✔[0m[90m uses project metadata as workspace group source[0m
+  [32m  ✔[0m[90m listed session with only workingDirectory (no project) shows folder name[0m
+  [32m  ✔[0m[90m session added notification does not carry model metadata[0m
+  [32m  ✔[0m[90m getModels returns only models targeting the session resource scheme[0m
+  [32m  ✔[0m[90m getModelsSnapshot excludes hidden models and announces visibility changes[0m
+  [32m  ✔[0m[90m announces language model changes after the model catalog settles[0m
+  [32m  ✔[0m[90m getModelsSnapshot canonicalizes a matching logical-session model identifier[0m
+  [32m  ✔[0m[90m setModel updates existing session model and lets draft debounce persist it[0m
+  [32m  ✔[0m[90m setModel updates cached selection for later message-level selection[0m
+  [32m  ✔[0m[90m initial configuration and model preferences reach the first send of a host-listed session[0m
+  [32m  ✔[0m[90m setAgent updates existing session agent and lets draft debounce persist it[0m
+  [32m  ✔[0m[90m setAgent with undefined clears the cached agent selection[0m
+  [32m  ✔[0m[90m sandbox policy is seeded from snapshots and updates without a config change[0m
+  [32m  ✔[0m[90m restores the selected agent from the default chat draft on resume[0m
+  [32m  ✔[0m[90m restores the draft agent once the session state advertises its default chat[0m
+  [32m  ✔[0m[90m does not override a live agent selection with the persisted draft agent[0m
+  [32m  ✔[0m[90m restores the selected model and configuration from the default chat draft on resume[0m
+  [32m  ✔[0m[90m does not override a live model selection with the persisted draft model[0m
+  [32m  ✔[0m[90m rebases the selected agent to its worktree twin from the agent list before the working directory flips[0m
+  [32m  ✔[0m[90m leaves the selected agent untouched when the agent list has no relocated twin[0m
+  [32m  ✔[0m[90m carries the picked custom agent onto the committed session when a new session graduates[0m
+  [32m  ✔[0m[90m carries the picked model and configuration onto the committed session when a new session graduates[0m
+  [32m  ✔[0m[90m getCustomAgents collects agents from session customizations, coalesced by URI and sorted by name[0m
+  [32m  ✔[0m[90m getMcpServers dispatches MCP lifecycle requests[0m
+  [32m  ✔[0m[90m getBackendChatResource looks up the host-supplied backend chat URI[0m
+  [32m  ✔[0m[90m canvas operations target the focused host-supplied backend chat URI[0m
+  [32m  ✔[0m[90m getCustomAgents returns no agents when the session has no SessionState[0m
+  [32m  ✔[0m[90m new session exposes client custom agents before SessionState and updates the picker[0m
+  [32m  ✔[0m[90m onDidChangeCustomAgents fires on root state and session state changes[0m
+  [32m  ✔[0m[90m NewSession forwards SessionState into _lastSessionStates so the picker sees customizations before first message[0m
+  [32m  ✔[0m[90m NewSession publishes Agent Host git metadata before the first message[0m
+  [32m  ✔[0m[90m NewSession releases observed changeset subscriptions when inactive[0m
+  [32m  ✔[0m[90m subscribes to the chat channel for a catalogue published relative to the chat[0m
+  [32m  ✔[0m[90m NewSession subscribes to its default chat once the created state advertises it[0m
+  [32m  ✔[0m[90m a NewSession disposed before its state advertises a default chat never subscribes to it[0m
+  [32m  ✔[0m[90m a NewSession that graduates before its state advertises a default chat does not subscribe to it afterwards[0m
+  [32m  ✔[0m[90m NewSession dispose clears _lastSessionStates entry and fires onDidChangeCustomAgents[0m
+  [32m  ✔[0m[90m an invalid explicit chat home is refused instead of replaced by the picked folder[0m
+  [32m  ✔[0m[90m new project chats record exact homes while quick chats record intentional No Workspace[0m
+  [32m  ✔[0m[90m createNewSession returns session with correct fields[0m
+  [32m  ✔[0m[90m startNewSessionRequest exposes session activity until disposed[0m
+  [32m  ✔[0m[90m startNewSessionRequest keeps overlapping request activity until the final request is disposed[0m
+  [32m  ✔[0m[90m createNewSession forwards initial metadata to the agent host[0m
+  [32m  ✔[0m[90m createNewSession republishes standalone MCP enablement after eager creation[0m
+  [32m  ✔[0m[90m getMcpServers returns MCP servers from a draft session[0m
+  [32m  ✔[0m[90m setCustomizationEnablement dispatches for a draft session[0m
+  [32m  ✔[0m[90m declares quick chat support[0m
+  [32m  ✔[0m[90m createQuickChat returns a workspace-less untitled session[0m
+  [32m  ✔[0m[90m createQuickChat eagerly creates the backend session with no working directory (inferred workspace-less)[0m
+  [32m  ✔[0m[90m createQuickChat throws when no agents are advertised[0m
+  [32m  ✔[0m[90m hydrates automation provenance from a fresh provider cache before the live list[0m
+  [32m  ✔[0m[90m preserves typed automation provenance when the run catalogue changes or is deleted[0m
+  [32m  ✔[0m[90m refreshing many sessions preserves typed automation provenance without per-session run evaluation[0m
+  [32m  ✔[0m[90m restores a quick chat from listSessions as workspace-less despite a scratch working directory[0m
+  [32m  ✔[0m[90m restored quick chat supports nested chats like any session of its agent[0m
+  [32m  ✔[0m[90m restored quick chat lists nested chats; scratch folders are hidden and a foldered chat shows its own folder[0m
+  [32m  ✔[0m[90m a restored, unsubscribed workspace-less session lists a nested chat with its own folder and hides scratch folders[0m
+  [32m  ✔[0m[90m a restored, unopened workspace session shows a moved-in scratch folder only while the host listing omits it (false)[0m
+  [32m  ✔[0m[90m a restored, unopened workspace session shows a moved-in scratch folder only while the host listing omits it (true)[0m
+  [32m  ✔[0m[90m workspace session hides a moved-in scratch folder from its workspace and its chat[0m
+  [32m  ✔[0m[90m restored quick chat lists the peer chats its state advertises[0m
+  [32m  ✔[0m[90m promotes an untagged session to a quick chat once state reports it workspace-less, and persists the promotion[0m
+  [32m  ✔[0m[90m reports a kind-only promotion so the list regroups a session that never had a workspace[0m
+  [32m  ✔[0m[90m listing reconcile promotes a cached adapter in place and announces the regroup[0m
+  [32m  ✔[0m[90m observes a late host working directory without creating a workspace[0m
+  [32m  ✔[0m[90m authoritative session state converts a quick chat to a workspace session in place[0m
+  [32m  ✔[0m[90m workspace change project survives subsequent state updates with an unchanged old project[0m
+  [32m  ✔[0m[90m isolated conversion groups by repository while running in the worktree[0m
+  [32m  ✔[0m[90m committed quick chat announced via sessionAdded stays workspace-less despite a scratch working directory[0m
+  [32m  ✔[0m[90m createNewSession clears session config when resolving config is unavailable[0m
+  [32m  ✔[0m[90m does not resolve recent samples when any sample selection prerequisite is disabled[0m
+  [32m  ✔[0m[90m sample drafts defer provisioning and never create a local backend (available: true)[0m
+  [32m  ✔[0m[90m sample drafts defer provisioning and never create a local backend (available: false)[0m
+  [32m  ✔[0m[90m enables a preferred Dev Container after asynchronous availability resolves[0m
+  [32m  ✔[0m[90m notifies Dev Container request changes while availability is pending (available)[0m
+  [32m  ✔[0m[90m notifies Dev Container request changes while availability is pending (unavailable)[0m
+  [32m  ✔[0m[90m notifies Dev Container request changes while availability is pending (error)[0m
+  [32m  ✔[0m[90m notifies Dev Container request changes while availability is pending (canceled)[0m
+  [32m  ✔[0m[90m enables a preferred Dev Container immediately after availability resolved[0m
+  [32m  ✔[0m[90m switches incompatible worktree isolation to folder when enabling a preferred Dev Container[0m
+  [32m  ✔[0m[90m does not enable a preferred Dev Container when unavailable or canceled[0m
+  [32m  ✔[0m[90m required Dev Container does not fall back on unavailable (send while pending: false)[0m
+  [32m  ✔[0m[90m required Dev Container does not fall back on unavailable (send while pending: true)[0m
+  [32m  ✔[0m[90m required Dev Container does not fall back on error (send while pending: false)[0m
+  [32m  ✔[0m[90m required Dev Container does not fall back on error (send while pending: true)[0m
+  [32m  ✔[0m[90m required Dev Container waits for availability and honors trust and cancellation[0m
+  [32m  ✔[0m[90m required Dev Container retries availability without losing its selection[0m
+  [32m  ✔[0m[90m prepareNewSession does not start a Dev Container when workspace trust is denied[0m
+  [32m  ✔[0m[90m uses sandbox support only for the actual Dev Container target (folder)[0m
+  [32m  ✔[0m[90m uses sandbox support only for the actual Dev Container target (worktree)[0m
+  [32m  ✔[0m[90m sample drafts retain their source sandbox support when isolation is set to worktree[0m
+  [32m  ✔[0m[90m passes the effective sandbox choice to Dev Container startup (on, default)[0m
+  [32m  ✔[0m[90m passes the effective sandbox choice to Dev Container startup (off, default)[0m
+  [32m  ✔[0m[90m passes the effective sandbox choice to Dev Container startup (on, off)[0m
+  [32m  ✔[0m[90m passes the effective sandbox choice to Dev Container startup (off, on)[0m
+  [32m  ✔[0m[90m Dev Container preparation links to the workspace log and supports cancellation without committing the draft[0m
+  [32m  ✔[0m[90m canceling Dev Container worktree preparation does not create a worktree (pending eager create: false)[0m
+  [32m  ✔[0m[90m canceling Dev Container worktree preparation does not create a worktree (pending eager create: true)[0m
+  [32m  ✔[0m[90m waits for preferred Dev Container availability before preparing a request[0m
+  [32m  ✔[0m[90m preferred Dev Container availability exposes progress and clears it on fallback[0m
+  [32m  ✔[0m[90m preferred Dev Container availability exposes progress and clears it on cancellation[0m
+  [32m  ✔[0m[90m prepareNewSession releases the Dev Container connection when post-connect setup fails[0m
+  [32m  ✔[0m[90m prepareNewSession routes an enabled Dev Container draft to the connected provider[0m
+  [32m  ✔[0m[90m createNewSession maps allowAll from chat.defaultConfiguration to autoApprove[0m
+  [32m  ✔[0m[90m createNewSession seeds mode from chat.defaultConfiguration and forwards it to resolveSessionConfig[0m
+  [32m  ✔[0m[90m createNewSession forwards seeded config to eager createSession[0m
+  [32m  ✔[0m[90m createNewSession does not seed autoApprove when chat.defaultConfiguration approvals is manual[0m
+  [32m  ✔[0m[90m legacy policy prevents unseeded backend creation when discovery fails[0m
+  [32m  ✔[0m[90m createNewSession clamps seeded assisted to default when policy disables global auto-approve[0m
+  [32m  ✔[0m[90m createNewSession clamps seeded allowAll to default when policy disables global auto-approve[0m
+  [32m  ✔[0m[90m legacy policy waits for discovery before prewarming an unseeded session (native=false, hostPolicy=false)[0m
+  [32m  ✔[0m[90m preserves setting approval until discovery (native=false, hostPolicy=false)[0m
+  [32m  ✔[0m[90m preserves remembered approval until discovery (native=false, hostPolicy=false)[0m
+  [32m  ✔[0m[90m legacy policy waits for discovery before prewarming an unseeded session (native=false, hostPolicy=true)[0m
+  [32m  ✔[0m[90m preserves setting approval until discovery (native=false, hostPolicy=true)[0m
+  [32m  ✔[0m[90m preserves remembered approval until discovery (native=false, hostPolicy=true)[0m
+  [32m  ✔[0m[90m legacy policy waits for discovery before prewarming an unseeded session (native=true, hostPolicy=false)[0m
+  [32m  ✔[0m[90m preserves setting approval until discovery (native=true, hostPolicy=false)[0m
+  [32m  ✔[0m[90m preserves remembered approval until discovery (native=true, hostPolicy=false)[0m
+  [32m  ✔[0m[90m legacy policy waits for discovery before prewarming an unseeded session (native=true, hostPolicy=true)[0m
+  [32m  ✔[0m[90m preserves setting approval until discovery (native=true, hostPolicy=true)[0m
+  [32m  ✔[0m[90m preserves remembered approval until discovery (native=true, hostPolicy=true)[0m
+  [32m  ✔[0m[90m remembers the last started isolation per workspace with useWorktree=true as fallback[0m
+  [32m  ✔[0m[90m remembers the last started isolation per workspace with useWorktree=false as fallback[0m
+  [32m  ✔[0m[90m changing isolation without starting the session does not update the workspace preference[0m
+  [32m  ✔[0m[90m loads branches once per selected workspace draft, not on configuration changes[0m
+  [32m  ✔[0m[90m an empty branch list is requested again on the next picker open, then cached[0m
+  [32m  ✔[0m[90m failed branch loading reports the error and is requested again on the next picker open[0m
+  [32m  ✔[0m[90m discarding a draft ignores its in-flight branch results[0m
+  [32m  ✔[0m[90m a rejected first request does not save a workspace isolation preference[0m
+  [32m  ✔[0m[90m invalid remembered workspace isolation falls back to useWorktree[0m
+  [32m  ✔[0m[90m equivalent workspace URIs share one isolation preference[0m
+  [32m  ✔[0m[90m removing a recent workspace forgets only its isolation preference[0m
+  [32m  ✔[0m[90m quick chats and automation drafts do not consult the initial worktree setting[0m
+  [32m  ✔[0m[90m setSessionConfigValue remembers portable string picks and drops non-remembered keys[0m
+  [32m  ✔[0m[90m draft config refresh stays local and send waits for the resolved values[0m
+  [32m  ✔[0m[90m serializes draft config writes instead of dropping selections during resolution[0m
+  [32m  ✔[0m[90m first send waits for tracked draft config operations[0m
+  [32m  ✔[0m[90m first send waits for trusted eager backend creation[0m
+  [32m  ✔[0m[90m first send falls back when eager workspace trust lookup fails[0m
+  [32m  ✔[0m[90m draft disposal cancels a send waiting for config resolution[0m
+  [32m  ✔[0m[90m new session config snapshots all resolved values without requiring a worktree[0m
+  [32m  ✔[0m[90m snapshot retries failed initial draft configuration without reloading[0m
+  [32m  ✔[0m[90m send retries failed initial draft configuration without reloading[0m
+  [32m  ✔[0m[90m automation retries failed initial draft configuration without reloading[0m
+  [32m  ✔[0m[90m snapshot retries failed draft configuration refresh without dropping edited preferences[0m
+  [32m  ✔[0m[90m send retries failed draft configuration refresh without dropping edited preferences[0m
+  [32m  ✔[0m[90m automation retries failed draft configuration refresh without dropping edited preferences[0m
+  [32m  ✔[0m[90m draft configuration retry applies current host approval restrictions[0m
+  [32m  ✔[0m[90m concurrent draft configuration retries share resolution and wait for new operations[0m
+  [32m  ✔[0m[90m concurrent draft configuration retries share resolution and cancel on disposal[0m
+  [32m  ✔[0m[90m new session config leaves unrecognized isolation values provider-specific[0m
+  [32m  ✔[0m[90m maps the existing isolation setter to agent-host config without remembering it[0m
+  [32m  ✔[0m[90m resets the branch to the isolation default when New Worktree is toggled[0m
+  [32m  ✔[0m[90m selects the default remote branch for New Worktree and the current branch for Branch[0m
+  [32m  ✔[0m[90m initial New Worktree selects the default remote branch when Git state hydrates[0m
+  [32m  ✔[0m[90m initial New Worktree preserves an explicitly configured branch when Git state hydrates[0m
+  [32m  ✔[0m[90m selects the local default branch when New Worktree has no remote default branch[0m
+  [32m  ✔[0m[90m restored folder isolation selects the current branch when Git state first hydrates[0m
+  [32m  ✔[0m[90m folder drafts follow branch switches reported by the Git state[0m
+  [32m  ✔[0m[90m folder drafts skip obsolete branch reports while config resolution is in flight[0m
+  [32m  ✔[0m[90m creates the backend session from a pull request without remembering it[0m
+  [32m  ✔[0m[90m rejects a pull request before backend creation when the agent host does not support pull request sessions[0m
+  [32m  ✔[0m[90m waits for schema discovery then applies programmatic worktree configuration in one resolve[0m
+  [32m  ✔[0m[90m rejects branch configuration when agent-host resolution fails[0m
+  [32m  ✔[0m[90m rejects isolation configuration when the final resolve changes the requested value[0m
+  [32m  ✔[0m[90m cancels repository configuration when the draft is disposed during initial resolve[0m
+  [32m  ✔[0m[90m waits for authentication and startup config resolution before repository configuration[0m
+  [32m  ✔[0m[90m setSessionConfigValue clamps assisted to default when policy disables global auto-approve[0m
+  [32m  ✔[0m[90m setSessionConfigValue clamps autoApprove to default when policy disables global auto-approve[0m
+  [32m  ✔[0m[90m setSessionConfigValue clamps autopilot to default when policy disables global auto-approve[0m
+  [32m  ✔[0m[90m branch selection stays on the current workspace and the next workspace resolves its own branch[0m
+  [32m  ✔[0m[90m caches resolved isolation/branch schema and seeds it into the next draft[0m
+  [32m  ✔[0m[90m createNewSession forwards Git worktree file settings after schema discovery[0m
+  [32m  ✔[0m[90m createNewSession forwards enabled custom hook and agent locations[0m
+  [32m  ✔[0m[90m updates sensitive edit locations when running-session settings change[0m
+  [32m  ✔[0m[90m sendRequest forwards Git worktree settings of the folder loaded after the draft was created[0m
+  [32m  ✔[0m[90m a worktree draft is created in the picked folder only when sessions pre-warm, and Send picks the isolation (prewarm=true, send=worktree)[0m
+  [32m  ✔[0m[90m a worktree draft is created in the picked folder only when sessions pre-warm, and Send picks the isolation (prewarm=true, send=folder)[0m
+  [32m  ✔[0m[90m a worktree draft is created in the picked folder only when sessions pre-warm, and Send picks the isolation (prewarm=false, send=worktree)[0m
+  [32m  ✔[0m[90m Automation drafts merge derived worktree settings with saved provider configuration after discovery[0m
+  [32m  ✔[0m[90m createNewSession gives remembered autoApprove precedence over a configured setting while policy still clamps[0m
+  [32m  ✔[0m[90m createNewSession migrates a remembered legacy autoApprove=autopilot to mode=autopilot[0m
+  [32m  ✔[0m[90m createNewSession explicit mode overrides the permission choice default before eager creation[0m
+  [32m  ✔[0m[90m comparison drafts inherit interactive with default from the source input[0m
+  [32m  ✔[0m[90m comparison drafts inherit interactive with assisted from the source input[0m
+  [32m  ✔[0m[90m comparison drafts inherit interactive with autoApprove from the source input[0m
+  [32m  ✔[0m[90m comparison drafts inherit autopilot with default from the source input[0m
+  [32m  ✔[0m[90m comparison drafts inherit autopilot with assisted from the source input[0m
+  [32m  ✔[0m[90m comparison drafts inherit autopilot with autoApprove from the source input[0m
+  [32m  ✔[0m[90m comparison drafts inherit plan with default from the source input[0m
+  [32m  ✔[0m[90m comparison drafts inherit plan with assisted from the source input[0m
+  [32m  ✔[0m[90m comparison drafts inherit plan with autoApprove from the source input[0m
+  [32m  ✔[0m[90m comparison permissions translate allow-all intent to each target harness without copying the source mode[0m
+  [32m  ✔[0m[90m comparison permissions preserve conforming-host approvalMode default through management launch[0m
+  [32m  ✔[0m[90m comparison permissions preserve conforming-host approvalMode assisted through management launch[0m
+  [32m  ✔[0m[90m comparison permissions preserve conforming-host approvalMode autoApprove through management launch[0m
+  [32m  ✔[0m[90m comparison permissions preserve conforming-host autoApprove default through management launch[0m
+  [32m  ✔[0m[90m comparison permissions preserve conforming-host autoApprove assisted through management launch[0m
+  [32m  ✔[0m[90m comparison permissions preserve conforming-host autoApprove autoApprove through management launch[0m
+  [32m  ✔[0m[90m comparison permissions preserve copilotcli approvalMode default through management launch[0m
+  [32m  ✔[0m[90m comparison permissions preserve copilotcli approvalMode assisted through management launch[0m
+  [32m  ✔[0m[90m comparison permissions preserve copilotcli approvalMode autoApprove through management launch[0m
+  [32m  ✔[0m[90m comparison mode accepts the effective read-only autopilot default without explicit permissions[0m
+  [32m  ✔[0m[90m comparison mode rejects unsupported autopilot before backend creation[0m
+  [32m  ✔[0m[90m comparison mode rejects omitted autopilot before backend creation[0m
+  [32m  ✔[0m[90m comparison mode rejects clamped autopilot before backend creation[0m
+  [32m  ✔[0m[90m comparison mode rejects readOnly autopilot before backend creation[0m
+  [32m  ✔[0m[90m comparison mode accepts the effective read-only plan default without explicit permissions[0m
+  [32m  ✔[0m[90m comparison mode rejects unsupported plan before backend creation[0m
+  [32m  ✔[0m[90m comparison mode rejects omitted plan before backend creation[0m
+  [32m  ✔[0m[90m comparison mode rejects clamped plan before backend creation[0m
+  [32m  ✔[0m[90m comparison mode rejects readOnly plan before backend creation[0m
+  [32m  ✔[0m[90m comparison config preserves host failure during discovery[0m
+  [32m  ✔[0m[90m comparison config preserves cancellation during discovery[0m
+  [32m  ✔[0m[90m comparison config preserves host failure during application[0m
+  [32m  ✔[0m[90m comparison config preserves cancellation during application[0m
+  [32m  ✔[0m[90m comparison permissions reject readOnly approval instead of using a default[0m
+  [32m  ✔[0m[90m comparison permissions reject unavailable approval instead of using a default[0m
+  [32m  ✔[0m[90m comparison permissions reject policy approval instead of using a default[0m
+  [32m  ✔[0m[90m comparison permissions reject clamped approval instead of using a default[0m
+  [32m  ✔[0m[90m comparison permissions reject effective approval instead of using a default[0m
+  [32m  ✔[0m[90m createNewSession restores and captures an Automation session template[0m
+  [32m  ✔[0m[90m Automation templates restore and capture sandbox selection on[0m
+  [32m  ✔[0m[90m Automation templates restore and capture sandbox selection off[0m
+  [32m  ✔[0m[90m Automation templates restore and capture sandbox selection default[0m
+  [32m  ✔[0m[90m rejects Automation model configuration without a model before acquiring a draft[0m
+  [32m  ✔[0m[90m forwards programmatic parent session provenance to eager creation[0m
+  [32m  ✔[0m[90m Automation model options reach eager creation and the browser-executed first request[0m
+  [32m  ✔[0m[90m Draft-scoped model options reach eager creation and the first request without changing global defaults[0m
+  [32m  ✔[0m[90m Automation picker edits are captured independently and survive provider model qualification[0m
+  [32m  ✔[0m[90m Automation capture rejects failed initial configuration resolution[0m
+  [32m  ✔[0m[90m Automation capture retries failed resolution without dropping edited preferences[0m
+  [32m  ✔[0m[90m Automation capture waits for tracked configuration operations before reading values[0m
+  [32m  ✔[0m[90m createNewSession restores legacy Automation fields at the provider boundary[0m
+  [32m  ✔[0m[90m Automation drafts display policy-clamped approvals without overwriting the saved preference[0m
+  [32m  ✔[0m[90m createNewSession drops an invalid remembered mode instead of forwarding it[0m
+  [32m  ✔[0m[90m createNewSession seeds remembered mode/approvals when chat.defaultConfiguration is at its schema default[0m
+  [32m  ✔[0m[90m createNewSession keeps remembered picks over an ordinary configured chat.defaultConfiguration setting[0m
+  [32m  ✔[0m[90m createNewSession uses configured chat.defaultConfiguration when there is no remembered pick[0m
+  [32m  ✔[0m[90m createNewSession lets an enterprise policy chat.defaultConfiguration override remembered picks[0m
+  [32m  ✔[0m[90m createNewSession applies a managed default approval over remembered and configured picks while keeping the configured mode[0m
+  [32m  ✔[0m[90m createNewSession applies a managed default approval over a remembered host-native approvalMode[0m
+  [32m  ✔[0m[90m getSessionByResource resolves current new session without listing it[0m
+  [32m  ✔[0m[90m joins the active client with customizations when opening an existing session[0m
+  [32m  ✔[0m[90m session refresh preserves scope, session and MCP app tools with first-name precedence[0m
+  [32m  ✔[0m[90m does not treat optimistic active client state as host confirmation[0m
+  [32m  ✔[0m[90m republishes the active client after the host removes it[0m
+  [32m  ✔[0m[90m does not republish the active client after a rejected publication rolls back[0m
+  [32m  ✔[0m[90m does not let an older rejection invalidate a newer active client publication[0m
+  [32m  ✔[0m[90m quick chat excludes its host scratch directory from the active client customization scope[0m
+  [32m  ✔[0m[90m does not publish empty customizations while resolving an unobserved active session scope[0m
+  [32m  ✔[0m[90m createNewSession eagerly creates the backend session with the client-allocated URI[0m
+  [32m  ✔[0m[90m copilotcli eager allocation registers its exact address before catalog publication (false)[0m
+  [32m  ✔[0m[90m copilotcli eager allocation registers its exact address before catalog publication (true)[0m
+  [32m  ✔[0m[90m codex eager allocation registers its exact address before catalog publication (false)[0m
+  [32m  ✔[0m[90m codex eager allocation registers its exact address before catalog publication (true)[0m
+  [32m  ✔[0m[90m claude eager allocation registers its exact address before catalog publication (false)[0m
+  [32m  ✔[0m[90m claude eager allocation registers its exact address before catalog publication (true)[0m
+  [32m  ✔[0m[90m createNewSession does not eagerly create the backend session in an untrusted folder[0m
+  [32m  ✔[0m[90m createNewSession disposes the previous eager backend session on workspace switch[0m
+  [32m  ✔[0m[90m eager createSession completes on the wire before getSubscription opens[0m
+  [32m  ✔[0m[90m no subscription is opened if eager createSession fails[0m
+  [32m  ✔[0m[90m workspace switch mid-createSession does not open a stale subscription[0m
+  [32m  ✔[0m[90m deleteSession releases all cached provider state[0m
+  [32m  ✔[0m[90m deleteSession does not remove a session twice when the host also notifies[0m
+  [32m  ✔[0m[90m deleteSessions disposes all sessions and removes them from cache[0m
+  [32m  ✔[0m[90m deleteSessions publishes successful removals before propagating a later failure[0m
+  [32m  ✔[0m[90m renameSession dispatches SessionTitleChanged on the session channel[0m
+  [32m  ✔[0m[90m renameSession updates the session title optimistically[0m
+  [32m  ✔[0m[90m renameChat on the default chat renames the chat tab, not the session[0m
+  [32m  ✔[0m[90m renameChat is no-op for unknown session[0m
+  [32m  ✔[0m[90m server-echoed SessionTitleChanged updates cached title[0m
+  [32m  ✔[0m[90m a rejected SessionIsArchivedChanged leaves the session unarchived[0m
+  [32m  ✔[0m[90m server-echoed ChatTurnStarted model does not update cached session model[0m
+  [32m  ✔[0m[90m turnComplete action triggers session refresh[0m
+  [32m  ✔[0m[90m session adapter has correct workspace from working directory[0m
+  [32m  ✔[0m[90m session adapter without working directory has no workspace[0m
+  [32m  ✔[0m[90m the main chat's changesets come from the advertised default chat only, never the first chat (true)[0m
+  [32m  ✔[0m[90m the main chat's changesets come from the advertised default chat only, never the first chat (false)[0m
+  [32m  ✔[0m[90m Last Turn Changes keeps live chat edits until the host changeset updates[0m
+  [32m  ✔[0m[90m Last Turn Changes ignores a trailing host notice turn[0m
+  [32m  ✔[0m[90m registers provider-neutral resource label homes for quick chats and provider state[0m
+  [32m  ✔[0m[90m shares one resource label formatter across session state homes[0m
+  [32m  ✔[0m[90m registers the session state home before a quick chat is materialized[0m
+  [32m  ✔[0m[90m registers the SDK session state home from recorded artifacts[0m
+  [32m  ✔[0m[90m session adapter uses raw ID as fallback title[0m
+  [32m  ✔[0m[90m new session stays loading when required config is missing[0m
+  [32m  ✔[0m[90m visible cached session stays loading until its chat catalog hydrates[0m
+  [32m  ✔[0m[90m new session defers backend startup until authentication settles[0m
+  [32m  ✔[0m[90m new session stays loading after authentication settles when required config is missing[0m
+  [32m  ✔[0m[90m sendRequest throws for unknown session[0m
+  [32m  ✔[0m[90m sendRequest only commits a session of the same type, ignoring a foreign-type session that appears mid-send[0m
+  [32m  ✔[0m[90m sendRequest ignores newly discovered same-type archived and unarchived sessions until its own session appears[0m
+  [32m  ✔[0m[90m sendRequest ignores same-type session-added notifications until its own session appears[0m
+  [32m  ✔[0m[90m sendRequest waits beyond 30 seconds for the backend session to commit[0m
+  [32m  ✔[0m[90m sendRequest does not advertise a cached committed session alongside its draft[0m
+  [32m  ✔[0m[90m sessionAdded does not advertise a committed session alongside its pending draft[0m
+  [32m  ✔[0m[90m sendRequest rejects when the provisional session is abandoned before commit[0m
+  [32m  ✔[0m[90m two concurrent same-type new-session sends each commit to their own session (no swap during a shared download window)[0m
+  [32m  ✔[0m[90m sendRequest forwards resolved session config to chat service (delegated: false)[0m
+  [32m  ✔[0m[90m sendRequest preserves provider metadata for a committed session (delegated: false)[0m
+  [32m  ✔[0m[90m sendRequest forwards resolved session config to chat service (delegated: true)[0m
+  [32m  ✔[0m[90m sendRequest preserves provider metadata for a committed session (delegated: true)[0m
+  [32m  ✔[0m[90m sendRequest clears chat input draft while preserving selected model and agent[0m
+  [32m  ✔[0m[90m getSessionConfig seeds running config from session state subscription with full schema[0m
+  [32m  ✔[0m[90m running config state seeding preserves already-resolved schema properties[0m
+  [32m  ✔[0m[90m removing a session disposes its session-state subscription[0m
+  [32m  ✔[0m[90m session-state subscription auto-releases after the idle window[0m
+  [32m  ✔[0m[90m session chat details lease holds the state subscription until released[0m
+  [32m  ✔[0m[90m equivalent session descriptions do not notify observers[0m
+  [32m  ✔[0m[90m equivalent GitHub info does not notify observers[0m
+  [36m  - keeps a resolved PR number sticky across gitHubInfo recomputes (no re-lookup / icon flap)[0m
+  [32m  ✔[0m[90m surfaces a default open-PR icon immediately when a PR is detected before the live model loads[0m
+  [32m  ✔[0m[90m uses the latest merge or pull-request outcome as the completed-state icon[0m
+  [32m  ✔[0m[90m filters folder-session baseline pull requests from GitHub info[0m
+  [32m  ✔[0m[90m renders created and selected PRs from the same host metadata with automatic attachment disabled[0m
+  [32m  ✔[0m[90m exposes all recorded artifacts and references alongside promoted GitHub info[0m
+  [32m  ✔[0m[90m offers a session the nest drop from list data alone: one unarchived chat besides its subagents, with the host able to move sessions (Block 4)[0m
+  [32m  ✔[0m[90m gates external session import on the host capability and waits for ownership metadata[0m
+  [32m  ✔[0m[90m external session import failures preserve external status[0m
+  [32m  ✔[0m[90m gates artifact removal on the host capability and routes the backend session URI[0m
+  [32m  ✔[0m[90m leaves an independently discovered pull request non-removable and visible after its recorded duplicate is removed[0m
+  [32m  ✔[0m[90m preserves recorded artifacts as GitHub repository metadata hydrates[0m
+  [32m  ✔[0m[90m replaceSessionConfig only replaces sessionMutable, non-readOnly values and preserves everything else[0m
+  [32m  ✔[0m[90m running session config writes clamp autoApprove to default when policy disables global auto-approve[0m
+  [32m  ✔[0m[90m a chat backed by another agent renders and writes its config against its own schema from its state[0m
+  [32m  ✔[0m[90m a chat on its session's agent has the session's session-wide values and its own values, or their defaults, for what it may set (chats with their own agents on)[0m
+  [32m  ✔[0m[90m a visible session's active chat keeps its config subscription until it is no longer visible, and held resolving observables follow it[0m
+  [32m  ✔[0m[90m a chat's config is resolving until its own values arrive, and a peer's choice is not remembered for new sessions[0m
+  [32m  ✔[0m[90m a chat writes a property it may set for itself even when the session's value is fixed[0m
+  [32m  ✔[0m[90m a peer chat writes what it may set to itself, while the main chat's writes go to the session on a host that applies them to the default chat, else to the default chat (current host: true)[0m
+  [32m  ✔[0m[90m a peer chat writes what it may set to itself, while the main chat's writes go to the session on a host that applies them to the default chat, else to the default chat (current host: false)[0m
+  [32m  ✔[0m[90m a host that lets no chat set a property keeps it session-wide[0m
+  [32m  ✔[0m[90m a chat's sandbox state is its own, or the session's when it has none[0m
+  [32m  ✔[0m[90m a subagent shows the values of the chat that spawned it, and its writes change that chat[0m
+  [32m  ✔[0m[90m a chat whose config subscription fails shows its session's values and is subscribed again once its session's catalog changes[0m
+  [32m  ✔[0m[90m a visible session's active chat the session's catalog does not list is never subscribed for its config[0m
+  [32m  ✔[0m[90m running session config write re-resolves schema-dependent properties[0m
+  [32m  ✔[0m[90m sandbox writes avoid schema round trips and stale resolution cannot undo host rollback[0m
+  [32m  ✔[0m[90m replaceSessionConfig is a no-op when nothing editable actually changes[0m
+  [32m  ✔[0m[90m projects Agent Merge enablement without notifying for unrelated session state changes[0m
+  [32m  ✔[0m[90m server-echoed SessionConfigChanged merges config values into the running cache by default[0m
+  [32m  ✔[0m[90m server-echoed SessionConfigChanged with replace:true overwrites the running cache[0m
+  [32m  ✔[0m[90m keeps a visible session subscribed so host-spawned subagent chats keep reaching the catalog[0m
+[0m    routing default chat[0m
+    [32m  ✔[0m[90m routes to the advertised default chat even when it is not default-shaped[0m
+    [32m  ✔[0m[90m has no default chat for a session state that advertises none[0m
+[0m    canvas definition registry stability[0m
+    [32m  ✔[0m[90m reports canvas inventory as unsettled while session or chat routing is unavailable[0m
+[0m    multi-chat catalog[0m
+    [32m  ✔[0m[90m resolves exact chat modified times lazily while single-chat sessions use the aggregate time[0m
+    [32m  ✔[0m[90m session-list chat details do not subscribe default chat snapshots until the session is shown[0m
+    [32m  ✔[0m[90m shown sessions subscribe their default chat again after the session-state subscription is recreated[0m
+    [32m  ✔[0m[90m explicitly hydrated sessions subscribe their default chat again after a host restart while passive rows do not[0m
+    [32m  ✔[0m[90m nested chats default to their own Session Changes while the main chat keeps Branch Changes[0m
+    [32m  ✔[0m[90m reads background shells from each chat's state while the session is active[0m
+    [32m  ✔[0m[90m list metadata surfaces exact chat state without subscribing and loads stable chat details while observed[0m
+    [32m  ✔[0m[90m list metadata and root summary updates surface chat change summaries without subscribing[0m
+    [32m  ✔[0m[90m list metadata and root summary updates surface chat status without subscribing[0m
+    [32m  ✔[0m[90m opaque primary chat status updates do not trigger automatic chat fallback[0m
+    [32m  ✔[0m[90m partial chat summaries preserve opaque default chat identity (metadata-only)[0m
+    [32m  ✔[0m[90m partial chat summaries preserve opaque default chat identity (hydrated)[0m
+    [32m  ✔[0m[90m explicit default chat updates override cached identity and local URI conventions[0m
+    [32m  ✔[0m[90m observed peer details resubscribe after subscription failure with bounded retries and host restart[0m
+    [32m  ✔[0m[90m default + peer catalog surfaces both chats with the default as mainChat[0m
+    [32m  ✔[0m[90m chat workspaces expose explicit subsets and inherit the full session workspace[0m
+    [32m  ✔[0m[90m peer read state follows the exact chat summary[0m
+    [32m  ✔[0m[90m lightweight chat status updates exact read state and absence remains unknown[0m
+    [32m  ✔[0m[90m tool chat unread state does not clamp the session aggregate[0m
+    [32m  ✔[0m[90m Agent Merge settings are per folder: a peer chat writes its own folder while the session folder keeps earlier settings[0m
+    [32m  ✔[0m[90m a chat that moved away with its Agent Merge leaves its folder off for the chats that stay, at once[0m
+    [32m  ✔[0m[90m uses host-published folder keys and scope ids for mixed-case remote paths[0m
+    [32m  ✔[0m[90m an archived chat keeps its folder, branch, and repository after its folder is detached from the session[0m
+    [32m  ✔[0m[90m does not match another folder by path case once the host published the folder key[0m
+    [32m  ✔[0m[90m maps PR artifact owners to chat resources with local chat URIs[0m
+    [32m  ✔[0m[90m maps PR artifact owners to chat resources with host-advertised chat URIs[0m
+    [32m  ✔[0m[90m shows a pull request icon only on the chat that recorded it[0m
+    [32m  ✔[0m[90m shows a pull request another folder discovered on the chat that recorded it[0m
+    [32m  ✔[0m[90m remaps artifact ownership when a single chat catalog hydrates without attributing unknown owners[0m
+    [32m  ✔[0m[90m adopts recorded pull requests only in the session folder of a multi-folder session[0m
+    [32m  ✔[0m[90m leaves a recorded pull request that another folder discovered to that folder[0m
+    [32m  ✔[0m[90m adopts recorded pull requests in every chat of a single-folder session[0m
+    [32m  ✔[0m[90m isolating the peer chat updates its workspace and branch without moving a same-folder chat[0m
+    [32m  ✔[0m[90m isolating the main chat updates its workspace and branch without moving a same-folder chat[0m
+    [32m  ✔[0m[90m main chat keeps the session workspace identity for the session folder[0m
+    [32m  ✔[0m[90m single-chat isolation replaces the workspace but keeps the repository project identity[0m
+    [32m  ✔[0m[90m authoritative copilotcli isolation config clears worktree pending after moving back to a folder[0m
+    [32m  ✔[0m[90m authoritative ahp-session isolation config clears worktree pending after moving back to a folder[0m
+    [32m  ✔[0m[90m Agent Merge observable updates when a peer chat folder hydrates[0m
+    [32m  ✔[0m[90m Agent Merge writes legacy session-folder state and rejects peer folders on older hosts[0m
+    [32m  ✔[0m[90m equivalent chat catalogs do not notify chat observers[0m
+    [32m  ✔[0m[90m a peer chat that leaves one session for another is reported as moved, with its resource in each[0m
+    [32m  ✔[0m[90m a session that ends after its only chat moves stops being followed, so the chat is reported as moved into the other session[0m
+    [32m  ✔[0m[90m equivalent peer chat values do not notify observers[0m
+    [32m  ✔[0m[90m peer chats map protocol interactivity to the provider-agnostic tri-state[0m
+    [32m  ✔[0m[90m subagent (tool-origin) chats surface as read-only peers[0m
+    [32m  ✔[0m[90m lightweight catalog updates preserve hydrated tool chats omitted from session lists[0m
+    [32m  ✔[0m[90m the main chat is renameable but never deletable via capabilities[0m
+    [32m  ✔[0m[90m peer chat archive state is independent and protocol-version gated[0m
+    [32m  ✔[0m[90m a subscribed session reorders its chats through its chats observable, also when its root summary stays the same (Block 5)[0m
+    [32m  ✔[0m[90m observing chat details applies a cached chat reorder without telling session lists while they observe[0m
+    [32m  ✔[0m[90m explains a workspace-less refusal by whether the chat shares its scratch folder with another chat (Block 9)[0m
+    [32m  ✔[0m[90m moves only movable peer chats, to the host resources of the destination, explaining refusals (Block 5)[0m
+    [32m  ✔[0m[90m peer chat archive dispatches to the host-supplied chat resource[0m
+    [32m  ✔[0m[90m peer chat read state updates optimistically and dispatches to the host-supplied chat resource[0m
+    [32m  ✔[0m[90m peer chat read states update atomically before dispatching to host-supplied resources[0m
+    [32m  ✔[0m[90m legacy read-state support preserves advertised identity copilotcli:/legacy-chat-read[0m
+    [32m  ✔[0m[90m legacy read-state support preserves advertised identity ahp-session:/legacy-chat-read[0m
+    [32m  ✔[0m[90m legacy read-state support preserves advertised identity session-store://tenant/legacy-chat-read?revision=2[0m
+    [32m  ✔[0m[90m default chat read state uses the legacy session action before a protocol upgrade[0m
+    [32m  ✔[0m[90m legacy peer read state uses the host-supported session aggregate[0m
+    [32m  ✔[0m[90m single default chat read state updates optimistically and dispatches to the host[0m
+    [32m  ✔[0m[90m default chat read state dispatches before session state hydrates[0m
+    [32m  ✔[0m[90m explicit session read marks every aggregate chat and the session read[0m
+    [32m  ✔[0m[90m side chats can be archived and restored without archiving their session or siblings[0m
+    [32m  ✔[0m[90m side chat archival follows negotiated protocol support[0m
+    [32m  ✔[0m[90m subagent chats surface as read-only peers even without multi-chat support, but user peers do not[0m
+    [32m  ✔[0m[90m a new peer chat is presented as Untitled until its first request is sent[0m
+    [32m  ✔[0m[90m a new peer chat stops being Untitled when the host reports a turn sent by another client[0m
+    [32m  ✔[0m[90m a peer catalog collapsed while capabilities were absent re-expands when they hydrate[0m
+    [32m  ✔[0m[90m session adapters observe capabilities only after receiving a chat catalog[0m
+    [32m  ✔[0m[90m forkChat sends an optional title with only fork support and returns the host-published named peer chat[0m
+    [32m  ✔[0m[90m forkChat routes a prompt-bearing fork through Chat Sessions with the exact frontend source turn[0m
+    [32m  ✔[0m[90m forkChat requires the same fork capability for bare, named, and prompt forks[0m
+    [32m  ✔[0m[90m forkChat retains a prompt-bearing fork without overwriting its hydrated input state[0m
+    [32m  ✔[0m[90m forkChat preserves the built-in agent default for bare and named forks[0m
+    [32m  ✔[0m[90m forkChat returns the host-generated peer title when an older host ignores the requested title[0m
+    [32m  ✔[0m[90m forkChat inherits the source peer model and agent instead of the default chat selection[0m
+    [32m  ✔[0m[90m createSideChat forwards the source chat and turn to the host and surfaces a new peer chat[0m
+    [32m  ✔[0m[90m createSideChat translates a subagent source to the canonical host chat URI[0m
+    [32m  ✔[0m[90m forkChat of an unknown peer source fails on an opaque default session[0m
+    [32m  ✔[0m[90m forkChat of an unknown peer source rebuilds the shaped peer URI on a shaped default session[0m
+    [32m  ✔[0m[90m createSideChat reconstructs a canonical subagent URI when its source is absent from the catalog[0m
+    [32m  ✔[0m[90m createSideChat uses the backend session URI when reconstructing a missing subagent source[0m
+    [32m  ✔[0m[90m createSideChat retains its model through the first request and releases it after the grace window[0m
+    [32m  ✔[0m[90m createSideChat inherits model and agent selection from the source peer chat[0m
+    [32m  ✔[0m[90m createSideChat inherits the model the source chat last ran on when no model is recorded for it[0m
+    [32m  ✔[0m[90m createSideChat rejects when the session capability is not advertised[0m
+    [32m  ✔[0m[90m createNewChat forwards the selected model to the host and seeds the chat input state[0m
+    [32m  ✔[0m[90m createNewChat rethrows a host failure as is[0m
+    [32m  ✔[0m[90m createNewChat disposes the host chat when its session goes away before the chat surfaces[0m
+    [32m  ✔[0m[90m sendRequest keeps a peer chat model loaded while dispatching[0m
+    [32m  ✔[0m[90m setModel updates the active peer chat model without changing the default chat model[0m
+    [32m  ✔[0m[90m deleteChat prompts for confirmation and disposes the peer chat when confirmed[0m
+    [32m  ✔[0m[90m deleteChat does not dispose the peer chat when the confirmation is cancelled[0m
+    [32m  ✔[0m[90m single-chat catalog degrades to the default chat only[0m
+    [32m  ✔[0m[90m removing a peer from the catalog drops it back to the default chat[0m
+    [32m  ✔[0m[90m releases removed advertised default-chat output across repeated replacements[0m
+    [32m  ✔[0m[90m metadata removes advertised chat output but retains unlisted tool chats until catalog removal[0m
+    [32m  ✔[0m[90m default chat title diverges from the session title when renamed in the catalog[0m
+    [32m  ✔[0m[90m turn completion refreshes main chat status after the session-state subscription expires[0m
+[0m      chats backed by different agents[0m
+      [32m  ✔[0m[90m subscribes no chat of a visible session's catalog with chats on their own agents on, as with them off, also across a reconnect[0m
+      [32m  ✔[0m[90m stops advertising chat harnesses when the host turns its gate off after the handshake[0m
+      [32m  ✔[0m[90m advertises chat harnesses only with the setting and the host capability, including for a quick chat[0m
+      [32m  ✔[0m[90m maps each chat's reported agent to its harness[0m
+      [32m  ✔[0m[90m createNewChat names an agent only when the harness differs from the session's[0m
+      [32m  ✔[0m[90m createNewChat rejects another harness when the host does not advertise it[0m
+      [32m  ✔[0m[90m fork and side chat never name an agent and keep the source chat's harness[0m
+      [32m  ✔[0m[90m a chat whose reported agent changes (e.g. moved in from another session) is rebuilt with that harness[0m
+      [32m  ✔[0m[90m harness presentation follows the agents a restored host advertises[0m
+[0m      nested chat workspace[0m
+      [32m  ✔[0m[90m offers no workspace choices and applies none on a host without the capability[0m
+      [32m  ✔[0m[90m re-evaluates the support when the host capability, the agent, or the session folder change[0m
+      [32m  ✔[0m[90m reports the session folder of a workspace session, never another chat's folder, and none for a workspace-less one[0m
+      [32m  ✔[0m[90m reports whether the session folder is the session's worktree, with its branch and repository[0m
+      [32m  ✔[0m[90m reports the worktree of the session folder when the session workspace lists another folder first[0m
+      [32m  ✔[0m[90m never offers a quick chat's own scratch folder, even when the host doesn't publish it[0m
+      [32m  ✔[0m[90m a single-folder agent may only give a nested chat the session folder[0m
+      [32m  ✔[0m[90m applyNestedChatWorkspace asks the host to give the untitled chat the chosen folder, worktree, or scratch folder[0m
+      [32m  ✔[0m[90m applyNestedChatWorkspace maps a host refusal to NestedChatWorkspaceError[0m
+      [32m  ✔[0m[90m applyNestedChatWorkspace refuses a chat outside the session or already started without asking the host[0m
+      [32m  ✔[0m[90m resolves folder isolation, default branch, and branch completions[0m
+      [32m  ✔[0m[90m a draft using another harness gets that agent's folders, folder facts, and branches; a same-harness draft the session's[0m
+      [32m  ✔[0m[90m a draft whose agent is disabled by policy is offered no workspace choices[0m
+
+[0m  LocalAgentHostSessionsProvider - active-session branch changeset subscription[0m
+  [36m  - subscribes to the branch changeset when the session becomes active[0m
+  [36m  - rotates the subscription when the active session changes[0m
+  [36m  - switching back to a previously-active session re-subscribes[0m
+  [36m  - does NOT subscribe when a different session is active[0m
+  [36m  - does NOT subscribe to uncommitted changes for an untitled active session[0m
+  [36m  - releases the subscription when no session is active[0m
+  [36m  - active branch changeset uses before content URI as the diff original[0m
+  [36m  - changes summary tracks the live branch changeset while active and the catalogue once inactive[0m
+  [36m  - rebuilds only the changed file across many changeset updates (O(changed), not O(all))[0m
+  [36m  - an untouched file keeps its change-object identity while another file streams updates[0m
+
+[0m  AgentHostChatContribution[0m
+[0m    registration[0m
+    [32m  ✔[0m[90m registers agent[0m
+    [32m  ✔[0m[90m offers plugin source installation only when the management API supports it[0m
+[0m    session model configuration[0m
+    [32m  ✔[0m[90m projects and removes the exact peer chat policy without using another chat report[0m
+[0m    canvases[0m
+    [32m  ✔[0m[90m projects subscribed canvases for the exact peer chat supplied by the provider[0m
+    [32m  ✔[0m[90m publishes canvas context when the first request materializes a new chat[0m
+    [32m  ✔[0m[90m waits for a provisional session to become ready before publishing canvas context[0m
+    [32m  ✔[0m[90m does not expose a context for an unsupported provider[0m
+    [32m  ✔[0m[90m accepts a host with no optional canvas membership without making canvas requests[0m
+[0m    wire-to-feature[0m
+    [32m  ✔[0m[90m rejected turn starts surface the reason and settle without a host turn (synchronous: false)[0m
+    [32m  ✔[0m[90m rejected turn starts surface the reason and settle without a host turn (synchronous: true)[0m
+    [32m  ✔[0m[90m rejected turn starts during a subscription refresh surface the reason (refresh fails: false)[0m
+    [32m  ✔[0m[90m rejected turn starts during a subscription refresh surface the reason (refresh fails: true)[0m
+    [32m  ✔[0m[90m turn-start rejections for another client, chat or turn do not fail the pending request[0m
+    [32m  ✔[0m[90m chat billing snapshots and idle updates reach the UI model without mutating canceled history or a peer[0m
+    [32m  ✔[0m[90m Copilot D error detail reaches the live Chat result without enabling command links[0m
+    [32m  ✔[0m[90m VS Code forwarded errors retain their existing live presentation[0m
+    [32m  ✔[0m[90m valid VS Code error detail wins when both styles are present[0m
+    [32m  ✔[0m[90m malformed VS Code error detail falls back to Copilot D[0m
+    [32m  ✔[0m[90m missing optional metadata keeps the ordinary error fallback[0m
+    [32m  ✔[0m[90m VS Code tool data reaches the live invocation without mixing output with arguments[0m
+    [32m  ✔[0m[90m Copilot D tool data reaches the live invocation without mixing output with arguments[0m
+    [32m  ✔[0m[90m Copilot D PTY tool data reaches the live invocation without mixing output with arguments[0m
+    [32m  ✔[0m[90m Copilot D write promptRequest identifies the file through the wire without changing approval options[0m
+    [32m  ✔[0m[90m Copilot D write permissionRequest identifies the file through the wire without changing approval options[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders grep through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders glob through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders read_file through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders write_file through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders bash through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders write_bash through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders web_search through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders apply_patch through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders sql through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders update_todo through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders run_dynamic_workflow through the live handler and restored history[0m
+    [32m  ✔[0m[90m Copilot app name fallback renders unknown_tool through the live handler and restored history[0m
+    [32m  ✔[0m[90m explicit VS Code search metadata keeps its messages even when the tool has a Copilot app alias[0m
+    [32m  ✔[0m[90m later host metadata replaces an inferred search card rather than leaving the fallback active[0m
+    [32m  ✔[0m[90m a generic confirmed tool receives Copilot output on the same live invocation card[0m
+    [32m  ✔[0m[90m VS Code zero turn cost reaches Chat usage through the live handler[0m
+    [32m  ✔[0m[90m VS Code credits, quota and context attribution reaches Chat usage through the live handler[0m
+    [32m  ✔[0m[90m Copilot D latest-call diagnostics reaches Chat usage through the live handler[0m
+    [32m  ✔[0m[90m mixed usage preserves VS Code turn cost reaches Chat usage through the live handler[0m
+    [32m  ✔[0m[90m session context updates reach the usage widget without changing turn tokens[0m
+    [32m  ✔[0m[90m reopened chats restore current occupancy only on the latest response and update it while idle[0m
+    [32m  ✔[0m[90m VS Code context attribution wins over Copilot context during a live turn[0m
+    [32m  ✔[0m[90m VS Code account quotas still reach the entitlement service rather than becoming context usage[0m
+    [32m  ✔[0m[90m a compact completion retains the original command attachment without inventing message metadata[0m
+    [32m  ✔[0m[90m selection attachments retain native VS Code ranges and add captured Copilot detail on the wire[0m
+    [32m  ✔[0m[90m VS Code restored message and attachments survive edit and resend through the handler[0m
+    [32m  ✔[0m[90m Copilot D restored message and attachments survive edit and resend through the handler[0m
+    [32m  ✔[0m[90m model config uses its advertised keys on Message.model: {"thinkingLevel":"low","contextSize":272000,"tier":"efficiency"}[0m
+    [32m  ✔[0m[90m model config uses its advertised keys on Message.model: {"reasoningEffort":"low","contextTier":"long_context","autoTier":"fast"}[0m
+    [32m  ✔[0m[90m model config uses its advertised keys on Message.model: {"contextTier":"default"}[0m
+    [32m  ✔[0m[90m model config uses its advertised keys on Message.model: {"contextTier":"long_context"}[0m
+    [32m  ✔[0m[90m an Auto request without routing config does not acquire an invented tier[0m
+    [32m  ✔[0m[90m a model of another agent on the same host is sent by its raw id[0m
+[0m    response resource links[0m
+    [32m  ✔[0m[90m uses the advertised backend scheme copilotcli instead of allocation defaults[0m
+    [32m  ✔[0m[90m uses the advertised backend scheme ahp-session instead of allocation defaults[0m
+    [32m  ✔[0m[90m uses the advertised backend scheme custom-session instead of allocation defaults[0m
+    [32m  ✔[0m[90m opens the local sandbox policy only for its submitted slash command (/sandbox policy)[0m
+    [32m  ✔[0m[90m opens the local sandbox policy only for its submitted slash command (/SB   policy   )[0m
+    [32m  ✔[0m[90m opens the local sandbox policy only for its submitted slash command (Hello)[0m
+    [32m  ✔[0m[90m opens the WSL sandbox policy only for its submitted slash command (/sandbox policy)[0m
+    [32m  ✔[0m[90m opens the WSL sandbox policy only for its submitted slash command (/SB   policy   )[0m
+    [32m  ✔[0m[90m opens the WSL sandbox policy only for its submitted slash command (Hello)[0m
+    [32m  ✔[0m[90m reports failure to open the sandbox policy instead of claiming success[0m
+    [32m  ✔[0m[90m uses the WSL connection for file links despite a local session authority[0m
+    [32m  ✔[0m[90m uses the WSL connection for image paths and preserves encoded path characters[0m
+    [32m  ✔[0m[90m resolves relative file links and images against the owning opaque chat working directory[0m
+    [32m  ✔[0m[90m a chat on another agent than its session's, such as one moved in from a session of that agent, restores its models from that agent[0m
+    [32m  ✔[0m[90m resolves tool-result image bytes only in the owning opaque chat[0m
+    [32m  ✔[0m[90m routes local internal resource links and images through the owning Agent Host[0m
+    [32m  ✔[0m[90m routes WSL internal resource links and images through the owning Agent Host[0m
+    [32m  ✔[0m[90m preserves local file links and external or already mapped links[0m
+[0m    download progress[0m
+    [32m  ✔[0m[90m editor window renders SDK download progress from root/progress notifications[0m
+    [32m  ✔[0m[90m sessions window does not render download progress via the chat contribution[0m
+[0m    request attachments[0m
+    [32m  ✔[0m[90m sends accepted agent-host skill and command completions as ranged simple attachments[0m
+    [32m  ✔[0m[90m sends paste variables as embedded text attachments[0m
+    [32m  ✔[0m[90m consumes handed-off untitled attachment contents without source models (copilotcli)[0m
+    [32m  ✔[0m[90m consumes handed-off untitled attachment contents without source models (codex)[0m
+    [32m  ✔[0m[90m preserves workspace context as a hidden workspace variable on history replay[0m
+    [32m  ✔[0m[90m sends and restores element context using its display kind[0m
+    [32m  ✔[0m[90m sends agent feedback variables as annotations attachments referencing each comment[0m
+    [32m  ✔[0m[90m sends agent feedback variables as a simple attachment when no annotations channel is known[0m
+    [32m  ✔[0m[90m restores tagged simple paste attachments as paste variable entries[0m
+    [32m  ✔[0m[90m restores paste displayKind simple attachments as generic variable entries[0m
+    [32m  ✔[0m[90m restores chat attachments as chat reference variable entries[0m
+    [32m  ✔[0m[90m restores session reference simple attachments as session reference variable entries[0m
+    [32m  ✔[0m[90m session reference simple attachments without metadata restore as generic variable entries[0m
+[0m    draft[0m
+    [32m  ✔[0m[90m synchronizes drafts after deferred creation with default chat URI[0m
+    [32m  ✔[0m[90m synchronizes drafts after deferred creation with opaque chat URI[0m
+    [32m  ✔[0m[90m synchronizes drafts after not-found creation with default chat URI[0m
+    [32m  ✔[0m[90m synchronizes drafts after not-found creation with opaque chat URI[0m
+    [32m  ✔[0m[90m synchronizes drafts after eager creation with default chat URI[0m
+    [32m  ✔[0m[90m synchronizes drafts after eager creation with opaque chat URI[0m
+    [32m  ✔[0m[90m reconciles an initial draft after deferred creation with empty input and hydrated chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after deferred creation with fallback input and hydrated chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after deferred creation with empty input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after deferred creation with fallback input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after deferred creation with text input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after deferred creation with attachment input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after deferred creation with agent input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after deferred creation with model input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after eager creation with empty input and hydrated chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after eager creation with fallback input and hydrated chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after eager creation with empty input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after eager creation with fallback input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after eager creation with text input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after eager creation with attachment input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after eager creation with agent input and pending chat state[0m
+    [32m  ✔[0m[90m reconciles an initial draft after eager creation with model input and pending chat state[0m
+    [32m  ✔[0m[90m does not publish drafts when initial hydration is disposed[0m
+    [32m  ✔[0m[90m does not publish drafts when initial hydration is failed[0m
+    [32m  ✔[0m[90m hydrates chat input state from AHP draft[0m
+    [32m  ✔[0m[90m hydrates chat input attachments from AHP draft[0m
+    [32m  ✔[0m[90m creates an empty draft from the last request selection when none exists[0m
+    [32m  ✔[0m[90m round trips host Ask identity and semantics through AHP drafts[0m
+    [32m  ✔[0m[90m debounces chat input state into AHP draft[0m
+    [32m  ✔[0m[90m selecting xhigh from max on a restored model updates the AHP draft[0m
+    [32m  ✔[0m[90m selecting xhigh from xhigh on a restored model updates the AHP draft[0m
+    [32m  ✔[0m[90m flushes pending chat input draft when the session is disposed[0m
+    [32m  ✔[0m[90m applies a remote draft to a clean live input[0m
+    [32m  ✔[0m[90m does not overwrite a locally edited input[0m
+    [32m  ✔[0m[90m remote clear wipes text and attachments but keeps the model[0m
+    [32m  ✔[0m[90m does not echo a locally re-derived draft when the remote model is unavailable[0m
+[0m    disposal[0m
+    [32m  ✔[0m[90m disposed content stays read-only and rejects captured mutations[0m
+    [32m  ✔[0m[90m fires onWillDispose before session is disposed[0m
+    [32m  ✔[0m[90m disposing the handler settles an in-flight turn without cancelling it on the host[0m
+    [32m  ✔[0m[90m disposing the handler settles an in-flight resumed turn without cancelling it on the host[0m
+    [32m  ✔[0m[90m a handler disposed while a turn is being prepared does not dispatch the turn[0m
+    [32m  ✔[0m[90m a handler disposed while its session is being created does not subscribe or dispatch the turn[0m
+    [32m  ✔[0m[90m a handler disposed while waiting for the new session to hydrate settles the invocation[0m
+    [32m  ✔[0m[90m a handler disposed during authentication does not retry creating the session[0m
+    [32m  ✔[0m[90m disposing one chat does not tear down a sibling peer chat subscription (peer chat never loads after reload)[0m
+    [32m  ✔[0m[90m a completed side chat stops its progress while the parent chat is still running[0m
+    [32m  ✔[0m[90m a cancelled resolution that completes late does not strand the live session[0m
+[0m    session list[0m
+    [32m  ✔[0m[90m projects durable automation origin into editor session metadata[0m
+    [32m  ✔[0m[90m keeps pending creation and read state separate for same-path authority resources[0m
+    [32m  ✔[0m[90m keeps pending creation and read state separate for same-path query resources[0m
+    [32m  ✔[0m[90m keeps pending creation and read state separate for same-path selector-shaped query resources[0m
+    [32m  ✔[0m[90m opens the default chat of a fragment-bearing backend session[0m
+    [32m  ✔[0m[90m refresh populates items from agent host[0m
+    [32m  ✔[0m[90m refresh projects visible peer and side chats as children of the default chat[0m
+    [32m  ✔[0m[90m discovers a side chat added to the catalog with opaque advertised chat URIs and no VS Code metadata[0m
+    [32m  ✔[0m[90m session title notifications do not inherit the advertised default chat title[0m
+    [32m  ✔[0m[90m a peer chat that leaves one session for another is reported as moved, with its chat session resource in each[0m
+    [32m  ✔[0m[90m summary changes update peer children that are no longer in the catalog[0m
+    [32m  ✔[0m[90m refresh fires onDidChangeChatSessionItems[0m
+    [32m  ✔[0m[90m refresh handles error gracefully[0m
+    [32m  ✔[0m[90m refresh preserves the last successful snapshot on failure and accepts complete empty[0m
+    [32m  ✔[0m[90m refetches the session list after its connection reconnects[0m
+    [32m  ✔[0m[90m refresh marks archived sessions as archived items[0m
+    [32m  ✔[0m[90m leaves isRead unset for a session the host reports no status for[0m
+    [32m  ✔[0m[90m adopts host read state once a summary reports a status[0m
+    [32m  ✔[0m[90m a worktree session adopted mid-window survives the post-adoption summary change[0m
+    [32m  ✔[0m[90m a summary change still clears host-cleared markers on a non-legacy session[0m
+    [32m  ✔[0m[90m archive mutations dispatch through AHP and reconcile server summaries[0m
+    [32m  ✔[0m[90m archive mutation ignores resources from another session type[0m
+    [32m  ✔[0m[90m side chat completion targets the exact advertised chat and reconciles independently[0m
+    [32m  ✔[0m[90m side chat archive support follows the negotiated protocol and rejects unknown chat targets[0m
+    [32m  ✔[0m[90m read mutations dispatch through AHP and reconcile server summaries[0m
+    [32m  ✔[0m[90m read mutation ignores resources from another session type[0m
+    [32m  ✔[0m[90m archive mutation prevents an in-flight stale refresh from overwriting optimistic state[0m
+    [32m  ✔[0m[90m archive mutation invalidates an in-flight refresh before the session is cached[0m
+    [32m  ✔[0m[90m refresh skips listSessions RPC after first successful call[0m
+    [32m  ✔[0m[90m refresh shares an in-flight listSessions RPC[0m
+    [32m  ✔[0m[90m controllers sharing a connection coalesce their listSessions RPCs[0m
+    [32m  ✔[0m[90m shared session list store keeps same raw id separate by provider[0m
+    [32m  ✔[0m[90m sessionRemoved during initial refresh does not let stale listSessions response resurrect the session[0m
+    [32m  ✔[0m[90m shared session list notifications project only to matching provider controllers[0m
+    [32m  ✔[0m[90m summaryChanged notification emits only the changed item and reflects the update[0m
+    [32m  ✔[0m[90m sessionRemoved notification removes only the matching item[0m
+    [32m  ✔[0m[90m refresh keeps both sessions after the backend list reorders (order not significant)[0m
+    [32m  ✔[0m[90m refresh retries listSessions if the first call failed[0m
+    [32m  ✔[0m[90m agent host restart invalidates cache so next refresh re-fetches[0m
+    [32m  ✔[0m[90m agent host restart during refresh does not let stale listSessions response mark cache valid[0m
+    [32m  ✔[0m[90m refresh filters out sessions whose workingDirectory is not in any workspace folder[0m
+    [32m  ✔[0m[90m refresh does not filter when no workspace folders are open[0m
+    [32m  ✔[0m[90m workspace folder change re-fetches and updates the filtered session list[0m
+    [32m  ✔[0m[90m workspace folder change re-filters the retained snapshot when refresh fails[0m
+    [32m  ✔[0m[90m multi-root workspace filtering uses workspace-file metadata[0m
+    [32m  ✔[0m[90m multi-root session is shown in an empty window[0m
+    [32m  ✔[0m[90m multi-root session is shown in a single-folder window that is one of its roots[0m
+    [32m  ✔[0m[90m only legacy CLI worktree sessions are shown in a window opened on their repository folder[0m
+    [32m  ✔[0m[90m a migrated legacy worktree session stays listed after adoption clears the adoptable marker[0m
+    [32m  ✔[0m[90m sessionAdded notification filters out sessions outside the workspace[0m
+    [32m  ✔[0m[90m deleteChatSessionItem disposes the corresponding backend session and removes it from the cached items[0m
+    [32m  ✔[0m[90m deleteChatSessionItem disposes only the selected peer chat[0m
+    [32m  ✔[0m[90m editor chat creation records its exact saved multi-folder home and preserves explicit No Workspace[0m
+    [32m  ✔[0m[90m newChatSessionItem creates final-looking resource used for requested backend session[0m
+    [32m  ✔[0m[90m terminal ephemeral session creation carries the list-suppression metadata[0m
+    [32m  ✔[0m[90m newChatSessionItem rebinds untitled provisional to real resource so chip-selected config survives first send[0m
+    [32m  ✔[0m[90m newChatSessionItem carries the retained backend identity, folder, and pending marker forward[0m
+    [32m  ✔[0m[90m newChatSessionItem skips rebind when no untitled provisional resource is provided[0m
+    [32m  ✔[0m[90m final allocation is selected before exposing the item after rebind (true)[0m
+    [32m  ✔[0m[90m final allocation is selected before exposing the item after rebind (false)[0m
+    [32m  ✔[0m[90m newChatSessionItem forwards cancellation and retires only the unpublished allocation on failure[0m
+    [32m  ✔[0m[90m newChatSessionItem routes the store-selected folder as the working directory in multi-root windows[0m
+    [32m  ✔[0m[90m folder picker is visible only in multi-root agent-host editor windows when the provider pins an immutable primary directory[0m
+[0m    session ID resolution[0m
+    [32m  ✔[0m[90m cold copilotcli content waits for the advertised copilotcli identity[0m
+    [32m  ✔[0m[90m cold copilotcli content waits for the advertised ahp-session identity[0m
+    [32m  ✔[0m[90m cold copilotcli content waits for the advertised session-store identity[0m
+    [32m  ✔[0m[90m cold codex content waits for the advertised codex identity[0m
+    [32m  ✔[0m[90m cold codex content waits for the advertised ahp-session identity[0m
+    [32m  ✔[0m[90m cold codex content waits for the advertised session-store identity[0m
+    [32m  ✔[0m[90m cold claude content waits for the advertised claude identity[0m
+    [32m  ✔[0m[90m cold claude content waits for the advertised ahp-session identity[0m
+    [32m  ✔[0m[90m cold claude content waits for the advertised session-store identity[0m
+    [32m  ✔[0m[90m missing advertised identities do not probe a guessed legacy address[0m
+    [32m  ✔[0m[90m a neighboring legacy ID cannot claim complete unadvertised resource agent-host-codex://tenant/shared?revision=2[0m
+    [32m  ✔[0m[90m a neighboring legacy ID cannot claim complete unadvertised resource session-store:/shared[0m
+    [32m  ✔[0m[90m preserves request origin for isSystemInitiated=true[0m
+    [32m  ✔[0m[90m preserves request origin for isSystemInitiated=false[0m
+    [32m  ✔[0m[90m preserves request origin for isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m carries request metadata on the host turn instead of applying session configuration early[0m
+    [32m  ✔[0m[90m marks an initial remote delegation prompt as agent-authored without changing target permissions[0m
+    [32m  ✔[0m[90m preserves resent user origin with isSystemInitiated=true[0m
+    [32m  ✔[0m[90m preserves resent user origin with isSystemInitiated=false[0m
+    [32m  ✔[0m[90m preserves resent agent origin with isSystemInitiated=true[0m
+    [32m  ✔[0m[90m preserves resent agent origin with isSystemInitiated=false[0m
+    [32m  ✔[0m[90m preserves resent tool origin with isSystemInitiated=true[0m
+    [32m  ✔[0m[90m preserves resent tool origin with isSystemInitiated=false[0m
+    [32m  ✔[0m[90m preserves resent automation origin with isSystemInitiated=true[0m
+    [32m  ✔[0m[90m preserves resent automation origin with isSystemInitiated=false[0m
+    [32m  ✔[0m[90m preserves resent systemNotification origin with isSystemInitiated=true[0m
+    [32m  ✔[0m[90m preserves resent systemNotification origin with isSystemInitiated=false[0m
+    [32m  ✔[0m[90m requests backend session for provider-owned new resource[0m
+    [32m  ✔[0m[90m reuses SDK session for same resource on second message[0m
+    [32m  ✔[0m[90m uses sessionId from agent-host scheme resource[0m
+    [32m  ✔[0m[90m waits for provisional replacement before resolving first-send backend[0m
+    [32m  ✔[0m[90m recovers from stale failed subscription before first send[0m
+    [32m  ✔[0m[90m recovers when session subscription errors AFTER being observed pending (repro #5242 hang)[0m
+    [32m  ✔[0m[90m rejects generic contributed-chat untitled resource[0m
+    [32m  ✔[0m[90m passes raw model id extracted from language model identifier[0m
+    [32m  ✔[0m[90m passes selected model configuration through create session[0m
+    [32m  ✔[0m[90m passes model id as-is when no vendor prefix[0m
+    [32m  ✔[0m[90m drops foreign vendor model id (issue #319583)[0m
+    [32m  ✔[0m[90m does not create backend session eagerly for untitled sessions[0m
+[0m    side chats[0m
+    [32m  ✔[0m[90m restores the persisted side-chat origin using the advertised source {}[0m
+    [32m  ✔[0m[90m restores the persisted side-chat origin using the advertised source {"peer":true}[0m
+    [32m  ✔[0m[90m restores the persisted side-chat origin using the advertised source {"opaque":true}[0m
+    [32m  ✔[0m[90m restores the persisted side-chat origin using the advertised source {"opaque":true,"peer":true}[0m
+    [32m  ✔[0m[90m hydrates and updates the source title from the live catalog and clears the origin on disposal[0m
+    [32m  ✔[0m[90m does not report a side-chat origin for an ordinary source chat[0m
+    [32m  ✔[0m[90m creates a native side chat using the advertised source {}[0m
+    [32m  ✔[0m[90m creates a native side chat using the advertised source {"peer":true}[0m
+    [32m  ✔[0m[90m creates a native side chat using the advertised source {"opaque":true}[0m
+    [32m  ✔[0m[90m creates a native side chat using the advertised source {"opaque":true,"peer":true}[0m
+    [32m  ✔[0m[90m creates a native side chat using the advertised source {"active":true}[0m
+    [32m  ✔[0m[90m does not create a chat when the source turn is missing[0m
+    [32m  ✔[0m[90m does not create a chat from a read-only source[0m
+    [32m  ✔[0m[90m follows the live side-chat capability and rechecks captured callbacks[0m
+[0m    forking[0m
+    [32m  ✔[0m[90m prompt fork from an active request keeps the last completed turn[0m
+    [32m  ✔[0m[90m prompt fork from an active first request cannot invent a completed boundary[0m
+    [32m  ✔[0m[90m fork prompt includes the exact preselected source-turn in a 1-turn chat[0m
+    [32m  ✔[0m[90m fork prompt includes the exact preselected source-turn-2 in a 3-turn chat[0m
+    [32m  ✔[0m[90m fork prompt includes the exact preselected source-turn-3 in a 3-turn chat[0m
+    [32m  ✔[0m[90m a request-item fork still excludes the selected request[0m
+    [32m  ✔[0m[90m an exact source selection overrides the request-item boundary[0m
+    [32m  ✔[0m[90m a request-item fork still rejects forking before the first request[0m
+    [32m  ✔[0m[90m a preselected source request must exist[0m
+    [32m  ✔[0m[90m forwards an optional title with only fork support and returns the host summary label[0m
+    [32m  ✔[0m[90m returns the host summary label when an older host ignores the optional title[0m
+    [32m  ✔[0m[90m omits an absent or empty optional fork title (undefined)[0m
+    [32m  ✔[0m[90m omits an absent or empty optional fork title ("")[0m
+    [32m  ✔[0m[90m omits an absent or empty optional fork title ("   ")[0m
+    [32m  ✔[0m[90m supports prompt forks with only fork capability and projects a normal error turn in the created target[0m
+    [32m  ✔[0m[90m all fork variants follow the current host fork capability[0m
+    [32m  ✔[0m[90m retains the prompt fork target for an uncertain RPC error (-32603) without resending[0m
+    [32m  ✔[0m[90m retains the prompt fork target for an uncertain RPC error (-32009) without resending[0m
+    [32m  ✔[0m[90m retains the prompt fork target for an uncertain RPC error (-32008) without resending[0m
+    [32m  ✔[0m[90m preserves a definite pre-creation prompt fork error (-32010)[0m
+    [32m  ✔[0m[90m preserves a definite pre-creation prompt fork error (-32602)[0m
+    [32m  ✔[0m[90m preserves a definite pre-creation prompt fork error (-32001)[0m
+    [32m  ✔[0m[90m preserves a definite pre-creation prompt fork error (-32002)[0m
+    [32m  ✔[0m[90m captures a multiline initial message from the actual source turn rather than the unsent composer selection[0m
+    [32m  ✔[0m[90m does not create a fork when initial-message preflight is already cancelled[0m
+[0m    multi-root customization scope[0m
+    [32m  ✔[0m[90m an existing single-folder session opened in a multi-root workspace keeps its own folder[0m
+    [32m  ✔[0m[90m an existing multi-root session keeps all of its own folders[0m
+    [32m  ✔[0m[90m an existing remote session maps its customization roots into client space[0m
+    [32m  ✔[0m[90m an existing workspace-less session does not inherit the workspace folders[0m
+    [32m  ✔[0m[90m a local quick chat keeps an empty customization scope despite persisted scratch and added folders[0m
+    [32m  ✔[0m[90m a local workspace session excludes only host-declared scratch folders from its customization scope[0m
+    [32m  ✔[0m[90m a remote quick chat keeps an empty customization scope despite persisted scratch and added folders[0m
+    [32m  ✔[0m[90m a remote workspace session excludes only host-declared scratch folders from its customization scope[0m
+[0m    workspace trust[0m
+    [32m  ✔[0m[90m managed environments send without trusting the local workspace (no folder)[0m
+    [32m  ✔[0m[90m managed environments send without trusting the local workspace (/sandbox/repo)[0m
+    [32m  ✔[0m[90m a handler disposed while resolving trust folders does not prompt for trust[0m
+    [32m  ✔[0m[90m aborts the turn without creating a session when trust is declined[0m
+    [32m  ✔[0m[90m prompts for workspace trust before creating a session on first send[0m
+    [32m  ✔[0m[90m does not label the already-trusted workspace fallback as interactive[0m
+    [32m  ✔[0m[90m marks an accepted resource trust wait without dispatching before the decision[0m
+    [32m  ✔[0m[90m sends without prompting when all session folders are already trusted[0m
+    [32m  ✔[0m[90m resuming an existing session gates on its persisted folder and aborts on decline[0m
+    [32m  ✔[0m[90m sending to an unopened existing session gates on its persisted folder, not the current workspace[0m
+    [32m  ✔[0m[90m does not prompt for trust for an existing workspace-less quick chat[0m
+    [32m  ✔[0m[90m inherits worktree trust from the trusted base repo without prompting[0m
+    [32m  ✔[0m[90m prompts for a worktree when the base repo is untrusted[0m
+    [32m  ✔[0m[90m does not inherit trust for a working directory outside the repo .worktrees sibling[0m
+    [32m  ✔[0m[90m does not inherit trust for the shared .worktrees container itself[0m
+    [32m  ✔[0m[90m does not prompt or grant during the worktree-pending window[0m
+[0m    chat activity progress[0m
+    [32m  ✔[0m[90m activity cleared before any response content removes its progress row[0m
+[0m    preparing session status[0m
+    [32m  ✔[0m[90m normal (non-imported) session never emits the status even past the 500ms threshold[0m
+    [32m  ✔[0m[90m imported (migration) create emits the status only after 500ms[0m
+    [32m  ✔[0m[90m first real progress cancels the pending status before it fires[0m
+    [32m  ✔[0m[90m an early rejection cancels the pending status[0m
+[0m    progress routing[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (undefined)[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (local)[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (direct_websocket)[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (dev_tunnel)[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (dev_container)[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (ssh)[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (wsl)[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (remote_extension_host)[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (web_pub_sub)[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (mission_control)[0m
+    [32m  ✔[0m[90m first response telemetry preserves connection kind and correlation (unknown)[0m
+    [32m  ✔[0m[90m first-response OTel bridge failures do not fail a completed invocation[0m
+    [32m  ✔[0m[90m first response timing counts root tools before text, not updates or later tools[0m
+    [32m  ✔[0m[90m first response timing shares root attempt ordinals across providers and excludes subagents[0m
+    [32m  ✔[0m[90m first response timing records root text presence for "" (eager=false)[0m
+    [32m  ✔[0m[90m first response timing records root text presence for "" (eager=true)[0m
+    [32m  ✔[0m[90m first response timing records root text presence for " \n" (eager=false)[0m
+    [32m  ✔[0m[90m first response timing records root text presence for " \n" (eager=true)[0m
+    [32m  ✔[0m[90m first response timing records root text presence for "final answer" (eager=false)[0m
+    [32m  ✔[0m[90m first response timing records root text presence for "final answer" (eager=true)[0m
+    [32m  ✔[0m[90m first response timing reports cancellation before preparation without text[0m
+    [32m  ✔[0m[90m first response timing excludes reasoning and error messages[0m
+    [32m  ✔[0m[90m delta events become markdownContent progress[0m
+    [32m  ✔[0m[90m system notification response parts become live system notifications[0m
+    [32m  ✔[0m[90m workspace transition response part is announced once as a polite status[0m
+    [32m  ✔[0m[90m worktree failure response parts become live warnings[0m
+    [32m  ✔[0m[90m Auto model routing metadata becomes a live resolution part[0m
+    [32m  ✔[0m[90m Auto selection reason is carried onto the live resolution part[0m
+    [32m  ✔[0m[90m Auto routing shows an unresolved part until the router answers[0m
+    [32m  ✔[0m[90m Copilot Fusion routing shows only the resolved part[0m
+    [32m  ✔[0m[90m Auto routing does not show an unresolved part for a host-handled slash command[0m
+    [32m  ✔[0m[90m Auto routing reports every route the host makes in a turn[0m
+    [32m  ✔[0m[90m defers routing rows until the experiment treatment resolves[0m
+    [32m  ✔[0m[90m hideAutoExplainability only rewrites footers of turns that actually routed[0m
+    [32m  ✔[0m[90m hideAutoExplainability drops the routing part and bills the footer to Auto[0m
+    [32m  ✔[0m[90m live turn marks chat session complete after turnComplete[0m
+    [32m  ✔[0m[90m live turn returns model credit details from usage[0m
+    [32m  ✔[0m[90m response footer omits token prices and latest-call credits (cancelled: false)[0m
+    [32m  ✔[0m[90m response footer omits token prices and latest-call credits (cancelled: true)[0m
+    [32m  ✔[0m[90m Fusion response footer keeps the selected workflow model (cancelled: false)[0m
+    [32m  ✔[0m[90m Fusion response footer keeps the selected workflow model (cancelled: true)[0m
+    [32m  ✔[0m[90m Fusion footer uses registered model metadata and preserves pricing (cost: undefined)[0m
+    [32m  ✔[0m[90m Fusion footer uses registered model metadata and preserves pricing (cost: 2)[0m
+    [32m  ✔[0m[90m live BYOK turn prefixes a groupless model with its provider[0m
+    [32m  ✔[0m[90m live BYOK turn includes a configured group between provider and model[0m
+    [32m  ✔[0m[90m cancelled turn still returns model credit details from accumulated usage[0m
+    [32m  ✔[0m[90m live turn renders zero-cost usage as 0 credits instead of multiplier[0m
+    [32m  ✔[0m[90m slug-normalised billed id resolves without suffix (e.g. claude-sonnet-4-6 → claude-sonnet-4.6)[0m
+    [32m  ✔[0m[90m unregistered billed id shows model-id suffix (e.g. Auto billed as raptor-mini)[0m
+    [32m  ✔[0m[90m live turn emits token usage as chat usage progress[0m
+    [32m  ✔[0m[90m subagent credits surface on the subagent tool without re-aggregating into parent usage[0m
+    [32m  ✔[0m[90m Fusion repeated ready events update the same phase presentation without creating a child chat[0m
+    [32m  ✔[0m[90m subagent model reads Auto when explainability is hidden and the routed model when it is not[0m
+    [32m  ✔[0m[90m shows the subagent model from its starting message before usage (background=false, delayedMetadata=false)[0m
+    [32m  ✔[0m[90m shows the subagent model from its starting message before usage (background=true, delayedMetadata=false)[0m
+    [32m  ✔[0m[90m shows the subagent model from its starting message before usage (background=true, delayedMetadata=true)[0m
+    [32m  ✔[0m[90m tool_start events become toolInvocation progress[0m
+    [32m  ✔[0m[90m tool deltas update one streaming invocation and transition it in place[0m
+    [32m  ✔[0m[90m turn completion cancels a server tool that is still streaming[0m
+    [32m  ✔[0m[90m tool_complete event transitions toolInvocation to completed[0m
+    [32m  ✔[0m[90m tool_complete with failure sets error state[0m
+    [32m  ✔[0m[90m outstanding tool invocations are completed on idle[0m
+    [32m  ✔[0m[90m events from other sessions are ignored[0m
+    [32m  ✔[0m[90m Copilot host plan-review interactive approval uses the host answer convention[0m
+    [32m  ✔[0m[90m Copilot host plan-review autopilot approval uses the host answer convention[0m
+    [32m  ✔[0m[90m Copilot host plan-review fleet approval uses the host answer convention[0m
+    [32m  ✔[0m[90m Copilot host plan-review plan-only approval uses the host answer convention[0m
+    [32m  ✔[0m[90m Copilot host plan-review revision uses the host answer convention[0m
+    [32m  ✔[0m[90m Copilot host plan-review approval with feedback uses the host answer convention[0m
+    [32m  ✔[0m[90m Copilot host plan-review rejection uses the host answer convention[0m
+    [32m  ✔[0m[90m Copilot host plan-review cancellation uses the host answer convention[0m
+    [32m  ✔[0m[90m Copilot host plan-review completion from another client preserves feedback without redispatching[0m
+    [32m  ✔[0m[90m plan-review input request renders a plan review instead of a question carousel[0m
+    [32m  ✔[0m[90m plan-review approval dispatches accepted selected answer[0m
+    [32m  ✔[0m[90m plan-review rejection dispatches a decline without selecting an implementation action[0m
+    [32m  ✔[0m[90m plan-review feedback dispatches accepted text answer for revision[0m
+    [32m  ✔[0m[90m plan-review completion from another client clears local plan review without redispatching[0m
+    [32m  ✔[0m[90m plan-review cancellation clears docked widget even when review was already dismissed[0m
+    [32m  ✔[0m[90m replacing an unresolved input request recreates its UI for the new request shape[0m
+    [32m  ✔[0m[90m input request completion from another client clears local question carousel[0m
+    [32m  ✔[0m[90m boolean input request renders as a true or false choice[0m
+    [32m  ✔[0m[90m input request completion echo applies authoritative answers after local submit[0m
+    [32m  ✔[0m[90m input request cancellation does not show draft answers as submitted[0m
+    [32m  ✔[0m[90m input request accepted without answers is marked answered, not skipped[0m
+    [32m  ✔[0m[90m renders a Computer Use setup request as one card that opens the setup modal on click[0m
+    [32m  ✔[0m[90m cancelling the Computer Use setup card declines its request[0m
+    [32m  ✔[0m[90m keeps the ordinary questions of a Computer Use setup request where the setup is not offered[0m
+    [32m  ✔[0m[90m renders a request to turn on Computer Use as one card whose Turn On button accepts it[0m
+    [32m  ✔[0m[90m Not Now declines a request to turn on Computer Use[0m
+    [32m  ✔[0m[90m url-style input request renders an elicitation part with the URL[0m
+    [32m  ✔[0m[90m url input request accept opens URL and dispatches Accept[0m
+    [32m  ✔[0m[90m url input request decline dispatches Decline[0m
+    [32m  ✔[0m[90m url input request accept failure dispatches Decline[0m
+    [32m  ✔[0m[90m url input request opener returning false dispatches Decline[0m
+    [32m  ✔[0m[90m url input request abandoned at turn end dispatches Cancel[0m
+    [32m  ✔[0m[90m url input request completion from another client does not redispatch[0m
+    [32m  ✔[0m[90m url input request server-side dismissal rejects the part and does not redispatch[0m
+[0m    cancellation[0m
+    [32m  ✔[0m[90m cancellation resolves the agent invoke[0m
+    [32m  ✔[0m[90m cancellation force-completes outstanding tool invocations[0m
+    [32m  ✔[0m[90m cancellation calls abortSession on the agent host service[0m
+    [32m  ✔[0m[90m cancellation marks chat session complete[0m
+    [32m  ✔[0m[90m cancellation after natural completion does not dispatch turnCancelled[0m
+[0m    error events[0m
+    [32m  ✔[0m[90m opening a locked conversation blocks input and Retry clears the banner without a turn[0m
+    [32m  ✔[0m[90m error event renders error message and finishes the request[0m
+    [32m  ✔[0m[90m Codex writer lock explains the handoff without offering a turn retry[0m
+    [32m  ✔[0m[90m first-send resolveSessionConfig policy failure offers Retry for the saved request[0m
+    [32m  ✔[0m[90m first-send resolveSessionConfig policy timeout offers Retry for the saved request[0m
+    [32m  ✔[0m[90m first-send createSession policy failure offers Retry for the saved request[0m
+    [32m  ✔[0m[90m first-send createSession policy timeout offers Retry for the saved request[0m
+    [32m  ✔[0m[90m policy resolution failure offers Retry as a fresh send, not a runtime resume[0m
+    [32m  ✔[0m[90m resumable error offers Try Again and resumes the same turn[0m
+    [32m  ✔[0m[90m interrupted turn offers Keep Going as a warning[0m
+    [32m  ✔[0m[90m a local retry joins a turn concurrently resumed by another client[0m
+    [32m  ✔[0m[90m a local retry joins a turn resumed while active client scope resolution is pending[0m
+    [32m  ✔[0m[90m a rejected local retry keeps observing a concurrently accepted resume[0m
+    [32m  ✔[0m[90m rejected resume resolves the retry invocation with an error[0m
+[0m    permission requests[0m
+    [32m  ✔[0m[90m permission_request event shows confirmation and responds when confirmed[0m
+    [32m  ✔[0m[90m permission_request denied when user skips[0m
+    [32m  ✔[0m[90m shell permission shows input-style confirmation data with toolInput[0m
+    [32m  ✔[0m[90m terminal command needing confirmation renders exactly one card (#314858)[0m
+    [32m  ✔[0m[90m read permission shows input-style confirmation data[0m
+    [32m  ✔[0m[90m sandbox path grant saves before dispatching the grant[0m
+    [32m  ✔[0m[90m sandbox path grant keeps confirmation open when saving fails[0m
+    [32m  ✔[0m[90m pending confirmation refreshes risk assessment and options[0m
+    [32m  ✔[0m[90m local confirmation does not race with pending tc.status: no spurious re-confirm before server echo[0m
+    [32m  ✔[0m[90m re-confirmation (Running → PendingConfirmation) reuses the same card and dispatches again[0m
+[0m    history loading[0m
+    [32m  ✔[0m[90m an ordinary existing session returns an authentication history error without waiting for initial authentication[0m
+    [32m  ✔[0m[90m reports live background shells from the advertised chat without provider metadata (restored=false)[0m
+    [32m  ✔[0m[90m reports live background shells from the advertised chat without provider metadata (restored=true)[0m
+    [32m  ✔[0m[90m archived session read-only state follows session status[0m
+    [32m  ✔[0m[90m non-archived session read-only state follows chat interactivity[0m
+    [32m  ✔[0m[90m new session read-only state follows status after materialization[0m
+    [32m  ✔[0m[90m eager-created session read-only state follows status after materialization[0m
+    [32m  ✔[0m[90m loads user and assistant messages into history[0m
+    [32m  ✔[0m[90m restored workspace transition does not emit a live status announcement[0m
+    [32m  ✔[0m[90m restores agent feedback attachments into request history variable data[0m
+    [32m  ✔[0m[90m restores agent feedback annotations attachments as one aggregated request variable[0m
+    [32m  ✔[0m[90m restores SDK-replayed agent feedback blobs as one request variable[0m
+    [32m  ✔[0m[90m restores agent host completion attachments as hidden request variables[0m
+    [32m  ✔[0m[90m restores chat references to a never-opened cross-session chat as the opaque backend URI[0m
+    [32m  ✔[0m[90m re-sends a restored cross-session (never-opened) chat reference back to the same backend chat URI[0m
+    [32m  ✔[0m[90m untitled sessions have empty history[0m
+    [32m  ✔[0m[90m restored Auto requests preserve selected and actual models (active: gpt-5, hidden: false)[0m
+    [32m  ✔[0m[90m restored Auto requests preserve selected and actual models (active: undefined, hidden: false)[0m
+    [32m  ✔[0m[90m restored Auto requests preserve selected and actual models (active: gpt-5, hidden: true)[0m
+    [32m  ✔[0m[90m restored Auto requests preserve selected and actual models (active: claude-sonnet-4-6, hidden: false)[0m
+    [32m  ✔[0m[90m restored Fusion response footers keep their workflow label independently of other turns, only for Copilot CLI[0m
+    [32m  ✔[0m[90m Fusion response footers name the Fusion tier they ran as[0m
+    [32m  ✔[0m[90m history requests get per-turn model selection from usage or message model[0m
+    [32m  ✔[0m[90m history response footers omit token prices but retain reported turn credits[0m
+[0m      cloud sandbox promotion[0m
+      [32m  ✔[0m[90m retains recorded history and retries a fulfilled session hydration failure[0m
+      [32m  ✔[0m[90m retains recorded history and retries a fulfilled default chat hydration failure[0m
+      [32m  ✔[0m[90m retains recorded history and retries a fulfilled peer chat hydration failure[0m
+      [32m  ✔[0m[90m retains recorded history and retries a fulfilled missing session hydration failure[0m
+      [32m  ✔[0m[90m keeps a cold recorded read running when live hydration fails first[0m
+      [32m  ✔[0m[90m accepts successfully loaded empty history[0m
+      [32m  ✔[0m[90m accepts successfully loaded failed turn history[0m
+      [32m  ✔[0m[90m accepts successfully loaded new session history[0m
+      [32m  ✔[0m[90m handles a missing root session only after checking empty recorded history[0m
+      [32m  ✔[0m[90m handles a missing root session only after checking existing recorded history[0m
+      [32m  ✔[0m[90m handles a missing root session only after checking unavailable recorded history[0m
+      [32m  ✔[0m[90m handles a missing root session only after checking truncated recorded history[0m
+      [32m  ✔[0m[90m handles a missing root session only after checking truncated other session recorded history[0m
+      [32m  ✔[0m[90m releases a missing-root result cancelled while recorded history is pending[0m
+[0m    tool invocation rendering[0m
+    [32m  ✔[0m[90m terminal metadata is observable before terminal revival completes[0m
+    [32m  ✔[0m[90m completed output-only terminal retires its live attachment before finalizing its retained snapshot[0m
+    [32m  ✔[0m[90m completed output-only terminal with a retained snapshot never attaches to the live resource[0m
+    [32m  ✔[0m[90m settled output-only terminal without a static preview stays attached until the turn ends[0m
+    [32m  ✔[0m[90m completed output-only terminal whose command still runs stays attached after the turn ends and the command exits, until the chat closes[0m
+    [32m  ✔[0m[90m completed output-only terminal with an empty preview and no exit code snapshots before retiring its live attachment[0m
+    [32m  ✔[0m[90m bash tool renders as terminal command block with output[0m
+    [32m  ✔[0m[90m bash tool failure sets exit code 1 and error output[0m
+    [32m  ✔[0m[90m generic tool has invocation message and no toolSpecificData[0m
+    [32m  ✔[0m[90m bash tool without arguments has no terminal data[0m
+    [32m  ✔[0m[90m view tool shows file path in messages[0m
+[0m    history with tool events[0m
+    [32m  ✔[0m[90m tool_start and tool_complete appear as toolInvocationSerialized in history[0m
+    [32m  ✔[0m[90m restores failed subagent calls from the chat catalog when tool metadata was lost[0m
+    [32m  ✔[0m[90m does not subscribe to child chats for failed historical subagent calls[0m
+    [32m  ✔[0m[90m preserves task descriptions without loading settled subagent history until opened[0m
+    [32m  ✔[0m[90m restores nested subagent availability from parent-chat-scoped catalog entries[0m
+    [32m  ✔[0m[90m opens an opaque subagent URI through the real command and session handler (catalogHydrated=false)[0m
+    [32m  ✔[0m[90m opens an opaque subagent URI through the real command and session handler (catalogHydrated=true)[0m
+    [32m  ✔[0m[90m opens a subagent editor from its exact chat URI before the chat catalog hydrates[0m
+    [32m  ✔[0m[90m shows a missing subagent chat error instead of an empty editable chat[0m
+    [32m  ✔[0m[90m resolved input requests preserve their stream position and answers in history[0m
+    [32m  ✔[0m[90m orphaned tool_start is marked complete in history[0m
+    [32m  ✔[0m[90m non-terminal tool_complete sets pastTenseMessage in history[0m
+    [32m  ✔[0m[90m empty session produces empty history[0m
+[0m      subagent subscription lifecycle[0m
+      [32m  ✔[0m[90m does not subscribe to thirty settled children (active parent: false)[0m
+      [32m  ✔[0m[90m does not subscribe to thirty settled children (active parent: true)[0m
+      [32m  ✔[0m[90m loads only the explicitly opened settled child[0m
+      [32m  ✔[0m[90m publishes a withheld restored pill when its advertised child is registered already settled[0m
+      [32m  ✔[0m[90m observes active children even after their launch completed (status: 8)[0m
+      [32m  ✔[0m[90m observes active children even after their launch completed (status: 24)[0m
+      [32m  ✔[0m[90m hydrates a settled child that later needs approval[0m
+      [32m  ✔[0m[90m keeps a settling child pending until its first snapshot makes the pill openable[0m
+      [32m  ✔[0m[90m reconciles a child that finishes while a sibling history snapshot is pending (initial tools: running)[0m
+      [32m  ✔[0m[90m reconciles a child that finishes while a sibling history snapshot is pending (initial tools: completed)[0m
+      [32m  ✔[0m[90m reconciles a child that finishes while a sibling history snapshot is pending (initial tools: empty)[0m
+      [32m  ✔[0m[90m recovers the same pending tool after subscription failure and reports its unseen turn error[0m
+      [32m  ✔[0m[90m releases a settled child after its terminal action and resumes without duplicating tools[0m
+      [32m  ✔[0m[90m preserves the completed child duration when the parent view is recreated (active parent: false)[0m
+      [32m  ✔[0m[90m preserves the completed child duration when the parent view is recreated (active parent: true)[0m
+      [32m  ✔[0m[90m preserves subagent credits across repeated view recreation and child resumption (active parent: false)[0m
+      [32m  ✔[0m[90m preserves subagent credits across repeated view recreation and child resumption (active parent: true)[0m
+      [32m  ✔[0m[90m restores observed subagent credits when duration is unavailable[0m
+      [32m  ✔[0m[90m retains observed credits and zero duration but not after the child catalog changes[0m
+      [32m  ✔[0m[90m retains an idle ancestor until its descendant finishes and resumes without duplicating descendant tools[0m
+      [32m  ✔[0m[90m keeps tools with overlapping IDs in their owning child chat snapshots[0m
+      [32m  ✔[0m[90m retains a settled ancestor until its pending descendant snapshot reconciles[0m
+      [32m  ✔[0m[90m keeps an idle snapshot observed when the host catalog still reports activity[0m
+      [32m  ✔[0m[90m retains a newly active child until its terminal action within the same delivery batch[0m
+      [32m  ✔[0m[90m keeps subscriptions held by an open child or active observer (close before settling: false)[0m
+      [32m  ✔[0m[90m keeps subscriptions held by an open child or active observer (close before settling: true)[0m
+[0m      restored subagent chat resolution[0m
+      [32m  ✔[0m[90m restore does not wait for the host to register the subagent chat, and a late in-progress child enriches the pill[0m
+      [32m  ✔[0m[90m a late-registering settled child is not eagerly subscribed[0m
+      [32m  ✔[0m[90m a late-registering settled child makes the kept pill openable without subscribing[0m
+      [32m  ✔[0m[90m disposing the session while a pill waits cancels the late enrichment[0m
+      [32m  ✔[0m[90m skips enrichment without deriving or subscribing when the chat is never registered[0m
+      [32m  ✔[0m[90m uses the recorded chat immediately when the catalog already lists it[0m
+      [32m  ✔[0m[90m an older VS Code host keeps the shaped fallback[0m
+      [32m  ✔[0m[90m an unmarked host never gets a derived subagent chat[0m
+[0m    server error handling[0m
+    [32m  ✔[0m[90m server-side error resolves the agent invoke without throwing[0m
+[0m    session list provider filtering[0m
+    [32m  ✔[0m[90m filters sessions to only the matching provider[0m
+[0m    language model provider[0m
+    [32m  ✔[0m[90m maps models with correct metadata[0m
+    [32m  ✔[0m[90m maps cost metadata from _meta onto model metadata[0m
+    [32m  ✔[0m[90m filters out disabled models[0m
+    [32m  ✔[0m[90m maps model config schema to picker configuration schema[0m
+    [32m  ✔[0m[90m returns empty when no models set[0m
+    [32m  ✔[0m[90m sendChatRequest throws[0m
+[0m    attachment context[0m
+    [32m  ✔[0m[90m sandbox Copilot handles explicit untitled editor attachments[0m
+    [32m  ✔[0m[90m sandbox Copilot handles explicit dirty saved editor attachments[0m
+    [32m  ✔[0m[90m sandbox Copilot handles explicit clean saved editor attachments[0m
+    [32m  ✔[0m[90m sandbox Copilot handles explicit oversized untitled editor attachments[0m
+    [32m  ✔[0m[90m sandbox Copilot handles explicit oversized dirty saved editor attachments[0m
+    [32m  ✔[0m[90m sandbox Copilot handles implicit untitled editor attachments[0m
+    [32m  ✔[0m[90m sandbox Copilot handles implicit dirty saved editor attachments[0m
+    [32m  ✔[0m[90m sandbox Copilot handles implicit clean saved editor attachments[0m
+    [32m  ✔[0m[90m sandbox Copilot handles implicit oversized untitled editor attachments[0m
+    [32m  ✔[0m[90m sandbox Copilot handles implicit oversized dirty saved editor attachments[0m
+    [32m  ✔[0m[90m file variable with file:// URI becomes file attachment[0m
+    [32m  ✔[0m[90m screenshot variable becomes embedded image attachment[0m
+    [32m  ✔[0m[90m browser view variable becomes a model-readable browser attachment[0m
+    [32m  ✔[0m[90m preserves _meta from variable entry on outgoing attachment[0m
+    [32m  ✔[0m[90m local agent host Copilot CLI session reference becomes simple and trajectory attachments[0m
+    [32m  ✔[0m[90m chat reference variable entry becomes a chat attachment[0m
+    [32m  ✔[0m[90m chat reference attachment round-trips its reference range back into an offset range[0m
+    [32m  ✔[0m[90m extension host Copilot CLI session reference becomes simple and trajectory attachments[0m
+    [32m  ✔[0m[90m remote agent host Copilot CLI session reference becomes simple and trajectory attachments[0m
+    [32m  ✔[0m[90m unsupported session reference variable is dropped[0m
+    [32m  ✔[0m[90m malformed session reference variable is dropped[0m
+    [32m  ✔[0m[90m agent feedback variable becomes a simple attachment when no annotations channel is known[0m
+    [32m  ✔[0m[90m directory variable with file:// URI becomes directory attachment[0m
+    [32m  ✔[0m[90m implicit selection variable becomes selection attachment[0m
+    [32m  ✔[0m[90m file variable with location value becomes selection attachment[0m
+    [32m  ✔[0m[90m implicit visible code location becomes document attachment without selection[0m
+    [32m  ✔[0m[90m active editor implicit context is not forwarded when the setting is disabled[0m
+    [32m  ✔[0m[90m active editor implicit context is forwarded as a document attachment for agent sessions[0m
+    [32m  ✔[0m[90m active notebook cell implicit context includes its stored output for Codex sessions[0m
+    [32m  ✔[0m[90m active notebook cell output is forwarded when its source is already attached explicitly[0m
+    [32m  ✔[0m[90m browser implicit context is not forwarded as an attachment[0m
+    [32m  ✔[0m[90m active editor implicit context is not duplicated when also attached explicitly[0m
+    [32m  ✔[0m[90m active editor implicit selection is forwarded even when the same file is attached as a document[0m
+    [32m  ✔[0m[90m active editor implicit context is not forwarded for untitled editors on non-Copilot backends[0m
+    [32m  ✔[0m[90m active editor implicit context for an untitled editor is inlined for the Copilot CLI backend[0m
+    [32m  ✔[0m[90m active editor implicit context for a dirty saved file is inlined for the Copilot CLI backend[0m
+    [32m  ✔[0m[90m active editor implicit selection in an unsaved editor preserves the selection range when inlined for the Copilot CLI backend[0m
+    [32m  ✔[0m[90m active editor implicit context for a clean saved file is forwarded as a path for the Copilot CLI backend[0m
+    [32m  ✔[0m[90m active editor implicit context over the size cap is dropped for an untitled editor on the Copilot CLI backend[0m
+    [32m  ✔[0m[90m active editor implicit context over the size cap falls back to a path for a dirty saved file on the Copilot CLI backend[0m
+    [32m  ✔[0m[90m non-file URI variables (e.g. untitled documents) are forwarded as attachments[0m
+    [32m  ✔[0m[90m explicitly attached untitled editor is inlined for the Copilot CLI backend[0m
+    [32m  ✔[0m[90m explicitly attached dirty saved file is inlined for the Copilot CLI backend[0m
+    [32m  ✔[0m[90m explicitly attached clean saved file is forwarded as a path for the Copilot CLI backend[0m
+    [32m  ✔[0m[90m explicitly attached unsaved file is not duplicated by the active editor for the Copilot CLI backend[0m
+    [32m  ✔[0m[90m inlined unsaved attachment preserves _meta and selection for copilotcli[0m
+    [32m  ✔[0m[90m inlined unsaved attachment preserves _meta and selection for copilot[0m
+    [32m  ✔[0m[90m inlined unsaved attachment preserves _meta and selection for codex[0m
+    [32m  ✔[0m[90m dirty non-file resource that cannot be inlined is dropped for the Copilot CLI backend[0m
+    [32m  ✔[0m[90m tool variables are skipped[0m
+    [32m  ✔[0m[90m mixed variables extracts only supported types[0m
+    [32m  ✔[0m[90m no variables results in no attachments argument[0m
+    [32m  ✔[0m[90m rebases file/directory/selection attachments under requested working dir onto resolved working dir[0m
+    [32m  ✔[0m[90m does not rebase attachments owned by a nested secondary working directory[0m
+    [32m  ✔[0m[90m does not rebase when requested and resolved working dirs match[0m
+    [32m  ✔[0m[90m attachments outside the requested working dir pass through unchanged[0m
+[0m    dynamic discovery[0m
+    [32m  ✔[0m[90m registered editor handler routes edit previews and markdown through its local connection[0m
+    [32m  ✔[0m[90m registered editor handler routes edit previews and markdown through its wsl+Ubuntu connection[0m
+    [32m  ✔[0m[90m setting gate prevents registration[0m
+    [32m  ✔[0m[90m local agent contribution advertises target-only delegation and image attachments[0m
+    [32m  ✔[0m[90m Agent Host registrations follow enablement in both directions[0m
+    [32m  ✔[0m[90m policy-disabled providers retain history-only registrations without root agents[0m
+    [32m  ✔[0m[90m history registration preserves manual disablement and editor Codex routing (policy=false)[0m
+    [32m  ✔[0m[90m history registration preserves manual disablement and editor Codex routing (policy=true)[0m
+    [32m  ✔[0m[90m session list contribution registers item controller in editor window[0m
+    [32m  ✔[0m[90m session list contribution does not register item controller in sessions window[0m
+    [32m  ✔[0m[90m local agent contribution uses advertised display name[0m
+[0m      unavailable root snapshots[0m
+      [32m  ✔[0m[90m every agent's session type owns its model pool, so a chat answered by it never falls back to another's models[0m
+      [32m  ✔[0m[90m configuration changes preserve executable registrations with an Error root snapshot[0m
+      [32m  ✔[0m[90m configuration changes preserve sidebar controllers with an Error root snapshot[0m
+      [32m  ✔[0m[90m disablement still replaces executable registrations with an Error root snapshot (policy=false)[0m
+      [32m  ✔[0m[90m disablement still replaces executable registrations with an Error root snapshot (policy=true)[0m
+      [32m  ✔[0m[90m configuration changes preserve executable registrations with an undefined root snapshot[0m
+      [32m  ✔[0m[90m configuration changes preserve sidebar controllers with an undefined root snapshot[0m
+      [32m  ✔[0m[90m disablement still replaces executable registrations with an undefined root snapshot (policy=false)[0m
+      [32m  ✔[0m[90m disablement still replaces executable registrations with an undefined root snapshot (policy=true)[0m
+      [32m  ✔[0m[90m a valid empty root snapshot removes executable registrations[0m
+[0m    IAgentConnection config[0m
+    [32m  ✔[0m[90m handler uses custom extensionId from config[0m
+    [32m  ✔[0m[90m handler defaults extensionId when not provided[0m
+    [32m  ✔[0m[90m reports failures before an agent host turn is dispatched[0m
+    [32m  ✔[0m[90m handler uses resolveWorkingDirectory callback[0m
+    [32m  ✔[0m[90m handler forwards request session config to createSession[0m
+    [32m  ✔[0m[90m handler applies editor-window defaults when direct creation has no request config[0m
+    [32m  ✔[0m[90m handler waits for an in-flight provisional before falling back to direct creation[0m
+    [32m  ✔[0m[90m handler cancellation interrupts an in-flight provisional wait[0m
+    [32m  ✔[0m[90m handler cancellation during eager-state hydration does not create a fallback session[0m
+    [32m  ✔[0m[90m handler forwards request session config via SessionConfigChanged on eager-create path[0m
+    [32m  ✔[0m[90m handler forwards configured hook locations for regular workbench sessions[0m
+    [32m  ✔[0m[90m handler forwards configured hook locations on eager-created regular workbench sessions[0m
+    [32m  ✔[0m[90m handler resolves authentication before sending to an eager-created session[0m
+    [32m  ✔[0m[90m handler does not clobber picker-set session config on eager-create path[0m
+    [32m  ✔[0m[90m handler awaits in-flight eager createSession before falling through to a duplicate create (issue #319764)[0m
+    [32m  ✔[0m[90m handler uses registered working directory resolver[0m
+    [32m  ✔[0m[90m handler passes vscode-agent-host URI as-is to createSession[0m
+    [32m  ✔[0m[90m list controller includes description in items[0m
+    [32m  ✔[0m[90m list controller omits description when undefined[0m
+    [32m  ✔[0m[90m list controller surfaces only working directory in metadata (git state is now per-session state, not summary)[0m
+    [32m  ✔[0m[90m handler works with any IAgentConnection, not just IAgentHostService[0m
+[0m    reconnection to active turn[0m
+    [32m  ✔[0m[90m reconnects to a pending Copilot host plan review and responds on the advertised chat[0m
+    [32m  ✔[0m[90m loads completed turns as history and active turn request/response[0m
+    [32m  ✔[0m[90m preserves the request source when reconnecting to an active Agent Merge turn[0m
+    [32m  ✔[0m[90m sets isCompleteObs to false and populates progressObs for active turn[0m
+    [32m  ✔[0m[90m disposing the session completes its active turn[0m
+    [32m  ✔[0m[90m does not duplicate system notification progress when reconnecting[0m
+    [32m  ✔[0m[90m provides interruptActiveResponseCallback when reconnecting[0m
+    [32m  ✔[0m[90m interrupt callback dispatches turnCancelled action[0m
+    [32m  ✔[0m[90m streams new text deltas into progressObs after reconnection[0m
+    [32m  ✔[0m[90m marks session complete when turn finishes[0m
+    [32m  ✔[0m[90m handles active turn with running tool call[0m
+    [32m  ✔[0m[90m replays a settled tool call once, keeping the streamed markdown in one part[0m
+    [32m  ✔[0m[90m replays a settled subagent tool call once, keeping the streamed markdown in one part[0m
+    [32m  ✔[0m[90m restores a failed launch with a catalog child in an active turn (server)[0m
+    [32m  ✔[0m[90m restored unstarted subagents append after newer progress (server)[0m
+    [32m  ✔[0m[90m restored background subagent pills observe their child chat completing (server)[0m
+    [32m  ✔[0m[90m restores a failed launch with a catalog child in an active turn (test-window-1)[0m
+    [32m  ✔[0m[90m restored unstarted subagents append after newer progress (test-window-1)[0m
+    [32m  ✔[0m[90m restored background subagent pills observe their child chat completing (test-window-1)[0m
+    [32m  ✔[0m[90m restores a failed launch with a catalog child in an active turn (other-window)[0m
+    [32m  ✔[0m[90m restored unstarted subagents append after newer progress (other-window)[0m
+    [32m  ✔[0m[90m restored background subagent pills observe their child chat completing (other-window)[0m
+    [32m  ✔[0m[90m adopts and updates an active streaming tool call after reconnect[0m
+    [32m  ✔[0m[90m handles active turn with pending tool confirmation[0m
+    [32m  ✔[0m[90m reconnect during streaming then confirmation renders exactly one card (#314858)[0m
+    [32m  ✔[0m[90m no active turn loads completed history only with isComplete true[0m
+    [32m  ✔[0m[90m includes reasoning in initial progress[0m
+[0m    file edit progress[0m
+    [32m  ✔[0m[90m observed patch completions publish edit rows exactly once (reconnect=false)[0m
+    [32m  ✔[0m[90m observed patch completions publish edit rows exactly once (reconnect=true)[0m
+[0m    keep and undo review[0m
+    [32m  ✔[0m[90m lazily created review preserves the chat location (panel)[0m
+    [32m  ✔[0m[90m lazily created review preserves the chat location (editor)[0m
+    [32m  ✔[0m[90m reviews the edits of chats in the chat view and editors (working set enabled=true)[0m
+    [32m  ✔[0m[90m reviews the edits of chats in the chat view and editors (working set enabled=false)[0m
+    [32m  ✔[0m[90m open and new editor reviews follow changes to the working set setting[0m
+    [32m  ✔[0m[90m the review menu preference updates open chats and dirty-buffer retention immediately[0m
+    [32m  ✔[0m[90m enables editor review and dirty-buffer retention for copilot on local[0m
+    [32m  ✔[0m[90m enables editor review and dirty-buffer retention for copilot on remote.example[0m
+    [32m  ✔[0m[90m enables editor review and dirty-buffer retention for claude on local[0m
+    [32m  ✔[0m[90m enables editor review and dirty-buffer retention for claude on remote.example[0m
+    [32m  ✔[0m[90m enables editor review and dirty-buffer retention for codex on local[0m
+    [32m  ✔[0m[90m enables editor review and dirty-buffer retention for codex on remote.example[0m
+    [32m  ✔[0m[90m enables editor review and dirty-buffer retention for other on local[0m
+    [32m  ✔[0m[90m enables editor review and dirty-buffer retention for other on remote.example[0m
+[0m    server-initiated turns[0m
+    [32m  ✔[0m[90m does not retain steering folded into the current turn by copilotcli[0m
+    [32m  ✔[0m[90m does not retain steering folded into the current turn by claude[0m
+    [32m  ✔[0m[90m does not retain steering folded into the current turn by codex[0m
+    [32m  ✔[0m[90m does not retain steering folded into the current turn by custom[0m
+    [32m  ✔[0m[90m sandbox handoff reaches the actual model without resending (remove-first)[0m
+    [32m  ✔[0m[90m sandbox handoff reaches the actual model without resending (complete-first)[0m
+    [32m  ✔[0m[90m sandbox handoff reaches the actual model without resending (atomic)[0m
+    [32m  ✔[0m[90m Stop retires sandbox handoff without waiting for a server echo (completed=false)[0m
+    [32m  ✔[0m[90m Stop retires sandbox handoff without waiting for a server echo (completed=true)[0m
+    [32m  ✔[0m[90m passively refreshed history reaches the open contributed session[0m
+    [32m  ✔[0m[90m preserves independent default chat titles and renames without cloud customization[0m
+    [32m  ✔[0m[90m uses the authoritative session title for the editor despite a stale default chat title[0m
+    [32m  ✔[0m[90m inherits the session title for an untitled default chat in a multi-chat session[0m
+    [32m  ✔[0m[90m an untitled advertised default chat inherits the session title even when it is not default-shaped[0m
+    [32m  ✔[0m[90m routes editor renames through the session for the default chat and the chat for peers[0m
+    [32m  ✔[0m[90m uses the session title for a sole default chat[0m
+    [32m  ✔[0m[90m does not surface a host title the connection flags as a placeholder[0m
+    [32m  ✔[0m[90m syncs queued messages added to restored active sessions idempotently with isSystemInitiated=true[0m
+    [32m  ✔[0m[90m syncs queued messages added to restored active sessions idempotently with isSystemInitiated=false[0m
+    [32m  ✔[0m[90m syncs queued messages added to restored active sessions idempotently with isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs steering messages added to restored active sessions idempotently with isSystemInitiated=true[0m
+    [32m  ✔[0m[90m syncs steering messages added to restored active sessions idempotently with isSystemInitiated=false[0m
+    [32m  ✔[0m[90m syncs steering messages added to restored active sessions idempotently with isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m keeps successive steering messages visible until consumed (codex)[0m
+    [32m  ✔[0m[90m keeps successive steering messages visible until consumed (copilot)[0m
+    [32m  ✔[0m[90m keeps successive steering messages visible until consumed (claude)[0m
+    [32m  ✔[0m[90m drops a rejected steering submission without losing another unacknowledged message[0m
+    [32m  ✔[0m[90m restores steering lists from an opaque advertised chat without host metadata (legacy=legacy)[0m
+    [32m  ✔[0m[90m restores steering lists from an opaque advertised chat without host metadata (legacy=b)[0m
+    [32m  ✔[0m[90m projects pending messages queued by another client without republishing element attachments[0m
+    [32m  ✔[0m[90m round-trips queued agent provenance and drops delegation ownership after a user edit[0m
+    [32m  ✔[0m[90m hydrates queued messages from the protocol instead of clearing them when attaching[0m
+    [32m  ✔[0m[90m syncs existing queued pending messages with user origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing queued pending messages with agent origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing queued pending messages with tool origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing queued pending messages with automation origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing queued pending messages with systemNotification origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing queued pending messages with user origin and isSystemInitiated=true[0m
+    [32m  ✔[0m[90m syncs restored queued pending messages with user origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs restored queued pending messages with agent origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs restored queued pending messages with tool origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs restored queued pending messages with automation origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs restored queued pending messages with systemNotification origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing steering pending messages with user origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing steering pending messages with agent origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing steering pending messages with tool origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing steering pending messages with automation origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing steering pending messages with systemNotification origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs existing steering pending messages with user origin and isSystemInitiated=true[0m
+    [32m  ✔[0m[90m syncs restored steering pending messages with user origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs restored steering pending messages with agent origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs restored steering pending messages with tool origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs restored steering pending messages with automation origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m syncs restored steering pending messages with systemNotification origin and isSystemInitiated=undefined[0m
+    [32m  ✔[0m[90m forwards a hidden workspace-continuation request to the live transcript adapter[0m
+    [32m  ✔[0m[90m forwards Agent Merge identity only for marked system-initiated turns[0m
+    [32m  ✔[0m[90m server-initiated turn streams progress through progressObs[0m
+    [32m  ✔[0m[90m server-initiated turn records its response model footer (reported model: undefined)[0m
+    [32m  ✔[0m[90m server-initiated turn records its response model footer (reported model: actual-model)[0m
+    [32m  ✔[0m[90m server-initiated peer turn without model evidence does not borrow the default chat model[0m
+    [32m  ✔[0m[90m server-initiated turn records the model Auto routed to on the response result[0m
+    [32m  ✔[0m[90m stale completion from a replaced server turn does not complete the next response[0m
+    [32m  ✔[0m[90m a server-initiated steering request is undone with the checkpoint it follows[0m
+    [32m  ✔[0m[90m stale client completion does not complete a server-initiated steering response[0m
+    [32m  ✔[0m[90m disposing chat session does not call disposeSession on connection[0m
+    [32m  ✔[0m[90m client-dispatched turns are not treated as server-initiated[0m
+    [32m  ✔[0m[90m server-initiated turn does not duplicate tool calls on repeated state changes[0m
+    [32m  ✔[0m[90m server-initiated turn picks up markdown arriving with turnStarted[0m
+    [32m  ✔[0m[90m removes consumed queued message from chat model when server-initiated turn appears[0m
+    [32m  ✔[0m[90m a server-initiated turn names the removed notice turn it replaces[0m
+    [32m  ✔[0m[90m removes steering message from chat model when steering id changes[0m
+[0m    customizations[0m
+    [32m  ✔[0m[90m rejects default agent selection without read-only Ask metadata when Agent is disabled[0m
+    [32m  ✔[0m[90m rejects unmarked agent selection without read-only Ask metadata when Agent is disabled[0m
+    [32m  ✔[0m[90m rejects malformed agent selection without read-only Ask metadata when Agent is disabled[0m
+    [32m  ✔[0m[90m maps built-in custom agent URIs for turns[0m
+    [32m  ✔[0m[90m dispatches activeClientSet when a new session is created[0m
+    [32m  ✔[0m[90m drops customizations for a host older than list-shaped enablement[0m
+    [32m  ✔[0m[90m drops customizations from a reconciliation republish for an older host[0m
+    [32m  ✔[0m[90m keeps customizations for a host that speaks list-shaped enablement[0m
+    [32m  ✔[0m[90m does not render a load failure for a session the host has not created yet[0m
+    [32m  ✔[0m[90m still renders a load failure when the session exists but cannot be opened[0m
+    [32m  ✔[0m[90m drops a working directory the host cannot address, letting it choose its own[0m
+    [32m  ✔[0m[90m keeps a remote working directory the host can address once unwrapped[0m
+    [32m  ✔[0m[90m keeps a working directory whose scheme the host addresses[0m
+    [32m  ✔[0m[90m prepares the working directory after authentication and rebinds its customization scope before creation[0m
+    [32m  ✔[0m[90m failed working-directory preparation prevents session creation and turns[0m
+    [32m  ✔[0m[90m cancelling working-directory preparation prevents session creation[0m
+    [32m  ✔[0m[90m disposing the handler during working-directory preparation prevents session creation[0m
+    [32m  ✔[0m[90m existing sessions do not prepare another working directory[0m
+    [32m  ✔[0m[90m waits for initial scope resolution before creating a session[0m
+    [32m  ✔[0m[90m cancels a turn while active client scope resolution is pending[0m
+    [32m  ✔[0m[90m re-dispatches activeClientSet when customizations observable changes[0m
+    [32m  ✔[0m[90m reasserts a claimed active client after session state loses it[0m[33m (48ms)[0m
+    [32m  ✔[0m[90m does not republish an unacknowledged active-client payload on repeated state changes[0m
+    [32m  ✔[0m[90m publishes newly registered tools before starting the next turn[0m
+    [32m  ✔[0m[90m coalesces customization, custom-agent, and tool changes into one active-client dispatch[0m
+    [32m  ✔[0m[90m keeps a quick chat on the provider customization scope through turns, idle updates and tool changes[0m
+    [32m  ✔[0m[90m dispatches customization changes only to the session with the matching working-directory scope[0m
+    [32m  ✔[0m[90m does not republish activeClientSet after the chat session is disposed[0m
+    [32m  ✔[0m[90m does not dispatch activeClientSet when an existing session is restored and this client is already active[0m
+    [32m  ✔[0m[90m publishes only resolved customizations when restoring a session[0m
+    [32m  ✔[0m[90m dispatches activeClientSet on first turn when restoring a session where another client is active[0m
+    [32m  ✔[0m[90m preparing background client tools claims the client without starting a turn[0m
+    [32m  ✔[0m[90m does not claim another client session while reconciling scope changes[0m
+    [32m  ✔[0m[90m refreshes stale customizations on open when the current client is already active[0m
+    [32m  ✔[0m[90m active-client reconciliation ignores undefined properties across JSON echoes (optimistic=false)[0m
+    [32m  ✔[0m[90m active-client reconciliation ignores undefined properties across JSON echoes (optimistic=true)[0m
+    [32m  ✔[0m[90m active-client reconciliation preserves real metadata and ordered array changes[0m
+    [32m  ✔[0m[90m does not republish wire-equivalent customizations when the current active client hydrates after open[0m
+[0m    background subagent lifetime[0m
+    [32m  ✔[0m[90m restored background subagent pills follow new child turns and tools (active=false)[0m
+    [32m  ✔[0m[90m restored background subagent pills follow new child turns and tools (active=true)[0m
+    [32m  ✔[0m[90m publishes a child that starts after its parent turn completes (server, lateDiscovery=false)[0m
+    [32m  ✔[0m[90m publishes a child that starts after its parent turn completes (server, lateDiscovery=true)[0m
+    [32m  ✔[0m[90m publishes a child that starts after its parent turn completes (test-window-1, lateDiscovery=false)[0m
+    [32m  ✔[0m[90m publishes a child that starts after its parent turn completes (other-window, lateDiscovery=false)[0m
+    [32m  ✔[0m[90m publishes an idle-history child after delayed startup (available=true)[0m
+    [32m  ✔[0m[90m publishes an idle-history child after delayed startup (available=false)[0m
+[0m    subagent grouping[0m
+    [32m  ✔[0m[90m child file edits retain the root subagent identity (restored=false)[0m
+    [32m  ✔[0m[90m child file edits retain the root subagent identity (restored=true)[0m
+    [32m  ✔[0m[90m appends subagents in start order after intervening tools (server)[0m
+    [32m  ✔[0m[90m appends subagents in start order after intervening tools (test-window-1)[0m
+    [32m  ✔[0m[90m appends subagents in start order after intervening tools (other-window)[0m
+    [32m  ✔[0m[90m inner subagent tool calls are forwarded with subAgentInvocationId set[0m
+    [32m  ✔[0m[90m clears active subagent availability after a hydrated subscription errors[0m
+    [32m  ✔[0m[90m clears completed subagent availability after a hydrated subscription errors[0m
+    [32m  ✔[0m[90m retries a hydrated failed subagent subscription when its discovery content arrives[0m
+    [32m  ✔[0m[90m retries a pending failed subagent subscription when its discovery content arrives[0m
+    [32m  ✔[0m[90m recovers a late background subagent from the chat catalog after its task tool completed[0m
+    [32m  ✔[0m[90m subagent catalog discovery scopes reused tool ids to the spawning chat[0m
+    [32m  ✔[0m[90m prefers the protocol child when duplicate catalog entries share a spawn edge[0m
+    [32m  ✔[0m[90m switches subagent observation from a provisional URI to the discovered chat[0m
+    [32m  ✔[0m[90m failed subagent tool calls release child chat subscriptions[0m
+    [32m  ✔[0m[90m inner subagent tool calls fired AFTER parent observation are also grouped[0m
+    [32m  ✔[0m[90m client-provided subagent tool calls retain the parent grouping id[0m
+    [32m  ✔[0m[90m parent subagent agentName is updated when subagent content arrives later[0m
+[0m    auth dedupe[0m
+    [32m  ✔[0m[90m does not re-authenticate when token unchanged across rootState changes[0m
+    [32m  ✔[0m[90m re-authenticates when token rotates, then dedupes again[0m
+    [32m  ✔[0m[90m re-authenticates with the same token when authentication is required[0m
+    [32m  ✔[0m[90m authenticates an exact required resource that is not advertised by root agents[0m
+    [32m  ✔[0m[90m resends the current token once for duplicate expired authentication notifications without prompting[0m
+    [32m  ✔[0m[90m prompts once and forwards after a second completed same-token challenge[0m
+    [32m  ✔[0m[90m does not restore a rejected exact session after recovering with a broader session[0m
+    [32m  ✔[0m[90m forwards and records the post-sign-in token when authentication repopulates the cache during setup[0m
+    [32m  ✔[0m[90m does not prompt after a silently rotated token on a second challenge[0m
+    [32m  ✔[0m[90m does not claim or retry a canceled interactive authentication until a later challenge[0m
+    [32m  ✔[0m[90m sends a silently rotated current token for an expired authentication notification[0m
+    [32m  ✔[0m[90m does not conflate authentication challenges with the same resource and distinct scopes[0m
+    [32m  ✔[0m[90m does not forward missing-token state when no token is resolvable[0m
+    [32m  ✔[0m[90m propagates interactive authentication errors for eager-created sessions[0m
+[0m    mcp authentication[0m
+    [32m  ✔[0m[90m silently authenticates identical successive MCP challenges without an active turn[0m
+    [32m  ✔[0m[90m delivers concurrent silent authentication to every session[0m
+    [32m  ✔[0m[90m surfaces an authentication prompt when MCP tool routing is disabled by default[0m
+    [32m  ✔[0m[90m uses an actionable notification instead of an inline hint in screen reader mode[0m
+    [32m  ✔[0m[90m closes the screen reader authentication notification when the server is authenticated[0m
+    [32m  ✔[0m[90m closes the screen reader authentication notification when the server is disabled[0m
+    [32m  ✔[0m[90m closes the screen reader authentication notification when the server is removed[0m
+    [32m  ✔[0m[90m closes the screen reader authentication notification when the server is routing registered[0m
+    [32m  ✔[0m[90m closes the screen reader authentication notification when the server is session disposed[0m
+    [32m  ✔[0m[90m surfaces an authentication prompt when MCP tool routing is enabled but no routing tool is registered[0m
+    [32m  ✔[0m[90m Connector proactive authentication respects routing=false, screenReader=false[0m
+    [32m  ✔[0m[90m Connector proactive authentication respects routing=false, screenReader=true[0m
+    [32m  ✔[0m[90m Connector proactive authentication respects routing=true, screenReader=false[0m
+    [32m  ✔[0m[90m Connector proactive authentication respects routing=true, screenReader=true[0m
+    [32m  ✔[0m[90m withdraws proactive authentication when Connector ownership arrives with screenReader=false[0m
+    [32m  ✔[0m[90m withdraws proactive authentication when Connector ownership arrives with screenReader=true[0m
+    [32m  ✔[0m[90m uses actual routing registration for sign-in hints: ["GitHub MCP"][0m
+    [32m  ✔[0m[90m uses actual routing registration for sign-in hints: ["other-server"][0m
+    [32m  ✔[0m[90m uses actual routing registration for sign-in hints: [][0m
+    [32m  ✔[0m[90m uses actual routing registration for sign-in hints: "GitHub MCP"[0m
+    [32m  ✔[0m[90m uses actual routing registration for sign-in hints: ["GitHub MCP",1][0m
+    [32m  ✔[0m[90m shows sign-in hints again when routing registration is removed during a turn[0m
+    [32m  ✔[0m[90m resurfaces a previous sign-in hint after routing is registered and removed[0m
+    [32m  ✔[0m[90m preserves sign-in hint deduplication for servers without routing tools[0m
+[0m    provideChatInputCompletions[0m
+    [32m  ✔[0m[90m forwards text/offset to the agent host and maps file attachments back to chat input items[0m
+    [32m  ✔[0m[90m skips attachments of unsupported kinds[0m
+    [32m  ✔[0m[90m preserves skill completion metadata[0m
+    [32m  ✔[0m[90m preserves the follow-up suggestion hint on command completions[0m
+    [32m  ✔[0m[90m preserves the submit-on-accept hint on command completions[0m
+    [32m  ✔[0m[90m maps simple attachments without metadata to plain text completions[0m
+    [32m  ✔[0m[90m uses a command attachment label when it differs from the inserted text[0m
+    [32m  ✔[0m[90m preserves the runtime skill distinction on command attachments[0m
+    [32m  ✔[0m[90m routes untitled completions to the current opaque provisional backend[0m
+    [32m  ✔[0m[90m waits for a pending provisional before requesting untitled completions[0m
+    [32m  ✔[0m[90m returns no untitled completions when there is no current generation[0m
+    [32m  ✔[0m[90m surfaces a chat completion backend URI verbatim on the completion attachment[0m
+    [32m  ✔[0m[90m returns undefined when the request is cancelled[0m
+
+[0m  SessionsManagementService[0m
+  [32m  ✔[0m[90m managed worktree inventory isolates provider failures and forwards only their known repositories[0m
+  [32m  ✔[0m[90m activates an existing empty composer from part focus without replacing its sibling session[0m
+  [32m  ✔[0m[90m routes external session import to the owning provider and propagates errors[0m
+  [32m  ✔[0m[90m routes artifact removal to the owning provider and propagates errors[0m
+  [32m  ✔[0m[90m routes chat archive changes to the owning provider[0m
+  [32m  ✔[0m[90m cancelCurrentRequest loads the chat model then cancels the main chat request[0m
+  [32m  ✔[0m[90m cancelCurrentRequest disposes the loaded model when cancellation fails[0m
+  [32m  ✔[0m[90m cancelCurrentRequest rejects when the chat model cannot be loaded[0m
+  [32m  ✔[0m[90m archiving an active session stops each running chat before archiving[0m
+  [32m  ✔[0m[90m archiving an idle session stops an active peer chat before archiving[0m
+  [32m  ✔[0m[90m archiving a running session with unloaded chats cancels its main chat before archiving[0m
+  [32m  ✔[0m[90m failed cancellation does not archive a running session[0m
+  [32m  ✔[0m[90m openSession waits for a loading session before opening chat content[0m
+  [32m  ✔[0m[90m collapsing the grid preserves pending chat navigation in a loading session[0m
+  [32m  ✔[0m[90m archiving the active session keeps the custom view open[0m
+  [32m  ✔[0m[90m automatic no-fallback removal keeps the custom view open[0m
+  [32m  ✔[0m[90m automatic no-fallback removal stays inert during pending explicit navigation[0m
+  [32m  ✔[0m[90m removing the active session with a fallback keeps the custom view open[0m
+  [32m  ✔[0m[90m openNewSession with toSide places the new-session composer beside the active session[0m
+  [32m  ✔[0m[90m openNewSession with toSide places an empty composer beside the active quick-chat draft[0m
+  [32m  ✔[0m[90m openQuickChat preserves pending navigation only for an automatic fallback (false)[0m
+  [32m  ✔[0m[90m openQuickChat preserves pending navigation only for an automatic fallback (true)[0m
+  [32m  ✔[0m[90m openNewSession without toSide still replaces the active session[0m
+  [32m  ✔[0m[90m openNewSession with toSide moves the existing composer beside the active session[0m
+  [32m  ✔[0m[90m openNewSession without toSide leaves an existing composer in place[0m
+  [32m  ✔[0m[90m repeated openNewSession with toSide keeps the single empty slot and re-activates it[0m
+  [32m  ✔[0m[90m openNewSession with toSide and folderUri places the new session beside the active session[0m
+  [32m  ✔[0m[90m openNewSession requires Dev Container execution before activating the draft[0m
+  [32m  ✔[0m[90m removing the active chat keeps the custom view open[0m
+  [32m  ✔[0m[90m explicit session navigation dismisses the custom view[0m
+  [32m  ✔[0m[90m publishes navigation requests even when the empty composer is already active[0m
+  [32m  ✔[0m[90m creating a composer draft preserves navigation while an explicit opening replaces it[0m
+  [32m  ✔[0m[90m does not change active session when added session is not displayed in any widget[0m
+  [32m  ✔[0m[90m getSessionForChatResource returns the session that owns the chat[0m
+  [32m  ✔[0m[90m restoreVisibleSessions waits for session to appear via onDidChangeSessions[0m
+  [32m  ✔[0m[90m ROUNDTRIP: opened session is retained across save + restore[0m
+  [32m  ✔[0m[90m RACE: a new session created during restore does not drop the restored session[0m
+  [32m  ✔[0m[90m RACE: an explicit new-session handoff cancels startup restoration[0m
+  [36m  - openNewSession inherits the active session workspace when requested[0m
+  [32m  ✔[0m[90m openNewSession does not inherit the active session workspace by default[0m
+  [32m  ✔[0m[90m openNewSession restores a pending No workspace draft[0m
+  [32m  ✔[0m[90m canOpenSession grants a worktree trust from a trusted base repo before prompting[0m
+  [32m  ✔[0m[90m canOpenSession still prompts for a worktree when the base repo is untrusted[0m
+  [32m  ✔[0m[90m cancelled openNewSession does not replace a newer draft after workspace trust resolves[0m
+  [36m  - openNewSession recreates a draft for the active session workspace when inheriting[0m
+  [32m  ✔[0m[90m restoreVisibleSessions restores the grid order, sticky and active state[0m
+  [32m  ✔[0m[90m restoreVisibleSessions prepares only the active session[0m
+  [32m  ✔[0m[90m explicitly reopening the active session reaches its mounted chat view[0m
+  [32m  ✔[0m[90m explicitly reopening the active side chat reaches its mounted chat view[0m
+  [32m  ✔[0m[90m openSession activates before awaiting provider preparation[0m
+  [32m  ✔[0m[90m provider preparation cannot reclaim the active session after navigation[0m
+  [32m  ✔[0m[90m openSessionToSide prepares the provider when selecting the main chat[0m
+  [32m  ✔[0m[90m opening the main chat to the side of its already visible session keeps the peer active until the split opens[0m
+  [32m  ✔[0m[90m batch side-opening keeps a visible primary session in place and splits its main chat beside the peer[0m
+  [32m  ✔[0m[90m direct chat opening records the initial resolution before activation (already active: false)[0m
+  [32m  ✔[0m[90m direct chat opening records the initial resolution before activation (already active: true)[0m
+  [32m  ✔[0m[90m side chat opening records the initial resolution before activation (already active: false)[0m
+  [32m  ✔[0m[90m side chat opening records the initial resolution before activation (already active: true)[0m
+  [32m  ✔[0m[90m restoreVisibleSessions lays out the grid atomically without intermediate single-session states[0m
+  [32m  ✔[0m[90m sendNewChatRequest keeps the started session active for a foreground send[0m
+  [32m  ✔[0m[90m only appends the session log to the exact troubleshoot command[0m
+  [32m  ✔[0m[90m new session forwards the exact response observer through management[0m
+  [32m  ✔[0m[90m peer chat forwards the exact response observer through management[0m
+  [32m  ✔[0m[90m foreground new session captures worktree configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m background new session captures worktree configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m headless new session captures worktree configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m foreground new session captures folder configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m background new session captures folder configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m headless new session captures folder configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m sendNewChatRequest routes a prepared draft through its replacement provider[0m
+  [32m  ✔[0m[90m sendNewChatRequest restores an untitled draft when preparation fails[0m
+  [32m  ✔[0m[90m sendNewChatRequest tracks a foreground first request until it settles[0m
+  [32m  ✔[0m[90m sendNewChatRequest keeps tracking until concurrent first requests settle[0m
+  [32m  ✔[0m[90m sendNewChatRequest does not track a request in an existing session[0m
+  [32m  ✔[0m[90m sendNewChatRequest clears first-request tracking when chat creation fails[0m
+  [32m  ✔[0m[90m sendNewChatRequest with background resolves before preparation and routes the replacement in the background[0m
+  [32m  ✔[0m[90m background preparation reports only unexpected failures: Error Container setup failed[0m
+  [32m  ✔[0m[90m background preparation reports only unexpected failures: Error Could not start the session[0m
+  [32m  ✔[0m[90m background preparation reports only unexpected failures: Canceled Canceled[0m
+  [32m  ✔[0m[90m background preparation reports only unexpected failures: WorkspaceNotTrustedError Workspace not trusted[0m
+  [32m  ✔[0m[90m sendRequest with background is fire-and-forget and does not fire onWillSendRequest[0m
+  [32m  ✔[0m[90m mirrored follow-up requests preserve submitted attachments[0m
+  [32m  ✔[0m[90m send-follow activates only visible chat tabs[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest sends without changing the active view[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest publishes the session while its first request is in flight[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest restores Automation configuration during draft creation[0m
+  [32m  ✔[0m[90m createNewSession forwards model configuration only to supporting providers[0m
+  [32m  ✔[0m[90m createNewSession rejects model configuration without provider support or a model[0m
+  [32m  ✔[0m[90m createNewSession forwards exact permission and mode choices for provider validation[0m
+  [32m  ✔[0m[90m explicit home creation is refused when its provider cannot persist chat ownership[0m
+  [32m  ✔[0m[90m createNewSession rejects permissions when the provider cannot apply them[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest rejects canonical Automation templates for providers without restoration support[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest prepares request options while configuring the provisional session[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest clears request activity when already cancelled[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest disposes the draft when request activity startup fails[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest refuses an untrusted required workspace before creating a session[0m
+  [32m  ✔[0m[90m target availability requires the requested provider and session type to be advertised[0m
+  [32m  ✔[0m[90m createNewSession rejects a pinned session type that is not advertised[0m
+  [32m  ✔[0m[90m inheritableSessionTarget drops a harness the folder no longer offers[0m
+  [32m  ✔[0m[90m an explicit source harness override does not query an unrelated session resource[0m
+  [32m  ✔[0m[90m inheritableSessionTarget uses an available provider creation workspace (true)[0m
+  [32m  ✔[0m[90m inheritableSessionTarget uses an available provider creation workspace (false)[0m
+  [32m  ✔[0m[90m a New Session gesture whose harness is hidden still creates on the fallback provider[0m
+  [32m  ✔[0m[90m createAndSendQuickChatRequest uses the quick-chat contract without navigation or repository configuration[0m
+  [32m  ✔[0m[90m background creation awaits preparation before sending (workspace)[0m
+  [32m  ✔[0m[90m background creation awaits preparation before sending (quick chat)[0m
+  [32m  ✔[0m[90m quick-chat preparation failures discard the draft before sending[0m
+  [32m  ✔[0m[90m createAndSendQuickChatRequest cancels commit detection and disposes the provisional draft[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest invokes configuration setters from createOptions[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest prefers atomic worktree configuration[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest creates the draft from a pull request[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest skips providers without worktree configuration support[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest uses an immediately resolved model identifier[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest waits for and uses the resolved model identifier[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest rejects a pending model that becomes unavailable and disposes the draft[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest rejects when the workspace stops advertising the session type[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest cancels while waiting for model resolution and disposes the draft[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest awaits asynchronous repository configuration setters[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest cancels pending repository configuration and disposes the draft[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest cancels a pending send and disposes the draft[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest rejects worktree configuration for unsupported session types[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest permits folder isolation for unsupported worktree session types[0m
+  [32m  ✔[0m[90m a pull request rejects providers without worktree configuration before creation[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest disposes stranded draft when a setter throws[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest returns undefined when service is disposed mid-send[0m
+  [32m  ✔[0m[90m discardNewSession fires onDidDiscardNewSession with the discarded draft[0m
+  [32m  ✔[0m[90m createNewSession fires replacement before publishing the new draft[0m
+  [32m  ✔[0m[90m createNewSession keeps the previous draft when replacement creation fails[0m
+  [32m  ✔[0m[90m background draft replacement preserves focus outside the session[0m
+  [32m  ✔[0m[90m background draft replacement restores composer focus[0m
+  [32m  ✔[0m[90m automation draft lifecycle and session template are isolated from the new-session draft[0m
+  [32m  ✔[0m[90m unavailable Automation authorities cannot create drafts but ordinary sessions still work[0m
+  [32m  ✔[0m[90m sendNewChatRequest clears the draft without firing onDidDiscardNewSession[0m
+  [32m  ✔[0m[90m getAllSessionTypes orders providers by their order property (lower first)[0m
+  [32m  ✔[0m[90m getAllSessionTypes surfaces local agent host types first when it has lower order[0m
+  [32m  ✔[0m[90m replacing the active session promotes the committed session to active[0m
+  [32m  ✔[0m[90m same-ID session replacement preserves external focus[0m
+  [32m  ✔[0m[90m same-ID session replacement restores composer focus[0m
+  [32m  ✔[0m[90m replacing a non-active session leaves the active session unchanged[0m
+  [32m  ✔[0m[90m opens a session and targeted chat to the side[0m
+  [32m  ✔[0m[90m opens a fork to the side with source placement without replacing its neighbors[0m
+  [32m  ✔[0m[90m opens a fork to the side with closedSource placement without replacing its neighbors[0m
+  [32m  ✔[0m[90m opens a fork to the side with default placement without replacing its neighbors[0m
+  [32m  ✔[0m[90m replacing a session only swaps the active session when it matches `from`[0m
+[0m    session grid integration[0m
+    [32m  ✔[0m[90m a child tab can be dragged outside its parent into an independent pane beside another session[0m[33m (71ms)[0m
+    [32m  ✔[0m[90m main-chat placement targets the standalone child pane, not its owner (same owner: false)[0m
+    [32m  ✔[0m[90m main-chat placement targets the standalone child pane, not its owner (same owner: true)[0m
+    [32m  ✔[0m[90m keyboard movement targets the neighboring standalone child pane (same owner: false)[0m
+    [32m  ✔[0m[90m keyboard movement targets the neighboring standalone child pane (same owner: true)[0m
+    [32m  ✔[0m[90m multiple-mode split session panes retain session controls when the shared header is hidden[0m
+    [32m  ✔[0m[90m keyboard movement can move the empty composer past a standalone child pane[0m
+    [32m  ✔[0m[90m closing a standalone child via its pane cancels a restore waiting for another session[0m
+    [32m  ✔[0m[90m closing a standalone child via its tab cancels a restore waiting for another session[0m
+    [32m  ✔[0m[90m detaching a chat without dragging creates a pane that survives closing its parent[0m
+    [32m  ✔[0m[90m child-only navigation creates a valid destination without replacing another session (new draft: false)[0m
+    [32m  ✔[0m[90m child-only navigation creates a valid destination without replacing another session (new draft: true)[0m
+    [32m  ✔[0m[90m a whole-session drag can place its main pane beside its own standalone child[0m
+    [32m  ✔[0m[90m a new-session pane can be dragged beside an independent child without replacing its composer (draft: false)[0m
+    [32m  ✔[0m[90m a new-session pane can be dragged beside an independent child without replacing its composer (draft: true)[0m
+    [32m  ✔[0m[90m an existing session can be dropped beside the empty new-session pane[0m
+    [32m  ✔[0m[90m a chat can be dropped beside the empty new-session pane (independent pane: false)[0m
+    [32m  ✔[0m[90m a chat can be dropped beside the empty new-session pane (independent pane: true)[0m
+    [32m  ✔[0m[90m parent-row drops select the main chat rather than the last active child (single, visible: false)[0m
+    [32m  ✔[0m[90m parent-row drops select the main chat rather than the last active child (single, visible: true)[0m
+    [32m  ✔[0m[90m parent-row drops select the main chat rather than the last active child (multiple, visible: false)[0m
+    [32m  ✔[0m[90m parent-row drops select the main chat rather than the last active child (multiple, visible: true)[0m
+    [32m  ✔[0m[90m closing a parent preserves its child pane and sidebar drags work while the parent is hidden (single)[0m
+    [32m  ✔[0m[90m closing a parent preserves its child pane and sidebar drags work while the parent is hidden (multiple)[0m
+    [32m  ✔[0m[90m a child-only layout restores without reopening the parent, and Close All closes its panes[0m[33m (39ms)[0m
+    [32m  ✔[0m[90m reload selects a surviving child when the previously active child was deleted[0m
+    [32m  ✔[0m[90m sidebar directional placement targets the active child rather than its owner (parent visible: false)[0m
+    [32m  ✔[0m[90m sidebar directional placement targets the active child rather than its owner (parent visible: true)[0m
+    [32m  ✔[0m[90m New Session to the Side opens beside a child whose parent pane is closed[0m
+    [32m  ✔[0m[90m remove handles owners that have only standalone child panes without reopening their parents[0m
+    [32m  ✔[0m[90m collapse handles owners that have only standalone child panes without reopening their parents[0m
+    [32m  ✔[0m[90m a hidden-parent child drag cannot resurrect a session removed during provider preparation[0m
+    [32m  ✔[0m[90m a hidden-parent child drag is cancelled if its destination closes during provider preparation[0m
+    [32m  ✔[0m[90m independent chat panes survive reload, route navigation, and close without closing their parent[0m[33m (39ms)[0m
+    [32m  ✔[0m[90m a standalone chat reattaches through its parent drop target and retains the parent relationship[0m
+    [32m  ✔[0m[90m single mode blocks standalone chat reattachment while multiple mode still accepts it[0m
+    [32m  ✔[0m[90m dropping a standalone child onto the left of its parent's tab area reattaches it without splitting[0m
+    [32m  ✔[0m[90m dropping a standalone child onto the middle of its parent's tab area reattaches it without splitting[0m
+    [32m  ✔[0m[90m dropping a standalone child onto the right of its parent's tab area reattaches it without splitting[0m
+    [32m  ✔[0m[90m restores a standalone chat after its provider finishes loading the chat catalog[0m[33m (40ms)[0m
+    [32m  ✔[0m[90m directional batch moves deduplicate, preserve pins, and retain created chat inputs[0m
+    [32m  ✔[0m[90m a foreground remote open mounts its chat while provider preparation is pending[0m
+    [32m  ✔[0m[90m explicitly reopening a retained inactive session reaches only its mounted group[0m
+    [32m  ✔[0m[90m explicitly reopening a pinned side chat reaches only its mounted group[0m
+    [32m  ✔[0m[90m openSession stops awaiting a retained chat retry after newer navigation[0m
+    [32m  ✔[0m[90m openChat stops awaiting a retained chat retry after newer navigation[0m
+    [32m  ✔[0m[90m navigation cancellation still waits for provider preparation[0m
+    [32m  ✔[0m[90m balanced subset changes preserve caller order and retained widgets[0m
+    [32m  ✔[0m[90m ordinary external opening replaces only its leaf without resetting nested geometry[0m
+    [32m  ✔[0m[90m newer opening cancels a pending directional batch without partially inserting it[0m
+    [32m  ✔[0m[90m closing and reopening a nested session uses its surviving neighbor[0m
+    [32m  ✔[0m[90m geometry, composer position, pins and maximization survive a phone save and reload[0m[33m (41ms)[0m
+    [32m  ✔[0m[90m directional focus reaches the empty composer and returns to its neighbor[0m
+    [32m  ✔[0m[90m phone activation does not refocus the hidden previous session[0m
+    [32m  ✔[0m[90m directional focus restores maximized geometry before navigating[0m
+    [32m  ✔[0m[90m batch opening preserves background activation and the last-selection side-open convention[0m
+    [32m  ✔[0m[90m reopening uses ordinary replacement after the recorded neighbor leaves[0m
+    [32m  ✔[0m[90m resource redirection merges sticky and active state and transfers maximization[0m
+    [32m  ✔[0m[90m late restored leaves recover saved geometry without replacing live widgets[0m
+    [32m  ✔[0m[90m late restored leaves cannot override a user arrangement[0m
+    [32m  ✔[0m[90m invalid grid state falls back to the legacy ordered session array[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates removed during resolution[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates replaced during resolution[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates unrelated during resolution[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates removed during trust[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates replaced during trust[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates unrelated during trust[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates removed during preparation[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates replaced during preparation[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates unrelated during preparation[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates removed during resolution[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates replaced during resolution[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates unrelated during resolution[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates removed during trust[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates replaced during trust[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates unrelated during trust[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates removed during preparation[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates replaced during preparation[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates unrelated during preparation[0m
+    [32m  ✔[0m[90m side opening revalidates candidates removed during resolution[0m
+    [32m  ✔[0m[90m side opening revalidates candidates replaced during resolution[0m
+    [32m  ✔[0m[90m side opening revalidates candidates unrelated during resolution[0m
+    [32m  ✔[0m[90m side opening revalidates candidates removed during trust[0m
+    [32m  ✔[0m[90m side opening revalidates candidates replaced during trust[0m
+    [32m  ✔[0m[90m side opening revalidates candidates unrelated during trust[0m
+    [32m  ✔[0m[90m side opening revalidates candidates removed during preparation[0m
+    [32m  ✔[0m[90m side opening revalidates candidates replaced during preparation[0m
+    [32m  ✔[0m[90m side opening revalidates candidates unrelated during preparation[0m
+    [32m  ✔[0m[90m a batch does not adopt a replacement candidate while preparing an earlier candidate[0m
+    [32m  ✔[0m[90m side-open activates a selected reference without moving it or losing the last selected target[0m
+    [32m  ✔[0m[90m reopening a sole closed session follows ordinary replacement without a recorded neighbor[0m
+    [32m  ✔[0m[90m saving a partial restore preserves unresolved bindings and maximization for the next restart[0m
+    [32m  ✔[0m[90m saving a partial restore honors superseding user intent[0m
+[0m    provider catalogue changes[0m
+    [32m  ✔[0m[90m routes existing environment sessions without advertising their backends (initial registration)[0m
+    [32m  ✔[0m[90m routes existing environment sessions without advertising their backends (late registration)[0m
+    [32m  ✔[0m[90m announces cached sessions when a provider registers[0m
+    [32m  ✔[0m[90m forwards changeset operation invocations while their provider is registered[0m
+    [32m  ✔[0m[90m seeds cached sessions before subscribing to reentrant provider changes[0m
+    [32m  ✔[0m[90m refreshes the catalogue without deletions when a provider clears its cache and unregisters[0m
+    [32m  ✔[0m[90m does not subscribe to a provider removed while its cached sessions are read[0m
+    [32m  ✔[0m[90m keeps session reads live and deduplicated across provider changes[0m
+    [32m  ✔[0m[90m forwards real removals and replacements without treating provider loss as deletion[0m
+    [32m  ✔[0m[90m preserves visible sessions and pending drafts when their provider unregisters[0m
+    [32m  ✔[0m[90m ignores events from an unregistered provider after its ID is reused[0m
+[0m    read state[0m
+    [32m  ✔[0m[90m opening a session leaves its parent state unchanged when the main chat is already read[0m
+    [32m  ✔[0m[90m preserves an explicit unread active single chat until the chat advances[0m
+    [32m  ✔[0m[90m marks the active main chat as read once without changing the parent or peer[0m
+    [32m  ✔[0m[90m batches multiple chat read changes when the provider supports it[0m
+    [32m  ✔[0m[90m marks only the targeted nested chat read and unread through its provider[0m
+    [32m  ✔[0m[90m falls back to individual chat read changes when batching is unsupported[0m
+    [32m  ✔[0m[90m retries marking the active chat read after provider loading completes[0m
+    [32m  ✔[0m[90m uses the main chat read operation when only a tool peer accompanies it[0m
+    [32m  ✔[0m[90m preserves explicit unread on an already-read active nested chat until a new turn[0m
+    [32m  ✔[0m[90m marks the active peer chat as read once through its provider[0m
+    [32m  ✔[0m[90m leaves a non-active session in its provider read state[0m
+    [32m  ✔[0m[90m explicit session row read actions update the main chat only[0m
+    [32m  ✔[0m[90m a conversation hidden behind a custom view stays unread until revealed[0m
+[0m    session navigation[0m
+    [32m  ✔[0m[90m visits custom views and the composer without recording the covered session again[0m
+    [32m  ✔[0m[90m explicitly reopening the visible custom view after Back promotes its only entry[0m
+    [32m  ✔[0m[90m reopening the visible custom view cancels a pending Back[0m
+    [32m  ✔[0m[90m reopening the session covered by a custom view records a single visit[0m
+    [32m  ✔[0m[90m custom-view navigation supersedes an in-flight history navigation[0m
+    [32m  ✔[0m[90m explicitly reopening the visible composer after Back promotes its only entry[0m
+    [32m  ✔[0m[90m reopening the visible composer cancels a pending Back[0m
+    [32m  ✔[0m[90m reopening the composer covered by a custom view records a single visit[0m
+    [32m  ✔[0m[90m new-session navigation supersedes an in-flight history navigation[0m
+    [32m  ✔[0m[90m opening another chat from a custom view records only the requested destination (loaded)[0m
+    [32m  ✔[0m[90m opening another chat from a custom view records only the requested destination (loading)[0m
+    [32m  ✔[0m[90m opening a session to the side records only the requested chat (loaded)[0m
+    [32m  ✔[0m[90m opening a session to the side records only the requested chat (loading)[0m
+    [32m  ✔[0m[90m opening a chat to the side records only the requested chat (loaded)[0m
+    [32m  ✔[0m[90m opening a chat to the side records only the requested chat (loading)[0m
+    [32m  ✔[0m[90m batch side-opening a visible main chat does not promote its previously active peer[0m
+    [32m  ✔[0m[90m a superseded nested-chat creation does not dismiss or refocus a custom view[0m
+    [32m  ✔[0m[90m session resource redirects preserve forward history[0m
+    [32m  ✔[0m[90m opening the already-active composer cancels an unresolved session open[0m
+    [32m  ✔[0m[90m returning to new-session restores the existing draft[0m
+[0m    deleteSessions[0m
+    [32m  ✔[0m[90m groups sessions by provider and continues when one provider fails (best-effort)[0m
+[0m    chat owner replacement[0m
+    [32m  ✔[0m[90m provider-confirmed same-resource graduation maps the main owner and retains sibling identity[0m
+[0m    deleteChat[0m
+    [32m  ✔[0m[90m captures the requested owner before delayed confirmation and does not emit on provider failure[0m
+    [32m  ✔[0m[90m returns true and fires the delete event only after deletion[0m
+    [32m  ✔[0m[90m returns false and fires the delete event only after deletion[0m
+    [32m  ✔[0m[90m deletes without confirmation only an untitled chat without requests[0m
+[0m    createNewChatInSession[0m
+    [32m  ✔[0m[90m reuses an existing untitled chat instead of creating a new one[0m
+    [32m  ✔[0m[90m without a harness, reuses only a draft of the main harness and creates a chat of the main harness[0m
+    [32m  ✔[0m[90m reuses an untitled chat only when it uses the requested harness[0m
+    [32m  ✔[0m[90m asks the provider to create a chat when none are untitled[0m
+    [32m  ✔[0m[90m forceNew creates a fresh chat even when an untitled one exists[0m
+    [32m  ✔[0m[90m returns undefined when the provider is not found[0m
+[0m    applyNestedChatWorkspace[0m
+    [32m  ✔[0m[90m delegates to the provider and propagates its refusal[0m
+    [32m  ✔[0m[90m is not supported when the provider is not found[0m
+[0m    forkChatInSession[0m
+    [32m  ✔[0m[90m asks the provider to fork the chat with options when the session supports multiple chats[0m
+    [32m  ✔[0m[90m throws when the provider is not found[0m
+    [32m  ✔[0m[90m throws when the session does not support multiple chats[0m
+[0m    createSideChatInSession[0m
+    [32m  ✔[0m[90m asks the provider to create the side chat when the session supports it[0m
+    [32m  ✔[0m[90m throws when the provider is not found[0m
+    [32m  ✔[0m[90m throws when the session does not support side chats[0m
+[0m    chat persistence[0m
+    [32m  ✔[0m[90m the active side chat is restored after switching sessions[0m
+    [32m  ✔[0m[90m the active subagent chat is restored after switching sessions[0m
+    [32m  ✔[0m[90m a session-list open selects the main chat instead of the previously active chat[0m
+    [32m  ✔[0m[90m a chat closed in one session stays closed after switching away and back[0m
+    [32m  ✔[0m[90m closing the middle of three chats persists across a switch[0m
+    [32m  ✔[0m[90m closing the active chat persists across a switch[0m
+    [32m  ✔[0m[90m reopening a closed chat is also persisted across a switch[0m
+    [32m  ✔[0m[90m a closed side chat stays closed after switching away and back[0m
+    [32m  ✔[0m[90m a closed chat stays closed across a restart[0m
+    [32m  ✔[0m[90m a chat closed in a non-active session stays closed across a restart[0m
+    [32m  ✔[0m[90m restores an active subagent tab when it appears after the session[0m
+    [32m  ✔[0m[90m restores an inactive subagent without changing ordinary side chat behavior[0m
+    [32m  ✔[0m[90m restores the active chat when it appears after the session[0m
+[0m    chat moves[0m
+    [32m  ✔[0m[90m an untitled chat that has not sent a message cannot be moved even when its provider allows it[0m
+    [32m  ✔[0m[90m routes chat and session moves to the owning provider with the provider's session ids and chat resources[0m
+    [32m  ✔[0m[90m the slot showing a chat that moved shows its new session with the chat active, also after falling back[0m
+    [32m  ✔[0m[90m following a chat that moved announces nothing: the move itself is announced once, by whoever made it[0m
+    [32m  ✔[0m[90m a session that ended by moving its shown chat under another session leaves its slot to that session, though its removal came first[0m
+    [32m  ✔[0m[90m a session that ended by moving its shown chat under another session gives that session the slot its fallback took, not another slot[0m
+    [32m  ✔[0m[90m a session that ended by moving its shown chat under another session doesn't take over a new-session composer opened in another slot[0m
+    [32m  ✔[0m[90m a chat chosen after the view fell back from a chat stays shown when that chat's move is known later[0m
+    [32m  ✔[0m[90m a chat that moved while another chat was shown changes nothing[0m
+[0m    reopenLastClosedItem[0m
+    [32m  ✔[0m[90m reopens a closed chat, consuming the entry[0m
+    [32m  ✔[0m[90m an explicitly closed session returns to its grid index[0m
+    [32m  ✔[0m[90m a session pushed out of the grid takes its slot back[0m
+    [32m  ✔[0m[90m remembers only the most recently closed item[0m
+    [32m  ✔[0m[90m a batch close is not offered for reopening[0m
+    [32m  ✔[0m[90m a stale entry is dropped when its session vanished without a delete event[0m
+[0m    createQuickChat[0m
+    [32m  ✔[0m[90m creates a session via the first capable provider (by order) and defaults the type[0m
+    [32m  ✔[0m[90m mints a new quick-chat session on each call[0m
+    [32m  ✔[0m[90m throws when no provider supports quick chats[0m
+    [32m  ✔[0m[90m honours options.providerId and the requested session type[0m
+    [32m  ✔[0m[90m honours an explicit sessionTypeId without a providerId[0m
+    [32m  ✔[0m[90m defaults to the last-used session type on the next call[0m
+    [32m  ✔[0m[90m throws when the requested provider does not advertise the session type[0m
+    [32m  ✔[0m[90m throws when the requested provider does not support quick chats[0m
+    [32m  ✔[0m[90m getQuickChatSessionTypes returns every advertised type from quick-chat-capable providers only[0m
+[0m    legacy Copilot CLI migration[0m
+    [32m  ✔[0m[90m getSessions hides the legacy entry once its migrated agent-host entry exists[0m
+    [32m  ✔[0m[90m getSessions keeps the legacy entry visible when no migrated entry exists[0m
+    [32m  ✔[0m[90m getSession still resolves the hidden legacy entry so it can be migrated on open[0m
+[0m      resolveSessionResource[0m
+      [32m  ✔[0m[90m redirects a legacy resource to the twin a provider claims[0m
+      [32m  ✔[0m[90m keeps the original resource when no provider claims it[0m
+      [32m  ✔[0m[90m keeps the original resource when a provider throws[0m
+      [32m  ✔[0m[90m does not consult providers for a resource they decline[0m
+      [32m  ✔[0m[90m a provider that declines does not stop a later provider from claiming[0m
+
+
+[92m [0m[32m 1778 passing[0m[90m (6s)[0m
+[36m [0m[36m 13 pending[0m
+

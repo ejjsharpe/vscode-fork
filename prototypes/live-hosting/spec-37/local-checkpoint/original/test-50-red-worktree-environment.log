@@ -1,0 +1,43 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/.build/crashes'
+(node:7023) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:7023) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:7023) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  AgentService (node dispatcher)[0m
+[0m    worktree working directory[0m
+    [31m  1) a new chat home follows the provider-resolved worktree and retains its environment[0m
+
+
+[92m [0m[32m 0 passing[0m[90m (247ms)[0m
+[31m  1 failing[0m
+
+[0m  1) AgentService (node dispatcher)
+       worktree working directory
+         a new chat home follows the provider-resolved worktree and retains its environment:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+       {
+         "kind": "folder"
+         "remoteAuthority": "ssh-remote+build"
+      [31m-  "uri": "file:///source/repo.worktrees/agents-home"[0m
+      [32m+  "uri": "agent-host://remote/source/repo.worktrees/agents-home"[0m
+       }
+      [0m[90m
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      kind: 'folder',
+      remoteAuthority: 'ssh-remote+build',
+  +   uri: 'file:///source/repo.worktrees/agents-home'
+  -   uri: 'agent-host://remote/source/repo.worktrees/agents-home'
+    }
+  
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/out/vs/platform/agentHost/test/node/agentService.test.js:41903:16)
+[0m
+
+

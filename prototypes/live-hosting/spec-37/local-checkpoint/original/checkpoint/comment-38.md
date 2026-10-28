@@ -1,0 +1,9 @@
+Completed bounded ticket scope; all five acceptance criteria are checked.
+
+Standalone identity/storage and extension-control isolation are integrated in `934cea8e878` (original identity `519a6ea4382`; app-owned controls `03611141fd3`); the exact main-owned Agents workspace repair is `1c01da8a487`. Native environment/scanner suites passed46 tests with targeted lint/syntax checks.
+
+At exact source `403375db5f1794d95849d795ceecbf8553d2dfdb`, the client build and full typecheck passed. The existing first/repeat startup check passed against fresh isolated app-owned state: real Agents, permanent selected Agents control, zero project tabs and one native BrowserWindow on both launches; both test mains exited. Observed foreign editor/development profile directory existence/mtime metadata was unchanged. This is limited metadata observation, not a full filesystem audit. Existing source-folder opening and provider catalog paths are preserved without importing another installation's transcript/state. Actual provider sign-in/history was not exercised.
+
+[Current-source startup evidence](https://github.com/ejjsharpe/escode/blob/d71ae1f23b018cfc7f99616d24f187dc96375ea6/prototypes/live-hosting/spec-37/checkpoint-2026-10-28/startup-results.json). This closes #38's bounded scope, not #35's runtime gate or the unfinished spec.
+
+Checkpoint source `403375db5f1794d95849d795ceecbf8553d2dfdb`; integration branch `integration/spec-37-complete`; draft [PR #60](https://github.com/ejjsharpe/escode/pull/60). [Committed handoffs, evidence and review](https://github.com/ejjsharpe/escode/blob/d71ae1f23b018cfc7f99616d24f187dc96375ea6/prototypes/live-hosting/spec-37/checkpoint-2026-10-28/README.md). Orchestration is stopped; no worker remains assigned. Provider work/sign-in stays deferred, authorization probes stay paused, no production merge is authorized, and #35 retains full staged acceptance plus the separate creator verdict.

@@ -1,0 +1,50 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/.build/crashes'
+(node:99120) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:99120) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:99120) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  DialogMainService[0m
+  [32m  ✔[0m[90m discards a per-window dialog queue after it drains[0m
+  [32m  ✔[0m[90m queued dialogs reject expired owners before display and before returning a result[0m
+  [32m  ✔[0m[90m showSaveDialog rejects a late result and releases the file-dialog lock[0m
+  [32m  ✔[0m[90m showOpenDialog rejects a late result and releases the file-dialog lock[0m
+
+[0m  Dialog[0m
+  [32m  ✔[0m[90m massageMessageBoxOptions[0m
+
+[0m  BaseWindow - window controls overlay[0m
+  [32m  ✔[0m[90m does not initialize controls for unknown constructor options[0m
+  [32m  ✔[0m[90m does not initialize controls for native titlebar[0m
+  [32m  ✔[0m[90m does not initialize controls for frameless[0m
+  [32m  ✔[0m[90m does not initialize controls for explicitly disabled overlay[0m
+  [32m  ✔[0m[90m initializes controls for boolean overlay options[0m
+  [32m  ✔[0m[90m initializes controls for object overlay options[0m
+  [36m  - preserves the creation-time overlay capability (false) after settings change[0m
+  [36m  - preserves the creation-time overlay capability (true) after settings change[0m
+  [32m  ✔[0m[90m honors a fixed horizontal inset when the title-bar height changes[0m
+
+[0m  WindowsFinder[0m
+  [32m  ✔[0m[90m Exact workspace requests match kind and environment, then use the most recently active match[0m
+  [32m  ✔[0m[90m New window without folder when no windows exist[0m
+  [32m  ✔[0m[90m Existing window with folder[0m
+  [32m  ✔[0m[90m More specific existing window wins[0m
+  [32m  ✔[0m[90m Workspace folder wins[0m
+
+[0m  Hosted native command ownership[0m
+  [32m  ✔[0m[90m permits own auxiliary controls and rejects foreign nested targets before effects[0m
+  [32m  ✔[0m[90m an auxiliary document cannot impersonate its parent[0m
+  [32m  ✔[0m[90m expired connections cannot dispatch to their surviving workbench[0m
+
+[0m  WindowProfiler[0m
+  [32m  ✔[0m[90m profiles the exact supplied workbench contents and releases its inspector[0m
+  [32m  ✔[0m[90m owner loss prevents a late profile result and still releases the inspector[0m
+
+
+[92m [0m[32m 23 passing[0m[90m (16ms)[0m
+[36m [0m[36m 2 pending[0m
+

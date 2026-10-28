@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Ownership heartbeat task",
+      "type": "process",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/heartbeat.cjs",
+        "task-progress.log"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

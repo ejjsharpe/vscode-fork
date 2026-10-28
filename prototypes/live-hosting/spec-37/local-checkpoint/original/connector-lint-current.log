@@ -1,0 +1,12 @@
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> escode-dev@1.145.0 eslint
+> node --max-old-space-size=8192 build/eslint.ts src/vs/platform/agentHost/common/remoteAgentHostIpc.ts src/vs/platform/agentHost/common/devContainerAgentHost.ts src/vs/platform/agentHost/common/devContainerAgentHostIpc.ts src/vs/platform/agentHost/common/sshRemoteAgentHost.ts src/vs/platform/agentHost/common/wslRemoteAgentHost.ts src/vs/platform/agentHost/common/tunnelAgentHost.ts src/vs/platform/agentHost/common/tunnelAgentHostConnector.ts src/vs/platform/agentHost/node/sshRemoteAgentHostService.ts src/vs/platform/agentHost/node/wslRemoteAgentHostService.ts src/vs/platform/agentHost/node/devContainerAgentHostService.ts src/vs/platform/agentHost/node/tunnelAgentHostService.ts src/vs/platform/agentHost/node/devContainerSandbox.ts src/vs/platform/agentHost/test/common/remoteAgentHostIpc.test.ts src/vs/platform/agentHost/test/common/devContainerAgentHostIpc.test.ts src/vs/platform/agentHost/test/common/tunnelAgentHostConnector.test.ts src/vs/platform/agentHost/test/node/sshRemoteAgentHostService.test.ts src/vs/platform/agentHost/test/node/wslRemoteAgentHostService.test.ts
+
+ESLint: checking 17 requested targets.
+ESLint: checked 17 files in 1715ms.

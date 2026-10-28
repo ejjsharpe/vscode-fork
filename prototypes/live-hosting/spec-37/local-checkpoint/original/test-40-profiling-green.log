@@ -1,0 +1,47 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:12848) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:12848) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:12848) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  Agent Host management authority[0m
+  [32m  ✔[0m[90m project diagnostics profile only this process and cannot use provider management or another handle[0m
+
+[0m  LocalAgentHostServiceClient events[0m
+  [32m  ✔[0m[90m exposes the local connection kind before the host starts[0m
+  [32m  ✔[0m[90m reads the environment display name from local host management[0m
+  [32m  ✔[0m[90m routes title-only and prompt-bearing creation through AHP, while retaining legacy model management routing[0m
+  [32m  ✔[0m[90m installs, rotates and removes sandbox certificates through Management rather than the disabled AHP extension route[0m
+  [32m  ✔[0m[90m forwards readiness changes and keeps another window refresh from restarting the shared host[0m
+  [32m  ✔[0m[90m forwards initial connection events to subscribers registered before start[0m
+  [32m  ✔[0m[90m artifact transport subscribed before startup follows connection and reconnect availability[0m
+  [32m  ✔[0m[90m preserves subscriptions across reconnects and repeated start calls[0m
+  [32m  ✔[0m[90m detaches disposed listeners and accepts new listeners after start[0m
+  [32m  ✔[0m[90m service disposal detaches all forwarded events[0m
+
+[0m  registerAgentHostClientChannels[0m
+  [32m  ✔[0m[90m registers both channels when the BYOK handler is available[0m
+  [32m  ✔[0m[90m classifies only utility process validation errors as fatal[0m
+  [32m  ✔[0m[90m surfaces fatal startup only before the initial connection[0m
+  [32m  ✔[0m[90m registers a null BYOK channel when the handler is missing[0m
+[0m    LocalAgentHostManagementConnection[0m
+    [32m  ✔[0m[90m rotates management generations across reconnect and close[0m
+
+[0m  AgentHostStartupTelemetry[0m
+  [32m  ✔[0m[90m reports the first successful session list with startup milestones and retry counts[0m
+  [32m  ✔[0m[90m reports a protocol connection failure once[0m
+  [32m  ✔[0m[90m attributes a terminal connection failure after connecting to the session-list stage[0m
+  [32m  ✔[0m[90m reports a session-list timeout after the protocol connected[0m
+  [32m  ✔[0m[90m does not report a connection failure after disposal[0m
+
+[0m  SelfProfilingService[0m
+  [32m  ✔[0m[90m profiles its own process and refuses a foreign handle[0m
+  [32m  ✔[0m[90m disposal during initialization releases the inspector without publishing a handle[0m
+
+
+[92m [0m[32m 24 passing[0m[90m (13ms)[0m
+

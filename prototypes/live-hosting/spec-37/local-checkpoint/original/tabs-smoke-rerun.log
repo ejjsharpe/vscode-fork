@@ -1,0 +1,35 @@
+Primary shell: true
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('tab', { name: /^single/ })[22m
+[2m    - locator resolved to <button role="tab" tabindex="0" id="view-100002" data-id="100002" data-action="select" aria-selected="true" aria-describedby="shell-help-hint" title="/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/single" aria-label="single · /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/single">…</button>[22m
+[2m  - attempting click action[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - performing click action[22m
+[2m    - click action done[22m
+[2m    - waiting for scheduled navigations to finish[22m
+
+    at /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/tabs-smoke.mjs:41:14 {
+  log: [
+    "  - waiting for getByRole('tab', { name: /^single/ })",
+    '    - locator resolved to <button role="tab" tabindex="0" id="view-100002" data-id="100002" data-action="select" aria-selected="true" aria-describedby="shell-help-hint" title="/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/single" aria-label="single · /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/single">…</button>',
+    '  - attempting click action',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - performing click action',
+    '    - click action done',
+    '    - waiting for scheduled navigations to finish'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.22.1

@@ -1,0 +1,20 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/.build/crashes'
+(node:7194) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:7194) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:7194) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  PlaywrightChannel native ownership[0m
+  [32m  ✔[0m[90m rejects another workbench at initialization[0m
+  [32m  ✔[0m[90m current owners work while revoked owners and lifecycle methods reject[0m
+
+[0m  PlaywrightService[0m
+  [32m  ✔[0m[90m creates pages for an agent session on the session network[0m
+
+
+[92m [0m[32m 4 passing[0m[90m (26ms)[0m
+

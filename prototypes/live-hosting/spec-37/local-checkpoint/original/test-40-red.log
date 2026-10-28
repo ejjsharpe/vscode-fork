@@ -1,0 +1,9 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:86609) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:86609) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:86609) ExperimentalWarning: WASI is an experimental feature and might change at any time
+[86579:1028/210431.388716:INFO:CONSOLE:234] "vs/base/parts/ipc/test/electron-browser/prototypeLifetime.test file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/base/parts/ipc/test/electron-browser/prototypeLifetime.test.js", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (234)
+[86579:1028/210431.388784:INFO:CONSOLE:234] "TypeError: Failed to fetch dynamically imported module: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/base/parts/ipc/test/electron-browser/prototypeLifetime.test.js", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (234)
+[86579:1028/210431.388807:INFO:CONSOLE:234] "{}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/test/unit/electron/renderer.js (234)
+{}

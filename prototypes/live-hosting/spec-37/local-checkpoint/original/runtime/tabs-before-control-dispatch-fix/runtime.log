@@ -1,0 +1,76 @@
+[90m[main 2026-10-28T21:11:40.926Z][0m StorageMainService: creating application shared storage
+[90m[main 2026-10-28T21:11:41.007Z][0m [CSS_DEV] DONE, 509 css modules (67ms)
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"navigation"}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"navigation"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"navigation"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[90m[main 2026-10-28T21:11:41.251Z][0m update#setState disabled
+[90m[main 2026-10-28T21:11:41.288Z][0m [shared storage] Creating shared storage database at '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/tabs/shared-data/sharedStorage/state.vscdb' (wasCreated: true)
+[90m[main 2026-10-28T21:11:41.288Z][0m [shared storage] Initializing fallback application storage (path: /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/tabs/user-data/User/globalStorage/state.vscdb)
+[90m[main 2026-10-28T21:11:41.291Z][0m [shared storage] Fallback application storage initialized with 3 items
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100000,"generation":1,"webContents":2}
+[hosting-probe] loaded {"id":100000,"nativeHost":1,"webContents":2,"pid":92028,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/sessions/electron-browser/sessions-dev.html"}
+[lifetime-probe] revoke {"workbench":100001,"generation":0,"reason":"bootstrap"}
+[hosting-probe] loaded {"id":100001,"nativeHost":1,"webContents":3,"pid":92029,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+[lifetime-probe] bootstrap {"workbench":100001,"generation":2,"webContents":3}
+[lifetime-probe] revoke {"workbench":100002,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100002,"generation":3,"webContents":4}
+[hosting-probe] loaded {"id":100002,"nativeHost":1,"webContents":4,"pid":92030,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-browser/workbench/workbench-dev.html"}
+[lifetime-probe] connection window:100000:document:1:connection:1
+[90m[main 2026-10-28T21:11:43.755Z][0m AgentHostProcessManager: agent host started
+[readiness-probe] ready 1793221903899 100000 1
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:startExtensionHostMessagePortResult"}
+Unknown channel: agentHostClientByokLm
+Unknown channel: agentHostClientProxy
+Unknown channel: agentHostClientProxy
+[lifetime-probe] connection window:100001:document:2:connection:2
+[lifetime-probe] connection window:100002:document:3:connection:3
+[readiness-probe] ready 1793221906614 100001 2
+[hosting-probe] port {"workbench":100001,"webContents":3,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[readiness-probe] ready 1793221906669 100002 3
+[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100001,"webContents":3,"channel":"vscode:startExtensionHostMessagePortResult"}
+[hosting-probe] port {"workbench":100002,"webContents":4,"channel":"vscode:startExtensionHostMessagePortResult"}
+Unknown channel: agentHostClientProxy
+Unknown channel: agentHostClientProxy
+[91m[main 2026-10-28T21:11:50.969Z][0m webContents#will-navigate: Prevented webcontent navigation
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[readiness-probe] dispatch 1793221941113 100000 1 vscode:onBeforeUnload
+Debugger ending on ws://127.0.0.1:52155/7ea265a1-b666-42bd-b072-e06d938b6621
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100001,"nativeHost":1,"webContents":3}
+[readiness-probe] dispatch 1793221941242 100001 2 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onBeforeUnload","result":"ok"}
+[hosting-probe] selected {"id":100002,"nativeHost":1,"webContents":4}
+[readiness-probe] dispatch 1793221941281 100002 3 vscode:onBeforeUnload
+[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onBeforeUnload","result":"ok"}
+[readiness-probe] dispatch 1793221941316 100000 1 vscode:onWillUnload
+[90m[main 2026-10-28T21:12:21.630Z][0m Extension host with pid 92034 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-cleanup-complete"}
+[readiness-probe] dispatch 1793221941975 100001 2 vscode:onWillUnload
+[90m[main 2026-10-28T21:12:22.024Z][0m Extension host with pid 92103 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100001,"generation":2,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100001,"generation":2,"reason":"host-cleanup-complete"}
+[readiness-probe] dispatch 1793221942142 100002 3 vscode:onWillUnload
+[90m[main 2026-10-28T21:12:22.212Z][0m Extension host with pid 92104 exited with code: 0, signal: unknown.
+[lifecycle-reply-probe] {"workbench":100002,"generation":3,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"host-cleanup-complete"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100001,"generation":2,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100001,"generation":2,"reason":"destroyed"}
+[lifetime-probe] revoke {"workbench":100002,"generation":3,"reason":"destroyed"}
+[92021:1028/211222.474716:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+[92021:1028/211222.474758:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)

@@ -1,0 +1,99 @@
+403375db5f1 Merge #40 native browser startup snapshot repair
+46648985942 Merge branch 'integration/spec-37-complete' into implement/spec-37-ticket-40
+4943ba1e163 Preserve native browser startup snapshot through scope guard (#40)
+1ce038f7de9 Repair combined ownership fixture typings (#40)
+67ecd167c6d Merge #40 connector replacement lifetime cleanup
+7e982f17767 Merge branch 'integration/spec-37-complete' into implement/spec-37-ticket-40-connectors
+1f65ad1a5e0 Keep replacement connector claims during late disconnect bookkeeping (#40)
+88c5cc5f82b Merge #40 native Agents identity and terminal recovery safeguards
+501a4ae5887 Wire trusted utility authority into Agent Host connectors (#40)
+3b47c490c37 Merge #40 remote Agent Host connector ownership
+d9a2e161853 Merge branch 'integration/spec-37-complete' into implement/spec-37-ticket-40
+2f4bad9cf5d Coordinate terminal recovery restart through native safeguards (#40)
+c923a0d6890 Merge branch 'integration/spec-37-complete' into implement/spec-37-ticket-40-connectors
+4b4aa044f0b Bind remote Agent Host leases and pending work to trusted utility owners (#40)
+1c01da8a487 Use main-owned native Agents workspace identity (#40)
+aeb006edfe6 Merge #40 shared ownership and owned process profiling
+8ca2feb6138 Merge latest native scope integration into shared work (#40)
+066683cf006 Bind shared resources and process profiling to native lifetimes (#40)
+464e22d3ab1 Merge #40 native ownership and live project resources
+b96ce1e1667 Merge latest spec integration before shared service completion (#40)
+b1fa67d4e81 Merge current native resource and PTY lifetime followup (#40)
+6df77e49a35 Merge branch 'integration/spec-37-complete' into implement/spec-37-ticket-40
+25f486841b4 Revalidate live PTY native targets and final events (#40)
+cde058bc9fb Fix native worker test fixture typings (#40)
+5b281c6afe9 Merge commit 'fd37d4c68c4' into implement/spec-37-ticket-40-connectors
+450dfb0103c Fix native worker test fixture typings (#40)
+546c7fe98a5 Merge #51 exact home discovery and assignment
+96d580b780c Fix #51 discover history with exact chat homes and explicit project choice
+9cc923a0449 Merge native resource scope and diagnostics adapters (#40)
+fd37d4c68c4 Merge branch 'integration/spec-37-complete' into implement/spec-37-ticket-40
+cf8487873be Scope native project resources and process diagnostics (#40)
+7c5a044c70d Type inspector test boundary against all callback overloads (#40)
+565e4dad4de Type inspector test boundary against all callback overloads (#40)
+1c6abda07aa Add owned-process CPU profiling service (#40)
+c29422d5c80 Add owned-process CPU profiling service (#40)
+8277cf17bf3 Merge #50 durable exact chat homes
+8c87c898a59 Refuse mismatched home when materializing a pending chat (#50)
+cdcbbcbb933 Merge branch 'integration/spec-37-complete' into implement/spec-37-ticket-50
+80315b75855 Persist exact per-chat home workspaces through existing owners (#50)
+8be621657c1 docs: record native menu routing and hidden-view repair evidence
+539ebc0ea72 Merge trusted utility scope foundation for shared services (#40)
+52f6f8033ee Merge #41 native project routing and hidden-view isolation
+4389ce3eb0d Authenticate and revoke renderer utility connections (#40)
+8f3666d7770 Route native controls through exact workbench ownership (#41)
+c9d63973bd2 Merge branch 'integration/spec-37-complete' into implement/spec-37-ticket-41
+fbe79831970 Bind native connections to main-owned document scope (#40)
+c0416e364e1 Bind native connections to main-owned document scope (#40)
+44deb068af9 docs: record bounded spec 37 startup and navigation evidence
+cf36c4a7d2b Merge #39 independent project tabs
+e2265e460f7 Keep project reordering on the requested drag interaction (#39)
+73afbaa1c91 Merge retained project-tab implementation (#39)
+934cea8e878 Merge #38 standalone state isolation repair
+1366f326830 Merge standalone shell isolation repair (#38)
+8352e41b0c2 Use the repository discriminator helper for project targets
+a51ee47fcf1 Merge branch 'integration/one-window-37' into implement/39-project-tabs
+fc854fb2cdb Add retained project tabs with exact workspace selection (#39)
+a037cd2eb5b Merge branch 'integration/one-window-37' into implement/38-standalone-shell
+67319907a06 Merge feature/unified-project-window as the spec integration base
+03611141fd3 fix: isolate development extension controls from Code OSS (#38)
+6b2a89f3c7f Merge #38 standalone shared shell
+519a6ea4382 feat: launch the standalone escode shell with app-owned state (#38)
+d6f73d25b56 prototype: record whole-window Close safeguards and native UI evidence
+a330d2a1016 prototype: show each workbench while collecting host-close safeguards
+18cea478f7f prototype: route Close Window through existing host coordination
+af1c117b8f8 prototype: record startup configuration and ordinary UI evidence
+c4385c17be0 prototype: bind startup configuration to its workbench document
+89ef61e6d7a Record zoom and developer tools ownership evidence and remaining gate
+6503bba1470 Prototype document-owned zoom and developer tools requests
+0249258d00d Record shell environment ownership experiment and remaining gate
+071d2d634ed Prototype document-owned shell environment resolution
+6cba50af70c Record diagnostic startup and native-menu ownership evidence
+62efec8257c Bind disposable native menus to their authenticated document
+43d4a0646b7 Install diagnostic receiver before document readiness in disposable prototype
+0300452aba4 Record diagnostic ownership evidence, failures and remaining gate
+1e37c849119 Prototype diagnostic replies bound to current document and operation
+4fc68c6c1da Record redacted direct reload evidence and remaining acceptance gate
+35375219f8f Route disposable developer reload through document safeguards and one shared attempt
+fb419873a83 Record replacement readiness lifecycle evidence and remaining gate
+239561ce6cd Prototype exact-document lifecycle readiness and guarded reuse
+afd60160b1a Record interrupted Close repair and bootstrap retry failure
+0e469ae5b78 Prototype distinct interrupted Close outcomes
+795fa1211b7 prototype: record interrupted Close outcome failure and scoped controls
+c826c75f705 prototype: retain Close completion through logical disposal
+c416d763b25 prototype: record logical disposal and reentrant Close failure
+09c4d1d3cd5 prototype: retain cleanup identity and await logical disposal
+97ebd37ee5c prototype: capture retained Close and failed logical disposal
+5d4b3e65bd3 prototype: arbitrate pending project Close with recovery and host shutdown
+4766334b1ae prototype: record recovery success and lost Close during shutdown race
+1504132ca61 prototype: separate project recovery and shared-host teardown
+e227996f44b prototype: capture shared-host recovery failure after reply authorization
+df8a96ab0c2 prototype: bind lifecycle replies to pending document phases
+1c66e15dd53 prototype: record lifecycle reply isolation failure and runtime limits
+48fc6487c03 prototype: bind renderer documents and revoke connection resources
+1565d746d39 prototype: test authenticated IPC and capture stale renderer authority
+48a388f6849 prototype: capture live workbench hosting and sender-binding gap
+ffd7973948b docs: define chat home workspace terminology
+7ffe2e1cd41 docs: record unified IDE direction and terminology
+22286a83e2e Merge branch 'microsoft:main' into main
+9f6477db551 docs: configure Matt Pocock skills for escode

@@ -1,0 +1,17 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/.build/crashes'
+(node:15519) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:15519) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:15519) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  LocalGitChannel[0m
+  [32m  ✔[0m[90m one project cannot cancel another project operation and revocation terminates its process[0m
+  [32m  ✔[0m[90m expiry between validation and checkout prevents the later mutation[0m
+
+
+[92m [0m[32m 3 passing[0m[90m (3ms)[0m
+

@@ -1,0 +1,12 @@
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> escode-dev@1.145.0 eslint
+> node --max-old-space-size=8192 build/eslint.ts src/vs/sessions/browser/actions/vscodeActions.ts src/vs/sessions/contrib/providers/agentHost/browser/baseAgentHostSessionsProvider.ts src/vs/sessions/contrib/providers/agentHost/test/browser/localAgentHostSessionsProvider.test.ts src/vs/sessions/electron-browser/actions/vscodeActions.ts src/vs/sessions/services/sessions/browser/sessionsManagementService.ts src/vs/sessions/services/sessions/browser/sessionsService.ts src/vs/sessions/services/sessions/common/sessionsManagement.ts src/vs/sessions/services/sessions/test/browser/sessionNavigation.test.ts src/vs/sessions/services/sessions/test/browser/sessionsManagementService.test.ts src/vs/sessions/test/browser/vscodeActions.test.ts src/vs/sessions/test/electron-browser/vscodeActions.test.ts
+
+ESLint: checking 11 requested targets.
+ESLint: checked 11 files in 4804ms.

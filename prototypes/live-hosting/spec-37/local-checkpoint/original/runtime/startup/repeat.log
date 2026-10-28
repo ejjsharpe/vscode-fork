@@ -1,0 +1,28 @@
+[90m[main 2026-10-28T21:05:21.081Z][0m [node-compile-cache] main: packaged cache inactive (status: development, configured: /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/base/node-compile-cache/main, active: none)
+[90m[main 2026-10-28T21:05:21.093Z][0m StorageMainService: creating application shared storage
+[90m[main 2026-10-28T21:05:21.187Z][0m [CSS_DEV] DONE, 509 css modules (77ms)
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"approved-load"}
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"navigation"}
+[90m[main 2026-10-28T21:05:21.304Z][0m update#setState disabled
+[90m[main 2026-10-28T21:05:21.365Z][0m [shared storage] Creating shared storage database at '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/startup/shared-data/sharedStorage/state.vscdb' (wasCreated: false)
+[90m[main 2026-10-28T21:05:21.365Z][0m [shared storage] Initializing fallback application storage (path: /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/startup/user-data/User/globalStorage/state.vscdb)
+[90m[main 2026-10-28T21:05:21.374Z][0m [shared storage] Fallback application storage initialized with 13 items
+[lifetime-probe] revoke {"workbench":100000,"generation":0,"reason":"bootstrap"}
+[lifetime-probe] bootstrap {"workbench":100000,"generation":1,"webContents":2}
+[hosting-probe] loaded {"id":100000,"nativeHost":1,"webContents":2,"pid":87436,"url":"vscode-file://vscode-app/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/sessions/electron-browser/sessions-dev.html"}
+[lifetime-probe] connection window:100000:document:1:connection:1
+[90m[main 2026-10-28T21:05:23.427Z][0m AgentHostProcessManager: agent host started
+[readiness-probe] ready 1793221523536 100000 1
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:createUtilityProcessWorkerMessageChannelResult"}
+[hosting-probe] port {"workbench":100000,"webContents":2,"channel":"vscode:startExtensionHostMessagePortResult"}
+[hosting-probe] selected {"id":100000,"nativeHost":1,"webContents":2}
+[readiness-probe] dispatch 1793221524303 100000 1 vscode:onBeforeUnload
+Debugger ending on ws://127.0.0.1:51741/9476b305-ccb8-439e-8948-720a1c94c6d2
+For help, see: https://nodejs.org/learn/getting-started/debugging
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onBeforeUnload","result":"ok"}
+[readiness-probe] dispatch 1793221524439 100000 1 vscode:onWillUnload
+[lifecycle-reply-probe] {"workbench":100000,"generation":1,"phase":"vscode:onWillUnload","result":"ok"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-cleanup-complete"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"host-shutdown"}
+[lifetime-probe] revoke {"workbench":100000,"generation":1,"reason":"destroyed"}

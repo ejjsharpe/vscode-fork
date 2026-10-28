@@ -1,0 +1,9 @@
+{
+  "result": "fixture setup failed",
+  "reason": "Scratch extension engines.vscode wildcard rejected by normal extension scanner; no extension-progress pass claimed. Corrected fixture to ^1.100.0 for next fresh launch.",
+  "source": "464e22d3ab15fe47bc0446bb8d29470f570eefa7",
+  "observations": [
+    "Ordinary startup logs repeatedly report Rejected foreign PTY workspace; sent native worker for fix.",
+    "Native Cmd+Q rejected as coordinator-only pending #43. Cleanup used SIGTERM to exact isolated PID after verifying command line; no graceful quit pass."
+  ]
+}

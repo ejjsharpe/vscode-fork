@@ -1,0 +1,12 @@
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> escode-dev@1.145.0 eslint
+> node --max-old-space-size=8192 build/eslint.ts src/vs/platform/auxiliaryWindow/electron-main/auxiliaryWindow.ts src/vs/platform/auxiliaryWindow/electron-main/auxiliaryWindows.ts src/vs/platform/auxiliaryWindow/electron-main/auxiliaryWindowsMainService.ts src/vs/platform/dialogs/electron-main/dialogMainService.ts src/vs/platform/dialogs/test/electron-main/dialogMainService.test.ts src/vs/platform/menubar/electron-main/menubar.ts src/vs/platform/native/electron-main/nativeHostMainService.ts src/vs/platform/windows/electron-main/prototypeNativeChannel.ts src/vs/platform/windows/electron-main/prototypeWorkbenchHost.ts src/vs/platform/windows/electron-main/windowImpl.ts src/vs/platform/windows/electron-main/windows.ts src/vs/platform/windows/electron-main/windowsMainService.ts src/vs/code/electron-main/app.ts
+
+ESLint: checking 13 requested targets.
+ESLint: checked 13 files in 4673ms.

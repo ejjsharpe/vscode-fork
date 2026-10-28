@@ -1,0 +1,32 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/.build/crashes'
+(node:13154) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:13154) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:13154) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  UserDataSyncServiceChannel ownership[0m
+  [31m  1) manual tasks reject foreign control and stop when the owning connection expires[0m
+  [31m  2) a task created after revocation is stopped without publishing its handle[0m
+
+
+[92m [0m[32m 1 passing[0m[90m (2ms)[0m
+[31m  2 failing[0m
+
+[0m  1) UserDataSyncServiceChannel ownership
+       manual tasks reject foreign control and stop when the owning connection expires:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/out/vs/platform/userDataSync/test/common/userDataSyncServiceIpc.test.js:22:5)
+[0m
+[0m  2) UserDataSyncServiceChannel ownership
+       a task created after revocation is stopped without publishing its handle:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/out/vs/platform/userDataSync/test/common/userDataSyncServiceIpc.test.js:44:5)
+[0m
+
+

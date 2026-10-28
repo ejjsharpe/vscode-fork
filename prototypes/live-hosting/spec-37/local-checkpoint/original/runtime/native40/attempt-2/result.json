@@ -1,0 +1,20 @@
+{
+  "result": "partial positive and failures",
+  "source": "464e22d3ab15fe47bc0446bb8d29470f570eefa7",
+  "passed": [
+    "Actual extension-host command writes exact single-folder URI.",
+    "Both fixture extension hosts advanced while Agents selected and both project views detached.",
+    "Git UI shows own single repository/modified file."
+  ],
+  "failed": [
+    "Native integrated browser blank; own loopback fixture received no GET.",
+    "Ordinary terminal creation opens empty Terminal1 with no shell prompt; own heartbeat produced no file.",
+    "Tasks: Run Task did not reach named task picker."
+  ],
+  "unperformed": [
+    "Task/debug/inactive/minimized progress",
+    "Native foreign-sender/auth probes paused",
+    "Remote/provider execution deferred"
+  ],
+  "cleanup": "SIGTERM exact isolated main PID after verifying command line; no graceful quit claim."
+}

@@ -1,0 +1,20 @@
+{
+  "pid": 46804,
+  "source": "1ce038f7de9edbee2133ac100f032034e0c463cc",
+  "checkoutAtLaunch": "1ce038f7de9edbee2133ac100f032034e0c463cc",
+  "args": [
+    "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/scripts/code.sh",
+    "--user-data-dir=/tmp/escode-spec37-40-_j46z9bg/user-data",
+    "--shared-data-dir=/tmp/escode-spec37-40-_j46z9bg/shared-data",
+    "--extensions-dir=/tmp/escode-spec37-40-_j46z9bg/extensions",
+    "--disable-workspace-trust",
+    "--use-inmemory-secretstorage",
+    "--log=trace",
+    "--new-window",
+    "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/single",
+    "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/multi.code-workspace"
+  ],
+  "state": "/tmp/escode-spec37-40-_j46z9bg",
+  "machine": "arm64",
+  "macOS": "26.3.1"
+}

@@ -1,0 +1,37 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:49128) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:49128) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:49128) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Native browser ownership[0m
+  [31m  1) preserves the native initial snapshot that unblocks current-owner browser creation[0m
+
+
+[92m [0m[32m 0 passing[0m[90m (5ms)[0m
+[31m  1 failing[0m
+
+[0m  1) Native browser ownership
+       preserves the native initial snapshot that unblocks current-owner browser creation:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+       [
+         "snapshot"
+      [32m+  "snapshot"[0m
+       ]
+      [0m[90m
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'snapshot',
+  -   'snapshot'
+    ]
+  
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/out/vs/platform/browserView/test/electron-main/prototypeBrowserChannel.test.js:60:12)
+[0m
+
+

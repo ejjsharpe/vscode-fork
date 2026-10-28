@@ -1,0 +1,163 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-51/.build/crashes'
+(node:18313) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:18313) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:18313) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  VS Code Actions[0m
+  [31m  1) unresolved project navigation offers choice without opening inferred chat folders[0m
+
+
+[92m [0m[32m 0 passing[0m[90m (12ms)[0m
+[31m  1 failing[0m
+
+[0m  1) VS Code Actions
+       unresolved project navigation offers choice without opening inferred chat folders:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+       {
+      [31m-  "offered": [][0m
+      [31m-  "opened": true[0m
+      [32m+  "offered": [[0m
+      [32m+    {[0m
+      [32m+      "homeWorkspace": {[0m
+      [32m+        "value": "[undefined]"[0m
+      [32m+      }[0m
+      [32m+      "workspace": {[0m
+      [32m+        "value": {[0m
+      [32m+          "folders": [[0m
+      [32m+            {[0m
+      [32m+              "description": "[undefined]"[0m
+      [32m+              "name": "Repository 1"[0m
+      [32m+              "root": {[0m
+      [32m+                "$mid": 1[0m
+      [32m+                "path": "/overlap/one"[0m
+      [32m+                "scheme": "file"[0m
+      [32m+              }[0m
+      [32m+              "workingDirectory": {[0m
+      [32m+                "$mid": 1[0m
+      [32m+                "path": "/overlap/one"[0m
+      [32m+                "scheme": "file"[0m
+      [32m+              }[0m
+      [32m+            }[0m
+      [32m+            {[0m
+      [32m+              "description": "[undefined]"[0m
+      [32m+              "name": "Repository 2"[0m
+      [32m+              "root": {[0m
+      [32m+                "$mid": 1[0m
+      [32m+                "path": "/overlap/two"[0m
+      [32m+                "scheme": "file"[0m
+      [32m+              }[0m
+      [32m+              "workingDirectory": {[0m
+      [32m+                "$mid": 1[0m
+      [32m+                "path": "/overlap/two"[0m
+      [32m+                "scheme": "file"[0m
+      [32m+              }[0m
+      [32m+            }[0m
+      [32m+          ][0m
+      [32m+          "icon": {[0m
+      [32m+            "id": "folder"[0m
+      [32m+          }[0m
+      [32m+          "isVirtualWorkspace": false[0m
+      [32m+          "label": "ambiguous"[0m
+      [32m+          "requiresWorkspaceTrust": false[0m
+      [32m+          "uri": {[0m
+      [32m+            "$mid": 1[0m
+      [32m+            "path": "/ambiguous/workspace"[0m
+      [32m+            "scheme": "test"[0m
+      [32m+          }[0m
+      [32m+        }[0m
+      [32m+      }[0m
+      [32m+    }[0m
+      [32m+  ][0m
+      [32m+  "opened": false[0m
+       }
+      [0m[90m
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   offered: [],
+  +   opened: true
+  -   offered: [
+  -     {
+  -       homeWorkspace: ConstObservable {
+  -         value: undefined
+  -       },
+  -       workspace: ConstObservable {
+  -         value: {
+  -           folders: [
+  -             {
+  -               description: undefined,
+  -               name: 'Repository 1',
+  -               root: Uri {
+  -                 _formatted: null,
+  -                 _fsPath: null,
+  -                 authority: '',
+  -                 fragment: '',
+  -                 path: '/overlap/one',
+  -                 query: '',
+  -                 scheme: 'file'
+  -               },
+  -               workingDirectory: Uri {
+  -                 _formatted: null,
+  -                 _fsPath: null,
+  -                 authority: '',
+  -                 fragment: '',
+  -                 path: '/overlap/one',
+  -                 query: '',
+  -                 scheme: 'file'
+  -               }
+  -             },
+  -             {
+  -               description: undefined,
+  -               name: 'Repository 2',
+  -               root: Uri {
+  -                 _formatted: null,
+  -                 _fsPath: null,
+  -                 authority: '',
+  -                 fragment: '',
+  -                 path: '/overlap/two',
+  -                 query: '',
+  -                 scheme: 'file'
+  -               },
+  -               workingDirectory: Uri {
+  -                 _formatted: null,
+  -                 _fsPath: null,
+  -                 authority: '',
+  -                 fragment: '',
+  -                 path: '/overlap/two',
+  -                 query: '',
+  -                 scheme: 'file'
+  -               }
+  -             }
+  -           ],
+  -           icon: {
+  -             id: 'folder'
+  -           },
+  -           isVirtualWorkspace: false,
+  -           label: 'ambiguous',
+  -           requiresWorkspaceTrust: false,
+  -           uri: Uri {
+  -             _formatted: null,
+  -             _fsPath: null,
+  -             authority: '',
+  -             fragment: '',
+  -             path: '/ambiguous/workspace',
+  -             query: '',
+  -             scheme: 'test'
+  -           }
+  -         }
+  -       }
+  -     }
+  -   ],
+  -   opened: false
+    }
+  
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-51/out/vs/sessions/test/electron-browser/vscodeActions.test.js:82:12)
+[0m
+
+

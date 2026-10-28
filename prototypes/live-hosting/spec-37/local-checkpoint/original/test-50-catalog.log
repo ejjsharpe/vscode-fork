@@ -1,0 +1,170 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/.build/crashes'
+(node:96750) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:96750) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:96750) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  AgentHostCatalogListReader[0m
+  [32m  ✔[0m[90m converts a verified catalog payload into complete list metadata and chats[0m
+  [32m  ✔[0m[90m reads activated chat summaries in bulk without consulting stale payload chats or provider detail[0m
+  [32m  ✔[0m[90m bounds large normalized snapshot reads without per-session queries[0m
+  [32m  ✔[0m[90m reads multiple registered sessions with one catalog query[0m
+  [32m  ✔[0m[90m skips the catalog query for an empty candidate list[0m
+  [32m  ✔[0m[90m recovers individual rows with bounded reads when the bulk query fails[0m
+  [32m  ✔[0m[90m omits reserved subagent and tool-origin channels from list metadata and catalog data[0m
+  [32m  ✔[0m[90m falls back for every unusable row and hides a chat-backing row instead[0m
+  [32m  ✔[0m[90m hides a chat-backing payload even when the row marker disagrees[0m
+  [32m  ✔[0m[90m rejects a registry provider that does not match the session identity[0m
+  [32m  ✔[0m[90m reports a read failure with its error so the caller can log it[0m
+
+[0m  AgentHostCatalogProjection[0m
+  [32m  ✔[0m[90m V2 canonicalization and hash include optional automation provenance while the older shape stays valid[0m
+  [32m  ✔[0m[90m round trips creating-client identity through the validated catalog[0m
+  [32m  ✔[0m[90m round trips validated remote-session origin metadata[0m
+  [32m  ✔[0m[90m rejects mismatched remote origin session and chat identities[0m
+  [32m  ✔[0m[90m derives the data type from validators and round trips canonical payload and hash[0m
+  [32m  ✔[0m[90m normalizes order and strips unknown properties without a SQL schema change[0m
+  [32m  ✔[0m[90m rejects prototype keys in catalog records[0m
+  [32m  ✔[0m[90m retains detached-head state and the newest bounded artifact suffix[0m
+  [32m  ✔[0m[90m round trips artifact provenance without inventing it for legacy records[0m
+  [32m  ✔[0m[90m rejects malformed artifact provenance[0m
+  [32m  ✔[0m[90m preserves Dev Container worktree and pull request state metadata[0m
+  [32m  ✔[0m[90m rejects missing fields, wrong types, bounds, duplicate children, and invalid URIs[0m
+  [32m  ✔[0m[90m classifies old payload versions as outdated before structural validation[0m
+  [32m  ✔[0m[90m revives every serialized URI in one place[0m
+
+[0m  AgentHostCatalogSourceResolver[0m
+  [32m  ✔[0m[90m persisted automation origin survives restart and partial live summaries[0m
+  [32m  ✔[0m[90m malformed optional origin is reported without dropping the other metadata[0m
+  [32m  ✔[0m[90m a session whose primary folder is a worktree a move recorded for it projects that worktree's repository; a stale entry is ignored, its own recorded worktree wins (Block 5)[0m
+  [32m  ✔[0m[90m a native backing alias cannot mark its standard host owner as a backing[0m
+  [32m  ✔[0m[90m projects authoritative chats without reading or writing legacy chat summaries[0m
+  [32m  ✔[0m[90m restores aggregate roots independently of the main chat and honors exclusive replacement[0m
+  [32m  ✔[0m[90m restores artifacts for multiple chats from the shared session metadata key[0m
+  [32m  ✔[0m[90m migrates legacy artifacts into the shared session collection with default chat provenance[0m
+  [32m  ✔[0m[90m persists creating-client identity without replacing it during adoption or restore[0m
+  [32m  ✔[0m[90m does not persist temporary input restrictions as read-only chats[0m
+  [32m  ✔[0m[90m uses persisted default chat read state only during persistence-first reconciliation[0m
+  [32m  ✔[0m[90m excludes unread tool chats from session read reconciliation[0m
+  [32m  ✔[0m[90m projects remote origins from live and persisted state without losing exact chat or depth[0m
+  [32m  ✔[0m[90m round-trips persisted folder-scoped Git state through the catalog payload[0m
+  [32m  ✔[0m[90m projects the provider-qualified Codex model into the cached catalog metadata[0m
+  [32m  ✔[0m[90m consumes the provided database reference and propagates metadata read failures[0m
+  [32m  ✔[0m[90m prefers the downgrade-compatible session title mirror[0m
+  [32m  ✔[0m[90m preserves inherited peer provenance in the cached catalog payload[0m
+  [32m  ✔[0m[90m reads mirrored chat metadata from the provided session database[0m
+  [32m  ✔[0m[90m uses the live session title when no explicit session title exists[0m
+  [32m  ✔[0m[90m projects persisted Dev Container worktree and pull request state metadata[0m
+  [32m  ✔[0m[90m bounds derived summaries without changing source metadata and produces a stable payload[0m
+  [32m  ✔[0m[90m prefers live chat titles over stale chat-local metadata during live synchronization[0m
+  [32m  ✔[0m[90m projects legacy archive state until adoption rather than a partial host mirror (adopted: false)[0m
+  [32m  ✔[0m[90m projects legacy archive state until adoption rather than a partial host mirror (adopted: true)[0m
+  [32m  ✔[0m[90m projects chat change aggregates from live state or the persisted chat key[0m
+  [32m  ✔[0m[90m prefers live state while preserving persisted-only source and legacy metadata[0m
+  [32m  ✔[0m[90m prefers persisted list metadata with live git precedence[0m
+  [32m  ✔[0m[90m ignores an empty legacy GitHub tombstone when preferring persisted metadata[0m
+  [32m  ✔[0m[90m omits malformed persisted changes metadata[0m
+  [32m  ✔[0m[90m re-projects persisted sources to the identical canonical payload hash[0m
+
+[0m  AgentHostChatCatalogMigration[0m
+  [32m  ✔[0m[90m migrates default-only persisted sessions with lazy provider detail and first mutation atomically[0m
+  [32m  ✔[0m[90m defers normalization until default backing provenance is in the verified projection[0m
+  [32m  ✔[0m[90m normalizes a provisional catalog without creating provider backing or clearing its lifecycle marker[0m
+  [32m  ✔[0m[90m keeps a provisional catalog pending when its verified source is dirty[0m
+  [32m  ✔[0m[90m keeps a provisional catalog pending when its verified source is missing[0m
+  [32m  ✔[0m[90m requires reconciled legacy clears before normalization and preserves deleted identities[0m
+  [32m  ✔[0m[90m preserves explicit parentless private rows while compacting visible order[0m
+
+[0m  AgentHostDatabase sessions_v2[0m
+  [32m  ✔[0m[90m creates the central catalog schema without changing the legacy registry[0m
+  [32m  ✔[0m[90m registration generation tracks normalized catalogs and their default chats, not legacy catalogs[0m
+  [32m  ✔[0m[90m sequences chat catalog reads behind queued replacements[0m
+  [32m  ✔[0m[90m bulk inserts a large chat catalog with bounded SQL calls[0m
+  [32m  ✔[0m[90m rejects chat catalog replacement after session tombstoning[0m
+  [32m  ✔[0m[90m applies the catalog migration after upstream v4[0m
+  [32m  ✔[0m[90m normalizes a pre-release v7 catalog and requires payload reseeding[0m
+  [32m  ✔[0m[90m normalizes the pre-release v11 version without rebuilding its final catalog[0m
+  [32m  ✔[0m[90m upgrades a pre-release v6 catalog while preserving unknown tables[0m
+  [32m  ✔[0m[90m updates current registration provenance without a catalog revision[0m
+  [32m  ✔[0m[90m runtime provenance resolution mirrors both registries without changing catalog revision[0m
+[0m    catalog-only normalized authority[0m
+    [32m  ✔[0m[90m a legacy peer row that never recorded a read state is read, as the aggregate of a new peer says[0m
+    [32m  ✔[0m[90m a legacy peer row without a read state still differs from an aggregate that says the peer is unread[0m
+    [32m  ✔[0m[90m records the session each chat is created in; rows without it read as created in their owner[0m
+    [32m  ✔[0m[90m activation derives every lightweight field losslessly, including explicit private roles and default semantics[0m
+    [32m  ✔[0m[90m rejects conflicting private interactivity, source read/archive/lineage, changes and ordered directories before cutover[0m
+    [32m  ✔[0m[90m source generation, revision, hash, dirty marker and central revision fence activation[0m
+    [32m  ✔[0m[90m activation and first mutation roll back together on stale CAS and late SQL failure[0m
+    [32m  ✔[0m[90m terminal import cannot overwrite normalized state and provider-only CAS preserves summaries[0m
+    [32m  ✔[0m[90m dual revisions, true private role, owner boundary and cycles fence lineage CAS[0m
+    [32m  ✔[0m[90m existing peer APIs dispatch normalized state, preserving non-first default, private chats and summary metadata[0m
+    [32m  ✔[0m[90m lossless central peer provider/origin import requires actual verified source equivalence[0m
+    [32m  ✔[0m[90m concurrent activation plus mutation has a single winner and no intervening write-through gap[0m
+    [32m  ✔[0m[90m new session writes direct normalized authority and lifecycle deletion fences all owned chats[0m
+    [32m  ✔[0m[90m providerAbsent exclusion hides the session and revives its catalog and chats intact[0m
+    [32m  ✔[0m[90m actual physical schema13 upgrades additively and survives activation, restart and legacy dispatch[0m
+    [32m  ✔[0m[90m chat home metadata preserves exact workspace identity and intentional No Workspace[0m
+    [32m  ✔[0m[90m chat home metadata rejects malformed targets rather than recording No Workspace[0m
+    [32m  ✔[0m[90m bounded metadata uses existing changes validator and rejects unsafe measurements[0m
+    [32m  ✔[0m[90m session list projection uses one SELECT and keeps legacy payloads while omitting normalized embedded chats and private detail[0m
+    [32m  ✔[0m[90m session list projection rejects corrupted public metadata and a missing default without reading private metadata[0m
+    [32m  ✔[0m[90m session list projection bounds selectors and rejects inconsistent generation and directories[0m
+    [32m  ✔[0m[90m session list projection waits for queued metadata writes before observing the public summary[0m
+    [32m  ✔[0m[90m complete snapshot uses exactly two SELECTs including origin and directories but excluding provider detail and session payloads[0m
+    [32m  ✔[0m[90m single-chat lookup uses one SELECT, validates only its row and is scoped to the current owner[0m
+    [32m  ✔[0m[90m migration selection reads only live legacy headers with bounded selectors[0m
+    [32m  ✔[0m[90m snapshot authority is chosen per session without merging frozen legacy peers[0m
+    [32m  ✔[0m[90m file-backed independent connections serialize activation and typed write-through CAS[0m
+    [32m  ✔[0m[90m the exact 1000-chat limit includes private chats and compatibility writes cannot exceed it[0m[31m (105ms)[0m
+    [32m  ✔[0m[90m provider and directory clear semantics preserve unrelated summaries and validate ordered pins[0m
+    [32m  ✔[0m[90m origin update and explicit clear use dual CAS without falling back to frozen legacy origin[0m
+    [32m  ✔[0m[90m default provider detail and absent pinned directories can be explicitly enriched at activation[0m
+    [32m  ✔[0m[90m explicit Hidden roles preserve absent upstream parent facts without inventing default lineage[0m
+    [32m  ✔[0m[90m explicit legacy both-empty deletion facts preserve global tombstones before legacy keys are cleaned[0m
+    [32m  ✔[0m[90m activation and requested peer membership commit together while preserving default and private metadata[0m
+    [32m  ✔[0m[90m late requested membership failure rolls back activation and every normalized row[0m
+    [32m  ✔[0m[90m snapshot selector accepts exactly the exported limit and legacy empty catalogs retain an authority discriminator[0m
+    [32m  ✔[0m[90m normalized aggregate writes update session title/status/git while preserving all central chats and header[0m
+    [32m  ✔[0m[90m normalization retains explicit origin detail while verifying bounded provenance (known legacy detail: false)[0m
+    [32m  ✔[0m[90m normalization retains explicit origin detail while verifying bounded provenance (known legacy detail: true)[0m
+    [32m  ✔[0m[90m aggregate origin comparison uses bounded public provenance and preserves the full selection[0m
+    [32m  ✔[0m[90m concurrent normalized chat patch fences a stale aggregate header and stale public projection[0m
+    [32m  ✔[0m[90m normalized aggregate generation, source revisions, missing sessions and deletion use existing CAS dispositions[0m
+    [32m  ✔[0m[90m new direct normalized sessions can establish their first aggregate generation without rewriting their header[0m
+    [32m  ✔[0m[90m private lifecycle insertion preserves complete data and only exact current revision replays[0m
+    [32m  ✔[0m[90m private lifecycle rejects visible, cyclic and foreign identities while preserving absent parent facts[0m
+    [32m  ✔[0m[90m private lifecycle deletion tombstones only private closure and survives restart without resurrection[0m
+    [32m  ✔[0m[90m private lifecycle applies the exact total bound and stale writers cannot race insertion[0m[31m (95ms)[0m
+    [32m  ✔[0m[90m private lifecycle late SQL failures roll back insertion, closure tombstones and header revision[0m
+    [32m  ✔[0m[90m private lifecycle checks session registration, authority and tombstones before insertion or deletion[0m
+[0m      one-way legacy SQL projection[0m
+      [32m  ✔[0m[90m activation projects exact schema13 columns without default/private rows or mirror acknowledgements[0m
+      [32m  ✔[0m[90m direct registration replaces stale retained peers and projects compact order around a nonzero exact default[0m
+      [32m  ✔[0m[90m add reorder removal and private closure tombstones project final membership with one header advance[0m
+      [32m  ✔[0m[90m public legacy metadata updates and clears preserve immutable storage and unrelated aggregate payload[0m
+      [32m  ✔[0m[90m private lifecycle and default-only metadata advance the header without rewriting peer projection[0m
+      [32m  ✔[0m[90m activated single-default sessions preserve both registries with zero legacy peers[0m
+      [32m  ✔[0m[90m directly registered single-default sessions preserve both registries with zero legacy peers[0m
+      [32m  ✔[0m[90m schema13 registration reader excludes explicit tombstones and provider exclusions without changing authority[0m
+      [32m  ✔[0m[90m tombstone cascades projected peers and leaves globally tombstoned identities[0m
+      [32m  ✔[0m[90m unregister cascades projected peers and leaves globally tombstoned identities[0m
+      [32m  ✔[0m[90m exclude cascades projected peers and leaves globally tombstoned identities[0m
+      [32m  ✔[0m[90m projection insert failure rolls back authoritative membership metadata closure and header after legacy DELETE[0m
+      [32m  ✔[0m[90m activation projection failure rolls back header and normalized rows[0m
+      [32m  ✔[0m[90m direct registration projection failure rolls back header and normalized rows[0m
+      [32m  ✔[0m[90m every normalized write that would re-project refuses over an older writer's edit; writes that do not, and private chats, go through and keep it[0m
+      [32m  ✔[0m[90m this build's own writes keep the projection marker current; the scan reports every catalog another writer advanced, and only an unchanged list is recorded as projected[0m
+      [32m  ✔[0m[90m the candidate scan returns only catalogs of listed registrations, so an excluded or tombstoned one never holds a slot[0m
+      [32m  ✔[0m[90m a database at version 15 migrates to 20 with the projection marker, and normalized catalogs start as candidates[0m
+      [32m  ✔[0m[90m a database at version 17 migrates to 20 with the projection marker, and normalized catalogs start as candidates[0m
+      [32m  ✔[0m[90m a database at version 18 migrates to 20 with the projection marker, and normalized catalogs start as candidates[0m
+      [32m  ✔[0m[90m an older writer's session_chats edit is refused by the next V2 mutation, never re-projected away, until it is imported[0m
+      [32m  ✔[0m[90m 1000-chat projection uses two bounded SQL writes and retains one-SELECT list and point reads[0m[31m (142ms)[0m
+[0m    chat moves (Block 4)[0m
+    [32m  ✔[0m[90m moves a peer with its private descendant, compacts both catalogs and keeps storage[0m
+    [32m  ✔[0m[90m reports the moved chats in placement order: the chat, its visible descendants in catalog order, then private ones[0m
+
+
+[92m [0m[32m 147 passing[0m[90m (1s)[0m
+

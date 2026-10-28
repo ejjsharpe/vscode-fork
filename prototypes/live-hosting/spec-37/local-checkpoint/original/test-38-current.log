@@ -1,0 +1,68 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-38/.build/crashes'
+(node:64077) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:64077) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:64077) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  User data path[0m
+  [32m  ✔[0m[90m getUserDataPath - default[0m
+  [32m  ✔[0m[90m getUserDataPath - development applications keep separate state[0m
+  [32m  ✔[0m[90m getUserDataPath - portable mode[0m
+  [32m  ✔[0m[90m getUserDataPath - --user-data-dir[0m
+  [32m  ✔[0m[90m getUserDataPath - VSCODE_APPDATA[0m
+
+[0m  EnvironmentService[0m
+  [32m  ✔[0m[90m parseExtensionHostPort when built[0m
+  [32m  ✔[0m[90m parseExtensionHostPort when unbuilt[0m
+  [32m  ✔[0m[90m careful with boolean file names[0m
+  [32m  ✔[0m[90m userDataDir[0m
+
+[0m  NativeExtensionsScanerService Test[0m
+  [32m  ✔[0m[90m scan system extension[0m
+  [32m  ✔[0m[90m scan user extensions[0m
+  [32m  ✔[0m[90m scan existing extension[0m
+  [32m  ✔[0m[90m scan single extension[0m
+  [32m  ✔[0m[90m scan multiple extensions[0m
+  [32m  ✔[0m[90m scan all user extensions with different versions[0m
+  [32m  ✔[0m[90m scan all user extensions include all versions[0m
+  [32m  ✔[0m[90m scan all user extensions with different versions and higher version is not compatible[0m
+  [32m  ✔[0m[90m scan all user extensions exclude invalid extensions[0m
+  [32m  ✔[0m[90m scan all user extensions include invalid extensions[0m
+  [32m  ✔[0m[90m scan system extensions uses this application control and ignores Code OSS control[0m
+  [32m  ✔[0m[90m scan all user extensions with default nls replacements[0m
+  [32m  ✔[0m[90m scan extension with en nls replacements[0m
+  [32m  ✔[0m[90m scan extension falls back to default nls replacements[0m
+  [32m  ✔[0m[90m scan single extension with manifest metadata retains manifest metadata[0m
+[0m    auto update builtin extensions[0m
+    [32m  ✔[0m[90m scan user extension with matching product version is included[0m
+    [32m  ✔[0m[90m scan user extension with different version is included when forceAutoUpdate is enabled[0m
+    [32m  ✔[0m[90m scan user extension not in autoUpdateBuiltinExtensions is not filtered[0m
+    [32m  ✔[0m[90m scan picks latest version when multiple versions exist[0m
+    [32m  ✔[0m[90m scan all extensions prefers matching user extension over system extension[0m
+    [32m  ✔[0m[90m scan all extensions picks user extension with newer version over system extension[0m
+    [32m  ✔[0m[90m system extension has autoUpdate set to true when in autoUpdateBuiltinExtensions and quality is stable[0m
+    [32m  ✔[0m[90m system extension has autoUpdate set to false when not in autoUpdateBuiltinExtensions[0m
+    [32m  ✔[0m[90m system extension has autoUpdate set to false when quality is not stable[0m
+    [32m  ✔[0m[90m scan user extension is excluded when autoUpdate is disabled (non-stable quality)[0m
+    [32m  ✔[0m[90m scan all extensions uses system version when autoUpdate is disabled (non-stable quality)[0m
+[0m    manifest cache[0m
+    [32m  ✔[0m[90m system extensions are cached per scan language[0m
+    [32m  ✔[0m[90m system extension scan is only served from the cache of the same language[0m
+    [32m  ✔[0m[90m user extensions are cached per scan language[0m
+    [32m  ✔[0m[90m a system cache hit validates the cache by scanning again[0m
+    [32m  ✔[0m[90m a user cache hit validates the cache by scanning again[0m
+    [32m  ✔[0m[90m cache hits in several languages are all validated, not just the last one[0m
+
+[0m  ExtensionScannerInput[0m
+  [32m  ✔[0m[90m compare inputs - location[0m
+  [32m  ✔[0m[90m compare inputs - application location[0m
+  [32m  ✔[0m[90m compare inputs - profile[0m
+  [32m  ✔[0m[90m compare inputs - extension type[0m
+
+
+[92m [0m[32m 46 passing[0m[90m (39ms)[0m
+

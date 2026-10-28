@@ -1,0 +1,18 @@
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> escode-dev@1.145.0 eslint
+> node --max-old-space-size=8192 build/eslint.ts src/vs/code/electron-main/app.ts src/vs/platform/terminal/common/localPtyChannel.ts src/vs/platform/terminal/common/terminal.ts src/vs/platform/terminal/electron-main/electronPtyHostStarter.ts src/vs/platform/terminal/node/ptyHostMain.ts src/vs/platform/terminal/node/ptyHostService.ts src/vs/platform/terminal/node/ptyService.ts src/vs/platform/terminal/test/common/localPtyChannel.test.ts src/vs/workbench/contrib/terminal/browser/terminalProcessManager.ts src/vs/workbench/contrib/terminal/electron-browser/localPty.ts src/vs/workbench/contrib/terminal/electron-browser/localTerminalBackend.ts src/vs/workbench/contrib/terminal/test/electron-browser/localTerminalBackend.test.ts src/vs/platform/terminal/electron-main/ptyNativeParentChannel.ts src/vs/platform/terminal/test/electron-main/ptyNativeParentChannel.test.ts
+
+ESLint: checking 14 requested targets.
+/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/src/vs/platform/terminal/test/electron-main/ptyNativeParentChannel.test.ts: line 19, col 1, Warning - Suites should include a call to `ensureNoDisposablesAreLeakedInTestSuite()` to ensure no disposables are leaked in tests. (local/code-ensure-no-disposables-leak-in-test)
+
+1 problem
+ESLint: checked 14 files in 5572ms.
+
+Error: eslint failed with 1 warnings and/or errors
+    at eslint (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/build/eslint.ts:105:9)

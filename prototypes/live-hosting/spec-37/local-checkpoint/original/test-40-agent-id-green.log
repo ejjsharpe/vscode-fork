@@ -1,0 +1,13 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40/.build/crashes'
+(node:95116) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:95116) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:95116) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  ProtocolServerHandler[0m
+  [32m  ✔[0m[90m native connections cannot initialize as another document client[0m
+
+
+[92m [0m[32m 1 passing[0m[90m (14ms)[0m
+

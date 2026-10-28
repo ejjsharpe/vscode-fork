@@ -1,0 +1,380 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/.build/crashes'
+(node:3385) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:3385) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:3385) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  SessionsManagementService[0m
+  [32m  ✔[0m[90m managed worktree inventory isolates provider failures and forwards only their known repositories[0m
+  [32m  ✔[0m[90m activates an existing empty composer from part focus without replacing its sibling session[0m
+  [32m  ✔[0m[90m routes external session import to the owning provider and propagates errors[0m
+  [32m  ✔[0m[90m routes artifact removal to the owning provider and propagates errors[0m
+  [32m  ✔[0m[90m routes chat archive changes to the owning provider[0m
+  [32m  ✔[0m[90m cancelCurrentRequest loads the chat model then cancels the main chat request[0m
+  [32m  ✔[0m[90m cancelCurrentRequest disposes the loaded model when cancellation fails[0m
+  [32m  ✔[0m[90m cancelCurrentRequest rejects when the chat model cannot be loaded[0m
+  [32m  ✔[0m[90m archiving an active session stops each running chat before archiving[0m
+  [32m  ✔[0m[90m archiving an idle session stops an active peer chat before archiving[0m
+  [32m  ✔[0m[90m archiving a running session with unloaded chats cancels its main chat before archiving[0m
+  [32m  ✔[0m[90m failed cancellation does not archive a running session[0m
+  [32m  ✔[0m[90m openSession waits for a loading session before opening chat content[0m
+  [32m  ✔[0m[90m collapsing the grid preserves pending chat navigation in a loading session[0m
+  [32m  ✔[0m[90m archiving the active session keeps the custom view open[0m
+  [32m  ✔[0m[90m automatic no-fallback removal keeps the custom view open[0m
+  [32m  ✔[0m[90m automatic no-fallback removal stays inert during pending explicit navigation[0m
+  [32m  ✔[0m[90m removing the active session with a fallback keeps the custom view open[0m
+  [32m  ✔[0m[90m openNewSession with toSide places the new-session composer beside the active session[0m
+  [32m  ✔[0m[90m openNewSession with toSide places an empty composer beside the active quick-chat draft[0m
+  [32m  ✔[0m[90m openQuickChat preserves pending navigation only for an automatic fallback (false)[0m
+  [32m  ✔[0m[90m openQuickChat preserves pending navigation only for an automatic fallback (true)[0m
+  [32m  ✔[0m[90m openNewSession without toSide still replaces the active session[0m
+  [32m  ✔[0m[90m openNewSession with toSide moves the existing composer beside the active session[0m
+  [32m  ✔[0m[90m openNewSession without toSide leaves an existing composer in place[0m
+  [32m  ✔[0m[90m repeated openNewSession with toSide keeps the single empty slot and re-activates it[0m
+  [32m  ✔[0m[90m openNewSession with toSide and folderUri places the new session beside the active session[0m
+  [32m  ✔[0m[90m openNewSession requires Dev Container execution before activating the draft[0m
+  [32m  ✔[0m[90m removing the active chat keeps the custom view open[0m
+  [32m  ✔[0m[90m explicit session navigation dismisses the custom view[0m
+  [32m  ✔[0m[90m publishes navigation requests even when the empty composer is already active[0m
+  [32m  ✔[0m[90m creating a composer draft preserves navigation while an explicit opening replaces it[0m
+  [32m  ✔[0m[90m does not change active session when added session is not displayed in any widget[0m
+  [32m  ✔[0m[90m getSessionForChatResource returns the session that owns the chat[0m
+  [32m  ✔[0m[90m restoreVisibleSessions waits for session to appear via onDidChangeSessions[0m
+  [32m  ✔[0m[90m ROUNDTRIP: opened session is retained across save + restore[0m
+  [32m  ✔[0m[90m RACE: a new session created during restore does not drop the restored session[0m
+  [32m  ✔[0m[90m RACE: an explicit new-session handoff cancels startup restoration[0m
+  [36m  - openNewSession inherits the active session workspace when requested[0m
+  [32m  ✔[0m[90m openNewSession does not inherit the active session workspace by default[0m
+  [32m  ✔[0m[90m openNewSession restores a pending No workspace draft[0m
+  [32m  ✔[0m[90m canOpenSession grants a worktree trust from a trusted base repo before prompting[0m
+  [32m  ✔[0m[90m canOpenSession still prompts for a worktree when the base repo is untrusted[0m
+  [32m  ✔[0m[90m cancelled openNewSession does not replace a newer draft after workspace trust resolves[0m
+  [36m  - openNewSession recreates a draft for the active session workspace when inheriting[0m
+  [32m  ✔[0m[90m restoreVisibleSessions restores the grid order, sticky and active state[0m
+  [32m  ✔[0m[90m restoreVisibleSessions prepares only the active session[0m
+  [32m  ✔[0m[90m explicitly reopening the active session reaches its mounted chat view[0m
+  [32m  ✔[0m[90m explicitly reopening the active side chat reaches its mounted chat view[0m
+  [32m  ✔[0m[90m openSession activates before awaiting provider preparation[0m
+  [32m  ✔[0m[90m provider preparation cannot reclaim the active session after navigation[0m
+  [32m  ✔[0m[90m openSessionToSide prepares the provider when selecting the main chat[0m
+  [32m  ✔[0m[90m opening the main chat to the side of its already visible session keeps the peer active until the split opens[0m
+  [32m  ✔[0m[90m batch side-opening keeps a visible primary session in place and splits its main chat beside the peer[0m
+  [32m  ✔[0m[90m direct chat opening records the initial resolution before activation (already active: false)[0m
+  [32m  ✔[0m[90m direct chat opening records the initial resolution before activation (already active: true)[0m
+  [32m  ✔[0m[90m side chat opening records the initial resolution before activation (already active: false)[0m
+  [32m  ✔[0m[90m side chat opening records the initial resolution before activation (already active: true)[0m
+  [32m  ✔[0m[90m restoreVisibleSessions lays out the grid atomically without intermediate single-session states[0m
+  [32m  ✔[0m[90m sendNewChatRequest keeps the started session active for a foreground send[0m
+  [32m  ✔[0m[90m only appends the session log to the exact troubleshoot command[0m
+  [32m  ✔[0m[90m new session forwards the exact response observer through management[0m
+  [32m  ✔[0m[90m peer chat forwards the exact response observer through management[0m
+  [32m  ✔[0m[90m foreground new session captures worktree configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m background new session captures worktree configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m headless new session captures worktree configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m foreground new session captures folder configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m background new session captures folder configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m headless new session captures folder configuration before the draft is replaced[0m
+  [32m  ✔[0m[90m sendNewChatRequest routes a prepared draft through its replacement provider[0m
+  [32m  ✔[0m[90m sendNewChatRequest restores an untitled draft when preparation fails[0m
+  [32m  ✔[0m[90m sendNewChatRequest tracks a foreground first request until it settles[0m
+  [32m  ✔[0m[90m sendNewChatRequest keeps tracking until concurrent first requests settle[0m
+  [32m  ✔[0m[90m sendNewChatRequest does not track a request in an existing session[0m
+  [32m  ✔[0m[90m sendNewChatRequest clears first-request tracking when chat creation fails[0m
+  [32m  ✔[0m[90m sendNewChatRequest with background resolves before preparation and routes the replacement in the background[0m
+  [32m  ✔[0m[90m background preparation reports only unexpected failures: Error Container setup failed[0m
+  [32m  ✔[0m[90m background preparation reports only unexpected failures: Error Could not start the session[0m
+  [32m  ✔[0m[90m background preparation reports only unexpected failures: Canceled Canceled[0m
+  [32m  ✔[0m[90m background preparation reports only unexpected failures: WorkspaceNotTrustedError Workspace not trusted[0m
+  [32m  ✔[0m[90m sendRequest with background is fire-and-forget and does not fire onWillSendRequest[0m
+  [32m  ✔[0m[90m mirrored follow-up requests preserve submitted attachments[0m
+  [32m  ✔[0m[90m send-follow activates only visible chat tabs[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest sends without changing the active view[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest publishes the session while its first request is in flight[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest restores Automation configuration during draft creation[0m
+  [32m  ✔[0m[90m createNewSession forwards model configuration only to supporting providers[0m
+  [32m  ✔[0m[90m createNewSession rejects model configuration without provider support or a model[0m
+  [32m  ✔[0m[90m createNewSession forwards exact permission and mode choices for provider validation[0m
+  [32m  ✔[0m[90m explicit home creation is refused when its provider cannot persist chat ownership[0m
+  [32m  ✔[0m[90m createNewSession rejects permissions when the provider cannot apply them[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest rejects canonical Automation templates for providers without restoration support[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest prepares request options while configuring the provisional session[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest clears request activity when already cancelled[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest disposes the draft when request activity startup fails[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest refuses an untrusted required workspace before creating a session[0m
+  [32m  ✔[0m[90m target availability requires the requested provider and session type to be advertised[0m
+  [32m  ✔[0m[90m createNewSession rejects a pinned session type that is not advertised[0m
+  [32m  ✔[0m[90m inheritableSessionTarget drops a harness the folder no longer offers[0m
+  [32m  ✔[0m[90m an explicit source harness override does not query an unrelated session resource[0m
+  [32m  ✔[0m[90m inheritableSessionTarget uses an available provider creation workspace (true)[0m
+  [32m  ✔[0m[90m inheritableSessionTarget uses an available provider creation workspace (false)[0m
+  [32m  ✔[0m[90m a New Session gesture whose harness is hidden still creates on the fallback provider[0m
+  [32m  ✔[0m[90m createAndSendQuickChatRequest uses the quick-chat contract without navigation or repository configuration[0m
+  [32m  ✔[0m[90m background creation awaits preparation before sending (workspace)[0m
+  [32m  ✔[0m[90m background creation awaits preparation before sending (quick chat)[0m
+  [32m  ✔[0m[90m quick-chat preparation failures discard the draft before sending[0m
+  [32m  ✔[0m[90m createAndSendQuickChatRequest cancels commit detection and disposes the provisional draft[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest invokes configuration setters from createOptions[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest prefers atomic worktree configuration[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest creates the draft from a pull request[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest skips providers without worktree configuration support[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest uses an immediately resolved model identifier[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest waits for and uses the resolved model identifier[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest rejects a pending model that becomes unavailable and disposes the draft[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest rejects when the workspace stops advertising the session type[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest cancels while waiting for model resolution and disposes the draft[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest awaits asynchronous repository configuration setters[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest cancels pending repository configuration and disposes the draft[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest cancels a pending send and disposes the draft[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest rejects worktree configuration for unsupported session types[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest permits folder isolation for unsupported worktree session types[0m
+  [32m  ✔[0m[90m a pull request rejects providers without worktree configuration before creation[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest disposes stranded draft when a setter throws[0m
+  [32m  ✔[0m[90m createAndSendNewChatRequest returns undefined when service is disposed mid-send[0m
+  [32m  ✔[0m[90m discardNewSession fires onDidDiscardNewSession with the discarded draft[0m
+  [32m  ✔[0m[90m createNewSession fires replacement before publishing the new draft[0m
+  [32m  ✔[0m[90m createNewSession keeps the previous draft when replacement creation fails[0m
+  [32m  ✔[0m[90m background draft replacement preserves focus outside the session[0m
+  [32m  ✔[0m[90m background draft replacement restores composer focus[0m
+  [32m  ✔[0m[90m automation draft lifecycle and session template are isolated from the new-session draft[0m
+  [32m  ✔[0m[90m unavailable Automation authorities cannot create drafts but ordinary sessions still work[0m
+  [32m  ✔[0m[90m sendNewChatRequest clears the draft without firing onDidDiscardNewSession[0m
+  [32m  ✔[0m[90m getAllSessionTypes orders providers by their order property (lower first)[0m
+  [32m  ✔[0m[90m getAllSessionTypes surfaces local agent host types first when it has lower order[0m
+  [32m  ✔[0m[90m replacing the active session promotes the committed session to active[0m
+  [32m  ✔[0m[90m same-ID session replacement preserves external focus[0m
+  [32m  ✔[0m[90m same-ID session replacement restores composer focus[0m
+  [32m  ✔[0m[90m replacing a non-active session leaves the active session unchanged[0m
+  [32m  ✔[0m[90m opens a session and targeted chat to the side[0m
+  [32m  ✔[0m[90m opens a fork to the side with source placement without replacing its neighbors[0m
+  [32m  ✔[0m[90m opens a fork to the side with closedSource placement without replacing its neighbors[0m
+  [32m  ✔[0m[90m opens a fork to the side with default placement without replacing its neighbors[0m
+  [32m  ✔[0m[90m replacing a session only swaps the active session when it matches `from`[0m
+[0m    session grid integration[0m
+    [32m  ✔[0m[90m a child tab can be dragged outside its parent into an independent pane beside another session[0m[33m (65ms)[0m
+    [32m  ✔[0m[90m main-chat placement targets the standalone child pane, not its owner (same owner: false)[0m
+    [32m  ✔[0m[90m main-chat placement targets the standalone child pane, not its owner (same owner: true)[0m
+    [32m  ✔[0m[90m keyboard movement targets the neighboring standalone child pane (same owner: false)[0m
+    [32m  ✔[0m[90m keyboard movement targets the neighboring standalone child pane (same owner: true)[0m
+    [32m  ✔[0m[90m multiple-mode split session panes retain session controls when the shared header is hidden[0m
+    [32m  ✔[0m[90m keyboard movement can move the empty composer past a standalone child pane[0m
+    [32m  ✔[0m[90m closing a standalone child via its pane cancels a restore waiting for another session[0m
+    [32m  ✔[0m[90m closing a standalone child via its tab cancels a restore waiting for another session[0m
+    [32m  ✔[0m[90m detaching a chat without dragging creates a pane that survives closing its parent[0m
+    [32m  ✔[0m[90m child-only navigation creates a valid destination without replacing another session (new draft: false)[0m
+    [32m  ✔[0m[90m child-only navigation creates a valid destination without replacing another session (new draft: true)[0m
+    [32m  ✔[0m[90m a whole-session drag can place its main pane beside its own standalone child[0m
+    [32m  ✔[0m[90m a new-session pane can be dragged beside an independent child without replacing its composer (draft: false)[0m
+    [32m  ✔[0m[90m a new-session pane can be dragged beside an independent child without replacing its composer (draft: true)[0m
+    [32m  ✔[0m[90m an existing session can be dropped beside the empty new-session pane[0m
+    [32m  ✔[0m[90m a chat can be dropped beside the empty new-session pane (independent pane: false)[0m
+    [32m  ✔[0m[90m a chat can be dropped beside the empty new-session pane (independent pane: true)[0m
+    [32m  ✔[0m[90m parent-row drops select the main chat rather than the last active child (single, visible: false)[0m
+    [32m  ✔[0m[90m parent-row drops select the main chat rather than the last active child (single, visible: true)[0m
+    [32m  ✔[0m[90m parent-row drops select the main chat rather than the last active child (multiple, visible: false)[0m
+    [32m  ✔[0m[90m parent-row drops select the main chat rather than the last active child (multiple, visible: true)[0m
+    [32m  ✔[0m[90m closing a parent preserves its child pane and sidebar drags work while the parent is hidden (single)[0m
+    [32m  ✔[0m[90m closing a parent preserves its child pane and sidebar drags work while the parent is hidden (multiple)[0m
+    [32m  ✔[0m[90m a child-only layout restores without reopening the parent, and Close All closes its panes[0m
+    [32m  ✔[0m[90m reload selects a surviving child when the previously active child was deleted[0m
+    [32m  ✔[0m[90m sidebar directional placement targets the active child rather than its owner (parent visible: false)[0m
+    [32m  ✔[0m[90m sidebar directional placement targets the active child rather than its owner (parent visible: true)[0m
+    [32m  ✔[0m[90m New Session to the Side opens beside a child whose parent pane is closed[0m
+    [32m  ✔[0m[90m remove handles owners that have only standalone child panes without reopening their parents[0m
+    [32m  ✔[0m[90m collapse handles owners that have only standalone child panes without reopening their parents[0m
+    [32m  ✔[0m[90m a hidden-parent child drag cannot resurrect a session removed during provider preparation[0m
+    [32m  ✔[0m[90m a hidden-parent child drag is cancelled if its destination closes during provider preparation[0m
+    [32m  ✔[0m[90m independent chat panes survive reload, route navigation, and close without closing their parent[0m[33m (54ms)[0m
+    [32m  ✔[0m[90m a standalone chat reattaches through its parent drop target and retains the parent relationship[0m
+    [32m  ✔[0m[90m single mode blocks standalone chat reattachment while multiple mode still accepts it[0m
+    [32m  ✔[0m[90m dropping a standalone child onto the left of its parent's tab area reattaches it without splitting[0m
+    [32m  ✔[0m[90m dropping a standalone child onto the middle of its parent's tab area reattaches it without splitting[0m
+    [32m  ✔[0m[90m dropping a standalone child onto the right of its parent's tab area reattaches it without splitting[0m
+    [32m  ✔[0m[90m restores a standalone chat after its provider finishes loading the chat catalog[0m
+    [32m  ✔[0m[90m directional batch moves deduplicate, preserve pins, and retain created chat inputs[0m
+    [32m  ✔[0m[90m a foreground remote open mounts its chat while provider preparation is pending[0m
+    [32m  ✔[0m[90m explicitly reopening a retained inactive session reaches only its mounted group[0m
+    [32m  ✔[0m[90m explicitly reopening a pinned side chat reaches only its mounted group[0m
+    [32m  ✔[0m[90m openSession stops awaiting a retained chat retry after newer navigation[0m
+    [32m  ✔[0m[90m openChat stops awaiting a retained chat retry after newer navigation[0m
+    [32m  ✔[0m[90m navigation cancellation still waits for provider preparation[0m
+    [32m  ✔[0m[90m balanced subset changes preserve caller order and retained widgets[0m
+    [32m  ✔[0m[90m ordinary external opening replaces only its leaf without resetting nested geometry[0m
+    [32m  ✔[0m[90m newer opening cancels a pending directional batch without partially inserting it[0m
+    [32m  ✔[0m[90m closing and reopening a nested session uses its surviving neighbor[0m
+    [32m  ✔[0m[90m geometry, composer position, pins and maximization survive a phone save and reload[0m
+    [32m  ✔[0m[90m directional focus reaches the empty composer and returns to its neighbor[0m
+    [32m  ✔[0m[90m phone activation does not refocus the hidden previous session[0m
+    [32m  ✔[0m[90m directional focus restores maximized geometry before navigating[0m
+    [32m  ✔[0m[90m batch opening preserves background activation and the last-selection side-open convention[0m
+    [32m  ✔[0m[90m reopening uses ordinary replacement after the recorded neighbor leaves[0m
+    [32m  ✔[0m[90m resource redirection merges sticky and active state and transfers maximization[0m
+    [32m  ✔[0m[90m late restored leaves recover saved geometry without replacing live widgets[0m
+    [32m  ✔[0m[90m late restored leaves cannot override a user arrangement[0m
+    [32m  ✔[0m[90m invalid grid state falls back to the legacy ordered session array[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates removed during resolution[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates replaced during resolution[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates unrelated during resolution[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates removed during trust[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates replaced during trust[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates unrelated during trust[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates removed during preparation[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates replaced during preparation[0m
+    [32m  ✔[0m[90m directional opening revalidates candidates unrelated during preparation[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates removed during resolution[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates replaced during resolution[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates unrelated during resolution[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates removed during trust[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates replaced during trust[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates unrelated during trust[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates removed during preparation[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates replaced during preparation[0m
+    [32m  ✔[0m[90m balanced opening revalidates candidates unrelated during preparation[0m
+    [32m  ✔[0m[90m side opening revalidates candidates removed during resolution[0m
+    [32m  ✔[0m[90m side opening revalidates candidates replaced during resolution[0m
+    [32m  ✔[0m[90m side opening revalidates candidates unrelated during resolution[0m
+    [32m  ✔[0m[90m side opening revalidates candidates removed during trust[0m
+    [32m  ✔[0m[90m side opening revalidates candidates replaced during trust[0m
+    [32m  ✔[0m[90m side opening revalidates candidates unrelated during trust[0m
+    [32m  ✔[0m[90m side opening revalidates candidates removed during preparation[0m
+    [32m  ✔[0m[90m side opening revalidates candidates replaced during preparation[0m
+    [32m  ✔[0m[90m side opening revalidates candidates unrelated during preparation[0m
+    [32m  ✔[0m[90m a batch does not adopt a replacement candidate while preparing an earlier candidate[0m
+    [32m  ✔[0m[90m side-open activates a selected reference without moving it or losing the last selected target[0m
+    [32m  ✔[0m[90m reopening a sole closed session follows ordinary replacement without a recorded neighbor[0m
+    [32m  ✔[0m[90m saving a partial restore preserves unresolved bindings and maximization for the next restart[0m
+    [32m  ✔[0m[90m saving a partial restore honors superseding user intent[0m
+[0m    provider catalogue changes[0m
+    [32m  ✔[0m[90m routes existing environment sessions without advertising their backends (initial registration)[0m
+    [32m  ✔[0m[90m routes existing environment sessions without advertising their backends (late registration)[0m
+    [32m  ✔[0m[90m announces cached sessions when a provider registers[0m
+    [32m  ✔[0m[90m forwards changeset operation invocations while their provider is registered[0m
+    [32m  ✔[0m[90m seeds cached sessions before subscribing to reentrant provider changes[0m
+    [32m  ✔[0m[90m refreshes the catalogue without deletions when a provider clears its cache and unregisters[0m
+    [32m  ✔[0m[90m does not subscribe to a provider removed while its cached sessions are read[0m
+    [32m  ✔[0m[90m keeps session reads live and deduplicated across provider changes[0m
+    [32m  ✔[0m[90m forwards real removals and replacements without treating provider loss as deletion[0m
+    [32m  ✔[0m[90m preserves visible sessions and pending drafts when their provider unregisters[0m
+    [32m  ✔[0m[90m ignores events from an unregistered provider after its ID is reused[0m
+[0m    read state[0m
+    [32m  ✔[0m[90m opening a session leaves its parent state unchanged when the main chat is already read[0m
+    [32m  ✔[0m[90m preserves an explicit unread active single chat until the chat advances[0m
+    [32m  ✔[0m[90m marks the active main chat as read once without changing the parent or peer[0m
+    [32m  ✔[0m[90m batches multiple chat read changes when the provider supports it[0m
+    [32m  ✔[0m[90m marks only the targeted nested chat read and unread through its provider[0m
+    [32m  ✔[0m[90m falls back to individual chat read changes when batching is unsupported[0m
+    [32m  ✔[0m[90m retries marking the active chat read after provider loading completes[0m
+    [32m  ✔[0m[90m uses the main chat read operation when only a tool peer accompanies it[0m
+    [32m  ✔[0m[90m preserves explicit unread on an already-read active nested chat until a new turn[0m
+    [32m  ✔[0m[90m marks the active peer chat as read once through its provider[0m
+    [32m  ✔[0m[90m leaves a non-active session in its provider read state[0m
+    [32m  ✔[0m[90m explicit session row read actions update the main chat only[0m
+    [32m  ✔[0m[90m a conversation hidden behind a custom view stays unread until revealed[0m
+[0m    session navigation[0m
+    [32m  ✔[0m[90m visits custom views and the composer without recording the covered session again[0m
+    [32m  ✔[0m[90m explicitly reopening the visible custom view after Back promotes its only entry[0m
+    [32m  ✔[0m[90m reopening the visible custom view cancels a pending Back[0m
+    [32m  ✔[0m[90m reopening the session covered by a custom view records a single visit[0m
+    [32m  ✔[0m[90m custom-view navigation supersedes an in-flight history navigation[0m
+    [32m  ✔[0m[90m explicitly reopening the visible composer after Back promotes its only entry[0m
+    [32m  ✔[0m[90m reopening the visible composer cancels a pending Back[0m
+    [32m  ✔[0m[90m reopening the composer covered by a custom view records a single visit[0m
+    [32m  ✔[0m[90m new-session navigation supersedes an in-flight history navigation[0m
+    [32m  ✔[0m[90m opening another chat from a custom view records only the requested destination (loaded)[0m
+    [32m  ✔[0m[90m opening another chat from a custom view records only the requested destination (loading)[0m
+    [32m  ✔[0m[90m opening a session to the side records only the requested chat (loaded)[0m
+    [32m  ✔[0m[90m opening a session to the side records only the requested chat (loading)[0m
+    [32m  ✔[0m[90m opening a chat to the side records only the requested chat (loaded)[0m
+    [32m  ✔[0m[90m opening a chat to the side records only the requested chat (loading)[0m
+    [32m  ✔[0m[90m batch side-opening a visible main chat does not promote its previously active peer[0m
+    [32m  ✔[0m[90m a superseded nested-chat creation does not dismiss or refocus a custom view[0m
+    [32m  ✔[0m[90m session resource redirects preserve forward history[0m
+    [32m  ✔[0m[90m opening the already-active composer cancels an unresolved session open[0m
+    [32m  ✔[0m[90m returning to new-session restores the existing draft[0m
+[0m    deleteSessions[0m
+    [32m  ✔[0m[90m groups sessions by provider and continues when one provider fails (best-effort)[0m
+[0m    chat owner replacement[0m
+    [32m  ✔[0m[90m provider-confirmed same-resource graduation maps the main owner and retains sibling identity[0m
+[0m    deleteChat[0m
+    [32m  ✔[0m[90m captures the requested owner before delayed confirmation and does not emit on provider failure[0m
+    [32m  ✔[0m[90m returns true and fires the delete event only after deletion[0m
+    [32m  ✔[0m[90m returns false and fires the delete event only after deletion[0m
+    [32m  ✔[0m[90m deletes without confirmation only an untitled chat without requests[0m
+[0m    createNewChatInSession[0m
+    [32m  ✔[0m[90m an explicit home reaches creation instead of reusing an unrelated draft[0m
+    [32m  ✔[0m[90m reuses an existing untitled chat instead of creating a new one[0m
+    [32m  ✔[0m[90m without a harness, reuses only a draft of the main harness and creates a chat of the main harness[0m
+    [32m  ✔[0m[90m reuses an untitled chat only when it uses the requested harness[0m
+    [32m  ✔[0m[90m asks the provider to create a chat when none are untitled[0m
+    [32m  ✔[0m[90m forceNew creates a fresh chat even when an untitled one exists[0m
+    [32m  ✔[0m[90m returns undefined when the provider is not found[0m
+[0m    applyNestedChatWorkspace[0m
+    [32m  ✔[0m[90m delegates to the provider and propagates its refusal[0m
+    [32m  ✔[0m[90m is not supported when the provider is not found[0m
+[0m    forkChatInSession[0m
+    [32m  ✔[0m[90m asks the provider to fork the chat with options when the session supports multiple chats[0m
+    [32m  ✔[0m[90m throws when the provider is not found[0m
+    [32m  ✔[0m[90m throws when the session does not support multiple chats[0m
+[0m    createSideChatInSession[0m
+    [32m  ✔[0m[90m asks the provider to create the side chat when the session supports it[0m
+    [32m  ✔[0m[90m throws when the provider is not found[0m
+    [32m  ✔[0m[90m throws when the session does not support side chats[0m
+[0m    chat persistence[0m
+    [32m  ✔[0m[90m the active side chat is restored after switching sessions[0m
+    [32m  ✔[0m[90m the active subagent chat is restored after switching sessions[0m
+    [32m  ✔[0m[90m a session-list open selects the main chat instead of the previously active chat[0m
+    [32m  ✔[0m[90m a chat closed in one session stays closed after switching away and back[0m
+    [32m  ✔[0m[90m closing the middle of three chats persists across a switch[0m
+    [32m  ✔[0m[90m closing the active chat persists across a switch[0m
+    [32m  ✔[0m[90m reopening a closed chat is also persisted across a switch[0m
+    [32m  ✔[0m[90m a closed side chat stays closed after switching away and back[0m
+    [32m  ✔[0m[90m a closed chat stays closed across a restart[0m
+    [32m  ✔[0m[90m a chat closed in a non-active session stays closed across a restart[0m
+    [32m  ✔[0m[90m restores an active subagent tab when it appears after the session[0m
+    [32m  ✔[0m[90m restores an inactive subagent without changing ordinary side chat behavior[0m
+    [32m  ✔[0m[90m restores the active chat when it appears after the session[0m
+[0m    chat moves[0m
+    [32m  ✔[0m[90m an untitled chat that has not sent a message cannot be moved even when its provider allows it[0m
+    [32m  ✔[0m[90m routes chat and session moves to the owning provider with the provider's session ids and chat resources[0m
+    [32m  ✔[0m[90m the slot showing a chat that moved shows its new session with the chat active, also after falling back[0m
+    [32m  ✔[0m[90m following a chat that moved announces nothing: the move itself is announced once, by whoever made it[0m
+    [32m  ✔[0m[90m a session that ended by moving its shown chat under another session leaves its slot to that session, though its removal came first[0m
+    [32m  ✔[0m[90m a session that ended by moving its shown chat under another session gives that session the slot its fallback took, not another slot[0m
+    [32m  ✔[0m[90m a session that ended by moving its shown chat under another session doesn't take over a new-session composer opened in another slot[0m
+    [32m  ✔[0m[90m a chat chosen after the view fell back from a chat stays shown when that chat's move is known later[0m
+    [32m  ✔[0m[90m a chat that moved while another chat was shown changes nothing[0m
+[0m    reopenLastClosedItem[0m
+    [32m  ✔[0m[90m reopens a closed chat, consuming the entry[0m
+    [32m  ✔[0m[90m an explicitly closed session returns to its grid index[0m
+    [32m  ✔[0m[90m a session pushed out of the grid takes its slot back[0m
+    [32m  ✔[0m[90m remembers only the most recently closed item[0m
+    [32m  ✔[0m[90m a batch close is not offered for reopening[0m
+    [32m  ✔[0m[90m a stale entry is dropped when its session vanished without a delete event[0m
+[0m    createQuickChat[0m
+    [32m  ✔[0m[90m creates a session via the first capable provider (by order) and defaults the type[0m
+    [32m  ✔[0m[90m mints a new quick-chat session on each call[0m
+    [32m  ✔[0m[90m throws when no provider supports quick chats[0m
+    [32m  ✔[0m[90m honours options.providerId and the requested session type[0m
+    [32m  ✔[0m[90m honours an explicit sessionTypeId without a providerId[0m
+    [32m  ✔[0m[90m defaults to the last-used session type on the next call[0m
+    [32m  ✔[0m[90m throws when the requested provider does not advertise the session type[0m
+    [32m  ✔[0m[90m throws when the requested provider does not support quick chats[0m
+    [32m  ✔[0m[90m getQuickChatSessionTypes returns every advertised type from quick-chat-capable providers only[0m
+[0m    legacy Copilot CLI migration[0m
+    [32m  ✔[0m[90m getSessions hides the legacy entry once its migrated agent-host entry exists[0m
+    [32m  ✔[0m[90m getSessions keeps the legacy entry visible when no migrated entry exists[0m
+    [32m  ✔[0m[90m getSession still resolves the hidden legacy entry so it can be migrated on open[0m
+[0m      resolveSessionResource[0m
+      [32m  ✔[0m[90m redirects a legacy resource to the twin a provider claims[0m
+      [32m  ✔[0m[90m keeps the original resource when no provider claims it[0m
+      [32m  ✔[0m[90m keeps the original resource when a provider throws[0m
+      [32m  ✔[0m[90m does not consult providers for a resource they decline[0m
+      [32m  ✔[0m[90m a provider that declines does not stop a later provider from claiming[0m
+
+
+[92m [0m[32m 346 passing[0m[90m (2s)[0m
+[36m [0m[36m 2 pending[0m
+

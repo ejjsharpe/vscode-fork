@@ -1,0 +1,58 @@
+{
+  "source": "464e22d3ab15fe47bc0446bb8d29470f570eefa7",
+  "beforeAgents": {
+    "time": 1793225553.026051,
+    "single": {
+      "count": 296,
+      "last": {
+        "kind": "tick",
+        "pid": 34072,
+        "time": 1793225552563,
+        "folders": [
+          "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/single"
+        ]
+      }
+    },
+    "multi-a": {
+      "count": 294,
+      "last": {
+        "kind": "tick",
+        "pid": 34077,
+        "time": 1793225552243,
+        "workspace": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/multi.code-workspace",
+        "folders": [
+          "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/multi-a",
+          "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/multi-b"
+        ]
+      }
+    }
+  },
+  "afterAgents": {
+    "time": 1793225576.431446,
+    "single": {
+      "count": 319,
+      "last": {
+        "kind": "tick",
+        "pid": 34072,
+        "time": 1793225575615,
+        "folders": [
+          "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/single"
+        ]
+      }
+    },
+    "multi-a": {
+      "count": 318,
+      "last": {
+        "kind": "tick",
+        "pid": 34077,
+        "time": 1793225576337,
+        "workspace": "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/multi.code-workspace",
+        "folders": [
+          "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/multi-a",
+          "file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native40/multi-b"
+        ]
+      }
+    }
+  },
+  "observation": "CUA selected permanent Agents; both project HTML views absent from full native AX; both actual extension-host fixture tick files advanced. Commands in single executed once."
+}

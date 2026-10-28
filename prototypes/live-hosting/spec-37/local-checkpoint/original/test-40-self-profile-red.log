@@ -1,0 +1,44 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/.build/crashes'
+(node:8545) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:8545) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:8545) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  SelfProfilingService[0m
+  [31m  1) profiles its own process and refuses a foreign handle[0m
+  [31m  2) disposal during initialization releases the inspector without publishing a handle[0m
+
+
+[92m [0m[32m 1 passing[0m[90m (3ms)[0m
+[31m  2 failing[0m
+
+[0m  1) SelfProfilingService
+       profiles its own process and refuses a foreign handle:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+[0m[90m
+  Error: Self profiling not implemented
+      at SelfProfilingService.startProfiling (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/out/vs/platform/profiling/node/selfProfilingService.js:9:11)
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/out/vs/platform/profiling/test/node/selfProfilingService.test.js:21:30)
+[0m
+[0m  2) SelfProfilingService
+       disposal during initialization releases the inspector without publishing a handle:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+[0m[90m
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /expired/. Input:
+  
+  'Error: Self profiling not implemented'
+  
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/out/vs/platform/profiling/test/node/selfProfilingService.test.js:42:5)
+[0m
+
+

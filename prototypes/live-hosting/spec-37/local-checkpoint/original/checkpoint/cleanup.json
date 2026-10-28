@@ -1,0 +1,45 @@
+{
+  "integration": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration",
+  "head": "d71ae1f23b018cfc7f99616d24f187dc96375ea6",
+  "clean": true,
+  "pushed": true,
+  "sourceMatchesChecked403375": true,
+  "children": [
+    {
+      "removedWorktree": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40",
+      "retainedBranch": "implement/spec-37-ticket-40",
+      "commit": "46648985942be15e1da2d581b4b373cdcabe8b69"
+    },
+    {
+      "removedWorktree": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared",
+      "retainedBranch": "implement/spec-37-ticket-40-shared",
+      "commit": "8ca2feb61386bb43993249c8d9dc02b5cc534e0c"
+    },
+    {
+      "removedWorktree": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-connectors",
+      "retainedBranch": "implement/spec-37-ticket-40-connectors",
+      "commit": "67ecd167c6dd48d6f2074bed32e438aa99c44eff"
+    },
+    {
+      "removedWorktree": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41",
+      "retainedBranch": "implement/spec-37-ticket-41",
+      "commit": "8f3666d77701acd32db220b8aba463219f1f06a0"
+    },
+    {
+      "removedWorktree": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50",
+      "retainedBranch": "implement/spec-37-ticket-50",
+      "commit": "8c87c898a594b0aa896fd3e5a39980ebf22f63f7"
+    },
+    {
+      "removedWorktree": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-51",
+      "retainedBranch": "implement/spec-37-ticket-51",
+      "commit": "546c7fe98a5f5047aa084599687d044336507356"
+    },
+    {
+      "removedWorktree": "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-42",
+      "retainedBranch": "implement/spec-37-ticket-42",
+      "commit": "67ecd167c6dd48d6f2074bed32e438aa99c44eff"
+    }
+  ],
+  "unfinishedSourceChanges": []
+}

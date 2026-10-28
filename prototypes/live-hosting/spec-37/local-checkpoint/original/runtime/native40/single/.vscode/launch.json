@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Ownership heartbeat debug",
+      "program": "${workspaceFolder}/heartbeat.cjs",
+      "args": [
+        "debug-progress.log"
+      ],
+      "console": "internalConsole",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    }
+  ]
+}

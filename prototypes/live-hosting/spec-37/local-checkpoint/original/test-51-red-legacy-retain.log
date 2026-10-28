@@ -1,0 +1,49 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-51/.build/crashes'
+(node:21652) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:21652) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:21652) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  LocalAgentHostSessionsProvider[0m
+  [31m  1) legacy intentional No Workspace applies only to its main chat despite a scratch folder[0m
+
+
+[92m [0m[32m 0 passing[0m[90m (25ms)[0m
+[31m  1 failing[0m
+
+[0m  1) LocalAgentHostSessionsProvider
+       legacy intentional No Workspace applies only to its main chat despite a scratch folder:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+       {
+         "after": [
+      [32m+    [null][0m
+           "[undefined]"
+      [31m-    "[undefined]"[0m
+         ]
+         "before": [
+           [null]
+           "[undefined]"
+      [0m[90m
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      after: [
+  -     null,
+        undefined,
+  +     undefined
+      ],
+      before: [
+        null,
+        undefined
+      ]
+  
+      at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-51/out/vs/sessions/contrib/providers/agentHost/test/browser/localAgentHostSessionsProvider.test.js:2940:12
+      at async runWithFakedTimers (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-51/out/vs/base/test/common/virtualScheduling/runWithFakedTimers.js:38:14)
+[0m
+
+

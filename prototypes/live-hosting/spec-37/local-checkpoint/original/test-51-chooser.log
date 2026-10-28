@@ -1,0 +1,17 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-51/.build/crashes'
+(node:18703) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:18703) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:18703) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  SessionsManagementService[0m
+  [32m  ✔[0m[90m chat home choice waits for metadata and preserves resolved No Workspace[0m
+  [32m  ✔[0m[90m explicit history open offers one non-blocking home choice after loading, without a startup wizard[0m
+  [32m  ✔[0m[90m Choose Project assigns the existing conversation to an exact saved remote workspace without copying or sending[0m
+  [32m  ✔[0m[90m Choose Project assigns the existing conversation to No Workspace without copying or sending[0m
+  [32m  ✔[0m[90m unsupported assignment reports failure and keeps provider history accessible[0m
+
+
+[92m [0m[32m 5 passing[0m[90m (13ms)[0m
+

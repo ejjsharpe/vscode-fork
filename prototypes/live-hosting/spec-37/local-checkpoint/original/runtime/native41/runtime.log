@@ -1,0 +1,12 @@
+WARNING: IPC handle "/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native41/user-data/1.14-main.sock" is longer than 103 chars, try a shorter --user-data-dir
+[91m[main 2026-10-28T21:25:10.205Z][0m Error: listen EINVAL: invalid argument /Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/runtime/native41/user-data/1.14-main.sock
+    at Server.setupListenHandle [as _listen2] (node:net:2368:21)
+    at listenInCluster (node:net:2499:12)
+    at Server.listen (node:net:2641:5)
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/base/parts/ipc/node/ipc.net.js:608:12
+    at new Promise (<anonymous>)
+    at serve (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/base/parts/ipc/node/ipc.net.js:605:10)
+    at CodeMain.claimInstance (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-main/main.js:257:40)
+    at file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-main/main.js:100:53
+    at InstantiationService.invokeFunction (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/platform/instantiation/common/instantiationService.js:78:14)
+    at CodeMain.startup (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/integration/out/vs/code/electron-main/main.js:95:34)

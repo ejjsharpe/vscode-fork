@@ -1,0 +1,14 @@
+{
+  "name": "spec37-native-check",
+  "publisher": "scratch",
+  "version": "0.0.1",
+  "engines": { "vscode": "^1.100.0" },
+  "main": "./extension.cjs",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "commands": [
+      { "command": "spec37.recordWorkspace", "title": "Spec 37: Record Workspace Context" },
+      { "command": "spec37.startWork", "title": "Spec 37: Start Ownership Work" }
+    ]
+  }
+}

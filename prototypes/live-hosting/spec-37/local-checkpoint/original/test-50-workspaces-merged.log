@@ -1,0 +1,85 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-50/.build/crashes'
+(node:9598) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:9598) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:9598) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  AgentService (node dispatcher)[0m
+[0m    dispatchAction[0m
+    [32m  ✔[0m[90m new chat creation records its explicit exact home before any request[0m[31m (128ms)[0m
+    [32m  ✔[0m[90m new peer chat records only its explicitly selected home in a mixed-home session[0m[33m (56ms)[0m
+    [32m  ✔[0m[90m exact chat homes survive reassignment and host restart without changing sibling ownership[0m[33m (49ms)[0m
+[0m    createChat scratch folders[0m
+    [32m  ✔[0m[90m the scratch folders of a session are published on its summary[0m
+    [32m  ✔[0m[90m a nested chat of a workspace-less session gets its own scratch folder, recorded and attached[0m[31m (176ms)[0m
+    [32m  ✔[0m[90m after a restart a folder of a removing row stays a scratch folder, for the forks that still use it[0m[33m (59ms)[0m
+    [32m  ✔[0m[90m sessions registered before the scratch folders load get their identities republished once they land[0m
+    [32m  ✔[0m[90m after a restart a catalog-served session lists the scratch folder a moved chat brought, even when listed before the scratch load lands[0m
+    [32m  ✔[0m[90m after a restart a provider-fallback session lists its scratch folder[0m
+    [32m  ✔[0m[90m a failed scratch load lists the sessions without their scratch folders[0m
+    [32m  ✔[0m[90m a workspace-less session publishes its primary folder as scratch: catalog, fallback and live[0m
+    [32m  ✔[0m[90m a workspace session does not publish its primary folder as scratch: catalog, fallback and live[0m
+    [32m  ✔[0m[90m chats that bring their own folder or share one are skipped[0m
+    [32m  ✔[0m[90m a session that is not workspace-less is skipped[0m
+    [32m  ✔[0m[90m a provider without per-chat folders is skipped[0m
+    [32m  ✔[0m[90m a failed creation detaches and removes the folder and its row[0m
+    [32m  ✔[0m[90m a requested scratch folder is allocated in a workspace session too, recorded and pinned to the chat[0m
+    [32m  ✔[0m[90m an explicit No Workspace chat home remains null with a real scratch working directory[0m
+    [32m  ✔[0m[90m a requested scratch folder is refused instead of silently sharing the session workspace[0m[33m (58ms)[0m
+    [32m  ✔[0m[90m a requested scratch folder whose chat the provider fails to create leaves no row, folder or session folder[0m
+    [32m  ✔[0m[90m the scratch folder of a disposed eagerly created peer chat is reclaimed by the clean-up pass[0m[31m (89ms)[0m
+    [32m  ✔[0m[90m deleting a peer chat schedules the worktree cleanup pass[0m[33m (39ms)[0m
+[0m      deleted chats whose catalog row names them in their storage spelling[0m
+      [32m  ✔[0m[90m deleting a composer-created nested chat of a workspace-less session reclaims its scratch folder[0m[31m (93ms)[0m
+      [32m  ✔[0m[90m deleting a chat whose scratch folder setChatWorkspace allocated reclaims it[0m[31m (174ms)[0m
+      [32m  ✔[0m[90m at startup the scratch folder of a chat deleted while its row named it in another spelling is released, never one a live chat owns or anything lists[0m[31m (103ms)[0m
+      [32m  ✔[0m[90m a deleted chat releases the scratch folders it recorded even when their row names it in another spelling, never one another chat still lists[0m[31m (112ms)[0m
+[0m    createChat requested folder workspace[0m
+    [32m  ✔[0m[90m an explicit saved workspace chat home survives peer creation with folder workspace and working-directory inputs[0m
+[0m    setChatWorkspace[0m
+    [32m  ✔[0m[90m a scratch folder is allocated in a workspace session, recorded and pinned to the chat[0m[33m (47ms)[0m
+    [32m  ✔[0m[90m in a workspace-less session the chat's own scratch folder is kept for scratch and retired for a folder[0m[31m (99ms)[0m
+    [32m  ✔[0m[90m a chat-only workspace change detaches the chat's old scratch folder from the session and its deletion reclaims it[0m[31m (95ms)[0m
+    [32m  ✔[0m[90m a send recreates a recorded scratch folder deleted while the host runs, and no other missing folder[0m
+    [32m  ✔[0m[90m the session republishes its scratch folders and folder identities as chat workspaces are applied, created and rolled back[0m[31m (430ms)[0m
+    [32m  ✔[0m[90m rolling back a chat without folders of its own re-creates its backing as its creation did, outside other chats' scratch folders[0m[31m (182ms)[0m
+    [32m  ✔[0m[90m a rolled-back chat workspace is no longer published as a scratch folder, even when a chat in all folders keeps it attached[0m[31m (181ms)[0m
+    [32m  ✔[0m[90m a recorded scratch folder of another chat is refused as a folder workspace, and nothing is prepared or attached[0m[31m (117ms)[0m
+    [32m  ✔[0m[90m the primary scratch folder of a workspace-less session is refused as a folder workspace, and nothing is prepared or attached[0m[33m (55ms)[0m
+    [32m  ✔[0m[90m a folder inside a chat's own scratch folder is refused as a folder workspace, and nothing is prepared or attached[0m[31m (102ms)[0m
+    [32m  ✔[0m[90m a folder the session publishes as a scratch folder is refused as a folder workspace[0m[33m (45ms)[0m
+    [32m  ✔[0m[90m a scratch folder whose ownership fails to record stays applied, and the clean-up pass keeps it for the chat[0m[33m (48ms)[0m
+[0m    peer chat catalog persistence[0m
+[0m      chat moves (Block 4)[0m
+      [32m  ✔[0m[90m chat homes remain exact after moving and promoting the existing conversation[0m[31m (81ms)[0m
+[0m        workspace-less moves (Block 9)[0m
+        [32m  ✔[0m[90m a folderless chat of a workspace session never works in another chat's scratch folder: pins, sends and launches[0m[33m (66ms)[0m
+        [32m  ✔[0m[90m after a restart a scratch chat and a moved-in scratch chat of a workspace session send in their own scratch folder, a folderless chat in the session's[0m[31m (137ms)[0m
+        [32m  ✔[0m[90m a scratch chat of a workspace session with a folderless chat moves, also after a restart: the folderless chat never inherits its scratch folder[0m[31m (97ms)[0m
+        [32m  ✔[0m[90m a restored session publishes the scratch folders of its chats, also for a chat that was moved in before the restart[0m[31m (77ms)[0m
+        [32m  ✔[0m[90m a nested chat with its own scratch folder moves to a foldered session, keeping the folder and its record[0m[33m (55ms)[0m
+        [32m  ✔[0m[90m deleting a moved chat, or the chat of a session moved under another, reclaims its scratch folder (storage spelling)[0m[31m (330ms)[0m
+        [32m  ✔[0m[90m a chat sharing the session's scratch folder cannot leave it[0m[33m (51ms)[0m
+        [32m  ✔[0m[90m after a move the target publishes the moved chat's scratch folder and the source keeps only its own[0m[33m (52ms)[0m
+        [32m  ✔[0m[90m a chat whose scratch folder is missing still moves (recreated on use), while a missing provider-managed folder refuses[0m[33m (68ms)[0m
+        [32m  ✔[0m[90m a promoted chat working in a scratch folder becomes a workspace-less session; one with a folder does not[0m[33m (55ms)[0m
+[0m    worktree working directory[0m
+    [32m  ✔[0m[90m createSession uses agent-resolved working directory in state[0m
+    [32m  ✔[0m[90m a new chat home follows the provider-resolved worktree and retains its environment[0m
+    [32m  ✔[0m[90m createSession falls back to config working directory when agent does not resolve[0m
+    [32m  ✔[0m[90m restoreSession uses agent working directory in state[0m
+    [32m  ✔[0m[90m failed provisional worktree session stays unavailable after Agent Host restart[0m[33m (44ms)[0m
+    [32m  ✔[0m[90m associates the pull request with a session created from it[0m
+    [32m  ✔[0m[90m pending worktree session shows source uncommitted changes but defers branch changes until materialization[0m
+    [32m  ✔[0m[90m _resolveWorkingDirectoryBeforeSend returns the full set (index 0 + tail), or undefined when unset[0m
+    [32m  ✔[0m[90m _resolveWorkingDirectoryBeforeSend resumes an additional worktree through its own record[0m
+    [32m  ✔[0m[90m _persistMigratedGitHubData writes the folder map through the store and never deletes the legacy row[0m
+    [32m  ✔[0m[90m worktree creation failure stays visible and rejects further use without sending to the provider[0m
+    [32m  ✔[0m[90m createDetachedWorktree outlives the source draft and is deleted by handle[0m
+    [32m  ✔[0m[90m createDetachedWorktree can retry after worktree creation fails[0m
+    [32m  ✔[0m[90m first-send worktree failure rejects when no repository root is resolved[0m
+
+
+[92m [0m[32m 64 passing[0m[90m (4s)[0m
+

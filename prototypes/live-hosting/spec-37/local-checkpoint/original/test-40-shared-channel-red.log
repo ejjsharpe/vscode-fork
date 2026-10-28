@@ -1,0 +1,32 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/.build/crashes'
+(node:12631) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:12631) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:12631) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  SharedProcessChannel[0m
+  [31m  1) allows named application capabilities but refuses auxiliary and inherited methods[0m
+  [31m  2) does not deliver a delayed result or buffered event after revocation[0m
+
+
+[92m [0m[32m 1 passing[0m[90m (3ms)[0m
+[31m  2 failing[0m
+
+[0m  1) SharedProcessChannel
+       allows named application capabilities but refuses auxiliary and inherited methods:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/out/vs/platform/sharedProcess/test/common/sharedProcessChannel.test.js:17:5)
+[0m
+[0m  2) SharedProcessChannel
+       does not deliver a delayed result or buffered event after revocation:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-40-shared/out/vs/platform/sharedProcess/test/common/sharedProcessChannel.test.js:38:5)
+[0m
+
+

@@ -1,0 +1,223 @@
+{
+  "branch": "integration/spec-37-complete",
+  "base": "67319907a061b59d905c79cd83a6c40a62e7c32a",
+  "reviewBase": "ec9a1750b4d",
+  "tickets": [
+    {
+      "number": 38,
+      "title": "Launch the standalone shared shell",
+      "blockedBy": [],
+      "status": "closed with bounded current-source evidence",
+      "commit": "934cea8e878"
+    },
+    {
+      "number": 39,
+      "title": "Open and switch independent project tabs",
+      "blockedBy": [
+        38
+      ],
+      "status": "open partial source integrated; remaining criteria documented",
+      "commit": "cf36c4a7d2b"
+    },
+    {
+      "number": 40,
+      "title": "Keep project tools live and correctly owned",
+      "blockedBy": [
+        39
+      ],
+      "status": "open partial source integrated; remaining criteria documented",
+      "partialCommit": "464e22d3ab15fe47bc0446bb8d29470f570eefa7"
+    },
+    {
+      "number": 41,
+      "title": "Route native commands, dialogs and auxiliary windows",
+      "blockedBy": [
+        39
+      ],
+      "status": "open partial source integrated; remaining criteria documented",
+      "commit": "52f6f8033eeb"
+    },
+    {
+      "number": 42,
+      "title": "Close and reload a project safely",
+      "blockedBy": [
+        41,
+        40
+      ],
+      "status": "open read-only plan preserved; implementation not started"
+    },
+    {
+      "number": 43,
+      "title": "Coordinate whole-window Close and app quit",
+      "blockedBy": [
+        42
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 44,
+      "title": "Recover a failed project independently",
+      "blockedBy": [
+        42
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 45,
+      "title": "Resolve overlapping Close, recovery and shutdown requests",
+      "blockedBy": [
+        43,
+        44
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 46,
+      "title": "Route ordinary opening requests into project tabs",
+      "blockedBy": [
+        42
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 47,
+      "title": "Make CLI --wait follow the relevant editing work",
+      "blockedBy": [
+        46
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 48,
+      "title": "Preserve profile scope and honour explicit profile changes",
+      "blockedBy": [
+        46
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 49,
+      "title": "Restore this app's projects and recoverable state",
+      "blockedBy": [
+        43,
+        46
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 50,
+      "title": "Create and deliberately reassign per-chat homes",
+      "blockedBy": [
+        39
+      ],
+      "status": "open partial source integrated; remaining criteria documented",
+      "commit": "8277cf17bf3"
+    },
+    {
+      "number": 51,
+      "title": "Discover provider history without guessing ownership",
+      "blockedBy": [
+        50
+      ],
+      "status": "open partial source integrated; remaining criteria documented",
+      "commit": "546c7fe98a5"
+    },
+    {
+      "number": 52,
+      "title": "Open exact conversations through Project Chats",
+      "blockedBy": [
+        50,
+        46
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 53,
+      "title": "Preserve conversation state across both presentations",
+      "blockedBy": [
+        52
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 54,
+      "title": "Continue agent work after actual project closure",
+      "blockedBy": [
+        53,
+        40,
+        42
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 55,
+      "title": "Handle conversation and draft links safely",
+      "blockedBy": [
+        46,
+        53
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 56,
+      "title": "Recover unavailable exact homes explicitly",
+      "blockedBy": [
+        44,
+        52
+      ],
+      "status": "open; not started"
+    },
+    {
+      "number": 57,
+      "title": "Show quiet background attention",
+      "blockedBy": [
+        52,
+        41
+      ],
+      "status": "open; not started"
+    }
+  ],
+  "constraints": [
+    "Provider work/sign-in deferred",
+    "Authorization probes paused",
+    "No production merge",
+    "Runtime acceptance remains #35"
+  ],
+  "pr": "https://github.com/ejjsharpe/escode/pull/60",
+  "integrationTip": "d71ae1f23b018cfc7f99616d24f187dc96375ea6",
+  "runtimeNotes": [
+    "runtime/startup/startup-results.json: first/repeat passed at cf36c4a7d2b",
+    "runtime/tabs-before-harness-fix/native-observations.md: native dirty editors and hidden AX failure",
+    "prototypes/live-hosting/spec-37/README.md committed current evidence; no full runtime acceptance"
+  ],
+  "agents": {},
+  "workflow": "STOPPED by user; continue remaining work one ticket at a time in fresh /implement chats; no automatic orchestration",
+  "sourceCommit": "403375db5f1794d95849d795ceecbf8553d2dfdb",
+  "closedTickets": [
+    38
+  ],
+  "openTickets": [
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57
+  ],
+  "nextUnblocked": 39,
+  "checkpointUrl": "https://github.com/ejjsharpe/escode/blob/d71ae1f23b018cfc7f99616d24f187dc96375ea6/prototypes/live-hosting/spec-37/checkpoint-2026-10-28/README.md",
+  "uncommittedSourceChanges": []
+}

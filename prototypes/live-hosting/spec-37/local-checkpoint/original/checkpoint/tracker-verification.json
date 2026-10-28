@@ -1,0 +1,38 @@
+{
+  "closed": [
+    38
+  ],
+  "openSpec": 37,
+  "openTickets": [
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57
+  ],
+  "nativeDependenciesUnchanged": true,
+  "nextUnblocked": [
+    {
+      "number": 39,
+      "title": "Open and switch independent project tabs",
+      "url": "https://github.com/ejjsharpe/escode/issues/39"
+    }
+  ],
+  "prDraft": true,
+  "prClosingIssueReferences": [],
+  "head": "d71ae1f23b018cfc7f99616d24f187dc96375ea6"
+}

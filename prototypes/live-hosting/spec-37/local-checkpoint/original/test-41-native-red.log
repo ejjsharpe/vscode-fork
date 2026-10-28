@@ -1,0 +1,88 @@
+Found --crash-reporter-directory argument. Setting crashDumps directory to be '/Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/.build/crashes'
+(node:97246) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `escode Helper (Renderer) --trace-deprecation ...` to show where the warning was created)
+(node:97246) [DEP0025] DeprecationWarning: sys is deprecated. Use util instead.
+(node:97246) ExperimentalWarning: WASI is an experimental feature and might change at any time
+
+[0m[0m
+[0m  Tests are using suiteSetup and setup correctly[0m
+  [32m  ✔[0m[90m assertCleanState - check that registries are clean at the start of test running[0m
+
+[0m  Hosted native command ownership[0m
+[97240:1028/211831.578123:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":0,"reason":"bootstrap"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.578266:INFO:CONSOLE:237] "[lifetime-probe] bootstrap {"workbench":10,"generation":1,"webContents":1}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.578343:INFO:CONSOLE:237] "[lifetime-probe] connection window:10:document:1:connection:1", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.578370:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":0,"reason":"bootstrap"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.578385:INFO:CONSOLE:237] "[lifetime-probe] bootstrap {"workbench":10,"generation":2,"webContents":2}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.578400:INFO:CONSOLE:237] "[lifetime-probe] connection window:10:document:2:connection:2", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+  [31m  1) permits own auxiliary controls and rejects foreign nested targets before effects[0m
+[97240:1028/211831.580303:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":1,"reason":"destroyed"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.580346:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":2,"reason":"destroyed"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+  [31m  2) permits own auxiliary controls and rejects foreign nested targets before effects[0m
+[97240:1028/211831.580568:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":0,"reason":"bootstrap"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.580584:INFO:CONSOLE:237] "[lifetime-probe] bootstrap {"workbench":10,"generation":3,"webContents":3}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.580599:INFO:CONSOLE:237] "[lifetime-probe] connection window:10:document:3:connection:3", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.580613:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":0,"reason":"bootstrap"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.580627:INFO:CONSOLE:237] "[lifetime-probe] bootstrap {"workbench":10,"generation":4,"webContents":4}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.580659:INFO:CONSOLE:237] "[lifetime-probe] connection window:10:document:4:connection:4", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+  [31m  3) an auxiliary document cannot impersonate its parent[0m
+[97240:1028/211831.580979:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":3,"reason":"destroyed"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.581006:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":4,"reason":"destroyed"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+  [31m  4) an auxiliary document cannot impersonate its parent[0m
+[97240:1028/211831.581303:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":0,"reason":"bootstrap"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.581326:INFO:CONSOLE:237] "[lifetime-probe] bootstrap {"workbench":10,"generation":5,"webContents":5}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.581341:INFO:CONSOLE:237] "[lifetime-probe] connection window:10:document:5:connection:5", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.581357:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":0,"reason":"bootstrap"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.581371:INFO:CONSOLE:237] "[lifetime-probe] bootstrap {"workbench":10,"generation":6,"webContents":6}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.581384:INFO:CONSOLE:237] "[lifetime-probe] connection window:10:document:6:connection:6", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+  [32m  ✔[0m[90m expired connections cannot dispatch to their surviving workbench[0m
+[97240:1028/211831.581609:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":5,"reason":"destroyed"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+[97240:1028/211831.581626:INFO:CONSOLE:237] "[lifetime-probe] revoke {"workbench":10,"generation":6,"reason":"destroyed"}", source: file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/test/unit/electron/renderer.js (237)
+  [31m  5) expired connections cannot dispatch to their surviving workbench[0m
+
+
+[92m [0m[32m 2 passing[0m[90m (5ms)[0m
+[31m  5 failing[0m
+
+[0m  1) Hosted native command ownership
+       permits own auxiliary controls and rejects foreign nested targets before effects:
+
+      [31m[0m
+      [32m+ expected[0m [31m- actual[0m
+
+[0m[90m
+  Error: Rejected foreign/unknown target targetWindowId
+      at checkTargets (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/out/vs/platform/windows/electron-main/prototypeNativeChannel.js:25:19)
+      at checkTargets (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/out/vs/platform/windows/electron-main/prototypeNativeChannel.js:27:9)
+      at Object.call (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/out/vs/platform/windows/electron-main/prototypeNativeChannel.js:40:13)
+      at Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/out/vs/platform/windows/test/electron-main/prototypeNativeChannel.test.js:53:42)
+[0m
+[0m  2) Hosted native command ownership
+       permits own auxiliary controls and rejects foreign nested targets before effects:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Error: Unexpected console output in test run. Please ensure no console.[log|error|info|warn] usage in tests or runtime errors.
+      at new AssertionError (node:internal/assert/assertion_error:380:5)
+      at Context.<anonymous> (renderer.js:328:32)
+[0m
+[0m  3) Hosted native command ownership
+       an auxiliary document cannot impersonate its parent:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async Context.<anonymous> (file:///Users/elliotsharpe/Documents/Codex/2026-10-28/new-chat-10/work/ticket-41/out/vs/platform/windows/test/electron-main/prototypeNativeChannel.test.js:59:9)
+[0m
+[0m  4) Hosted native command ownership
+       an auxiliary document cannot impersonate its parent:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Error: Unexpected console output in test run. Please ensure no console.[log|error|info|warn] usage in tests or runtime errors.
+      at new AssertionError (node:internal/assert/assertion_error:380:5)
+      at Context.<anonymous> (renderer.js:328:32)
+[0m
+[0m  5) Hosted native command ownership
+       expired connections cannot dispatch to their surviving workbench:
+[0m[31m     [0m[90m
+  AssertionError [ERR_ASSERTION]: Error: Unexpected console output in test run. Please ensure no console.[log|error|info|warn] usage in tests or runtime errors.
+      at new AssertionError (node:internal/assert/assertion_error:380:5)
+      at Context.<anonymous> (renderer.js:328:32)
+[0m
+
+
