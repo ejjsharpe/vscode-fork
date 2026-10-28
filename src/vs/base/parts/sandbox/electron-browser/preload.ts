@@ -124,7 +124,7 @@
 
 			send(channel: string, ...args: unknown[]): void {
 				if (validateIPC(channel)) {
-					if (channel === 'vscode:reloadWindow' || channel === 'vscode:contextmenu' || channel.startsWith('vscode:getDiagnosticInfoResponse')) {
+					if (channel === 'vscode:toggleDevTools' || channel === 'vscode:openDevTools' || channel === 'vscode:reloadWindow' || channel === 'vscode:contextmenu' || channel.startsWith('vscode:getDiagnosticInfoResponse')) {
 						// Never replay document-bound UI requests or replies after authorization.
 						ipcRenderer.send(channel, ...args, documentNonce);
 						return;
@@ -139,7 +139,7 @@
 			invoke(channel: string, ...args: unknown[]): Promise<unknown> {
 				validateIPC(channel);
 
-				if (channel === 'vscode:fetchShellEnv') {
+				if (channel === 'vscode:fetchShellEnv' || channel === 'vscode:notifyZoomLevel') {
 					return ipcRenderer.invoke(channel, ...args, documentNonce);
 				}
 				return ipcRenderer.invoke(channel, ...args);

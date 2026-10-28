@@ -681,8 +681,22 @@ export class CodeApplication extends Disposable {
 			return shellEnv;
 		});
 
-		validatedIpcMain.on('vscode:toggleDevTools', event => event.sender.toggleDevTools());
-		validatedIpcMain.on('vscode:openDevTools', event => event.sender.openDevTools());
+		for (const channel of ['vscode:toggleDevTools', 'vscode:openDevTools']) {
+			validatedIpcMain.on(channel, (event, ...credentials: unknown[]) => {
+				const window = this.windowsMainService?.getWindowByWebContents(event.sender);
+				const generation = prototypeDocumentGeneration(event.sender);
+				if (!window || generation === undefined || credentials.length !== 1 || !prototypeDocumentOwnsReply(window.webContents, generation, event, credentials[0])) {
+					this.logService.warn('Rejected stale or unauthorized developer tools request');
+					return;
+				}
+
+				if (channel === 'vscode:toggleDevTools') {
+					window.webContents.toggleDevTools();
+				} else {
+					window.webContents.openDevTools();
+				}
+			});
+		}
 
 		validatedIpcMain.on('vscode:reloadWindow', (event, ...args: unknown[]) => {
 			const window = this.windowsMainService?.getWindowByWebContents(event.sender);
@@ -696,11 +710,17 @@ export class CodeApplication extends Disposable {
 			void this.lifecycleMainService.reload(window).catch(error => this.logService.error(error));
 		});
 
-		validatedIpcMain.handle('vscode:notifyZoomLevel', async (event, zoomLevel: number | undefined) => {
+		validatedIpcMain.handle('vscode:notifyZoomLevel', async (event, zoomLevel: unknown, ...credentials: unknown[]) => {
 			const window = this.windowsMainService?.getWindowByWebContents(event.sender);
-			if (window) {
-				window.notifyZoomLevel(zoomLevel);
+			const generation = prototypeDocumentGeneration(event.sender);
+			if (!window || generation === undefined || credentials.length !== 1 || !prototypeDocumentOwnsReply(window.webContents, generation, event, credentials[0])) {
+				throw new Error('Rejected stale or unauthorized zoom notification');
 			}
+			if (zoomLevel !== undefined && (typeof zoomLevel !== 'number' || !Number.isFinite(zoomLevel))) {
+				throw new Error('Invalid zoom level');
+			}
+
+			window.notifyZoomLevel(zoomLevel);
 		});
 
 		//#endregion
