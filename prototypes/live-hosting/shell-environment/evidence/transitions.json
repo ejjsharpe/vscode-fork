@@ -1,0 +1,9 @@
+{
+  "realReplacement": true,
+  "injectedResolverDelay": true,
+  "oldHandlerOutcome": "Shell environment request interrupted",
+  "injectedExpiredCredentialRejected": true,
+  "freshPreloadEnvironmentResolved": true,
+  "freshExplicitRequestSucceeded": true,
+  "neighbourUnchanged": true
+}

@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "case": "own current request, injected native click and dismissal delivered once; post-dismissal callbacks inert",
+      "received": [
+        {
+          "kind": "click",
+          "args": [
+            0,
+            {
+              "shiftKey": true
+            }
+          ]
+        },
+        {
+          "kind": "click",
+          "args": [
+            -1
+          ]
+        },
+        {
+          "kind": "close",
+          "id": 92000
+        }
+      ]
+    },
+    {
+      "case": "arbitrary callback and extra arguments rejected on real wire; missing credential and non-main frame rejected by injected main events"
+    },
+    {
+      "case": "real replacement closes old menu; old click/dismissal and injected expired request cannot affect new document; neighbour unchanged"
+    },
+    {
+      "case": "fresh authorized request succeeds after replacement"
+    }
+  ],
+  "heldNativePopups": true,
+  "realRendererIPC": true,
+  "closedOnRevocation": 1
+}

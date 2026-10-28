@@ -1,0 +1,10 @@
+{
+  "failures": [
+    {"case":"initial workbench capture","observed":"No workbench: selector used workbench.html","repair":"Use observed workbench-dev.html URL","rerun":"Captured and visually inspected each launch"},
+    {"case":"initial independent output copy","observed":"Cannot find extensions/copilot/dist/extension in candidate log","repair":"Copy missing dist output independently; fresh relaunch","rerun":"All published candidate probes rerun; missing-module log absent; other runtime warnings remain"},
+    {"case":"first destruction probe","observed":"Immediate isDestroyed() assertion failed after WebContents.close","repair":"Wait for observed destruction with bounded deadline","rerun":"Remaining scratch project destroyed; delayed handler rejects as interrupted"}
+  ],
+  "remainingWarnings":["extension inspector address already in use","provider policy-context-unavailable"],
+  "fullGatePassed":false,
+  "creatorVerdictObtained":false
+}

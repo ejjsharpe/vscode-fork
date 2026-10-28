@@ -1,0 +1,22 @@
+{
+  "oldContext": "window:100002:document:9:connection:9",
+  "generation": 9,
+  "newGeneration": 10,
+  "unload": "interrupted",
+  "samePromise": true,
+  "outcomes": [
+    {
+      "status": "rejected",
+      "error": "Error: Close interrupted"
+    },
+    {
+      "status": "rejected",
+      "error": "Error: Close interrupted"
+    }
+  ],
+  "hostAlive": true,
+  "count": 3,
+  "laterReady": true,
+  "pending": false,
+  "shell": "Agents (100000)\nProject 1 (100001)\nProject 2 (100002) Close interrupted Close"
+}

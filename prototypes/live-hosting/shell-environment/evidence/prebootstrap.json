@@ -1,0 +1,19 @@
+{
+  "realWire": true,
+  "requests": [
+    {
+      "credentialType": "undefined",
+      "argsLength": 1,
+      "rejected": true
+    },
+    {
+      "credentialType": "string",
+      "argsLength": 1,
+      "resolved": true
+    }
+  ],
+  "earlyExplicitRequestRejected": true,
+  "preloadWaitsForAuthorization": true,
+  "noReplayOfExplicitRequest": true,
+  "genuineResolver": true
+}

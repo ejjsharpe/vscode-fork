@@ -1,0 +1,9 @@
+{
+  "realDestruction": true,
+  "injectedResolverDelay": true,
+  "outcomes": [
+    "Shell environment request interrupted"
+  ],
+  "neighbourUnchanged": true,
+  "logicalCloseAcceptance": false
+}

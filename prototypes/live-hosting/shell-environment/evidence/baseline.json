@@ -1,0 +1,7 @@
+{
+  "unregisteredAuxiliary": true,
+  "realWire": true,
+  "controlledResolver": true,
+  "receivedSentinel": true,
+  "resolverCalls": 1
+}

@@ -1,0 +1,40 @@
+{
+  "rejected": [
+    "extra renderer argument",
+    "missing credential",
+    "guessed credential",
+    "foreign credential",
+    "non-main frame",
+    "expired credential after replacement"
+  ],
+  "realWireReloadCalls": 1,
+  "before": 5,
+  "after": 6,
+  "neighbourGeneration": 2,
+  "requests": [
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onWillUnload",
+      "before": false
+    }
+  ],
+  "results": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    }
+  ]
+}
