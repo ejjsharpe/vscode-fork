@@ -13,8 +13,11 @@ import { DisposableStore } from '../../../../base/common/lifecycle.js';
 import { prototypeRequestContext, registerPrototypeDocument, revokePrototypeConnection } from '../../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { upcastPartial } from '../../../../base/test/common/mock.js';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/common/utils.js';
-import { ICodeWindow, IWindowsMainService } from '../../electron-main/windows.js';
+import { IWindowsMainService } from '../../electron-main/windows.js';
+import { ICodeWindow } from '../../../window/electron-main/window.js';
 import { prototypeWorkerChannel } from '../../electron-main/prototypeNativeChannel.js';
+
+type NodeListener = Parameters<EventEmitter['on']>[1];
 
 suite('Native worker authority', () => {
 	const store = ensureNoDisposablesAreLeakedInTestSuite();
@@ -27,8 +30,8 @@ suite('Native worker authority', () => {
 		const contents: WebContents = upcastPartial<WebContents>({
 			id: 716,
 			mainFrame: frame,
-			on: (event: string, listener: (...args: unknown[]) => void) => { events.on(event, listener); return contents; },
-			once: (event: string, listener: (...args: unknown[]) => void) => { events.once(event, listener); return contents; },
+			on: (event: string, listener: NodeListener) => { events.on(event, listener); return contents; },
+			once: (event: string, listener: NodeListener) => { events.once(event, listener); return contents; },
 			isDestroyed: () => false,
 			send: (_channel: string, value: string) => { nonce = value; }
 		});
