@@ -6,6 +6,8 @@
 import type { Tunnel } from '@microsoft/dev-tunnels-contracts';
 import type { TunnelManagementHttpClient } from '@microsoft/dev-tunnels-management';
 import type WebSocket from 'ws';
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { CancellationError } from '../../../base/common/errors.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { Disposable, toDisposable } from '../../../base/common/lifecycle.js';
 import { ILogService } from '../../log/common/log.js';
@@ -200,8 +202,9 @@ export class TunnelAgentHostMainService extends Disposable implements ITunnelAge
 		this.onDidRelayClose = this._connector.onDidRelayClose;
 	}
 
-	async listTunnels(token: string, authProvider: 'github' | 'microsoft', additionalTunnelNames?: string[]): Promise<ITunnelInfo[]> {
+	async listTunnels(token: string, authProvider: 'github' | 'microsoft', additionalTunnelNames?: string[], cancellationToken: CancellationToken = CancellationToken.None): Promise<ITunnelInfo[]> {
 		const client = await this._createManagementClient(token, authProvider, 'list');
+		if (cancellationToken.isCancellationRequested) { throw new CancellationError(); }
 		const results: ITunnelInfo[] = [];
 		const seen = new Set<string>();
 
@@ -225,6 +228,7 @@ export class TunnelAgentHostMainService extends Disposable implements ITunnelAge
 
 		if (additionalTunnelNames) {
 			for (const tunnelName of additionalTunnelNames) {
+				if (cancellationToken.isCancellationRequested) { throw new CancellationError(); }
 				try {
 					const [tunnel] = await client.listTunnels(undefined, undefined, {
 						labels: [tunnelName, TUNNEL_LAUNCHER_LABEL],
@@ -250,24 +254,26 @@ export class TunnelAgentHostMainService extends Disposable implements ITunnelAge
 		return results;
 	}
 
-	async deleteTunnel(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string): Promise<void> {
+	async deleteTunnel(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string, cancellationToken: CancellationToken = CancellationToken.None): Promise<void> {
 		const client = await this._createManagementClient(token, authProvider, 'delete');
+		if (cancellationToken.isCancellationRequested) { throw new CancellationError(); }
 		this._logService.info(`${LOG_PREFIX} Deleting tunnel ${tunnelId} in cluster ${clusterId}...`);
 		await client.deleteTunnel({ tunnelId, clusterId });
+		if (cancellationToken.isCancellationRequested) { throw new CancellationError(); }
 		this._connector.closeTunnelConnections(tunnelId, 'deleting');
 		this._logService.info(`${LOG_PREFIX} Deleted tunnel ${tunnelId}`);
 	}
 
-	connect(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string): Promise<ITunnelConnectResult> {
-		return this._connector.connect(token, authProvider, tunnelId, clusterId);
+	connect(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string, cancellationToken: CancellationToken = CancellationToken.None): Promise<ITunnelConnectResult> {
+		return this._connector.connect(token, authProvider, tunnelId, clusterId, undefined, cancellationToken);
 	}
 
-	prepareSelection(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string): Promise<ITunnelGatewaySelectionSession | undefined> {
-		return this._connector.prepareSelection(token, authProvider, tunnelId, clusterId);
+	prepareSelection(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string, cancellationToken: CancellationToken = CancellationToken.None): Promise<ITunnelGatewaySelectionSession | undefined> {
+		return this._connector.prepareSelection(token, authProvider, tunnelId, clusterId, undefined, cancellationToken);
 	}
 
-	completeSelection(selectionId: string, selection: ITunnelGatewaySelection): Promise<ITunnelConnectResult> {
-		return this._connector.completeSelection(selectionId, selection);
+	completeSelection(selectionId: string, selection: ITunnelGatewaySelection, cancellationToken: CancellationToken = CancellationToken.None): Promise<ITunnelConnectResult> {
+		return this._connector.completeSelection(selectionId, selection, cancellationToken);
 	}
 
 	cancelSelection(selectionId: string): Promise<void> {

@@ -12,6 +12,7 @@ import { TernarySearchTree } from '../../../base/common/ternarySearchTree.js';
 import { URI } from '../../../base/common/uri.js';
 import { generateUuid } from '../../../base/common/uuid.js';
 import { validatedIpcMain } from '../../../base/parts/ipc/electron-main/ipcMain.js';
+import { prototypeDocumentGeneration, prototypeDocumentOwnsReply } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { INativeEnvironmentService } from '../../environment/common/environment.js';
 import { ILogService } from '../../log/common/log.js';
 import { NodeRemoteResourceResponse } from '../../remote/common/electronRemoteResources.js';
@@ -170,7 +171,7 @@ export class ProtocolMainService extends Disposable implements IProtocolMainServ
 
 	//#region IPC Object URLs
 
-	createIPCObjectUrl<T>(): IIPCObjectUrl<T> {
+	createIPCObjectUrl<T>(owner: () => Electron.WebContents): IIPCObjectUrl<T> {
 		let obj: T | undefined = undefined;
 
 		// Create unique URI
@@ -181,7 +182,14 @@ export class ProtocolMainService extends Disposable implements IProtocolMainServ
 
 		// Install IPC handler
 		const channel = resource.toString();
-		const handler = async (): Promise<T | undefined> => obj;
+		const handler = async (event: Electron.IpcMainInvokeEvent, ...credentials: unknown[]): Promise<T | undefined> => {
+			const contents = owner();
+			const generation = prototypeDocumentGeneration(contents);
+			if (generation === undefined || credentials.length !== 1 || !prototypeDocumentOwnsReply(contents, generation, event, credentials[0])) {
+				throw new Error('Rejected unauthorized window configuration request');
+			}
+			return obj;
+		};
 		validatedIpcMain.handle(channel, handler);
 
 		this.logService.trace(`IPC Object URL: Registered new channel ${channel}.`);

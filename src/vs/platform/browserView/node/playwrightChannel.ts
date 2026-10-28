@@ -5,6 +5,7 @@
 
 import { Event } from '../../../base/common/event.js';
 import { Disposable, DisposableMap } from '../../../base/common/lifecycle.js';
+import { IMessagePortConnectionScope } from '../../../base/parts/ipc/common/ipc.mp.js';
 import { IPCServer, IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
 import { IMainProcessService } from '../../ipc/common/mainProcessService.js';
 import { ILogService } from '../../log/common/log.js';
@@ -26,42 +27,37 @@ import { IPlaywrightServiceInitializeOptions } from '../common/playwrightService
 export class PlaywrightChannel extends Disposable implements IServerChannel<string> {
 
 	private readonly _instances = this._register(new DisposableMap<string, PlaywrightService>());
-	private readonly browserViewGroupRemoteService: BrowserViewGroupRemoteService;
+
 
 	constructor(
 		ipcServer: IPCServer<string>,
-		mainProcessService: IMainProcessService,
+		private readonly mainProcessService: IMainProcessService,
 		private readonly logService: ILogService,
 		private readonly agentNetworkFilterService: IAgentNetworkFilterService,
 		private readonly telemetryService: ITelemetryService,
+		private readonly getScope: (context: string) => IMessagePortConnectionScope | undefined,
 	) {
 		super();
-		this.browserViewGroupRemoteService = new BrowserViewGroupRemoteService(mainProcessService);
 		this._register(ipcServer.onDidRemoveConnection(c => {
 			this._instances.deleteAndDispose(c.ctx);
 		}));
 	}
 
-	listen<T>(ctx: string, event: string): Event<T> {
-		const instance = this._instances.get(ctx);
-		if (!instance) {
-			throw new Error(`Window not initialized for context: ${ctx}`);
-		}
-		const source = (instance as unknown as Record<string, Event<unknown>>)[event];
-		if (typeof source !== 'function') {
-			throw new Error(`Event not found: ${event}`);
-		}
-		return source as Event<T>;
+	listen<T>(_ctx: string, event: string): Event<T> {
+		throw new Error(`Event not found: ${event}`);
 	}
 
-	call<T>(ctx: string, command: string, arg?: unknown): Promise<T> {
+	async call<T>(ctx: string, command: string, arg?: unknown): Promise<T> {
+		const scope = this.getScope(ctx);
+		if (scope?.role === 'auxiliary') { throw new Error('Rejected auxiliary Playwright access'); }
 		// Handle the one-time initialization call that creates the instance
 		if (command === '__initialize') {
 			if (!isPlaywrightServiceInitializeOptions(arg)) {
 				throw new Error('Invalid argument for __initialize: expected window options');
 			}
+			if (scope && arg.windowId !== scope.workbench) { throw new Error('Rejected foreign Playwright workbench'); }
 			if (!this._instances.has(ctx)) {
-				this._instances.set(ctx, new PlaywrightService(arg.windowId, arg.useSessionStorageAffinity, this.browserViewGroupRemoteService, this.logService, this.agentNetworkFilterService, this.telemetryService));
+				this._instances.set(ctx, new PlaywrightService(arg.windowId, arg.useSessionStorageAffinity, new BrowserViewGroupRemoteService(this.mainProcessService, scope ? ctx : undefined, () => { this.getScope(ctx); }), this.logService, this.agentNetworkFilterService, this.telemetryService));
 			}
 			return Promise.resolve(undefined as T);
 		}
@@ -71,8 +67,9 @@ export class PlaywrightChannel extends Disposable implements IServerChannel<stri
 			throw new Error(`Window not initialized for context: ${ctx}`);
 		}
 
+		const methods = new Set(['setSessionNetworkRestrictions', 'setSessionNetwork', 'waitForPageAndGetSummary', 'getSummary', 'invokeFunctionRaw', 'invokeFunction', 'waitForDeferredResult', 'replyToFileChooser', 'replyToDialog', 'disposeSession']);
 		const target = (instance as unknown as Record<string, unknown>)[command];
-		if (typeof target !== 'function') {
+		if (!methods.has(command) || typeof target !== 'function') {
 			throw new Error(`Method not found: ${command}`);
 		}
 
@@ -81,7 +78,9 @@ export class PlaywrightChannel extends Disposable implements IServerChannel<stri
 		if (!(res instanceof Promise)) {
 			res = Promise.resolve(res);
 		}
-		return res;
+		const result = await res;
+		this.getScope(ctx);
+		return result;
 	}
 }
 

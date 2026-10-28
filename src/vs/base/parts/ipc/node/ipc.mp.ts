@@ -3,11 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { MessagePortMain, isUtilityProcess, MessageEvent } from '../../sandbox/node/electronTypes.js';
+import { MessagePortMain, isUtilityProcess, MessageEvent, ParentPort } from '../../sandbox/node/electronTypes.js';
 import { VSBuffer } from '../../../common/buffer.js';
 import { ClientConnectionEvent, IMessagePassingProtocol, IPCServer } from '../common/ipc.js';
 import { Emitter, Event } from '../../../common/event.js';
 import { assertType } from '../../../common/types.js';
+import { DisposableStore, toDisposable } from '../../../common/lifecycle.js';
+import { IMessagePortConnectionScope } from '../common/ipc.mp.js';
 
 /**
  * The MessagePort `Protocol` leverages MessagePortMain style IPC communication
@@ -56,39 +58,68 @@ export interface IClientConnectionFilter {
  */
 export class Server extends IPCServer {
 
-	private static getOnDidClientConnect(filter?: IClientConnectionFilter): Event<ClientConnectionEvent> {
-		assertType(isUtilityProcess(process), 'Electron Utility Process');
+	private readonly portDisposables: DisposableStore;
+	private readonly scopes: Map<string, IMessagePortConnectionScope>;
 
-		const onCreateMessageChannel = new Emitter<MessagePortMain>();
-
-		process.parentPort.on('message', (e: MessageEvent) => {
-			if (filter?.handledClientConnection(e)) {
+	constructor(filter?: IClientConnectionFilter, parentPort?: ParentPort) {
+		if (!parentPort) {
+			assertType(isUtilityProcess(process), 'Electron Utility Process');
+			parentPort = process.parentPort;
+		}
+		const disposables = new DisposableStore();
+		const scopes = new Map<string, IMessagePortConnectionScope>();
+		const ports = new Map<string, MessagePortMain>();
+		const connections = disposables.add(new Emitter<ClientConnectionEvent>());
+		super(connections.event);
+		this.portDisposables = disposables;
+		this.scopes = scopes;
+		const receive = (e: MessageEvent) => {
+			const message = e.data as { type?: string; context?: string; scope?: IMessagePortConnectionScope; payload?: unknown } | undefined;
+			if (message?.type === 'vscode:ipc-revoke' && typeof message.context === 'string') {
+				const port = ports.get(message.context);
+				scopes.delete(message.context);
+				ports.delete(message.context);
+				port?.close();
 				return;
 			}
-
 			const port = e.ports.at(0);
-			if (port) {
-				onCreateMessageChannel.fire(port);
+			if (!port) { return; }
+			// Only the parent can supply this envelope. The peer handshake cannot select its scope.
+			const trusted = message?.type === 'vscode:ipc-connection' ? message : undefined;
+			const context = trusted?.context ?? 'main';
+			if (trusted) {
+				if (typeof context !== 'string' || !trusted.scope || ports.has(context)) { port.close(); return; }
+				scopes.set(context, trusted.scope);
+				ports.set(context, port);
 			}
-		});
-
-		return Event.map(onCreateMessageChannel.event, port => {
-			const protocol = new Protocol(port);
-
-			const result: ClientConnectionEvent = {
-				protocol,
-				// Not part of the standard spec, but in Electron we get a `close` event
-				// when the other side closes. We can use this to detect disconnects
-				// (https://github.com/electron/electron/blob/11-x-y/docs/api/message-port-main.md#event-close)
-				onDidClientDisconnect: Event.fromNodeEventEmitter(port, 'close')
+			const closed = () => {
+				scopes.delete(context);
+				if (ports.delete(context)) { parentPort.postMessage({ type: 'vscode:ipc-closed', context }); }
 			};
-
-			return result;
-		});
+			port.on('close', closed);
+			if (filter?.handledClientConnection({ data: trusted ? trusted.payload : e.data, ports: e.ports })) { return; }
+			connections.fire({ protocol: new Protocol(port), context, onDidClientDisconnect: Event.fromNodeEventEmitter(port, 'close') });
+		};
+		parentPort.on('message', receive);
+		disposables.add(toDisposable(() => {
+			parentPort.removeListener('message', receive);
+			for (const port of ports.values()) { port.close(); }
+			ports.clear();
+			scopes.clear();
+		}));
 	}
 
-	constructor(filter?: IClientConnectionFilter) {
-		super(Server.getOnDidClientConnect(filter));
+	/** Returns only a live scope established by main; unknown or revoked handles fail closed. */
+	getConnectionScope(context: string): IMessagePortConnectionScope | undefined {
+		if (context === 'main') { return undefined; }
+		const scope = this.scopes.get(context);
+		if (!scope) { throw new Error('Rejected unknown or revoked utility connection'); }
+		return scope;
+	}
+
+	override dispose(): void {
+		this.portDisposables.dispose();
+		super.dispose();
 	}
 }
 

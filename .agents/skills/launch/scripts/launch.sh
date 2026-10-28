@@ -110,9 +110,15 @@ const fail = error => {
 	console.error('[launch.sh] failed to allocate debug ports:', error);
 	process.exit(1);
 };
-const servers = Array.from({ length: 4 }, () => net.createServer().on('error', fail));
+const servers = Array.from({ length: 4 }, () => net.createServer());
+const reserve = server => new Promise((resolve, reject) => {
+	const listen = () => server.listen(20000 + Math.floor(Math.random() * 20000), '127.0.0.1', resolve);
+	server.on('error', error => error.code === 'EADDRINUSE' ? listen() : reject(error));
+	listen();
+});
 (async () => {
-	await Promise.all(servers.map(server => new Promise(resolve => server.listen(0, '127.0.0.1', resolve))));
+	// Leave room for all ten extension-host probes at stride 2048.
+	await Promise.all(servers.map(reserve));
 	const ports = servers.map(server => server.address().port);
 	await Promise.all(servers.map(server => new Promise((resolve, reject) => {
 		server.close(error => error ? reject(error) : resolve());

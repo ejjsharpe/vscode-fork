@@ -3,7 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { app, BrowserWindow, desktopCapturer, globalShortcut, powerMonitor, protocol, screen as electronScreen, session, Session, systemPreferences, WebFrameMain } from 'electron';
+import { bindPrototypeConnection, onPrototypeConnectionRevoked, prototypeBinding, prototypeDocumentGeneration, prototypeDocumentOwnsReply } from '../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { prototypeNativeChannel, prototypeExtensionChannel, prototypeWorkerChannel } from '../../platform/windows/electron-main/prototypeNativeChannel.js';
+import { prototypeBrowserGroupChannel, prototypeBrowserViewChannel } from '../../platform/browserView/electron-main/prototypeBrowserChannel.js';
+
+
+import { app, BrowserWindow, desktopCapturer, dialog, globalShortcut, powerMonitor, protocol, screen as electronScreen, session, Session, systemPreferences, WebFrameMain } from 'electron';
 import { addUNCHostToAllowlist, disableUNCAccessRestrictions } from '../../base/node/unc.js';
 import { validatedIpcMain } from '../../base/parts/ipc/electron-main/ipcMain.js';
 import { hostname, release } from 'os';
@@ -105,7 +110,7 @@ import { getAllWindowsExcludingOffscreen, IWindowsMainService, OpenContext } fro
 import { ICodeWindow } from '../../platform/window/electron-main/window.js';
 import { WindowsMainService } from '../../platform/windows/electron-main/windowsMainService.js';
 import { ActiveWindowManager } from '../../platform/windows/node/windowTracker.js';
-import { hasWorkspaceFileExtension } from '../../platform/workspace/common/workspace.js';
+import { hasWorkspaceFileExtension, toWorkspaceIdentifier } from '../../platform/workspace/common/workspace.js';
 import { IWorkspacesService } from '../../platform/workspaces/common/workspaces.js';
 import { IWorkspacesHistoryMainService, WorkspacesHistoryMainService } from '../../platform/workspaces/electron-main/workspacesHistoryMainService.js';
 import { WorkspacesMainService } from '../../platform/workspaces/electron-main/workspacesMainService.js';
@@ -132,6 +137,8 @@ import { IUtilityProcessWorkerMainService, UtilityProcessWorkerMainService } fro
 import { ipcUtilityProcessWorkerChannelName } from '../../platform/utilityProcess/common/utilityProcessWorkerService.js';
 import { ILocalPtyService, LocalReconnectConstants, TerminalIpcChannels, TerminalSettingId } from '../../platform/terminal/common/terminal.js';
 import { createLocalPtyChannel } from '../../platform/terminal/common/localPtyChannel.js';
+import { PtyHostRestartMainService } from '../../platform/terminal/electron-main/ptyHostRestartMainService.js';
+import { prototypeHostClosing } from '../../platform/windows/electron-main/prototypeWorkbenchHost.js';
 import { ElectronPtyHostStarter } from '../../platform/terminal/electron-main/electronPtyHostStarter.js';
 import { PtyHostService } from '../../platform/terminal/node/ptyHostService.js';
 import { parseExternalOpenSessionLinkUri } from '../../platform/agentHost/common/openSessionLink.js';
@@ -389,6 +396,12 @@ export class CodeApplication extends Disposable {
 				return false;
 			}
 
+			// Hosted workbenches are registered separately from the native shell.
+			const hosted = this.windowsMainService.getWindows().find(window => window.webContents.id === details.webContentsId);
+			if (hosted && !hosted.webContents.isDestroyed() && frame.processId === hosted.webContents.mainFrame.processId) {
+				return true;
+			}
+
 			// Check to see if the request comes from one of the main windows (or shared process) and not from embedded content
 			const windows = getAllWindowsExcludingOffscreen();
 			for (const window of windows) {
@@ -413,7 +426,7 @@ export class CodeApplication extends Disposable {
 			// Check to see if the request comes from one of the main editor windows.
 			for (const window of this.windowsMainService.getWindows()) {
 				if (window.win) {
-					if (frame.processId === window.win.webContents.mainFrame.processId) {
+					if (frame.processId === window.webContents.mainFrame.processId) {
 						return true;
 					}
 				}
@@ -595,12 +608,13 @@ export class CodeApplication extends Disposable {
 			contents.setWindowOpenHandler(details => {
 
 				// about:blank windows can open with our default options
-				if (details.url === 'about:blank') {
+				const parentId = this.windowsMainService?.getWindowByWebContents(contents)?.id ?? this.auxiliaryWindowsMainService?.getWindowByWebContents(contents)?.parentId;
+				if (details.url === 'about:blank' && parentId !== undefined) {
 					this.logService.trace('[aux window] webContents#setWindowOpenHandler: Allowing auxiliary window to open on about:blank');
 
 					return {
 						action: 'allow',
-						overrideBrowserWindowOptions: this.auxiliaryWindowsMainService?.createWindow(details)
+						overrideBrowserWindowOptions: this.auxiliaryWindowsMainService?.createWindow(details, contents, parentId)
 					};
 				}
 
@@ -655,41 +669,62 @@ export class CodeApplication extends Disposable {
 
 		//#region Bootstrap IPC Handlers
 
-		validatedIpcMain.handle('vscode:fetchShellEnv', event => {
-
-			// Prefer to use the args and env from the target window
-			// when resolving the shell env. It is possible that
-			// a first window was opened from the UI but a second
-			// from the CLI and that has implications for whether to
-			// resolve the shell environment or not.
-			//
-			// Window can be undefined for e.g. the shared process
-			// that is not part of our windows registry!
-			const window = this.windowsMainService?.getWindowByWebContents(event.sender); // Note: this can be `undefined` for the shared process
-			let args: NativeParsedArgs;
-			let env: IProcessEnvironment;
-			if (window?.config) {
-				args = window.config;
-				env = { ...process.env, ...window.config.userEnv };
-			} else {
-				args = this.environmentMainService.args;
-				env = process.env;
+		validatedIpcMain.handle('vscode:fetchShellEnv', async (event, ...credentials: unknown[]) => {
+			const window = this.windowsMainService?.getWindowByWebContents(event.sender);
+			const generation = prototypeDocumentGeneration(event.sender);
+			if (!window?.config || generation === undefined || credentials.length !== 1 || !prototypeDocumentOwnsReply(window.webContents, generation, event, credentials[0])) {
+				throw new Error('Rejected stale or unauthorized shell environment request');
 			}
 
-			// Resolve shell env
-			return this.resolveShellEnvironment(args, env, false);
+			// Do not fall back to application environment for unrecognized renderers.
+			const contents = window.webContents;
+			const shellEnv = await this.resolveShellEnvironment(window.config, { ...process.env, ...window.config.userEnv }, false);
+			if (!prototypeDocumentOwnsReply(contents, generation, event, credentials[0])) {
+				throw new Error('Shell environment request interrupted');
+			}
+			return shellEnv;
 		});
 
-		validatedIpcMain.on('vscode:toggleDevTools', event => event.sender.toggleDevTools());
-		validatedIpcMain.on('vscode:openDevTools', event => event.sender.openDevTools());
+		for (const channel of ['vscode:toggleDevTools', 'vscode:openDevTools']) {
+			validatedIpcMain.on(channel, (event, ...credentials: unknown[]) => {
+				const window = this.windowsMainService?.getWindowByWebContents(event.sender);
+				const generation = prototypeDocumentGeneration(event.sender);
+				if (!window || generation === undefined || credentials.length !== 1 || !prototypeDocumentOwnsReply(window.webContents, generation, event, credentials[0])) {
+					this.logService.warn('Rejected stale or unauthorized developer tools request');
+					return;
+				}
 
-		validatedIpcMain.on('vscode:reloadWindow', event => event.sender.reload());
+				if (channel === 'vscode:toggleDevTools') {
+					window.webContents.toggleDevTools();
+				} else {
+					window.webContents.openDevTools();
+				}
+			});
+		}
 
-		validatedIpcMain.handle('vscode:notifyZoomLevel', async (event, zoomLevel: number | undefined) => {
+		validatedIpcMain.on('vscode:reloadWindow', (event, ...args: unknown[]) => {
 			const window = this.windowsMainService?.getWindowByWebContents(event.sender);
-			if (window) {
-				window.notifyZoomLevel(zoomLevel);
+			const generation = prototypeDocumentGeneration(event.sender);
+			if (!window || generation === undefined || args.length !== 1 || !prototypeDocumentOwnsReply(window.webContents, generation, event, args[0])) {
+				this.logService.warn('Rejected stale or unauthorized developer reload');
+				return;
 			}
+
+			// The bootstrap shortcut must use the same safeguards as workbench reload.
+			void this.lifecycleMainService.reload(window).catch(error => this.logService.error(error));
+		});
+
+		validatedIpcMain.handle('vscode:notifyZoomLevel', async (event, zoomLevel: unknown, ...credentials: unknown[]) => {
+			const window = this.windowsMainService?.getWindowByWebContents(event.sender);
+			const generation = prototypeDocumentGeneration(event.sender);
+			if (!window || generation === undefined || credentials.length !== 1 || !prototypeDocumentOwnsReply(window.webContents, generation, event, credentials[0])) {
+				throw new Error('Rejected stale or unauthorized zoom notification');
+			}
+			if (zoomLevel !== undefined && (typeof zoomLevel !== 'number' || !Number.isFinite(zoomLevel))) {
+				throw new Error('Invalid zoom level');
+			}
+
+			window.notifyZoomLevel(zoomLevel);
 		});
 
 		//#endregion
@@ -725,7 +760,7 @@ export class CodeApplication extends Disposable {
 		}
 
 		// Main process server (electron IPC based)
-		const mainProcessElectronServer = new ElectronIPCServer();
+		const mainProcessElectronServer = new ElectronIPCServer(bindPrototypeConnection);
 		Event.once(this.lifecycleMainService.onWillShutdown)(e => {
 			if (e.reason === ShutdownReason.KILL) {
 				// When we go down abnormally, make sure to free up
@@ -1244,7 +1279,7 @@ export class CodeApplication extends Disposable {
 		services.set(IAuxiliaryWindowsMainService, new SyncDescriptor(AuxiliaryWindowsMainService, undefined, false));
 
 		// Dialogs
-		const dialogMainService = new DialogMainService(this.logService, this.productService);
+		const dialogMainService = new DialogMainService(dialog, this.logService, this.productService);
 		services.set(IDialogMainService, dialogMainService);
 
 		// Launch
@@ -1297,7 +1332,7 @@ export class CodeApplication extends Disposable {
 			graceTime: LocalReconnectConstants.GraceTime,
 			shortGraceTime: LocalReconnectConstants.ShortGraceTime,
 			scrollback: this.configurationService.getValue<number>(TerminalSettingId.PersistentSessionScrollback) ?? 100
-		}, this.configurationService, this.environmentMainService, this.lifecycleMainService, this.logService);
+		}, this.configurationService, this.environmentMainService, this.lifecycleMainService, this.logService, id => this.windowsMainService?.getWindowById(id), () => this.auxiliaryWindowsMainService?.getWindows() ?? []);
 		const ptyHostService = new PtyHostService(
 			ptyHostStarter,
 			this.configurationService,
@@ -1433,12 +1468,22 @@ export class CodeApplication extends Disposable {
 		mainProcessElectronServer.registerChannel('encryption', encryptionChannel);
 
 		// Browser View
-		const browserViewChannel = ProxyChannel.fromService(accessor.get(IBrowserViewMainService), disposables, { unbufferedEvents: ['onDidCreateBrowserView'] });
+		const hostedWindowsMainService = accessor.get(IWindowsMainService);
+		const hostedAuxiliaryWindowsMainService = accessor.get(IAuxiliaryWindowsMainService);
+		const resolveNativeScope = (context: string) => {
+			if (context === 'main') { return undefined; }
+			const binding = prototypeBinding(context);
+			if (hostedWindowsMainService.getWindowById(binding.workbench)?.webContents !== binding.contents) { throw new Error('Rejected stale native resource owner'); }
+			return { ...binding.scope, workbench: binding.workbench, generation: binding.generation, auxiliaryWindowIds: hostedAuxiliaryWindowsMainService.getWindows().filter(window => window.parentId === binding.workbench).map(window => window.id) };
+		};
+		const browserViewService = accessor.get(IBrowserViewMainService);
+		const browserViewChannel = prototypeBrowserViewChannel(ProxyChannel.fromService(browserViewService, disposables, { unbufferedEvents: ['onDidCreateBrowserView'] }), browserViewService, resolveNativeScope, disposables);
 		mainProcessElectronServer.registerChannel(ipcBrowserViewChannelName, browserViewChannel);
 		sharedProcessClient.then(client => client.registerChannel(ipcBrowserViewChannelName, browserViewChannel));
 
 		// Browser View Group
-		const browserViewGroupChannel = ProxyChannel.fromService(accessor.get(IBrowserViewGroupMainService), disposables);
+		const browserViewGroupService = accessor.get(IBrowserViewGroupMainService);
+		const browserViewGroupChannel = prototypeBrowserGroupChannel(ProxyChannel.fromService(browserViewGroupService, disposables), browserViewGroupService, browserViewService, resolveNativeScope, disposables);
 		mainProcessElectronServer.registerChannel(ipcBrowserViewGroupChannelName, browserViewGroupChannel);
 		sharedProcessClient.then(client => client.registerChannel(ipcBrowserViewGroupChannelName, browserViewGroupChannel));
 
@@ -1461,7 +1506,7 @@ export class CodeApplication extends Disposable {
 				'onDidProgressZipFile'
 			]
 		});
-		mainProcessElectronServer.registerChannel('nativeHost', nativeHostChannel);
+		mainProcessElectronServer.registerChannel('nativeHost', prototypeNativeChannel(nativeHostChannel, accessor.get(IWindowsMainService), accessor.get(IAuxiliaryWindowsMainService)));
 		sharedProcessClient.then(client => client.registerChannel('nativeHost', nativeHostChannel));
 
 		const tryoutHandoff = disposables.add(accessor.get(IInstantiationService).createInstance(OnboardingTryoutHandoff));
@@ -1488,7 +1533,15 @@ export class CodeApplication extends Disposable {
 		mainProcessElectronServer.registerChannel('webview', webviewChannel);
 
 		// Storage (main & shared process)
-		const storageChannel = disposables.add((new StorageDatabaseChannel(this.logService, accessor.get(IStorageMainService))));
+		const storageWindowsMainService = accessor.get(IWindowsMainService);
+		const storageChannel = disposables.add(new StorageDatabaseChannel(this.logService, accessor.get(IStorageMainService), context => {
+			if (context === 'main') { return undefined; } // Trusted shared-process management connection.
+			if (typeof context !== 'string') { throw new Error('Rejected unknown storage caller'); }
+			const binding = prototypeBinding(context);
+			const window = storageWindowsMainService.getWindowById(binding.workbench);
+			if (!window?.config || window.webContents !== binding.contents || !window.profile) { throw new Error('Rejected stale storage owner'); }
+			return { profile: window.profile, workspace: window.openedWorkspace ?? toWorkspaceIdentifier(window.config.backupPath, window.isExtensionDevelopmentHost) };
+		}));
 		mainProcessElectronServer.registerChannel('storage', storageChannel);
 		sharedProcessClient.then(client => client.registerChannel('storage', storageChannel));
 
@@ -1497,7 +1550,9 @@ export class CodeApplication extends Disposable {
 		sharedProcessClient.then(client => client.registerChannel('profileStorageListener', profileStorageListener));
 
 		// Terminal
-		const ptyHostChannel = createLocalPtyChannel(accessor.get(ILocalPtyService), disposables);
+		const localPtyService = accessor.get(ILocalPtyService);
+		const ptyRestart = new PtyHostRestartMainService(hostedWindowsMainService, accessor.get(IDialogMainService), () => localPtyService.restartPtyHost(), () => this.lifecycleMainService.quitRequested || prototypeHostClosing);
+		const ptyHostChannel = createLocalPtyChannel(localPtyService, disposables, resolveNativeScope, onPrototypeConnectionRevoked, false, undefined, context => ptyRestart.request(context));
 		mainProcessElectronServer.registerChannel(TerminalIpcChannels.LocalPty, ptyHostChannel);
 
 		// External Terminal
@@ -1525,11 +1580,11 @@ export class CodeApplication extends Disposable {
 
 		// Extension Host Starter
 		const extensionHostStarterChannel = ProxyChannel.fromService(accessor.get(IExtensionHostStarter), disposables);
-		mainProcessElectronServer.registerChannel(ipcExtensionHostStarterChannelName, extensionHostStarterChannel);
+		mainProcessElectronServer.registerChannel(ipcExtensionHostStarterChannelName, prototypeExtensionChannel(extensionHostStarterChannel, accessor.get(IWindowsMainService), disposables));
 
 		// Utility Process Worker
 		const utilityProcessWorkerChannel = ProxyChannel.fromService(accessor.get(IUtilityProcessWorkerMainService), disposables);
-		mainProcessElectronServer.registerChannel(ipcUtilityProcessWorkerChannelName, utilityProcessWorkerChannel);
+		mainProcessElectronServer.registerChannel(ipcUtilityProcessWorkerChannelName, prototypeWorkerChannel(utilityProcessWorkerChannel, accessor.get(IWindowsMainService), disposables));
 	}
 
 	private async openFirstWindow(accessor: ServicesAccessor, initialProtocolUrls: IInitialProtocolUrls | undefined): Promise<ICodeWindow[]> {
@@ -1539,13 +1594,20 @@ export class CodeApplication extends Disposable {
 		const context = isLaunchedFromCli(process.env) ? OpenContext.CLI : OpenContext.DESKTOP;
 		const args = this.environmentMainService.args;
 
-		// Handle agents window first based on context
-		if (args['agents']) {
+		const macOpenFiles: string[] = (global as { macOpenFiles?: string[] }).macOpenFiles ?? [];
+		const hasExplicitTarget = args._.length || args['folder-uri']?.length || args['file-uri']?.length || macOpenFiles.length || initialProtocolUrls?.openables.length || initialProtocolUrls?.urls.length || args.remote || args['new-window'] || args.profile || args['profile-temp'];
+
+		// Agents owns the permanent first entry, including when a project is the launch target.
+		if (args['agents'] || (!args.extensionDevelopmentPath && !hasExplicitTarget)) {
 			return windowsMainService.openAgentsWindow({
 				context,
 				cli: args,
 				initialStartup: true
 			});
+		}
+
+		if (!args.extensionDevelopmentPath) {
+			await windowsMainService.openAgentsWindow({ context, cli: { ...args, _: [] }, initialStartup: false });
 		}
 
 		// Then check for windows from protocol links to open
@@ -1610,7 +1672,6 @@ export class CodeApplication extends Disposable {
 			}
 		}
 
-		const macOpenFiles: string[] = (global as { macOpenFiles?: string[] }).macOpenFiles ?? [];
 		const hasCliArgs = args._.length;
 		const hasFolderURIs = !!args['folder-uri'];
 		const hasFileURIs = !!args['file-uri'];

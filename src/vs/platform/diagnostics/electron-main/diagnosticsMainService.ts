@@ -3,9 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { app, BrowserWindow, Event as IpcEvent } from 'electron';
+import { randomUUID } from 'node:crypto';
+import { app, BrowserWindow, IpcMainEvent } from 'electron';
+import { localize } from '../../../nls.js';
 import { validatedIpcMain } from '../../../base/parts/ipc/electron-main/ipcMain.js';
-import { CancellationToken } from '../../../base/common/cancellation.js';
+import { onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { URI } from '../../../base/common/uri.js';
 import { IDiagnosticInfo, IDiagnosticInfoOptions, IGPULogMessage, IMainProcessDiagnostics, IProcessDiagnostics, IRemoteDiagnosticError, IRemoteDiagnosticInfo, IWindowDiagnostics } from '../common/diagnostics.js';
 import { createDecorator } from '../../instantiation/common/instantiation.js';
@@ -49,27 +51,51 @@ export class DiagnosticsMainService implements IDiagnosticsMainService {
 				return undefined;
 			}
 
-			const replyChannel = `vscode:getDiagnosticInfoResponse${window.id}`;
+			const contents = window.webContents;
+			const generation = prototypeDocumentGeneration(contents);
+			const unavailable = (errorMessage: string): IRemoteDiagnosticError => ({ hostName: remoteAuthority, errorMessage });
+			if (generation === undefined || !window.isReady) {
+				return unavailable(localize('diagnosticNotReady', "Diagnostic document for '{0}' is not ready.", remoteAuthority));
+			}
+			const replyChannel = `vscode:getDiagnosticInfoResponse${randomUUID()}`;
 			const args: IDiagnosticInfoOptions = {
 				includeProcesses: options.includeProcesses,
 				folders: options.includeWorkspaceMetadata ? await this.getFolderURIs(window) : undefined
 			};
+			if (prototypeDocumentGeneration(contents) !== generation) {
+				return unavailable(localize('diagnosticInterrupted', "Diagnostic request for '{0}' was interrupted.", remoteAuthority));
+			}
 
 			return new Promise<IDiagnosticInfo | IRemoteDiagnosticError>(resolve => {
-				window.sendWhenReady('vscode:getDiagnosticInfo', CancellationToken.None, { replyChannel, args });
-
-				validatedIpcMain.once(replyChannel, (_: IpcEvent, data: IRemoteDiagnosticInfo) => {
-					// No data is returned if getting the connection fails.
-					if (!data) {
-						resolve({ hostName: remoteAuthority, errorMessage: `Unable to resolve connection to '${remoteAuthority}'.` });
-					}
-
+				let settled = false;
+				const finish = (data: IDiagnosticInfo | IRemoteDiagnosticError) => {
+					if (settled) { return; }
+					settled = true;
+					validatedIpcMain.removeListener(replyChannel, listener);
+					revocation.dispose();
+					clearTimeout(timeout);
 					resolve(data);
+				};
+				const listener = (event: IpcMainEvent, data: IRemoteDiagnosticInfo | IRemoteDiagnosticError | undefined, nonce: unknown, ...extra: unknown[]) => {
+					if (extra.length || !prototypeDocumentOwnsReply(contents, generation, event, nonce)) {
+						this.logService.warn('Rejected diagnostic reply from an unrelated or expired document.');
+						return;
+					}
+					finish(data ?? unavailable(`Unable to resolve connection to '${remoteAuthority}'.`));
+				};
+				const revocation = onPrototypeDocumentRevoked(event => {
+					if (event.contents === contents && event.generation === generation) {
+						finish(unavailable(localize('diagnosticInterrupted', "Diagnostic request for '{0}' was interrupted.", remoteAuthority)));
+					}
 				});
-
-				setTimeout(() => {
-					resolve({ hostName: remoteAuthority, errorMessage: `Connection to '${remoteAuthority}' could not be established` });
-				}, 5000);
+				const timeout = setTimeout(() => finish(unavailable(`Connection to '${remoteAuthority}' could not be established`)), 5000);
+				validatedIpcMain.on(replyChannel, listener);
+				try {
+					// Dispatch only to the captured document; never queue into a replacement.
+					window.send('vscode:getDiagnosticInfo', { replyChannel, args });
+				} catch {
+					finish(unavailable(localize('diagnosticSendFailed', "Unable to request diagnostics from '{0}'.", remoteAuthority)));
+				}
 			});
 		}));
 

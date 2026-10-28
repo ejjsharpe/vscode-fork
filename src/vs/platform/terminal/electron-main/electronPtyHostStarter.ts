@@ -20,6 +20,11 @@ import { deepClone } from '../../../base/common/objects.js';
 import { isNumber } from '../../../base/common/types.js';
 import { IConfigurationService } from '../../configuration/common/configuration.js';
 import { Schemas } from '../../../base/common/network.js';
+import { prototypeBinding, prototypeRequestContext, revokePrototypeConnection } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { ICodeWindow } from '../../window/electron-main/window.js';
+import { IAuxiliaryWindow } from '../../auxiliaryWindow/electron-main/auxiliaryWindow.js';
+import { createPtyNativeParentChannel } from './ptyNativeParentChannel.js';
+import { ptyNativeParentChannelName } from '../common/localPtyChannel.js';
 
 export class ElectronPtyHostStarter extends Disposable implements IPtyHostStarter {
 
@@ -35,15 +40,20 @@ export class ElectronPtyHostStarter extends Disposable implements IPtyHostStarte
 		@IConfigurationService private readonly _configurationService: IConfigurationService,
 		@IEnvironmentMainService private readonly _environmentMainService: IEnvironmentMainService,
 		@ILifecycleMainService private readonly _lifecycleMainService: ILifecycleMainService,
-		@ILogService private readonly _logService: ILogService
+		@ILogService private readonly _logService: ILogService,
+		private readonly _getWindow: (id: number) => ICodeWindow | undefined,
+		private readonly _getAuxiliaryWindows: () => readonly IAuxiliaryWindow[]
 	) {
 		super();
 
 		this._register(this._lifecycleMainService.onWillShutdown(() => this._onWillShutdown.fire()));
 		// Listen for new windows to establish connection directly to pty host
-		validatedIpcMain.on('vscode:createPtyHostMessageChannel', (e, nonce) => this._onWindowConnection(e, nonce));
+		const onWindowConnection = (e: IpcMainEvent, ...args: unknown[]) => {
+			try { this._onWindowConnection(e, args); } catch (error) { this._logService.error(error); }
+		};
+		validatedIpcMain.on('vscode:createPtyHostMessageChannel', onWindowConnection);
 		this._register(toDisposable(() => {
-			validatedIpcMain.removeHandler('vscode:createPtyHostMessageChannel');
+			validatedIpcMain.removeListener('vscode:createPtyHostMessageChannel', onWindowConnection);
 		}));
 	}
 
@@ -67,6 +77,7 @@ export class ElectronPtyHostStarter extends Disposable implements IPtyHostStarte
 
 		const port = this.utilityProcess.connect();
 		const client = new MessagePortClient(port, 'ptyHost');
+		client.registerChannel(ptyNativeParentChannelName, createPtyNativeParentChannel(this._getWindow, this._getAuxiliaryWindows));
 
 		const store = new DisposableStore();
 		store.add(client);
@@ -106,21 +117,25 @@ export class ElectronPtyHostStarter extends Disposable implements IPtyHostStarte
 		return config;
 	}
 
-	private _onWindowConnection(e: IpcMainEvent, nonce: string) {
-		this._onRequestConnection.fire();
-
-		const port = this.utilityProcess!.connect();
-
-		// Check back if the requesting window meanwhile closed
-		// Since shared process is delayed on startup there is
-		// a chance that the window close before the shared process
-		// was ready for a connection.
-
-		if (e.sender.isDestroyed()) {
-			port.close();
-			return;
+	private _onWindowConnection(e: IpcMainEvent, args: unknown[]) {
+		if (args.length !== 2 || typeof args[0] !== 'string') { throw new Error('Rejected PTY connection arguments'); }
+		const nonce = args[0];
+		const context = prototypeRequestContext(e, args[1]);
+		try {
+			const binding = prototypeBinding(context);
+			const window = this._getWindow(binding.workbench);
+			if (binding.scope.role === 'auxiliary' || window?.webContents !== binding.contents || !window.win || window.win.isDestroyed()) { throw new Error('Rejected PTY native owner'); }
+			this._onRequestConnection.fire();
+			const port = this.utilityProcess!.connect(undefined, context);
+			try { prototypeBinding(context); } catch (error) { port.close(); throw error; }
+			e.sender.postMessage('vscode:createPtyHostMessageChannelResult', nonce, [port]);
+		} catch (error) {
+			try {
+				prototypeBinding(context);
+				e.sender.send('vscode:createPtyHostMessageChannelResult', { nonce, error: error instanceof Error ? error.message : String(error) });
+			} catch { }
+			revokePrototypeConnection(context);
+			throw error;
 		}
-
-		e.sender.postMessage('vscode:createPtyHostMessageChannelResult', nonce, [port]);
 	}
 }

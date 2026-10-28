@@ -3,9 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { configurePrototypeDocument, revokePrototypeDocument, retirePrototypeDocument, prototypeDocumentGeneration } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { createPrototypeWorkbench, selectPrototypeWorkbench, updatePrototypeWorkbench, replacePrototypeWorkbench, removePrototypeWorkbench, reportPrototypeCloseFailure, setPrototypeRecovery, prototypeHostClosing } from './prototypeWorkbenchHost.js';
 import electron, { BrowserWindowConstructorOptions, Display } from 'electron';
-import { DeferredPromise, RunOnceScheduler, timeout, Delayer } from '../../../base/common/async.js';
-import { CancellationToken } from '../../../base/common/cancellation.js';
+import { DeferredPromise, RunOnceScheduler, timeout, Delayer, raceCancellationError } from '../../../base/common/async.js';
+import { CancellationToken, CancellationTokenSource } from '../../../base/common/cancellation.js';
 import { toErrorMessage } from '../../../base/common/errorMessage.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { Disposable, DisposableStore, IDisposable, MutableDisposable, toDisposable } from '../../../base/common/lifecycle.js';
@@ -33,8 +35,8 @@ import { IApplicationStorageMainService, IStorageMainService } from '../../stora
 import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 import { ThemeIcon } from '../../../base/common/themables.js';
 import { IThemeMainService } from '../../theme/electron-main/themeMainService.js';
-import { getMenuBarVisibility, IFolderToOpen, INativeWindowConfiguration, IWindowSettings, IWorkspaceToOpen, MenuBarVisibility, hasNativeTitlebar, useNativeFullScreen, DEFAULT_CUSTOM_TITLEBAR_HEIGHT, TitlebarStyle, MenuSettings, getMacOSWindowControlsPosition } from '../../window/common/window.js';
-import { defaultBrowserWindowOptions, getAllWindowsExcludingOffscreen, IWindowsMainService, OpenContext, WindowStateValidator } from './windows.js';
+import { getMenuBarVisibility, INativeWindowConfiguration, IWindowSettings, MenuBarVisibility, hasNativeTitlebar, useNativeFullScreen, DEFAULT_CUSTOM_TITLEBAR_HEIGHT, TitlebarStyle, MenuSettings, getMacOSWindowControlsPosition } from '../../window/common/window.js';
+import { defaultBrowserWindowOptions, getAllWindowsExcludingOffscreen, WindowStateValidator } from './windows.js';
 import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, toWorkspaceIdentifier } from '../../workspace/common/workspace.js';
 import { IWorkspacesManagementMainService } from '../../workspaces/electron-main/workspacesManagementMainService.js';
 import { IWindowState, ICodeWindow, ILoadEvent, WindowMode, WindowError, LoadReason, defaultWindowState, IBaseWindow } from '../../window/electron-main/window.js';
@@ -182,6 +184,63 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 
 	protected _win: electron.BrowserWindow | null = null;
 	get win() { return this._win; }
+	protected hostedView: electron.WebContentsView | undefined;
+	get contentView(): electron.View | undefined { return this.hostedView ?? this._win?.contentView; }
+	protected hostedContents: electron.WebContents | undefined;
+	private logicalCloseNotified = false;
+	private logicalDisposal: Promise<void> | undefined;
+	private logicalDisposed = false;
+	private logicalCloseError: unknown;
+	get webContents() {
+		if (this.hostedView) {
+			if (!this.hostedContents || this.hostedContents.isDestroyed() || this.logicalCloseNotified) { throw new Error(`Expired hosted workbench ${this.id}`); }
+			return this.hostedContents;
+		}
+		return this._win!.webContents;
+	}
+	protected readonly logicalCloseListener = this._register(new MutableDisposable());
+	protected registerLogicalClose(): void {
+		this.hostedContents = this.hostedView?.webContents;
+		this.logicalCloseListener.value = Event.fromNodeEventEmitter(this.hostedContents ?? this._win!, this.hostedView ? 'destroyed' : 'closed')(() => {
+			void this.disposePrototypeWorkbench().catch(error => { this.logService.error(error); reportPrototypeCloseFailure(this.id); });
+		});
+	}
+	private finishLogicalClose(): void {
+		const errors: unknown[] = [];
+		try { if (this.hostedView) { removePrototypeWorkbench(this.id); } } catch (error) { errors.push(error); }
+		if (!this.logicalCloseNotified) {
+			this.logicalCloseNotified = true;
+			this._onDidClose.fire();
+		}
+		try { this.dispose(); } catch (error) { errors.push(error); }
+		this.logicalCloseError = errors.length ? new AggregateError(errors, 'Logical project disposal failed') : undefined;
+		this.logicalDisposed = errors.length === 0;
+		if (this.logicalCloseError) { throw this.logicalCloseError; }
+	}
+	disposePrototypeWorkbench(): Promise<void> {
+		if (this.logicalDisposal) { return this.logicalDisposal; }
+		if (this.logicalDisposed) { return Promise.resolve(); }
+		const pending = new DeferredPromise<void>();
+		// Publish before destruction or cleanup can synchronously reenter disposal.
+		this.logicalDisposal = pending.p;
+		void (async () => {
+			try {
+				const contents = this.hostedContents;
+				if (contents && !contents.isDestroyed()) {
+					await new Promise<void>((resolve, reject) => {
+						const destroyed = () => resolve();
+						contents.once('destroyed', destroyed);
+						try { contents.close({ waitForBeforeUnload: false }); }
+						catch (error) { contents.removeListener('destroyed', destroyed); reject(error); }
+					});
+				}
+				this.finishLogicalClose();
+				await pending.complete();
+			} catch (error) { await pending.error(error); }
+			finally { this.logicalDisposal = undefined; }
+		})();
+		return pending.p;
+	}
 	protected setWin(win: electron.BrowserWindow, options?: BrowserWindowConstructorOptions): void {
 		this._win = win;
 		// Electron requires the overlay to have been enabled when the window was created.
@@ -208,16 +267,13 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 
 			this._onDidUnmaximize.fire();
 		}));
-		this._register(Event.fromNodeEventEmitter(win, 'closed')(() => {
-			this._onDidClose.fire();
-
-			this.dispose();
-		}));
-		this._register(Event.fromNodeEventEmitter(win, 'focus')(() => {
-			this.clearNotifyFocus();
-
-			this._lastFocusTime = Date.now();
-		}));
+		this.registerLogicalClose();
+		if (!this.hostedView) {
+			this._register(Event.fromNodeEventEmitter(win, 'focus')(() => {
+				this.clearNotifyFocus();
+				this._lastFocusTime = Date.now();
+			}));
+		}
 		this._register(Event.fromNodeEventEmitter(this._win, 'enter-full-screen')(() => this._onDidEnterFullScreen.fire()));
 		this._register(Event.fromNodeEventEmitter(this._win, 'leave-full-screen')(() => this._onDidLeaveFullScreen.fire()));
 		this._register(Event.fromNodeEventEmitter(this._win, 'always-on-top-changed', (_, alwaysOnTop) => alwaysOnTop)(alwaysOnTop => this._onDidChangeAlwaysOnTop.fire(alwaysOnTop)));
@@ -457,7 +513,7 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 		}
 	}
 
-	private clearNotifyFocus(): void {
+	protected clearNotifyFocus(): void {
 		this.notifyFocusDisposable.clear();
 	}
 
@@ -477,7 +533,8 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 		// However, in scenarios where the window has multiple child views (e.g. browser WebContentsViews),
 		// the last focused view in the window may not be the workbench.
 		// So we explicitly focus the workbench web contents here to ensure it gets focus.
-		win.webContents.focus();
+		if (this.hostedView) { selectPrototypeWorkbench(this.id); }
+		this.webContents.focus();
 	}
 
 	//#region Window Control Overlays
@@ -650,7 +707,7 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 		}
 
 		win?.setSimpleFullScreen(fullscreen);
-		win?.webContents.focus(); // workaround issue where focus is not going into window
+		this.webContents.focus(); // workaround issue where focus is not going into window
 	}
 
 	//#endregion
@@ -769,7 +826,6 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		@ILifecycleMainService private readonly lifecycleMainService: ILifecycleMainService,
 		@IProductService private readonly productService: IProductService,
 		@IProtocolMainService protocolMainService: IProtocolMainService,
-		@IWindowsMainService private readonly windowsMainService: IWindowsMainService,
 		@IStateService stateService: IStateService,
 		@IInstantiationService instantiationService: IInstantiationService
 	) {
@@ -777,7 +833,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 		//#region create browser window
 		{
-			this.configObjectUrl = this._register(protocolMainService.createIPCObjectUrl<INativeWindowConfiguration>());
+			this.configObjectUrl = this._register(protocolMainService.createIPCObjectUrl<INativeWindowConfiguration>(() => this.webContents));
 
 			// Load window state
 			const [state, hasMultipleDisplays] = this.restoreWindowState(config.state);
@@ -802,10 +858,14 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 			// Create the browser window
 			mark('code/willCreateCodeBrowserWindow');
-			this._win = new electron.BrowserWindow(options);
+			this.prototypeOptions = options;
+			const hosted = createPrototypeWorkbench(options, !!config.isSessionsWindow);
+			this._win = hosted.host;
+			this.hostedView = hosted.view;
+			this.hostedContents = hosted.view.webContents;
 			mark('code/didCreateCodeBrowserWindow');
 
-			this._id = this._win.id;
+			this._id = hosted.id;
 			this.setWin(this._win, options);
 
 			// Apply some state after window creation
@@ -850,8 +910,19 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	private readyState = ReadyState.NONE;
+	private prototypeOptions!: BrowserWindowConstructorOptions;
+	private recovery: Promise<void> | undefined;
+	private recoverySerial = 0;
+	private recoveryCancellation: CancellationTokenSource | undefined;
+	private recoveryContents: electron.WebContents | undefined;
+	private closePending = false;
+	get isPrototypeClosePending(): boolean { return this.closePending; }
+	private recoveryFailed = false;
+	private logicallyClosed = false;
+	private readonly rendererListeners = this._register(new DisposableStore());
 
 	setReady(): void {
+		if (this.logicallyClosed || this.recoveryFailed) { return; }
 		this.logService.trace(`window#load: window reported ready (id: ${this._id})`);
 
 		this.readyState = ReadyState.READY;
@@ -895,23 +966,27 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		});
 	}
 
-	private registerListeners(): void {
+	private registerRendererListeners(): void {
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'focus')(() => {
+			this.clearNotifyFocus();
+			this._lastFocusTime = Date.now();
+		}));
 
 		// Window error conditions to handle
-		this._register(Event.fromNodeEventEmitter(this._win, 'unresponsive')(() => this.onWindowError(WindowError.UNRESPONSIVE)));
-		this._register(Event.fromNodeEventEmitter(this._win, 'responsive')(() => this.onWindowError(WindowError.RESPONSIVE)));
-		this._register(Event.fromNodeEventEmitter(this._win.webContents, 'render-process-gone', (event, details) => details)(details => this.onWindowError(WindowError.PROCESS_GONE, { ...details })));
-		this._register(Event.fromNodeEventEmitter(this._win.webContents, 'did-fail-load', (event, exitCode, reason) => ({ exitCode, reason }))(({ exitCode, reason }) => this.onWindowError(WindowError.LOAD, { reason, exitCode })));
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'unresponsive')(() => this.onWindowError(WindowError.UNRESPONSIVE)));
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'responsive')(() => this.onWindowError(WindowError.RESPONSIVE)));
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'render-process-gone', (event, details) => details)(details => this.onWindowError(WindowError.PROCESS_GONE, { ...details })));
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'did-fail-load', (event, exitCode, reason) => ({ exitCode, reason }))(({ exitCode, reason }) => this.onWindowError(WindowError.LOAD, { reason, exitCode })));
 
 		// Prevent windows/iframes from blocking the unload
 		// through DOM events. We have our own logic for
 		// unloading a window that should not be confused
 		// with the DOM way.
 		// (https://github.com/microsoft/vscode/issues/122736)
-		this._register(Event.fromNodeEventEmitter<electron.Event>(this._win.webContents, 'will-prevent-unload')(event => event.preventDefault()));
+		this.rendererListeners.add(Event.fromNodeEventEmitter<electron.Event>(this.webContents, 'will-prevent-unload')(event => event.preventDefault()));
 
 		// Remember that we loaded
-		this._register(Event.fromNodeEventEmitter(this._win.webContents, 'did-finish-load')(() => {
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'did-finish-load')(() => {
 
 			// Associate properties from the load request if provided
 			if (this.pendingLoadConfig) {
@@ -920,6 +995,13 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				this.pendingLoadConfig = undefined;
 			}
 		}));
+
+		this.webContents.removeAllListeners('devtools-reload-page');
+		this.rendererListeners.add(Event.fromNodeEventEmitter(this.webContents, 'devtools-reload-page')(() => this.lifecycleMainService.reload(this)));
+	}
+
+	private registerListeners(): void {
+		this.registerRendererListeners();
 
 		// Window (Un)Maximize
 		this._register(this.onDidMaximize(() => {
@@ -955,7 +1037,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 			const serviceUrl = URI.parse(this.productService.extensionsGallery.serviceUrl);
 			urls.push(`${serviceUrl.scheme}://${serviceUrl.authority}/*`);
 		}
-		this._win.webContents.session.webRequest.onBeforeSendHeaders({ urls }, async (details, cb) => {
+		this.webContents.session.webRequest.onBeforeSendHeaders({ urls }, async (details, cb) => {
 			const headers = await this.getMarketplaceHeaders();
 
 			cb({ cancel: false, requestHeaders: Object.assign(details.requestHeaders, headers) });
@@ -998,6 +1080,9 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				this.logService.error(`CodeWindow: failed to load (reason: ${details?.reason || '<unknown>'}, code: ${details?.exitCode || '<unknown>'})`);
 				break;
 		}
+
+		if (this.logicallyClosed || this.recovery || this.closePending) { return; }
+		if (type === WindowError.PROCESS_GONE) { this.readyState = ReadyState.NONE; }
 
 		// Telemetry
 		type WindowErrorClassification = {
@@ -1051,7 +1136,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 				// Unresponsive
 				if (type === WindowError.UNRESPONSIVE) {
-					if (this.isExtensionDevelopmentHost || this.isExtensionTestHost || this._win?.webContents?.isDevToolsOpened()) {
+					if (this.isExtensionDevelopmentHost || this.isExtensionTestHost || this.webContents?.isDevToolsOpened()) {
 						// TODO@electron Workaround for https://github.com/microsoft/vscode/issues/56994
 						// In certain cases the window can report unresponsiveness because a breakpoint was hit
 						// and the process is stopped executing. The most typical cases are:
@@ -1125,59 +1210,104 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		}
 	}
 
-	private async destroyWindow(reopen: boolean, skipRestoreEditors: boolean): Promise<void> {
-		const workspace = this._config?.workspace;
-
-		// check to discard editor state first
-		if (skipRestoreEditors && workspace) {
-			try {
-				const workspaceStorage = this.storageMainService.workspaceStorage(workspace);
-				await workspaceStorage.init();
-				workspaceStorage.delete('memento/workbench.parts.editor');
-				await workspaceStorage.close();
-			} catch (error) {
-				this.logService.error(error);
-			}
+	override disposePrototypeWorkbench(afterUnload = false): Promise<void> {
+		if (!afterUnload && this.hostedContents && !this.hostedContents.isDestroyed()) {
+			return this.lifecycleMainService.close(this);
 		}
+		return super.disposePrototypeWorkbench();
+	}
 
-		// 'close' event will not be fired on destroy(), so signal crash via explicit event
-		this._onDidDestroy.fire();
+	setPrototypeClosePending(pending: boolean, failed: boolean | 'interrupted' = false): void {
+		this.closePending = pending;
+		if (pending) {
+			this.recoverySerial++;
+			this.recoveryCancellation?.cancel();
+			this.recoveryCancellation = undefined;
+			this.recovery = undefined;
+			// Cancel attempt-owned bootstrap, but keep healthy outgoing services through cleanup.
+			if (this.recoveryContents && !this.isReady) { this.interruptPrototypeShutdown(); }
+			this.recoveryContents = undefined;
+			setPrototypeRecovery(this.id, localize('projectClosePending', "Close pending"));
+		} else if (!this.logicallyClosed) {
+			setPrototypeRecovery(this.id, failed === 'interrupted' ? localize('projectCloseInterrupted', "Close interrupted") : failed ? localize('projectCloseFailed', "Close failed") : localize('projectCloseCancelled', "Close cancelled"),
+				this.isReady ? undefined : () => { void this.destroyWindow(true, false); }, () => this.close());
+		}
+	}
 
+	interruptPrototypeShutdown(): void {
+		this.recoveryFailed = true;
+		this.readyState = ReadyState.NONE;
+		retirePrototypeDocument(this.webContents, 'interrupted-or-failed-workbench');
+		this.webContents.stop();
+		if (!this.closePending) {
+			setPrototypeRecovery(this.id, localize('projectRecoveryFailed', "Recovery failed"), () => { void this.destroyWindow(true, false); }, () => this.close());
+		}
+	}
+
+	private async destroyWindow(reopen: boolean, skipRestoreEditors: boolean): Promise<void> {
+		if (this.logicallyClosed) { return; }
+		if (!reopen) { return this.lifecycleMainService.close(this); }
+		if (prototypeHostClosing || this.closePending) { return; }
+		if (this.recovery) { return this.recovery; }
+		const serial = ++this.recoverySerial;
+		const cancellation = this.recoveryCancellation = new CancellationTokenSource();
+		this.recovery = this.recoverPrototypeWorkbench(serial, skipRestoreEditors, cancellation.token).finally(() => {
+			cancellation.dispose();
+			if (serial === this.recoverySerial) { this.recovery = undefined; this.recoveryCancellation = undefined; this.recoveryContents = undefined; }
+		});
+		return this.recovery;
+	}
+
+	private async recoverPrototypeWorkbench(serial: number, skipRestoreEditors: boolean, token: CancellationToken): Promise<void> {
+		const configuration = { ...this._config! };
 		try {
-			// ask the windows service to open a new fresh window if specified
-			if (reopen && this._config) {
-
-				// We have to reconstruct a openable from the current workspace
-				let uriToOpen: IWorkspaceToOpen | IFolderToOpen | undefined = undefined;
-				let forceEmpty = undefined;
-				if (isSingleFolderWorkspaceIdentifier(workspace)) {
-					uriToOpen = { folderUri: workspace.uri };
-				} else if (isWorkspaceIdentifier(workspace)) {
-					uriToOpen = { workspaceUri: workspace.configPath };
-				} else {
-					forceEmpty = true;
-				}
-
-				// Delegate to windows service
-				const window = (await this.windowsMainService.open({
-					context: OpenContext.API,
-					userEnv: this._config.userEnv,
-					cli: {
-						...this.environmentMainService.args,
-						_: [] // we pass in the workspace to open explicitly via `urisToOpen`
-					},
-					urisToOpen: uriToOpen ? [uriToOpen] : undefined,
-					forceEmpty,
-					forceNewWindow: true,
-					remoteAuthority: this.remoteAuthority
-				})).at(0);
-				window?.focus();
+			setPrototypeRecovery(this.id, localize('recoveringProject', "Recovering…"), undefined, () => this.close());
+			if (configuration.workspace && !await raceCancellationError(this.validateWorkspaceBeforeReload(configuration), token)) { throw new Error('Workspace is unavailable'); }
+			if (token.isCancellationRequested) { return; }
+			if (skipRestoreEditors && configuration.workspace) {
+				const storage = this.storageMainService.workspaceStorage(configuration.workspace);
+				await storage.init();
+				if (!token.isCancellationRequested) { storage.delete('memento/workbench.parts.editor'); }
+				await storage.close();
 			}
-		} finally {
-			// make sure to destroy the window as its renderer process is gone. do this
-			// after the code for reopening the window, to prevent the entire application
-			// from quitting when the last window closes as a result.
-			this._win?.destroy();
+			if (this.logicallyClosed || serial !== this.recoverySerial || prototypeHostClosing) { return; }
+			// Keep the logical tab/configuration; only its failed document and view are replaced.
+			this.rendererListeners.clear();
+			this.logicalCloseListener.clear();
+			revokePrototypeDocument(this.webContents, 'recovery');
+			this.hostedView = replacePrototypeWorkbench(this.id, this.prototypeOptions);
+			this.hostedContents = this.hostedView.webContents;
+			this.recoveryContents = this.webContents;
+			this.recoveryFailed = false;
+			this.registerLogicalClose();
+			this.registerRendererListeners();
+			this.readyState = ReadyState.NONE;
+			this.whenReadyCallbacks.length = 0; // Never replay queued commands from the failed document.
+			delete configuration.filesToOpenOrCreate;
+			delete configuration.filesToDiff;
+			delete configuration.filesToMerge;
+			delete configuration.filesToWait;
+			delete configuration.continueOn;
+			configuration.isInitialStartup = false;
+			const listeners = new DisposableStore();
+			try {
+				await raceCancellationError(new Promise<void>((resolve, reject) => {
+					listeners.add(this.onDidSignalReady(() => resolve()));
+					listeners.add(this.onDidClose(() => reject(new Error('Project closed during recovery'))));
+					listeners.add(Event.fromNodeEventEmitter(this.webContents, 'did-fail-load')(() => reject(new Error('Replacement load failed'))));
+					listeners.add(Event.fromNodeEventEmitter(this.webContents, 'render-process-gone')(() => reject(new Error('Replacement crashed'))));
+					const timer = setTimeout(() => reject(new Error('Replacement did not become ready')), 30000);
+					listeners.add(toDisposable(() => clearTimeout(timer)));
+					this.load(configuration, { isReload: true });
+				}), token);
+			} finally { listeners.dispose(); }
+			if (!this.logicallyClosed && serial === this.recoverySerial) { setPrototypeRecovery(this.id, undefined); }
+		} catch (error) {
+			if (token.isCancellationRequested) { return; }
+			this.logService.error('Project recovery failed', error);
+			if (!this.logicallyClosed && serial === this.recoverySerial) {
+				this.interruptPrototypeShutdown();
+			}
 		}
 	}
 
@@ -1239,7 +1369,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				const proxyRules = newHttpProxy || '';
 				const proxyBypassRules = newNoProxy ? `${newNoProxy},<local>` : '<local>';
 				this.logService.trace(`Setting proxy to '${proxyRules}', bypassing '${proxyBypassRules}'`);
-				this._win.webContents.session.setProxy({ proxyRules, proxyBypassRules, pacScript: '' });
+				this.webContents.session.setProxy({ proxyRules, proxyBypassRules, pacScript: '' });
 				electron.app.setProxy({ proxyRules, proxyBypassRules, pacScript: '' });
 			}
 		}
@@ -1269,6 +1399,8 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 	load(configuration: INativeWindowConfiguration, options: ILoadOptions = Object.create(null)): void {
 		this.logService.trace(`window#load: attempt to load window (id: ${this._id})`);
+		configurePrototypeDocument(this.webContents, { role: configuration.isSessionsWindow ? 'agents' : 'project', workspaceId: configuration.workspace?.id ?? toWorkspaceIdentifier(configuration.backupPath, !!configuration.extensionDevelopmentPath).id, remoteAuthority: configuration.remoteAuthority });
+		updatePrototypeWorkbench(this.id, configuration.workspace, configuration.remoteAuthority, this.configurationService.getValue<boolean>('accessibility.verbosity.projectTabs') !== false);
 
 		// Clear Document Edited if needed
 		if (this.isDocumentEdited()) {
@@ -1316,7 +1448,8 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 		} else {
 			windowUrl = FileAccess.asBrowserUri(`vs/code/electron-browser/workbench/workbench${this.environmentMainService.isBuilt ? '' : '-dev'}.html`).toString(true);
 		}
-		this._win.loadURL(windowUrl);
+		revokePrototypeDocument(this.webContents, 'approved-load');
+		this.webContents.loadURL(windowUrl);
 
 		// Remember that we did load
 		const wasLoaded = this.wasLoaded;
@@ -1329,7 +1462,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				if (this._win && !this._win.isVisible() && !this._win.isMinimized()) {
 					this._win.show();
 					this.focus({ mode: FocusMode.Force });
-					this._win.webContents.openDevTools();
+					this.webContents.openDevTools();
 				}
 			}, 10000)).schedule();
 		}
@@ -1654,30 +1787,35 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	close(): void {
-		this._win?.close();
+		void this.lifecycleMainService.close(this).catch(error => this.logService.error(error));
 	}
 
 	sendWhenReady(channel: string, token: CancellationToken, ...args: unknown[]): void {
-		if (this.isReady) {
+		const contents = this.webContents;
+		const generation = prototypeDocumentGeneration(contents);
+		// Native commands never wait for a different document to become their target.
+		if (this.hostedView && generation === undefined && (channel === 'vscode:runAction' || channel === 'vscode:runKeybinding')) { return; }
+		const deliver = () => {
+			if (token.isCancellationRequested || contents.isDestroyed() || generation !== undefined && prototypeDocumentGeneration(contents) !== generation) { return; }
+			try { if (this.webContents !== contents) { return; } } catch { return; }
 			this.send(channel, ...args);
+		};
+		if (this.isReady) {
+			deliver();
 		} else {
-			this.ready().then(() => {
-				if (!token.isCancellationRequested) {
-					this.send(channel, ...args);
-				}
-			});
+			void this.ready().then(deliver);
 		}
 	}
 
 	send(channel: string, ...args: unknown[]): void {
 		if (this._win) {
-			if (this._win.isDestroyed() || this._win.webContents.isDestroyed()) {
+			if (this._win.isDestroyed() || this.webContents.isDestroyed()) {
 				this.logService.warn(`Sending IPC message to channel '${channel}' for window that is destroyed`);
 				return;
 			}
 
 			try {
-				this._win.webContents.send(channel, ...args);
+				this.webContents.send(channel, ...args);
 			} catch (error) {
 				this.logService.warn(`Error sending IPC message to channel '${channel}' of window ${this._id}: ${toErrorMessage(error)}`);
 			}
@@ -1760,7 +1898,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 
 	private async startCollectingJScallStacks(): Promise<void> {
 		if (!this.jsCallStackCollector.isTriggered()) {
-			const stack = await this._win?.webContents.mainFrame.collectJavaScriptCallStack();
+			const stack = await this.webContents.mainFrame.collectJavaScriptCallStack();
 
 			// Increment the count for this stack trace
 			if (stack) {
@@ -1788,7 +1926,7 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 				// If the stack appears more than 20 percent of the time, log it
 				// to the error telemetry as UnresponsiveSampleError.
 				if (Math.round((count * 100) / this.jsCallStackEffectiveSampleCount) > 20) {
-					const fakeError = new UnresponsiveError(stack, this.id, this._win?.webContents.getOSProcessId());
+					const fakeError = new UnresponsiveError(stack, this.id, this.webContents.getOSProcessId());
 					errorHandler.onUnexpectedError(fakeError);
 				}
 				logMessage += `<${count}> ${stack}\n`;
@@ -1803,10 +1941,14 @@ export class CodeWindow extends BaseWindow implements ICodeWindow {
 	}
 
 	matches(webContents: electron.WebContents): boolean {
-		return this._win?.webContents.id === webContents.id;
+		return !this.logicallyClosed && !this.hostedContents?.isDestroyed() && this.webContents.id === webContents.id;
 	}
 
 	override dispose(): void {
+		this.logicallyClosed = true;
+		this.recoverySerial++;
+		this.recoveryCancellation?.cancel();
+		this.whenReadyCallbacks.length = 0;
 		super.dispose();
 
 		// Deregister the loggers for this window

@@ -1114,7 +1114,7 @@ export class NativeWindow extends BaseWindow {
 				notifyZoomLevel = currentWindowZoomLevel;
 			}
 
-			ipcRenderer.invoke('vscode:notifyZoomLevel', notifyZoomLevel);
+			ipcRenderer.invoke('vscode:notifyZoomLevel', notifyZoomLevel).catch(error => this.logService.error(error));
 		}
 	}
 

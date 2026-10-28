@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import type { ChatHomeWorkspace } from '../../workspace/common/chatHomeWorkspace.js';
 import { DeferredPromise, disposableTimeout } from '../../../base/common/async.js';
 import type { CancellationToken } from '../../../base/common/cancellation.js';
 import { Emitter, Event, Relay } from '../../../base/common/event.js';
@@ -21,6 +22,7 @@ import { Client as MessagePortClient } from '../../../base/parts/ipc/common/ipc.
 import { acquirePort, MessagePortAcquisitionError } from '../../../base/parts/ipc/electron-browser/ipc.mp.js';
 import { ipcRenderer } from '../../../base/parts/sandbox/electron-browser/globals.js';
 import { localize } from '../../../nls.js';
+import { IV8Profile } from '../../profiling/common/profiling.js';
 import { IConfigurationService } from '../../configuration/common/configuration.js';
 import { IEnvironmentService } from '../../environment/common/environment.js';
 import { IInstantiationService } from '../../instantiation/common/instantiation.js';
@@ -122,6 +124,39 @@ function notifyOnFatalAgentHostStartError(notificationService: INotificationServ
 	));
 }
 
+/** Keeps diagnostics independent of provider startup and retires late ports on restart. */
+export class LocalAgentHostProfilingConnection extends Disposable {
+	private readonly transport = this._register(new MutableDisposable<DisposableStore>());
+	private pending: Promise<MessagePortClient> | undefined;
+
+	constructor(private readonly acquire: () => Promise<MessagePort>) { super(); }
+
+	async client(): Promise<MessagePortClient> {
+		if (this._store.isDisposed) { throw new Error('Profiling presentation expired'); }
+		if (!this.pending) {
+			const pending = this.acquire().then(port => {
+				if (this._store.isDisposed || this.pending !== pending) { port.close(); throw new Error('Profiling presentation expired'); }
+				const store = new DisposableStore();
+				const client = store.add(new MessagePortClient(port, generateUuid()));
+				const closed = () => { if (this.transport.value === store) { this.reset(); } };
+				port.addEventListener('close', closed);
+				store.add(toDisposable(() => port.removeEventListener('close', closed)));
+				this.transport.value = store;
+				return client;
+			});
+			this.pending = pending;
+			void pending.catch(() => { if (this.pending === pending) { this.reset(); } });
+		}
+		const pending = this.pending;
+		const client = await pending;
+		if (this.pending !== pending || this._store.isDisposed) { throw new Error('Profiling presentation expired'); }
+		return client;
+	}
+
+	reset(): void { this.pending = undefined; this.transport.clear(); }
+	override dispose(): void { this.reset(); super.dispose(); }
+}
+
 /**
  * Keeps management-channel calls on the same MessagePort generation as the
  * connected AHP transport.
@@ -195,6 +230,7 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 
 	private readonly _clientStore = this._register(new MutableDisposable<DisposableStore>());
 	private readonly _managementConnection = this._register(new LocalAgentHostManagementConnection());
+	private readonly _profilingConnection = this._register(new LocalAgentHostProfilingConnection(() => acquirePort('vscode:createAgentHostProfilingMessageChannel', 'vscode:createAgentHostProfilingMessageChannelResult')));
 	private readonly _ahpLogger: AhpJsonlLogger | undefined;
 	private _protocolClient: AgentHostProtocolClient | undefined;
 	private _mcpAuthenticationHandler: ((request: IAgentHostMcpAuthenticationRequest) => Promise<boolean>) | undefined;
@@ -267,6 +303,7 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 		// current transport eagerly so the protocol client reconnects instead of
 		// treating the port going away as an unexpected failure.
 		const onWillRestart = () => {
+			this._profilingConnection.reset();
 			if (!this._protocolClient?.reconnectFromClosed()) {
 				this._protocolClient?.notifyTransportClosed();
 			}
@@ -338,7 +375,10 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 		this._forwardOTelPolicy();
 		let port: MessagePort;
 		try {
-			port = await acquirePort('vscode:createAgentHostMessageChannel', 'vscode:createAgentHostMessageChannelResult');
+			const nonce = generateUuid();
+			const pending = acquirePort(undefined, 'vscode:createAgentHostMessageChannelResult', nonce);
+			ipcRenderer.send('vscode:createAgentHostMessageChannel', nonce, this.clientId);
+			port = await pending;
 		} catch (error) {
 			if (error instanceof MessagePortAcquisitionError && error.fatal) {
 				throw new NonReconnectableTransportError(error.message);
@@ -736,6 +776,14 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 		return this._requireClient().createChat(session, chat, options);
 	}
 
+	getChatHomeWorkspace(chat: URI): Promise<ChatHomeWorkspace | undefined> {
+		return this._requireClient().getChatHomeWorkspace(chat);
+	}
+
+	setChatHomeWorkspace(chat: URI, home: ChatHomeWorkspace): Promise<void> {
+		return this._requireClient().setChatHomeWorkspace(chat, home);
+	}
+
 	setChatWorkspace(chat: URI, workspace: IAgentCreateChatWorkspace): Promise<void> {
 		return this._requireClient().setChatWorkspace(chat, workspace);
 	}
@@ -855,6 +903,19 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 
 	getInspectInfo(tryEnable: boolean): Promise<IAgentHostInspectInfo | undefined> {
 		return this._getManagementService().getInspectInfo(tryEnable);
+	}
+
+	async startCpuProfile(): Promise<string> {
+		return (await this._getProfilingManagement()).startCpuProfile!();
+	}
+
+	async stopCpuProfile(handle: string): Promise<IV8Profile> {
+		return (await this._getProfilingManagement()).stopCpuProfile!(handle);
+	}
+
+	private async _getProfilingManagement(): Promise<IAgentHostManagementService> {
+		const client = await this._profilingConnection.client();
+		return ProxyChannel.toService<IAgentHostManagementService>(client.getChannel(AgentHostIpcChannels.Management));
 	}
 
 	private _getManagementService(): IAgentHostManagementService {

@@ -24,8 +24,8 @@ const cwd = process.env['VSCODE_CWD'] || process.cwd();
  * - respect VSCODE_APPDATA environment variable
  * - respect --user-data-dir CLI argument
  */
-export function getUserDataPath(cliArgs: NativeParsedArgs, productName: string): string {
-	const userDataPath = doGetUserDataPath(cliArgs, productName);
+export function getUserDataPath(cliArgs: NativeParsedArgs, productName: string, applicationName: string): string {
+	const userDataPath = doGetUserDataPath(cliArgs, productName, applicationName);
 	const pathsToResolve = [userDataPath];
 
 	// If the user-data-path is not absolute, make
@@ -41,11 +41,11 @@ export function getUserDataPath(cliArgs: NativeParsedArgs, productName: string):
 	return resolve(...pathsToResolve);
 }
 
-function doGetUserDataPath(cliArgs: NativeParsedArgs, productName: string): string {
+function doGetUserDataPath(cliArgs: NativeParsedArgs, productName: string, applicationName: string): string {
 
-	// 0. Running out of sources has a fixed productName
+	// 0. Development state belongs to this application, independently of display names.
 	if (process.env['VSCODE_DEV']) {
-		productName = 'code-oss-dev';
+		productName = `${applicationName}-dev`;
 	}
 
 	// 1. Support portable mode

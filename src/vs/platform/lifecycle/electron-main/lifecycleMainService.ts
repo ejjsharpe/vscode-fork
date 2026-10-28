@@ -4,8 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 
 import electron from 'electron';
+import { randomUUID } from 'crypto';
+import { prototypeHostClosing, setPrototypeHostClosing, reportPrototypeCloseFailure } from '../../windows/electron-main/prototypeWorkbenchHost.js';
+import { prototypeLifecycleReady, onPrototypeDocumentRevoked, prototypeDocumentGeneration, prototypeDocumentOwnsReply, revokePrototypeDocument } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { validatedIpcMain } from '../../../base/parts/ipc/electron-main/ipcMain.js';
-import { Barrier, Promises, timeout } from '../../../base/common/async.js';
+import { Barrier, DeferredPromise, Promises, timeout } from '../../../base/common/async.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { Disposable, DisposableStore } from '../../../base/common/lifecycle.js';
 import { isMacintosh, isWindows } from '../../../base/common/platform.js';
@@ -132,6 +135,7 @@ export interface ILifecycleMainService {
 	 * Make a `ICodeWindow` known to the lifecycle main service.
 	 */
 	registerWindow(window: ICodeWindow): void;
+	close(window: ICodeWindow): Promise<void>;
 
 	/**
 	 * Make a `IAuxiliaryWindow` known to the lifecycle main service.
@@ -146,7 +150,7 @@ export interface ILifecycleMainService {
 	/**
 	 * Unload a window for the provided reason. All lifecycle event handlers are triggered.
 	 */
-	unload(window: ICodeWindow, reason: UnloadReason): Promise<boolean /* veto */>;
+	unload(window: ICodeWindow, reason: UnloadReason): Promise<boolean | 'interrupted'>;
 
 	/**
 	 * Restart the application with optional arguments (CLI). All lifecycle event handlers are triggered.
@@ -210,6 +214,10 @@ export const enum LifecycleMainPhase {
 	Eventually = 4
 }
 
+class PrototypeCloseInterrupted extends Error {
+	constructor() { super('Close interrupted'); }
+}
+
 export class LifecycleMainService extends Disposable implements ILifecycleMainService {
 
 	declare readonly _serviceBrand: undefined;
@@ -237,8 +245,13 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	private _phase = LifecycleMainPhase.Starting;
 	get phase(): LifecycleMainPhase { return this._phase; }
 
-	private readonly windowToCloseRequest = new Set<number>();
-	private oneTimeListenerTokenGenerator = 0;
+	private readonly prototypeWindows = new Map<number, ICodeWindow>();
+	private readonly prototypeHosts = new WeakSet<electron.BrowserWindow>();
+	private readonly closingProjects = new Set<number>();
+	private readonly closeTargets = new Map<number, ICodeWindow>();
+	private readonly pendingProjectCloses = new Map<number, DeferredPromise<void>>();
+	private readonly pendingProjectReloads = new Map<number, Promise<void>>();
+	private readonly completedHostCleanup = new Map<number, electron.WebContents>();
 	private windowCounter = 0;
 
 	private pendingQuitPromise: Promise<boolean> | undefined = undefined;
@@ -246,7 +259,7 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 
 	private pendingWillShutdownPromise: Promise<void> | undefined = undefined;
 
-	private readonly mapWindowIdToPendingUnload = new Map<number, Promise<boolean>>();
+	private readonly mapWindowIdToPendingUnload = new Map<number, Promise<boolean | 'interrupted'>>();
 
 	private readonly phaseWhen = new Map<LifecycleMainPhase, Barrier>();
 
@@ -419,60 +432,145 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 	}
 
 	registerWindow(window: ICodeWindow): void {
-		const windowListeners = new DisposableStore();
-
-		// track window count
+		const listeners = new DisposableStore();
+		this.prototypeWindows.set(window.id, window);
 		this.windowCounter++;
+		listeners.add(window.onWillLoad(e => {
+			this.completedHostCleanup.delete(window.id);
+			this._onWillLoadWindow.fire({ window, workspace: e.workspace, reason: e.reason });
+		}));
+		listeners.add(window.onDidClose(() => {
+			this.prototypeWindows.delete(window.id);
+			this.completedHostCleanup.delete(window.id);
 
-		// Window Will Load
-		windowListeners.add(window.onWillLoad(e => this._onWillLoadWindow.fire({ window, workspace: e.workspace, reason: e.reason })));
+			this.windowCounter--;
+			listeners.dispose();
+			if (this.windowCounter === 0 && (!isMacintosh || this._quitRequested)) { this.fireOnWillShutdown(ShutdownReason.QUIT); }
+		}));
+		const host = assertReturnsDefined(window.win);
+		if (!this.prototypeHosts.has(host)) {
+			this.prototypeHosts.add(host);
+			host.on('close', event => {
+				event.preventDefault();
+				if (!prototypeHostClosing) { void this.closePrototypeHost(host); }
+			});
+		}
+	}
 
-		// Window Before Closing: Main -> Renderer
-		const win = assertReturnsDefined(window.win);
-		windowListeners.add(Event.fromNodeEventEmitter<electron.Event>(win, 'close')(e => {
+	close(window: ICodeWindow): Promise<void> {
+		const existing = this.pendingProjectCloses.get(window.id);
+		if (existing) { return existing.p; }
+		const pending = new DeferredPromise<void>();
+		this.pendingProjectCloses.set(window.id, pending);
+		this.closeTargets.set(window.id, window);
+		window.setPrototypeClosePending(true);
+		if (!prototypeHostClosing) { void this.finishPrototypeClose(window); }
+		return pending.p;
+	}
 
-			// The window already acknowledged to be closed
-			const windowId = window.id;
-			if (this.windowToCloseRequest.delete(windowId)) {
-				return;
+	private async finishPrototypeClose(window: ICodeWindow): Promise<void> {
+		if (this.closingProjects.has(window.id)) { return; }
+		const pending = this.pendingProjectCloses.get(window.id);
+		if (!pending) { return; }
+		this.closingProjects.add(window.id);
+		let failed: boolean | 'interrupted' = false;
+		try {
+			if (this.prototypeWindows.has(window.id)) {
+				if (this.completedHostCleanup.get(window.id) !== window.webContents) {
+					const outcome = await this.unload(window, UnloadReason.CLOSE);
+					if (outcome === 'interrupted') { throw new PrototypeCloseInterrupted(); }
+					if (outcome) { return; }
+				}
+				this._onBeforeCloseWindow.fire(window);
 			}
+			await window.disposePrototypeWorkbench(true);
+		} catch (error) {
+			failed = error instanceof PrototypeCloseInterrupted ? 'interrupted' : true;
+			if (failed === true) { reportPrototypeCloseFailure(window.id); }
+			this.logService.error(error);
+			await pending.error(error);
+		} finally {
+			this.closingProjects.delete(window.id);
+			this.pendingProjectCloses.delete(window.id);
+			this.closeTargets.delete(window.id);
+			this.completedHostCleanup.delete(window.id);
+			if (this.prototypeWindows.has(window.id)) { window.setPrototypeClosePending(false, failed); }
+			if (!failed) { await pending.complete(); }
+		}
+	}
 
-			this.trace(`Lifecycle#window.on('close') - window ID ${window.id}`);
-
-			// Otherwise prevent unload and handle it from window
-			e.preventDefault();
-			this.unload(window, UnloadReason.CLOSE).then(veto => {
-				if (veto) {
-					this.windowToCloseRequest.delete(windowId);
+	private async closePrototypeHost(host: electron.BrowserWindow): Promise<void> {
+		setPrototypeHostClosing(true);
+		const windows = [...this.prototypeWindows.values()].filter(window => window.win === host);
+		const authorized = new Map<ICodeWindow, number>();
+		const cleanupStarted = new Set<ICodeWindow>();
+		let interrupted = false;
+		try {
+			// Ask every live project before any cleanup; a veto must leave neighbours usable.
+			for (const window of windows) {
+				if (this.completedHostCleanup.get(window.id) === window.webContents) { continue; }
+				if (this.closingProjects.has(window.id) || this.mapWindowIdToPendingUnload.has(window.id)) {
+					this.handleWindowUnloadVeto(true);
 					return;
 				}
-
-				this.windowToCloseRequest.add(windowId);
-
-				// Fire onBeforeCloseWindow before actually closing
-				this.trace(`Lifecycle#onBeforeCloseWindow.fire() - window ID ${windowId}`);
-				this._onBeforeCloseWindow.fire(window);
-
-				// No veto, close window now
-				window.close();
-			});
-		}));
-		windowListeners.add(Event.fromNodeEventEmitter<electron.Event>(win, 'closed')(() => {
-			this.trace(`Lifecycle#window.on('closed') - window ID ${window.id}`);
-
-			// update window count
-			this.windowCounter--;
-
-			// clear window listeners
-			windowListeners.dispose();
-
-			// if there are no more code windows opened, fire the onWillShutdown event, unless
-			// we are on macOS where it is perfectly fine to close the last window and
-			// the application continues running (unless quit was actually requested)
-			if (this.windowCounter === 0 && (!isMacintosh || this._quitRequested)) {
-				this.fireOnWillShutdown(ShutdownReason.QUIT);
+				// Shutdown safeguards must be visible in the workbench being asked.
+				if (prototypeLifecycleReady(window.webContents)) { window.focus(); }
+				const generation = prototypeDocumentGeneration(window.webContents);
+				const outcome = !prototypeLifecycleReady(window.webContents) || generation === undefined ? 'interrupted' : await this.onBeforeUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE);
+				if (outcome !== false || generation === undefined) {
+					interrupted = outcome === 'interrupted';
+					this.handleWindowUnloadVeto(true);
+					return;
+				}
+				authorized.set(window, generation);
 			}
-		}));
+			for (const [window, generation] of authorized) {
+				cleanupStarted.add(window);
+				if (prototypeDocumentGeneration(window.webContents) !== generation || await this.onWillUnloadWindowInRenderer(window, this._quitRequested ? UnloadReason.QUIT : UnloadReason.CLOSE) === 'interrupted') {
+					interrupted = true;
+					this.handleWindowUnloadVeto(true);
+					return;
+				}
+				this.completedHostCleanup.set(window.id, window.webContents);
+				revokePrototypeDocument(window.webContents, 'host-cleanup-complete');
+			}
+			for (const window of windows) {
+				revokePrototypeDocument(window.webContents, 'host-shutdown');
+				this._onBeforeCloseWindow.fire(window);
+			}
+			// Complete logical cleanup before reporting coordinated native shutdown success.
+			const results = await Promise.allSettled(windows.map(window => window.disposePrototypeWorkbench(true)));
+			for (let index = 0; index < windows.length; index++) {
+				const pending = this.pendingProjectCloses.get(windows[index].id);
+				const result = results[index];
+				if (pending) {
+					if (result.status === 'rejected') { await pending.error(result.reason); }
+					else { await pending.complete(); }
+					this.pendingProjectCloses.delete(windows[index].id);
+					this.closeTargets.delete(windows[index].id);
+				}
+			}
+			const failures = results.filter(result => result.status === 'rejected');
+			if (failures.length) { throw new AggregateError(failures.map(result => result.reason), 'Host project disposal failed'); }
+			host.destroy();
+		} catch (error) {
+			this.logService.error(error);
+			this.handleWindowUnloadVeto(true);
+		} finally {
+			setPrototypeHostClosing(false);
+			for (const window of cleanupStarted) {
+				if (!host.isDestroyed() && this.prototypeWindows.has(window.id)) { window.interruptPrototypeShutdown(); }
+			}
+			for (const id of this.pendingProjectCloses.keys()) {
+				const window = this.closeTargets.get(id);
+				if (window && interrupted) {
+					await this.pendingProjectCloses.get(id)!.error(new PrototypeCloseInterrupted());
+					this.pendingProjectCloses.delete(id);
+					this.closeTargets.delete(id);
+					window.setPrototypeClosePending(false, 'interrupted');
+				} else if (window) { void this.finishPrototypeClose(window); }
+			}
+		}
 	}
 
 	registerAuxWindow(auxWindow: IAuxiliaryWindow): void {
@@ -505,16 +603,28 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		}));
 	}
 
-	async reload(window: ICodeWindow, cli?: NativeParsedArgs): Promise<void> {
+	reload(window: ICodeWindow, cli?: NativeParsedArgs): Promise<void> {
+		const existing = this.pendingProjectReloads.get(window.id);
+		if (existing) { return existing; }
+
+		// Publish the attempt before dispatch so reentrant callers cannot replace twice.
+		const pending = Promise.resolve().then(() => this.doReload(window, cli)).finally(() => this.pendingProjectReloads.delete(window.id));
+		this.pendingProjectReloads.set(window.id, pending);
+		return pending;
+	}
+
+	private async doReload(window: ICodeWindow, cli?: NativeParsedArgs): Promise<void> {
+		if (prototypeHostClosing || this.pendingProjectCloses.has(window.id)) { return; }
 
 		// Only reload when the window has not vetoed this
 		const veto = await this.unload(window, UnloadReason.RELOAD);
 		if (!veto) {
+			revokePrototypeDocument(window.webContents, 'approved-reload');
 			window.reload(cli);
 		}
 	}
 
-	unload(window: ICodeWindow, reason: UnloadReason): Promise<boolean /* veto */> {
+	unload(window: ICodeWindow, reason: UnloadReason): Promise<boolean | 'interrupted'> {
 
 		// Ensure there is only 1 unload running at the same time
 		const pendingUnloadPromise = this.mapWindowIdToPendingUnload.get(window.id);
@@ -531,18 +641,25 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		return unloadPromise;
 	}
 
-	private async doUnload(window: ICodeWindow, reason: UnloadReason): Promise<boolean /* veto */> {
+	private async doUnload(window: ICodeWindow, reason: UnloadReason): Promise<boolean | 'interrupted'> {
 
-		// Always allow to unload a window that is not yet ready
-		if (!window.isReady) {
-			return false;
+		// Bootstrap authorization is not evidence that lifecycle safeguards can receive requests.
+		if (!prototypeLifecycleReady(window.webContents)) {
+			this.handleWindowUnloadVeto(true);
+			return 'interrupted';
 		}
 
 		this.trace(`Lifecycle#unload() - window ID ${window.id}`);
 
 		// first ask the window itself if it vetos the unload
 		const windowUnloadReason = this._quitRequested ? UnloadReason.QUIT : reason;
+		const generation = prototypeDocumentGeneration(window.webContents);
 		const veto = await this.onBeforeUnloadWindowInRenderer(window, windowUnloadReason);
+		if (veto === 'interrupted') {
+			this.trace('Lifecycle unload interrupted before acknowledgement');
+			this.handleWindowUnloadVeto(true);
+			return 'interrupted';
+		}
 		if (veto) {
 			this.trace(`Lifecycle#unload() - veto in renderer (window ID ${window.id})`);
 
@@ -550,7 +667,13 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		}
 
 		// finally if there are no vetos, unload the renderer
-		await this.onWillUnloadWindowInRenderer(window, windowUnloadReason);
+		if (generation === undefined || generation !== prototypeDocumentGeneration(window.webContents) ||
+			await this.onWillUnloadWindowInRenderer(window, windowUnloadReason) === 'interrupted') {
+			this.trace('Lifecycle unload interrupted during cleanup');
+			this.handleWindowUnloadVeto(true);
+			return 'interrupted';
+		}
+		revokePrototypeDocument(window.webContents, 'acknowledged-unload');
 
 		return false;
 	}
@@ -577,42 +700,44 @@ export class LifecycleMainService extends Disposable implements ILifecycleMainSe
 		}
 	}
 
-	private onBeforeUnloadWindowInRenderer(window: ICodeWindow, reason: UnloadReason): Promise<boolean /* veto */> {
-		return new Promise<boolean>(resolve => {
-			const oneTimeEventToken = this.oneTimeListenerTokenGenerator++;
-			const okChannel = `vscode:ok${oneTimeEventToken}`;
-			const cancelChannel = `vscode:cancel${oneTimeEventToken}`;
-
-			const cleanup = (value: boolean) => {
-				validatedIpcMain.removeListener(okChannel, okListener);
-				validatedIpcMain.removeListener(cancelChannel, cancelListener);
-				resolve(value);
+	// A wait owns one document and phase; rejected messages never consume it.
+	private waitForPrototypeLifecycle(window: ICodeWindow, requestChannel: string, reason: UnloadReason, before: boolean): Promise<'ok' | 'cancel' | 'interrupted'> {
+		const contents = window.webContents;
+		const generation = prototypeDocumentGeneration(contents);
+		if (generation === undefined || !prototypeLifecycleReady(contents)) { return Promise.resolve('interrupted'); }
+		return new Promise(resolve => {
+			const token = randomUUID();
+			const channels = before ? [`vscode:ok${token}`, `vscode:cancel${token}`] : [`vscode:reply${token}`];
+			let settled = false;
+			const finish = (result: 'ok' | 'cancel' | 'interrupted') => {
+				if (settled) { return; }
+				settled = true;
+				for (let i = 0; i < channels.length; i++) { validatedIpcMain.removeListener(channels[i], listeners[i]); }
+				revocation.dispose();
+				resolve(result);
 			};
-
-			const okListener = () => {
-				cleanup(false); // no veto
-			};
-
-			const cancelListener = () => {
-				cleanup(true); // veto
-			};
-
-			validatedIpcMain.on(okChannel, okListener);
-			validatedIpcMain.on(cancelChannel, cancelListener);
-
-			window.send('vscode:onBeforeUnload', { okChannel, cancelChannel, reason });
+			const listeners = channels.map((channel, index) => (event: electron.IpcMainEvent, windowId: unknown, nonce: unknown) => {
+				if (!prototypeDocumentOwnsReply(contents, generation, event, nonce) || windowId !== window.id) {
+					return;
+				}
+				finish(index === 1 ? 'cancel' : 'ok');
+			});
+			const revocation = onPrototypeDocumentRevoked(event => {
+				if (event.contents === contents && event.generation === generation) { finish('interrupted'); }
+			});
+			for (let i = 0; i < channels.length; i++) { validatedIpcMain.on(channels[i], listeners[i]); }
+			window.send(requestChannel, before ? { okChannel: channels[0], cancelChannel: channels[1], reason } : { replyChannel: channels[0], reason });
 		});
 	}
 
-	private onWillUnloadWindowInRenderer(window: ICodeWindow, reason: UnloadReason): Promise<void> {
-		return new Promise<void>(resolve => {
-			const oneTimeEventToken = this.oneTimeListenerTokenGenerator++;
-			const replyChannel = `vscode:reply${oneTimeEventToken}`;
+	private async onBeforeUnloadWindowInRenderer(window: ICodeWindow, reason: UnloadReason): Promise<boolean | 'interrupted'> {
+		const result = await this.waitForPrototypeLifecycle(window, 'vscode:onBeforeUnload', reason, true);
+		return result === 'interrupted' ? result : result === 'cancel';
+	}
 
-			validatedIpcMain.once(replyChannel, () => resolve());
-
-			window.send('vscode:onWillUnload', { replyChannel, reason });
-		});
+	private async onWillUnloadWindowInRenderer(window: ICodeWindow, reason: UnloadReason): Promise<'ok' | 'interrupted'> {
+		const result = await this.waitForPrototypeLifecycle(window, 'vscode:onWillUnload', reason, false);
+		return result === 'ok' ? 'ok' : 'interrupted';
 	}
 
 	quit(willRestart?: boolean): Promise<boolean /* veto */> {

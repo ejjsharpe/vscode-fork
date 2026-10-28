@@ -275,7 +275,7 @@ export class WorkspacesManagementMainService extends Disposable implements IWork
 		}
 
 		// Prevent overwriting a workspace that is currently opened in another window
-		if (findWindowOnWorkspaceOrFolder(windows, workspacePath)) {
+		if (findWindowOnWorkspaceOrFolder(windows, { configPath: workspacePath }, window.remoteAuthority)) {
 			await this.dialogMainService.showMessageBox({
 				type: 'info',
 				buttons: [localize({ key: 'ok', comment: ['&& denotes a mnemonic'] }, "&&OK")],

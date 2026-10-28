@@ -5,6 +5,7 @@
 
 import assert from 'assert';
 import sinon from 'sinon';
+import { CancellationTokenSource } from '../../../../base/common/cancellation.js';
 import { DeferredPromise, timeout } from '../../../../base/common/async.js';
 import { Emitter, Event } from '../../../../base/common/event.js';
 import { runWithFakedTimers } from '../../../../base/test/common/timeTravelScheduler.js';
@@ -188,6 +189,18 @@ function createConnector(tunnel: ITunnelDescriptor, relayClient: FakeRelayClient
 }
 
 suite('TunnelAgentHostConnector', () => {
+	test('does not allocate a relay after its connecting owner expires', async () => {
+		const source = new CancellationTokenSource();
+		const socket = new FakeSocket();
+		const { connector, relayClientFactory } = createConnector({ tunnelId: 'test', clusterId: 'cluster', labels: ['protocolv5'] }, new FakeRelayClient(), new FakeSocketFactory(socket));
+		try {
+			const connecting = connector.connect('token', 'github', 'test', 'cluster', undefined, source.token);
+			source.cancel();
+			await assert.rejects(connecting, error => error instanceof Error && error.name === 'Canceled');
+			assert.strictEqual(relayClientFactory.createRelayClientCalls, 0);
+		} finally { connector.dispose(); source.dispose(); socket.dispose(); }
+	});
+
 	ensureNoDisposablesAreLeakedInTestSuite();
 
 	test('derives the same base64url tokens as Node crypto, including a leading dash', async () => {
@@ -286,6 +299,27 @@ suite('TunnelAgentHostConnector', () => {
 			legacyConnector.dispose();
 			gatewayConnector.dispose();
 		}
+	});
+
+	test('closes a socket allocated after its connection attempt timed out', async () => {
+		return runWithFakedTimers({ useFakeTimers: true, maxTaskCount: 10_000 }, async () => {
+			const opening = new DeferredPromise<void>();
+			const late = new DeferredPromise<ITunnelMessageSocket>();
+			const socket = new FakeSocket();
+			const factory = new class extends FakeSocketFactory {
+				override open() { opening.complete(); return late.p; }
+			}(socket);
+			const { connector } = createConnector({ tunnelId: 'late', clusterId: 'cluster', labels: ['protocolv5'] }, new FakeRelayClient(), factory);
+			try {
+				const rejected = assert.rejects(connector.connect('token', 'github', 'late', 'cluster'), /WebSocket relay open timed out/);
+				await opening.p;
+				await timeout(TUNNEL_STEP_TIMEOUT_MS + 1);
+				await rejected;
+				await late.complete(socket);
+				await Promise.resolve();
+				assert.deepStrictEqual({ closed: socket.closeCalls, disposed: socket.disposeCalls }, { closed: 1, disposed: 1 });
+			} finally { connector.dispose(); socket.dispose(); }
+		});
 	});
 
 	test('times out a relay step and disposes the relay client', async () => {

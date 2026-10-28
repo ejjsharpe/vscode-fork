@@ -178,6 +178,10 @@ suite('LocalTerminalBackend', () => {
 		}), StorageScope.WORKSPACE, StorageTarget.MACHINE);
 
 		const backend = store.add(instantiationService.createInstance(LocalTerminalBackend));
+		// This environment-only fixture stands in for the connected direct PTY service.
+		const connected = new DeferredPromise<void>();
+		await connected.complete();
+		Reflect.set(backend, '_directProxyClientEventually', connected);
 		await backend.getTerminalLayoutInfo();
 		deepStrictEqual({
 			revivedStateLength: revivedState?.length,

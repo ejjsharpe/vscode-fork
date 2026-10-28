@@ -808,6 +808,8 @@ export class ChannelClient implements IChannelClient, IDisposable {
 }
 
 export interface ClientConnectionEvent {
+	/** Transport-established identity; never supplied by the peer. */
+	readonly context?: string;
 	protocol: IMessagePassingProtocol;
 	readonly onDidClientDisconnect: Event<void>;
 }
@@ -845,14 +847,15 @@ export class IPCServer<TContext = string> implements IChannelServer<TContext>, I
 	}
 
 	constructor(onDidClientConnect: Event<ClientConnectionEvent>, ipcLogger?: IIPCLogger | null, timeoutDelay?: number) {
-		this.disposables.add(onDidClientConnect(({ protocol, onDidClientDisconnect }) => {
+		this.disposables.add(onDidClientConnect(({ protocol, onDidClientDisconnect, context }) => {
 			const onFirstMessage = Event.once(protocol.onMessage);
 
 			const connectionDisposables = new DisposableStore();
 
 			const onFirstMessageDisposable = onFirstMessage(msg => {
 				const reader = new BufferReader(msg);
-				const ctx = deserialize(reader) as TContext;
+				const suppliedContext = deserialize(reader);
+				const ctx = (context ?? suppliedContext) as TContext;
 
 				const channelServer = new ChannelServer(protocol, ctx, ipcLogger, timeoutDelay);
 				const channelClient = new ChannelClient(protocol, ipcLogger);

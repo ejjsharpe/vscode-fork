@@ -26,6 +26,9 @@ export interface IBaseWindow extends IDisposable {
 
 	readonly id: number;
 	readonly win: electron.BrowserWindow | null;
+	/** Native container owned by this logical workbench, including its child browser views. */
+	readonly contentView: electron.View | undefined;
+	readonly webContents: electron.WebContents;
 
 	readonly lastFocusTime: number;
 	focus(options?: { mode: FocusMode }): void;
@@ -70,6 +73,8 @@ export interface ICodeWindow extends IBaseWindow {
 	readonly isExtensionTestHost: boolean;
 
 	readonly isReady: boolean;
+	/** Existing logical Close is still pending safeguards or joined cleanup. */
+	readonly isPrototypeClosePending: boolean;
 	ready(): Promise<ICodeWindow>;
 	setReady(): void;
 
@@ -79,6 +84,9 @@ export interface ICodeWindow extends IBaseWindow {
 	reload(cli?: NativeParsedArgs): void;
 
 	close(): void;
+	disposePrototypeWorkbench(afterUnload?: boolean): Promise<void>;
+	setPrototypeClosePending(pending: boolean, failed?: boolean | 'interrupted'): void;
+	interruptPrototypeShutdown(): void;
 
 	getBounds(): electron.Rectangle;
 

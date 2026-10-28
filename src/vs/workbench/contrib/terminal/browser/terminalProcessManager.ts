@@ -829,7 +829,7 @@ export class TerminalProcessManager extends Disposable implements ITerminalProce
 			return;
 		}
 		try {
-			await this._process.setParentWindow?.(this._parentWindowHandle);
+			await this._process.setParentWindow?.(this._parentWindowHandle, this._parentWindowId);
 		} catch (e) {
 			this._logService.trace('Could not set the parent window of the terminal process', e);
 		}

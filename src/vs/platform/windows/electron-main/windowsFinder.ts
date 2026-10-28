@@ -3,7 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { extUriBiasedIgnorePathCase } from '../../../base/common/resources.js';
+import { extUriBiasedIgnorePathCase, isEqualAuthority } from '../../../base/common/resources.js';
+import { hasKey } from '../../../base/common/types.js';
 import { URI } from '../../../base/common/uri.js';
 import { ICodeWindow } from '../../window/electron-main/window.js';
 import { IResolvedWorkspace, ISingleFolderWorkspaceIdentifier, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, IWorkspaceIdentifier } from '../../workspace/common/workspace.js';
@@ -41,22 +42,16 @@ export async function findWindowOnFile(windows: ICodeWindow[], fileUri: URI, loc
 	return undefined;
 }
 
-export function findWindowOnWorkspaceOrFolder(windows: ICodeWindow[], folderOrWorkspaceConfigUri: URI): ICodeWindow | undefined {
-
-	for (const window of windows) {
-
-		// check for workspace config path
-		if (isWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqual(window.openedWorkspace.configPath, folderOrWorkspaceConfigUri)) {
-			return window;
+export function findWindowOnWorkspaceOrFolder(windows: ICodeWindow[], target: Pick<IWorkspaceIdentifier, 'configPath'> | Pick<ISingleFolderWorkspaceIdentifier, 'uri'>, remoteAuthority: string | undefined): ICodeWindow | undefined {
+	return windows.filter(window => {
+		if (!isEqualAuthority(window.remoteAuthority, remoteAuthority)) {
+			return false;
 		}
-
-		// check for folder path
-		if (isSingleFolderWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqual(window.openedWorkspace.uri, folderOrWorkspaceConfigUri)) {
-			return window;
-		}
-	}
-
-	return undefined;
+		const workspace = window.openedWorkspace;
+		return hasKey(target, { configPath: true })
+			? isWorkspaceIdentifier(workspace) && extUriBiasedIgnorePathCase.isEqual(workspace.configPath, target.configPath)
+			: isSingleFolderWorkspaceIdentifier(workspace) && extUriBiasedIgnorePathCase.isEqual(workspace.uri, target.uri);
+	}).sort((a, b) => b.lastFocusTime - a.lastFocusTime)[0];
 }
 
 

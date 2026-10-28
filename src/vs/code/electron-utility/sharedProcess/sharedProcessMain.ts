@@ -3,6 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { LocalGitChannel } from '../../../platform/git/node/localGitChannel.js';
+import { SharedProcessChannel } from '../../../platform/sharedProcess/common/sharedProcessChannel.js';
+import { SharedProcessTunnelChannel } from '../../../platform/tunnel/node/sharedProcessTunnelChannel.js';
 import { hostname, release } from 'os';
 import { MessagePortMain, MessageEvent } from '../../../base/parts/sandbox/node/electronTypes.js';
 import { toErrorMessage } from '../../../base/common/errorMessage.js';
@@ -11,7 +14,7 @@ import { combinedDisposable, Disposable, toDisposable } from '../../../base/comm
 import { Schemas } from '../../../base/common/network.js';
 import { URI } from '../../../base/common/uri.js';
 import { Emitter } from '../../../base/common/event.js';
-import { ProxyChannel, StaticRouter } from '../../../base/parts/ipc/common/ipc.js';
+import { IServerChannel, ProxyChannel, StaticRouter } from '../../../base/parts/ipc/common/ipc.js';
 import { IClientConnectionFilter, Server as UtilityProcessMessagePortServer, once } from '../../../base/parts/ipc/node/ipc.mp.js';
 import { CodeCacheCleaner } from './contrib/codeCacheCleaner.js';
 import { LanguagePackCachedDataCleaner } from './contrib/languagePackCachedDataCleaner.js';
@@ -95,6 +98,7 @@ import { ISSHRemoteAgentHostMainService, SSH_REMOTE_AGENT_HOST_CHANNEL } from '.
 import { SSHRemoteAgentHostMainService } from '../../../platform/agentHost/node/sshRemoteAgentHostService.js';
 import { DEV_CONTAINER_AGENT_HOST_CHANNEL, IDevContainerAgentHostMainService } from '../../../platform/agentHost/common/devContainerAgentHost.js';
 import { createDevContainerAgentHostChannel } from '../../../platform/agentHost/common/devContainerAgentHostIpc.js';
+import { createSSHRemoteAgentHostChannel, createTunnelAgentHostChannel, createWSLRemoteAgentHostChannel, IRemoteAgentHostChannelAuthority } from '../../../platform/agentHost/common/remoteAgentHostIpc.js';
 import { DevContainerAgentHostMainService } from '../../../platform/agentHost/node/devContainerAgentHostService.js';
 import { IWSLRemoteAgentHostMainService, WSL_REMOTE_AGENT_HOST_CHANNEL } from '../../../platform/agentHost/common/wslRemoteAgentHost.js';
 import { WSLRemoteAgentHostMainService } from '../../../platform/agentHost/node/wslRemoteAgentHostService.js';
@@ -396,7 +400,9 @@ class SharedProcessMain extends Disposable implements IClientConnectionFilter {
 		// Settings Sync
 		services.set(IUserDataSyncAccountService, new SyncDescriptor(UserDataSyncAccountService, undefined, true));
 		services.set(IUserDataSyncLogService, new SyncDescriptor(UserDataSyncLogService, undefined, true));
-		services.set(IUserDataSyncUtilService, ProxyChannel.toService(this.server.getChannel('userDataSyncUtil', client => client.ctx !== 'main')));
+		services.set(IUserDataSyncUtilService, ProxyChannel.toService(this.server.getChannel('userDataSyncUtil', client => {
+			try { const scope = this.server.getConnectionScope(client.ctx); return scope?.role === 'project' || scope?.role === 'agents'; } catch { return false; }
+		})));
 		services.set(IGlobalExtensionEnablementService, new SyncDescriptor(GlobalExtensionEnablementService, undefined, false /* Eagerly resets installed extensions */));
 		services.set(IIgnoredExtensionsManagementService, new SyncDescriptor(IgnoredExtensionsManagementService, undefined, true));
 		services.set(IExtensionStorageService, new SyncDescriptor(ExtensionStorageService));
@@ -447,95 +453,107 @@ class SharedProcessMain extends Disposable implements IClientConnectionFilter {
 	private initChannels(accessor: ServicesAccessor): void {
 
 		const instantiationService = accessor.get(IInstantiationService);
-		this._register(registerGitHubChannel(this.server, accessor.get(IGitHubService)));
-		this.server.registerChannel(agentHostMcpOAuthMetadataChannelName, ProxyChannel.fromService(instantiationService.createInstance(AgentHostMcpOAuthMetadataService), this._store));
+		const validateWorkbench = (ctx: string): void => {
+			if (this.server.getConnectionScope(ctx)?.role === 'auxiliary') { throw new Error('Auxiliary shared-process capability denied'); }
+		};
+		// These named application capabilities keep their profile, sync and permission scopes.
+		// Renderer-owned resources below additionally bind their handles to this connection.
+		const applicationChannel = (channel: IServerChannel<string>, commands?: readonly string[], events?: readonly string[]) => new SharedProcessChannel(channel, validateWorkbench, commands, events);
+		this._register(registerGitHubChannel(this.server, accessor.get(IGitHubService), channel => applicationChannel(channel)));
+		this.server.registerChannel(agentHostMcpOAuthMetadataChannelName, applicationChannel(ProxyChannel.fromService(instantiationService.createInstance(AgentHostMcpOAuthMetadataService), this._store), ['fetch', 'resolveResource'], []));
 
 		// Extensions Management
 		const channel = new ExtensionManagementChannel(accessor.get(IExtensionManagementService), () => null);
-		this.server.registerChannel('extensions', channel);
+		this.server.registerChannel('extensions', applicationChannel(channel));
 
 		// Mcp Management
 		const mcpManagementChannel = new McpManagementChannel(accessor.get(IMcpManagementService), () => null);
-		this.server.registerChannel('mcpManagement', mcpManagementChannel);
+		this.server.registerChannel('mcpManagement', applicationChannel(mcpManagementChannel));
 
 		// Language Packs
 		const languagePacksChannel = ProxyChannel.fromService(accessor.get(ILanguagePackService), this._store);
-		this.server.registerChannel('languagePacks', languagePacksChannel);
+		this.server.registerChannel('languagePacks', applicationChannel(languagePacksChannel, ['getAvailableLanguages', 'getInstalledLanguages', 'getBuiltInExtensionTranslationsUri'], []));
 
 		// Diagnostics
 		const diagnosticsChannel = ProxyChannel.fromService(accessor.get(IDiagnosticsService), this._store);
-		this.server.registerChannel('diagnostics', diagnosticsChannel);
+		this.server.registerChannel('diagnostics', applicationChannel(diagnosticsChannel, ['getPerformanceInfo', 'getSystemInfo', 'getDiagnostics', 'getWorkspaceFileExtensions', 'reportWorkspaceStats'], []));
 
 		// Extension Tips
 		const extensionTipsChannel = new ExtensionTipsChannel(accessor.get(IExtensionTipsService));
-		this.server.registerChannel('extensionTipsService', extensionTipsChannel);
+		this.server.registerChannel('extensionTipsService', applicationChannel(extensionTipsChannel));
 
 		// Checksum
 		const checksumChannel = ProxyChannel.fromService(accessor.get(IChecksumService), this._store);
-		this.server.registerChannel('checksum', checksumChannel);
+		this.server.registerChannel('checksum', applicationChannel(checksumChannel, ['checksum'], []));
 
 		// Profiling
 		const profilingChannel = ProxyChannel.fromService(accessor.get(IV8InspectProfilingService), this._store);
-		this.server.registerChannel('v8InspectProfiling', profilingChannel);
+		this.server.registerChannel('v8InspectProfiling', new SharedProcessChannel(profilingChannel, ctx => {
+			if (this.server.getConnectionScope(ctx)) { throw new Error('Renderer-selected inspector endpoints are unavailable'); }
+		}, ['startProfiling', 'stopProfiling'], []));
 
 		// Settings Sync
 		const userDataSyncMachineChannel = ProxyChannel.fromService(accessor.get(IUserDataSyncMachinesService), this._store);
-		this.server.registerChannel('userDataSyncMachines', userDataSyncMachineChannel);
+		this.server.registerChannel('userDataSyncMachines', applicationChannel(userDataSyncMachineChannel, ['getMachines', 'addCurrentMachine', 'removeCurrentMachine', 'renameMachine', 'setEnablements'], ['onDidChange']));
 
 		// Custom Endpoint Telemetry
 		const customEndpointTelemetryChannel = ProxyChannel.fromService(accessor.get(ICustomEndpointTelemetryService), this._store);
-		this.server.registerChannel('customEndpointTelemetry', customEndpointTelemetryChannel);
+		this.server.registerChannel('customEndpointTelemetry', applicationChannel(customEndpointTelemetryChannel, ['publicLog', 'publicLogError'], []));
 
 		const userDataSyncAccountChannel = new UserDataSyncAccountServiceChannel(accessor.get(IUserDataSyncAccountService));
-		this.server.registerChannel('userDataSyncAccount', userDataSyncAccountChannel);
+		this.server.registerChannel('userDataSyncAccount', applicationChannel(userDataSyncAccountChannel));
 
 		const userDataSyncStoreManagementChannel = new UserDataSyncStoreManagementServiceChannel(accessor.get(IUserDataSyncStoreManagementService));
-		this.server.registerChannel('userDataSyncStoreManagement', userDataSyncStoreManagementChannel);
+		this.server.registerChannel('userDataSyncStoreManagement', applicationChannel(userDataSyncStoreManagementChannel));
 
-		const userDataSyncChannel = new UserDataSyncServiceChannel(accessor.get(IUserDataSyncService), accessor.get(IUserDataProfilesService), accessor.get(ILogService));
-		this.server.registerChannel('userDataSync', userDataSyncChannel);
+		const userDataSyncChannel = this._register(new UserDataSyncServiceChannel(accessor.get(IUserDataSyncService), accessor.get(IUserDataProfilesService), accessor.get(ILogService), { validate: ctx => validateWorkbench(String(ctx)), onDidRemoveConnection: this.server.onDidRemoveConnection }));
+		this.server.registerChannel('userDataSync', applicationChannel(userDataSyncChannel));
 
 		const userDataAutoSync = this._register(accessor.get(IInstantiationService).createInstance(UserDataAutoSyncService));
-		this.server.registerChannel('userDataAutoSync', ProxyChannel.fromService(userDataAutoSync, this._store));
+		this.server.registerChannel('userDataAutoSync', applicationChannel(ProxyChannel.fromService(userDataAutoSync, this._store), ['turnOn', 'turnOff', 'triggerSync'], ['onError']));
 
-		this.server.registerChannel('IUserDataSyncResourceProviderService', ProxyChannel.fromService(accessor.get(IUserDataSyncResourceProviderService), this._store));
+		this.server.registerChannel('IUserDataSyncResourceProviderService', applicationChannel(ProxyChannel.fromService(accessor.get(IUserDataSyncResourceProviderService), this._store), ['getRemoteSyncedProfiles', 'getLocalSyncedProfiles', 'getRemoteSyncResourceHandles', 'getLocalSyncResourceHandles', 'getAssociatedResources', 'getMachineId', 'getLocalSyncedMachines', 'resolveContent', 'resolveUserDataSyncResource'], []));
 
 		// Tunnel
-		const sharedProcessTunnelChannel = ProxyChannel.fromService(accessor.get(ISharedProcessTunnelService), this._store);
+		const sharedProcessTunnelChannel = this._register(new SharedProcessTunnelChannel(this.server.onDidRemoveConnection, accessor.get(ISharedProcessTunnelService), ctx => this.server.getConnectionScope(ctx)));
 		this.server.registerChannel(ipcSharedProcessTunnelChannelName, sharedProcessTunnelChannel);
 
 		// Remote Tunnel
 		const remoteTunnelChannel = ProxyChannel.fromService(accessor.get(IRemoteTunnelService), this._store);
-		this.server.registerChannel('remoteTunnel', remoteTunnelChannel);
+		this.server.registerChannel('remoteTunnel', applicationChannel(remoteTunnelChannel, ['getTunnelStatus', 'getMode', 'initialize', 'startTunnel', 'stopTunnel', 'getTunnelName'], ['onDidChangeTunnelStatus', 'onDidChangeMode', 'onDidTokenFailed']));
 
 		// Web Content Extractor
 		const webContentExtractorChannel = ProxyChannel.fromService(accessor.get(ISharedWebContentExtractorService), this._store);
-		this.server.registerChannel('sharedWebContentExtractor', webContentExtractorChannel);
+		this.server.registerChannel('sharedWebContentExtractor', applicationChannel(webContentExtractorChannel, ['readImage', 'readImageWithMetadata'], []));
 
 		// Playwright
 		const agentNetworkFilterService = this._register(new AgentNetworkFilterService(accessor.get(IConfigurationService)));
-		const playwrightChannel = this._register(new PlaywrightChannel(this.server, accessor.get(IMainProcessService), accessor.get(ILogService), agentNetworkFilterService, accessor.get(ITelemetryService)));
+		const playwrightChannel = this._register(new PlaywrightChannel(this.server, accessor.get(IMainProcessService), accessor.get(ILogService), agentNetworkFilterService, accessor.get(ITelemetryService), context => this.server.getConnectionScope(context)));
 		this.server.registerChannel('playwright', playwrightChannel);
 
 		// Local Git
-		const localGitChannel = ProxyChannel.fromService(accessor.get(ILocalGitService), this._store);
+		const localGitChannel = this._register(new LocalGitChannel(accessor.get(ILocalGitService) as LocalGitService, this.server.onDidRemoveConnection, validateWorkbench));
 		this.server.registerChannel('localGit', localGitChannel);
 
 		// SSH Remote Agent Host
-		const sshRemoteAgentHostChannel = ProxyChannel.fromService(accessor.get(ISSHRemoteAgentHostMainService), this._store);
+		const remoteAgentHostAuthority: IRemoteAgentHostChannelAuthority = {
+			getScope: ctx => this.server.getConnectionScope(ctx),
+			onDidRemoveConnection: this.server.onDidRemoveConnection
+		};
+		const sshRemoteAgentHostChannel = createSSHRemoteAgentHostChannel(accessor.get(ISSHRemoteAgentHostMainService), this._store, remoteAgentHostAuthority);
 		this.server.registerChannel(SSH_REMOTE_AGENT_HOST_CHANNEL, sshRemoteAgentHostChannel);
 
 		// Dev Container Agent Host
 		// Deliver inspection facts before a rejected connect RPC disposes its listeners.
-		const devContainerAgentHostChannel = createDevContainerAgentHostChannel(accessor.get(IDevContainerAgentHostMainService), this._store);
+		const devContainerAgentHostChannel = createDevContainerAgentHostChannel(accessor.get(IDevContainerAgentHostMainService), this._store, remoteAgentHostAuthority);
 		this.server.registerChannel(DEV_CONTAINER_AGENT_HOST_CHANNEL, devContainerAgentHostChannel);
 
 		// WSL Remote Agent Host
-		const wslRemoteAgentHostChannel = ProxyChannel.fromService(accessor.get(IWSLRemoteAgentHostMainService), this._store);
+		const wslRemoteAgentHostChannel = createWSLRemoteAgentHostChannel(accessor.get(IWSLRemoteAgentHostMainService), this._store, remoteAgentHostAuthority);
 		this.server.registerChannel(WSL_REMOTE_AGENT_HOST_CHANNEL, wslRemoteAgentHostChannel);
 
 		// Tunnel Agent Host
-		const tunnelAgentHostChannel = ProxyChannel.fromService(accessor.get(ITunnelAgentHostMainService), this._store);
+		const tunnelAgentHostChannel = createTunnelAgentHostChannel(accessor.get(ITunnelAgentHostMainService), this._store, remoteAgentHostAuthority);
 		this.server.registerChannel(TUNNEL_AGENT_HOST_CHANNEL, tunnelAgentHostChannel);
 
 	}
