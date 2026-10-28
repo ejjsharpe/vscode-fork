@@ -7140,6 +7140,18 @@ suite('ProtocolServerHandler', () => {
 		});
 	});
 
+	test('native connections cannot initialize as another document client', () => {
+		const transport = disposables.add(new class extends MockProtocolTransport {
+			readonly nativeClientId = 'main-bound-client';
+		}(AgentHostTransportKind.MessagePort));
+		server.simulateConnection(transport);
+		transport.simulateMessage(request(1, 'initialize', { clientId: 'foreign-client', protocolVersions: [PROTOCOL_VERSION] }));
+		const response = findResponse(transport.sent, 1);
+		assert.deepStrictEqual(response && hasKey(response, { error: true }) ? response.error : undefined, {
+			code: JsonRpcErrorCodes.InvalidParams, message: 'Client ID does not match native connection',
+		});
+	});
+
 	test('request-form dispatch waits for delayed application instead of returning a stale sequence', async () => {
 		stateManager.createSession(makeSessionSummary());
 		const transport = connectClient('client-1', [sessionUri]);

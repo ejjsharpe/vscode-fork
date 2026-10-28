@@ -12,7 +12,8 @@ import { IBaseSerializableStorageRequest, ISerializableCompareAndSwapRequest, IS
 import { ApplicationSharedStorageMain, IStorageChangeEvent, IStorageMain } from './storageMain.js';
 import { IStorageMainService } from './storageMainService.js';
 import { IUserDataProfile } from '../../userDataProfile/common/userDataProfile.js';
-import { reviveIdentifier, IAnyWorkspaceIdentifier } from '../../workspace/common/workspace.js';
+import { reviveIdentifier, IAnyWorkspaceIdentifier, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier } from '../../workspace/common/workspace.js';
+import { isEqual } from '../../../base/common/resources.js';
 
 export class StorageDatabaseChannel extends Disposable implements IServerChannel {
 
@@ -25,7 +26,8 @@ export class StorageDatabaseChannel extends Disposable implements IServerChannel
 
 	constructor(
 		private readonly logService: ILogService,
-		private readonly storageMainService: IStorageMainService
+		private readonly storageMainService: IStorageMainService,
+		private readonly resolveScope?: (context: unknown) => { profile: IUserDataProfile; workspace: IAnyWorkspaceIdentifier } | undefined
 	) {
 		super();
 
@@ -74,7 +76,8 @@ export class StorageDatabaseChannel extends Disposable implements IServerChannel
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	listen(_: unknown, event: string, arg: IBaseSerializableStorageRequest): Event<any> {
+	listen(context: unknown, event: string, arg: IBaseSerializableStorageRequest): Event<any> {
+		arg = this.authorize(context, arg);
 		switch (event) {
 			case 'onDidChangeStorage': {
 				const profile = arg.profile ? revive<IUserDataProfile>(arg.profile) : undefined;
@@ -82,10 +85,10 @@ export class StorageDatabaseChannel extends Disposable implements IServerChannel
 				// Without profile: application or application-shared scope
 				if (!profile) {
 					if (arg.applicationShared) {
-						return this.onDidChangeApplicationSharedStorageEmitter.event;
+						return this.currentEvents(context, this.onDidChangeApplicationSharedStorageEmitter.event);
 					}
 
-					return this.onDidChangeApplicationStorageEmitter.event;
+					return this.currentEvents(context, this.onDidChangeApplicationStorageEmitter.event);
 				}
 
 				// With profile: profile scope for the profile
@@ -96,7 +99,7 @@ export class StorageDatabaseChannel extends Disposable implements IServerChannel
 					this.mapProfileToOnDidChangeProfileStorageEmitter.set(profile.id, profileStorageChangeEmitter);
 				}
 
-				return profileStorageChangeEmitter.event;
+				return this.currentEvents(context, profileStorageChangeEmitter.event);
 			}
 		}
 
@@ -106,13 +109,15 @@ export class StorageDatabaseChannel extends Disposable implements IServerChannel
 	//#endregion
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	async call(_: unknown, command: string, arg: IBaseSerializableStorageRequest): Promise<any> {
+	async call(context: unknown, command: string, arg: IBaseSerializableStorageRequest): Promise<any> {
+		arg = this.authorize(context, arg);
 		const profile = arg.profile ? revive<IUserDataProfile>(arg.profile) : undefined;
 		const workspace = reviveIdentifier(arg.workspace);
 		const applicationShared = arg.applicationShared;
 
 		// Get storage to be ready
 		const storage = await this.withStorageInitialized(profile, workspace, applicationShared);
+		this.resolveScope?.(context);
 
 		// handle call
 		switch (command) {
@@ -175,6 +180,33 @@ export class StorageDatabaseChannel extends Disposable implements IServerChannel
 			default:
 				throw new Error(`Call not found: ${command}`);
 		}
+	}
+
+	private authorize(context: unknown, arg: IBaseSerializableStorageRequest): IBaseSerializableStorageRequest {
+		const scope = this.resolveScope?.(context);
+		if (!scope) { return arg; }
+		if (!arg || typeof arg !== 'object') { throw new Error('Rejected storage request'); }
+		if (arg.profile) {
+			const requested = revive<IUserDataProfile>(arg.profile);
+			if (requested.id !== scope.profile.id) { throw new Error('Rejected foreign storage profile'); }
+			if (!isEqual(requested.location, scope.profile.location) || !isEqual(requested.globalStorageHome, scope.profile.globalStorageHome)) { throw new Error('Rejected forged storage profile'); }
+		}
+		if (arg.workspace) {
+			const requested = reviveIdentifier(arg.workspace)!;
+			if (requested.id !== scope.workspace.id) { throw new Error('Rejected foreign storage workspace'); }
+			const requestedKind = isSingleFolderWorkspaceIdentifier(requested) ? 'folder' : isWorkspaceIdentifier(requested) ? 'workspace' : 'empty';
+			const actualKind = isSingleFolderWorkspaceIdentifier(scope.workspace) ? 'folder' : isWorkspaceIdentifier(scope.workspace) ? 'workspace' : 'empty';
+			const requestedUri = isSingleFolderWorkspaceIdentifier(requested) ? requested.uri : isWorkspaceIdentifier(requested) ? requested.configPath : undefined;
+			const actualUri = isSingleFolderWorkspaceIdentifier(scope.workspace) ? scope.workspace.uri : isWorkspaceIdentifier(scope.workspace) ? scope.workspace.configPath : undefined;
+			if (requestedKind !== actualKind || !isEqual(requestedUri, actualUri)) { throw new Error('Rejected forged storage workspace'); }
+		}
+		return { ...arg, ...(arg.profile ? { profile: scope.profile } : {}), ...(arg.workspace ? { workspace: scope.workspace } : {}) };
+	}
+
+	private currentEvents<T>(context: unknown, event: Event<T>): Event<T> {
+		return Event.filter(event, () => {
+			try { this.resolveScope?.(context); return true; } catch { return false; }
+		});
 	}
 
 	private async withStorageInitialized(profile: IUserDataProfile | undefined, workspace: IAnyWorkspaceIdentifier | undefined, applicationShared?: boolean): Promise<IStorageMain> {

@@ -3,14 +3,15 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { deepStrictEqual } from 'assert';
-import { timeout } from '../../../../base/common/async.js';
+import { deepStrictEqual, rejects } from 'assert';
+import { DeferredPromise, timeout } from '../../../../base/common/async.js';
 import { Emitter, Event } from '../../../../base/common/event.js';
 import { DisposableStore } from '../../../../base/common/lifecycle.js';
 import { upcastPartial } from '../../../../base/test/common/mock.js';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/common/utils.js';
 import { createLocalPtyChannel } from '../../common/localPtyChannel.js';
 import { ILocalPtyService } from '../../common/terminal.js';
+import { VSBuffer } from '../../../../base/common/buffer.js';
 
 type PtyEventData<K extends keyof ILocalPtyService> = ILocalPtyService[K] extends Event<infer T> ? T : never;
 
@@ -137,5 +138,100 @@ suite('LocalPtyChannel', () => {
 			onPtyHostResponsive: [undefined, undefined],
 			onPtyHostRequestResolveVariables: [earlyRequest, liveRequest],
 		});
+	});
+
+	test('limits process access to the authenticated workbench and workspace', async () => {
+		const owners = new Map([[1, { workbench: 51, workspaceId: 'one' }], [2, { workbench: 52, workspaceId: 'two' }]]);
+		const service = upcastPartial<ILocalPtyService>({
+			getProcessOwner: async id => owners.get(id),
+			getCwd: async () => '/one',
+		});
+		let current = true;
+		const channel = createLocalPtyChannel(service, store.add(new DisposableStore()), () => {
+			if (!current) { throw new Error('Revoked'); }
+			return { role: 'project', workbench: 51, generation: 1, workspaceId: 'one' };
+		});
+		const own = await channel.call('main-issued', 'getCwd', [1]);
+		await rejects(channel.call('main-issued', 'getCwd', [2]), /owner/);
+		current = false;
+		await rejects(channel.call('main-issued', 'getCwd', [1]), /Revoked/);
+		deepStrictEqual(own, '/one');
+	});
+
+	test('delivers the final owned exit after the native process registry removes its handle', async () => {
+		const exits = store.add(new Emitter<{ id: number; event: number; owner: { workbench: number; workspaceId: string } }>());
+		const received: number[] = [];
+		const service = upcastPartial<ILocalPtyService>({ onProcessExit: exits.event, getProcessOwner: async () => undefined });
+		const channel = createLocalPtyChannel(service, store.add(new DisposableStore()), () => ({ role: 'project', workbench: 51, generation: 1, workspaceId: 'one' }));
+		store.add(channel.listen<{ id: number }>('one', 'onProcessExit')(exit => received.push(exit.id)));
+		exits.fire({ id: 1, event: 0, owner: { workbench: 51, workspaceId: 'one' } });
+		exits.fire({ id: 2, event: 0, owner: { workbench: 52, workspaceId: 'two' } });
+		await timeout(0);
+		deepStrictEqual(received, [1]);
+	});
+
+	test('binds restore, grace time and port cleanup to the current terminal owner', async () => {
+		const calls: unknown[] = [];
+		const service = upcastPartial<ILocalPtyService>({
+			getProcessOwner: async id => id === 1 ? { workbench: 51, workspaceId: 'one' } : undefined,
+			reduceConnectionGraceTime: async workbench => { calls.push(workbench); },
+			freePortKillProcess: async (port, id, validate) => { validate?.(); calls.push([port, id]); return { port, processId: '123' }; },
+			reviveTerminalProcesses: async (_workspace, _state, _locale, owner, validate) => { validate?.(); calls.push(owner); },
+		});
+		const channel = createLocalPtyChannel(service, store.add(new DisposableStore()), () => ({ role: 'project', workbench: 51, generation: 1, workspaceId: 'one' }), Event.None, true);
+		await channel.call('one', 'reduceConnectionGraceTime', [52]);
+		await channel.call('one', 'freePortKillProcess', ['3000', 1]);
+		await rejects(channel.call('one', 'freePortKillProcess', ['3000', 2]), /owner/);
+		await channel.call('one', 'reviveTerminalProcesses', ['one', [], 'en']);
+		await rejects(channel.call('one', 'setTerminalLayoutInfo', [{ workspaceId: 'one', tabs: [{ terminals: [{ terminal: '2' }] }] }]), /handle/);
+		deepStrictEqual(calls, [51, ['3000', 1], { workbench: 51, workspaceId: 'one' }]);
+	});
+
+	test('revokes a pending native terminal effect before its later action', async () => {
+		const started = new DeferredPromise<void>();
+		const proceed = new DeferredPromise<void>();
+		let current = true;
+		let killed = false;
+		const service = upcastPartial<ILocalPtyService>({
+			getProcessOwner: async () => ({ workbench: 51, workspaceId: 'one' }),
+			freePortKillProcess: async (port, _id, validate) => { await started.complete(); await proceed.p; validate?.(); killed = true; return { port, processId: '123' }; },
+		});
+		const channel = createLocalPtyChannel(service, store.add(new DisposableStore()), () => {
+			if (!current) { throw new Error('Revoked'); }
+			return { role: 'project', workbench: 51, generation: 1, workspaceId: 'one' };
+		}, Event.None, true);
+		const pending = channel.call('one', 'freePortKillProcess', ['3000', 1]);
+		await started.p;
+		current = false;
+		await proceed.complete();
+		await rejects(pending, /Revoked/);
+		deepStrictEqual(killed, false);
+	});
+
+	test('revalidates the live native target after a queued PTY setter resumes', async () => {
+		const started = new DeferredPromise<void>();
+		const proceed = new DeferredPromise<void>();
+		let nativeTargetLive = true;
+		let attached = false;
+		const handle = VSBuffer.fromString('own-native-handle');
+		const service = upcastPartial<ILocalPtyService>({
+			getProcessOwner: async () => ({ workbench: 51, workspaceId: 'one' }),
+			setParentWindow: async (_id, _handle, _targetId, resolveNativeParent) => {
+				await started.complete();
+				await proceed.p;
+				await resolveNativeParent!();
+				attached = true;
+			}
+		});
+		const channel = createLocalPtyChannel(service, store.add(new DisposableStore()), () => ({ role: 'project', workbench: 51, generation: 1, workspaceId: 'one' }), Event.None, true, async (_context, supplied, targetId) => {
+			if (!nativeTargetLive || targetId !== 52 || !handle.equals(supplied)) { throw new Error('Native target expired'); }
+			return handle;
+		});
+		const pending = channel.call('one', 'setParentWindow', [1, handle, 52]);
+		await started.p;
+		nativeTargetLive = false;
+		await proceed.complete();
+		await rejects(pending, /expired/);
+		deepStrictEqual(attached, false);
 	});
 });

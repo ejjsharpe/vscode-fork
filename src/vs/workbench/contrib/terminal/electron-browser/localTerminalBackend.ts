@@ -104,7 +104,7 @@ export class LocalTerminalBackend extends BaseTerminalBackend implements ITermin
 		this._register(this.onPtyHostRestart(() => {
 			this._directProxy = undefined;
 			this._directProxyClientEventually = undefined;
-			this._connectToDirectProxy();
+			void this._connectToDirectProxy().catch(error => this._logService.error(error));
 		}));
 	}
 
@@ -134,6 +134,11 @@ export class LocalTerminalBackend extends BaseTerminalBackend implements ITermin
 		mark('code/terminal/willConnectPtyHost');
 		this._logService.trace('Renderer->PtyHost#connect: before acquirePort');
 		acquirePort('vscode:createPtyHostMessageChannel', 'vscode:createPtyHostMessageChannelResult').then(port => {
+			if (this._store.isDisposed || this._directProxyClientEventually !== directProxyClientEventually) {
+				port.close();
+				directProxyClientEventually.error(new Error('Terminal connection expired'));
+				return;
+			}
 			mark('code/terminal/didConnectPtyHost');
 			this._logService.trace('Renderer->PtyHost#connect: connection established');
 
@@ -166,7 +171,12 @@ export class LocalTerminalBackend extends BaseTerminalBackend implements ITermin
 
 			// Eagerly fetch the backend's environment for memoization
 			this.getEnvironment();
-		});
+		}, error => directProxyClientEventually.error(error));
+		try { await directProxyClientEventually.p; }
+		catch (error) {
+			if (this._directProxyClientEventually === directProxyClientEventually) { this._directProxyClientEventually = undefined; this._directProxy = undefined; }
+			throw error;
+		}
 	}
 
 	async requestDetachInstance(workspaceId: string, instanceId: number): Promise<IProcessDetails | undefined> {
@@ -328,6 +338,7 @@ export class LocalTerminalBackend extends BaseTerminalBackend implements ITermin
 	}
 
 	async getTerminalLayoutInfo(): Promise<ITerminalsLayoutInfo | undefined> {
+		await this._connectToDirectProxy();
 		const workspaceId = this._getWorkspaceId();
 		const layoutArgs: IGetTerminalLayoutInfoArgs = { workspaceId };
 

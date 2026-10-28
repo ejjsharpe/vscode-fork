@@ -18,6 +18,7 @@ export const IBrowserViewGroupMainService = createDecorator<IBrowserViewGroupMai
 
 export interface IBrowserViewGroupMainService extends IBrowserViewGroupService {
 	readonly _serviceBrand: undefined;
+	createGroup(filter: IBrowserViewGroupFilter, targetContext: IBrowserViewCreationContext, validateAuthority?: () => void): Promise<string>;
 }
 
 /**
@@ -38,9 +39,10 @@ export class BrowserViewGroupMainService extends Disposable implements IBrowserV
 		super();
 	}
 
-	async createGroup(filter: IBrowserViewGroupFilter, targetContext: IBrowserViewCreationContext): Promise<string> {
+	async createGroup(filter: IBrowserViewGroupFilter, targetContext: IBrowserViewCreationContext, validateAuthority: () => void = () => { }): Promise<string> {
+		validateAuthority();
 		const id = generateUuid();
-		const group = this.instantiationService.createInstance(BrowserViewGroup, id, filter, targetContext);
+		const group = this.instantiationService.createInstance(BrowserViewGroup, id, filter, targetContext, validateAuthority);
 		this.groups.set(id, group);
 
 		Event.once(group.onDidDestroy)(() => {
@@ -49,6 +51,7 @@ export class BrowserViewGroupMainService extends Disposable implements IBrowserV
 
 		try {
 			await group.activate();
+			validateAuthority();
 			return id;
 		} catch (error) {
 			this.groups.deleteAndDispose(id);
