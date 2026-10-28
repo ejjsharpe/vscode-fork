@@ -93,6 +93,8 @@ export interface IWindowUtilityProcessConfiguration extends IUtilityProcessConfi
 	readonly responseWindowId: number;
 	readonly responseChannel: string;
 	readonly responseNonce: string;
+	/** Main-only origin injected by the authenticated native service adapter. */
+	readonly nativeConnectionContext?: string;
 
 	// --- utility process options
 
@@ -516,7 +518,9 @@ export class WindowUtilityProcess extends UtilityProcess {
 		this.registerWindowListeners(configuration);
 
 		// Establish & exchange message ports
-		const windowPort = this.connect(configuration.payload);
+		let windowPort: Electron.MessagePortMain;
+		try { windowPort = this.connect(configuration.payload, configuration.nativeConnectionContext); }
+		catch (error) { this.kill(); throw error; }
 		console.log('[hosting-probe] port', JSON.stringify({ workbench: responseWindow.id, webContents: responseWindow.webContents.id, channel: configuration.responseChannel }));
 		if (prototypeDocumentGeneration(responseWindow.webContents) !== generation) {
 			windowPort.close();

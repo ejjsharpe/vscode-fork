@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { execFile, exec } from 'child_process';
+import { execFile } from 'child_process';
 import { AutoOpenBarrier, ProcessTimeRunOnceScheduler, Promises, Queue, timeout } from '../../../base/common/async.js';
 import { VSBuffer } from '../../../base/common/buffer.js';
 import { Emitter, Event } from '../../../base/common/event.js';
@@ -11,9 +11,11 @@ import { Disposable, toDisposable } from '../../../base/common/lifecycle.js';
 import { IProcessEnvironment, isWindows, OperatingSystem, OS } from '../../../base/common/platform.js';
 import { URI } from '../../../base/common/uri.js';
 import { getSystemShell } from '../../../base/node/shell.js';
+import { listProcesses } from '../../../base/node/ps.js';
+import { ProcessItem } from '../../../base/common/processes.js';
 import { ILogService, LogLevel } from '../../log/common/log.js';
 import { RequestStore } from '../common/requestStore.js';
-import { IProcessDataEvent, IProcessReadyEvent, IPtyService, IRawTerminalInstanceLayoutInfo, IReconnectConstants, IShellLaunchConfig, ITerminalInstanceLayoutInfoById, ITerminalLaunchError, ITerminalsLayoutInfo, ITerminalTabLayoutInfoById, TerminalIcon, IProcessProperty, TitleEventSource, ProcessPropertyType, IProcessPropertyMap, IFixedTerminalDimensions, IPersistentTerminalProcessLaunchConfig, ICrossVersionSerializedTerminalState, ISerializedTerminalState, ITerminalProcessOptions, IPtyHostLatencyMeasurement, type IPtyServiceContribution, PosixShellType, ITerminalLaunchResult } from '../common/terminal.js';
+import { IPtyProcessOwner, IProcessDataEvent, IProcessReadyEvent, IPtyService, IRawTerminalInstanceLayoutInfo, IReconnectConstants, IShellLaunchConfig, ITerminalInstanceLayoutInfoById, ITerminalLaunchError, ITerminalsLayoutInfo, ITerminalTabLayoutInfoById, TerminalIcon, IProcessProperty, TitleEventSource, ProcessPropertyType, IProcessPropertyMap, IFixedTerminalDimensions, IPersistentTerminalProcessLaunchConfig, ICrossVersionSerializedTerminalState, ISerializedTerminalState, ITerminalProcessOptions, IPtyHostLatencyMeasurement, type IPtyServiceContribution, PosixShellType, ITerminalLaunchResult } from '../common/terminal.js';
 import { TerminalDataBufferer } from '../common/terminalDataBuffering.js';
 import { escapeNonWindowsPath } from '../common/terminalEnvironment.js';
 import type { ISerializeOptions, SerializeAddon as XtermSerializeAddon } from '@xterm/addon-serialize';
@@ -96,6 +98,20 @@ let SerializeAddon: typeof XtermSerializeAddon;
 let Unicode11Addon: typeof XtermUnicode11Addon;
 
 export class PtyService extends Disposable implements IPtyService {
+
+	private readonly _processOwners = new Map<number, IPtyProcessOwner>();
+
+	async setProcessOwner(id: number, owner: IPtyProcessOwner): Promise<void> {
+		const process = this._throwIfNoPty(id);
+		if (process.workspaceId !== owner.workspaceId) { throw new Error('Rejected PTY workspace owner'); }
+		const existing = this._processOwners.get(id);
+		if (existing && (existing.workbench !== owner.workbench || existing.workspaceId !== owner.workspaceId)) { throw new Error('Rejected PTY owner reassignment'); }
+		this._processOwners.set(id, owner);
+	}
+
+	async getProcessOwner(id: number): Promise<IPtyProcessOwner | undefined> {
+		return this._processOwners.get(id);
+	}
 	declare readonly _serviceBrand: undefined;
 
 	private readonly _ptys: Map<number, PersistentTerminalProcess> = new Map();
@@ -107,12 +123,12 @@ export class PtyService extends Disposable implements IPtyService {
 
 	private readonly _autoRepliesContribution: AutoRepliesPtyServiceContribution;
 	@traceRpc
-	async installAutoReply(match: string, reply: string) {
-		await this._autoRepliesContribution.installAutoReply(match, reply);
+	async installAutoReply(match: string, reply: string, workbench?: number) {
+		await this._autoRepliesContribution.installAutoReply(match, reply, workbench);
 	}
 	@traceRpc
-	async uninstallAllAutoReplies() {
-		await this._autoRepliesContribution.uninstallAllAutoReplies();
+	async uninstallAllAutoReplies(workbench?: number) {
+		await this._autoRepliesContribution.uninstallAllAutoReplies(workbench);
 	}
 
 	// #endregion
@@ -202,29 +218,34 @@ export class PtyService extends Disposable implements IPtyService {
 	}
 
 	@traceRpc
-	async freePortKillProcess(port: string): Promise<{ port: string; processId: string }> {
+	async freePortKillProcess(port: string, terminalId?: number, validateAuthority?: () => void): Promise<{ port: string; processId: string }> {
+		if (!/^[0-9]+$/.test(port) || Number(port) < 1 || Number(port) > 65535) { throw new Error('Invalid TCP port'); }
+		const terminal = terminalId === undefined ? undefined : this._throwIfNoPty(terminalId);
+		const terminalPid = terminal?.pid;
+		validateAuthority?.();
 		const stdout = await new Promise<string>((resolve, reject) => {
-			exec(isWindows ? `netstat -ano | findstr "${port}"` : `lsof -nP -iTCP -sTCP:LISTEN | grep ${port}`, {}, (err, stdout) => {
-				if (err) {
-					return reject('Problem occurred when listing active processes');
-				}
-				resolve(stdout);
+			execFile(isWindows ? 'netstat' : 'lsof', isWindows ? ['-ano', '-p', 'tcp'] : ['-nP', `-iTCP:${port}`, '-sTCP:LISTEN', '-t'], {}, (error, stdout) => {
+				if (error) { reject(new Error('Problem occurred when listing active processes')); } else { resolve(stdout); }
 			});
 		});
-		const processesForPort = stdout.split(/\r?\n/).filter(s => !!s.trim());
-		if (processesForPort.length >= 1) {
-			const capturePid = /\s+(\d+)(?:\s+|$)/;
-			const processId = processesForPort[0].match(capturePid)?.[1];
-			if (processId) {
-				try {
-					process.kill(Number.parseInt(processId));
-				} catch { }
-			} else {
-				throw new Error(`Processes for port ${port} were not found`);
-			}
-			return { port, processId };
+		const candidates = stdout.split(/\r?\n/).flatMap(line => {
+			if (!isWindows) { return /^[0-9]+$/.test(line.trim()) ? [Number(line.trim())] : []; }
+			const columns = line.trim().split(/\s+/);
+			return columns[0] === 'TCP' && columns[1]?.endsWith(`:${port}`) && columns[3] === 'LISTENING' ? [Number(columns[4])] : [];
+		});
+		let permitted: Set<number> | undefined;
+		if (terminal) {
+			if (terminalPid === undefined || terminalPid <= 0) { throw new Error('Terminal process is unavailable'); }
+			permitted = new Set<number>();
+			const collect = (item: ProcessItem): void => { permitted!.add(item.pid); item.children?.forEach(collect); };
+			collect(await listProcesses(terminalPid));
 		}
-		throw new Error(`Could not kill process with port ${port}`);
+		const processId = candidates.find(pid => Number.isInteger(pid) && pid > 0 && (!permitted || permitted.has(pid)));
+		if (processId === undefined) { throw new Error(`No owned terminal process is listening on port ${port}`); }
+		validateAuthority?.();
+		if (terminalId !== undefined && (this._ptys.get(terminalId) !== terminal || terminal!.pid !== terminalPid)) { throw new Error('Terminal process expired'); }
+		process.kill(processId);
+		return { port, processId: String(processId) };
 	}
 
 	@traceRpc
@@ -254,15 +275,22 @@ export class PtyService extends Disposable implements IPtyService {
 	}
 
 	@traceRpc
-	async reviveTerminalProcesses(workspaceId: string, state: ISerializedTerminalState[], dateTimeFormatLocale: string) {
-		const promises: Promise<void>[] = [];
-		for (const terminal of state) {
-			promises.push(this._reviveTerminalProcess(workspaceId, terminal));
+	async reviveTerminalProcesses(workspaceId: string, state: ISerializedTerminalState[], dateTimeFormatLocale: string, owner?: IPtyProcessOwner, validateAuthority?: () => void) {
+		const created: number[] = [];
+		const results = await Promise.allSettled(state.map(terminal => this._reviveTerminalProcess(workspaceId, terminal, owner, validateAuthority, id => created.push(id))));
+		try {
+			const failure = results.find(result => result.status === 'rejected');
+			if (failure?.status === 'rejected') { throw failure.reason; }
+			validateAuthority?.();
+		} catch (error) {
+			await Promise.all(created.map(id => this.shutdown(id, true)));
+			for (const [key, value] of this._revivedPtyIdMap) { if (created.includes(value.newId)) { this._revivedPtyIdMap.delete(key); } }
+			throw error;
 		}
-		await Promise.all(promises);
 	}
 
-	private async _reviveTerminalProcess(workspaceId: string, terminal: ISerializedTerminalState): Promise<void> {
+	private async _reviveTerminalProcess(workspaceId: string, terminal: ISerializedTerminalState, owner?: IPtyProcessOwner, validateAuthority?: () => void, onCreated?: (id: number) => void): Promise<void> {
+		validateAuthority?.();
 		const restoreMessage = localize('terminal-history-restored', "History restored");
 
 		// Conpty v1.22+ uses passthrough and doesn't reprint the buffer often, this means that when
@@ -304,6 +332,10 @@ export class PtyService extends Disposable implements IPtyService {
 			true,
 			terminal.replayEvent.events[0].data
 		);
+		onCreated?.(newId);
+		validateAuthority?.();
+		if (owner) { await this.setProcessOwner(newId, owner); }
+		validateAuthority?.();
 		// Don't start the process here as there's no terminal to answer CPR
 		const oldId = this._getRevivingProcessId(workspaceId, terminal.id);
 		this._revivedPtyIdMap.set(oldId, { newId, state: terminal });
@@ -349,6 +381,7 @@ export class PtyService extends Disposable implements IPtyService {
 			persistentProcess.dispose();
 			this._ptys.delete(id);
 			this._onProcessExit.fire({ id, event });
+			this._processOwners.delete(id);
 		});
 		persistentProcess.onProcessData(event => this._onProcessData.fire({ id, event }));
 		persistentProcess.onProcessReplay(event => this._onProcessReplay.fire({ id, event }));
@@ -357,7 +390,7 @@ export class PtyService extends Disposable implements IPtyService {
 		persistentProcess.onDidChangeProperty(property => this._onDidChangeProperty.fire({ id, property }));
 		persistentProcess.onPersistentProcessReady(() => {
 			for (const contrib of this._contributions) {
-				contrib.handleProcessReady(id, process);
+				contrib.handleProcessReady(id, process, this._processOwners.get(id)?.workbench);
 			}
 		});
 		this._ptys.set(id, persistentProcess);
@@ -415,9 +448,9 @@ export class PtyService extends Disposable implements IPtyService {
 	}
 
 	@traceRpc
-	async reduceConnectionGraceTime(): Promise<void> {
-		for (const pty of this._ptys.values()) {
-			pty.reduceGraceTime();
+	async reduceConnectionGraceTime(workbench?: number): Promise<void> {
+		for (const [id, pty] of this._ptys) {
+			if (workbench === undefined || this._processOwners.get(id)?.workbench === workbench) { pty.reduceGraceTime(); }
 		}
 	}
 

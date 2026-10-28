@@ -21,6 +21,7 @@ import { Client as MessagePortClient } from '../../../base/parts/ipc/common/ipc.
 import { acquirePort, MessagePortAcquisitionError } from '../../../base/parts/ipc/electron-browser/ipc.mp.js';
 import { ipcRenderer } from '../../../base/parts/sandbox/electron-browser/globals.js';
 import { localize } from '../../../nls.js';
+import { IV8Profile } from '../../profiling/common/profiling.js';
 import { IConfigurationService } from '../../configuration/common/configuration.js';
 import { IEnvironmentService } from '../../environment/common/environment.js';
 import { IInstantiationService } from '../../instantiation/common/instantiation.js';
@@ -195,6 +196,8 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 
 	private readonly _clientStore = this._register(new MutableDisposable<DisposableStore>());
 	private readonly _managementConnection = this._register(new LocalAgentHostManagementConnection());
+	private readonly _profilingClientStore = this._register(new MutableDisposable<DisposableStore>());
+	private _profilingClient: Promise<MessagePortClient> | undefined;
 	private readonly _ahpLogger: AhpJsonlLogger | undefined;
 	private _protocolClient: AgentHostProtocolClient | undefined;
 	private _mcpAuthenticationHandler: ((request: IAgentHostMcpAuthenticationRequest) => Promise<boolean>) | undefined;
@@ -858,6 +861,35 @@ export class LocalAgentHostServiceClient extends Disposable implements IAgentHos
 
 	getInspectInfo(tryEnable: boolean): Promise<IAgentHostInspectInfo | undefined> {
 		return this._getManagementService().getInspectInfo(tryEnable);
+	}
+
+	async startCpuProfile(): Promise<string> {
+		return (await this._getProfilingManagement()).startCpuProfile!();
+	}
+
+	async stopCpuProfile(handle: string): Promise<IV8Profile> {
+		return (await this._getProfilingManagement()).stopCpuProfile!(handle);
+	}
+
+	private async _getProfilingManagement(): Promise<IAgentHostManagementService> {
+		if (!this._profilingClient) {
+			const pending = acquirePort('vscode:createAgentHostProfilingMessageChannel', 'vscode:createAgentHostProfilingMessageChannelResult').then(port => {
+				if (this._store.isDisposed) { port.close(); throw new Error('Profiling presentation expired'); }
+				const store = new DisposableStore();
+				const client = store.add(new MessagePortClient(port, generateUuid()));
+				const closed = () => {
+					if (this._profilingClientStore.value === store) { this._profilingClient = undefined; this._profilingClientStore.clear(); }
+				};
+				port.addEventListener('close', closed);
+				store.add(toDisposable(() => port.removeEventListener('close', closed)));
+				this._profilingClientStore.value = store;
+				return client;
+			});
+			this._profilingClient = pending;
+			void pending.catch(() => { if (this._profilingClient === pending) { this._profilingClient = undefined; } });
+		}
+		const client = await this._profilingClient;
+		return ProxyChannel.toService<IAgentHostManagementService>(client.getChannel(AgentHostIpcChannels.Management));
 	}
 
 	private _getManagementService(): IAgentHostManagementService {

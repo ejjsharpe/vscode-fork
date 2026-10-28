@@ -26,6 +26,8 @@ export interface IBaseWindow extends IDisposable {
 
 	readonly id: number;
 	readonly win: electron.BrowserWindow | null;
+	/** Native container owned by this logical workbench, including its child browser views. */
+	readonly contentView: electron.View | undefined;
 	readonly webContents: electron.WebContents;
 
 	readonly lastFocusTime: number;

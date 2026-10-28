@@ -4,12 +4,11 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { DeferredPromise } from '../../../base/common/async.js';
-import { CancellationToken } from '../../../base/common/cancellation.js';
 import { ProxyChannel } from '../../../base/parts/ipc/common/ipc.js';
 import { Server as ChildProcessServer } from '../../../base/parts/ipc/node/ipc.cp.js';
 import { Server as UtilityProcessServer } from '../../../base/parts/ipc/node/ipc.mp.js';
 import { isUtilityProcess } from '../../../base/parts/sandbox/node/electronTypes.js';
-import { Emitter, type Event } from '../../../base/common/event.js';
+import { Emitter, Event } from '../../../base/common/event.js';
 import { DisposableStore, IDisposable, MutableDisposable, toDisposable } from '../../../base/common/lifecycle.js';
 import { isWindows } from '../../../base/common/platform.js';
 import { URI } from '../../../base/common/uri.js';
@@ -40,6 +39,7 @@ import { WebSocketProtocolServer } from './webSocketTransport.js';
 import { MessagePortProtocolServer } from './messagePortProtocolServer.js';
 import { cleanupLocalAgentHostEndpointMetadataSync, cleanupLocalAgentHostEndpointSocketSync, createLocalAgentHostEndpointMetadata, prepareLocalAgentHostEndpointMetadataDirectory, prepareLocalAgentHostEndpointSocketDirectory, publishLocalAgentHostEndpointMetadata, type ILocalAgentHostEndpointMetadata } from './localAgentHostMetadata.js';
 import { AgentHostManagementService } from './agentHostManagementService.js';
+import { createAgentHostManagementChannel } from './agentHostManagementChannel.js';
 import { NativeEnvironmentService } from '../../environment/node/environmentService.js';
 import { parseArgs, OPTIONS } from '../../environment/node/argv.js';
 import { getLogLevel, ILogService, isDevConsoleLogForwardingEnabled, registerDevConsoleLogForwarder } from '../../log/common/log.js';
@@ -522,16 +522,7 @@ async function startAgentHost(): Promise<void> {
 	management.setMissionControl(missionControl.environment);
 	const managementChannel = ProxyChannel.fromService(management, disposables);
 	const utilityServer = server instanceof UtilityProcessServer ? server : undefined;
-	server.registerChannel(AgentHostIpcChannels.Management, utilityServer ? {
-		async call<T>(context: string, command: string, args: unknown[], token?: CancellationToken) {
-			const scope = utilityServer.getConnectionScope(context);
-			if (scope && (scope.role !== 'agents' || ['shutdown', 'setSystemFullyAwake', 'setSystemNetworkOnline', 'reportMacAccessibilityTrustChange'].includes(command))) { throw new Error('Rejected non-owner Agent Host management operation'); }
-			const result = await managementChannel.call<T>(context, command, args, token);
-			utilityServer.getConnectionScope(context);
-			return result;
-		},
-		listen() { throw new Error('Agent Host management has no renderer events'); }
-	} : managementChannel);
+	server.registerChannel(AgentHostIpcChannels.Management, utilityServer ? createAgentHostManagementChannel(managementChannel, context => utilityServer.getConnectionScope(context), Event.map(utilityServer.onDidRemoveConnection, connection => connection.ctx), disposables) : managementChannel);
 	if (!(server instanceof UtilityProcessServer)) {
 		server.registerChannel(AgentHostIpcChannels.ConnectionTracker, ProxyChannel.fromService(connectionTrackerService, disposables));
 	}

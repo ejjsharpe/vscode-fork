@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { localize } from '../../../nls.js';
 import { DeferredPromise } from '../../../base/common/async.js';
 import { Disposable, DisposableMap, DisposableStore, toDisposable } from '../../../base/common/lifecycle.js';
 import { Emitter } from '../../../base/common/event.js';
@@ -114,6 +115,10 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 		this._register(toDisposable(() => {
 			validatedIpcMain.removeListener('vscode:createAgentHostMessageChannel', onWindowConnection);
 		}));
+
+		const onProfilingConnection = (e: IpcMainEvent, ...args: unknown[]) => { void this._onWindowConnection(e, args, true).catch(error => this._logService.error(error)); };
+		validatedIpcMain.on('vscode:createAgentHostProfilingMessageChannel', onProfilingConnection);
+		this._register(toDisposable(() => validatedIpcMain.removeListener('vscode:createAgentHostProfilingMessageChannel', onProfilingConnection)));
 
 		const onRestart = (event: IpcMainEvent, ...args: unknown[]) => {
 			if (args.length !== 1) { return; }
@@ -352,20 +357,25 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 		});
 	}
 
-	private async _onWindowConnection(e: IpcMainEvent, args: unknown[]): Promise<void> {
-		if (args.length !== 3 || typeof args[0] !== 'string' || typeof args[1] !== 'string' || !args[1] || args[1].length > 200) { throw new Error('Rejected Agent Host connection arguments'); }
-		const [nonce, clientId, credential] = args;
+	private async _onWindowConnection(e: IpcMainEvent, args: unknown[], profiling = false): Promise<void> {
+		if (args.length !== (profiling ? 2 : 3) || typeof args[0] !== 'string' || (!profiling && (typeof args[1] !== 'string' || !args[1] || args[1].length > 200))) { throw new Error('Rejected Agent Host connection arguments'); }
+		const nonce = args[0];
+		const clientId = profiling ? undefined : args[1] as string;
+		const credential = args[profiling ? 1 : 2];
+		const responseChannel = profiling ? 'vscode:createAgentHostProfilingMessageChannelResult' : 'vscode:createAgentHostMessageChannelResult';
 		const context = prototypeRequestContext(e, credential);
 		const binding = prototypeBinding(context);
-		if (binding.scope.role !== 'agents') {
-			e.sender.send('vscode:createAgentHostMessageChannelResult', { nonce, error: 'Project conversations must attach through the persistent Agents owner.', fatal: true });
+		if (binding.scope.role === 'auxiliary' || (!profiling && binding.scope.role !== 'agents')) {
+			e.sender.send(responseChannel, { nonce, error: localize('projectAgentOwner', "Project conversations must attach through the persistent Agents owner."), fatal: true });
 			revokePrototypeConnection(context);
 			return;
 		}
-		const owner = this._clientOwners.get(clientId);
-		if (owner && (owner.contentsId !== e.sender.id || owner.generation !== binding.generation)) { revokePrototypeConnection(context); throw new Error('Rejected foreign or retired Agent Host client identity'); }
-		this._clientOwners.set(clientId, { contentsId: e.sender.id, generation: binding.generation });
-		this._trackWindowSender(e.sender);
+		if (clientId !== undefined) {
+			const owner = this._clientOwners.get(clientId);
+			if (owner && (owner.contentsId !== e.sender.id || owner.generation !== binding.generation)) { revokePrototypeConnection(context); throw new Error('Rejected foreign or retired Agent Host client identity'); }
+			this._clientOwners.set(clientId, { contentsId: e.sender.id, generation: binding.generation });
+			this._trackWindowSender(e.sender);
+		}
 
 		if (this._exitSettled) {
 			await this._exitSettled;
@@ -394,14 +404,14 @@ export class ElectronAgentHostStarter extends Disposable implements IAgentHostSt
 			prototypeBinding(context);
 			const port = utilityProcess.connect(undefined, context, clientId);
 			try { prototypeBinding(context); } catch (error) { port.close(); throw error; }
-			e.sender.postMessage('vscode:createAgentHostMessageChannelResult', nonce, [port]);
+			e.sender.postMessage(responseChannel, nonce, [port]);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			this._logService.error(`AgentHostStarter: cannot create window connection: ${message}`);
 			let current = false;
 			try { prototypeBinding(context); current = true; } catch { }
 			if (current) {
-				e.sender.send('vscode:createAgentHostMessageChannelResult', {
+				e.sender.send(responseChannel, {
 					nonce,
 					error: message,
 					fatal: error instanceof AgentHostStartError && error.fatal,
