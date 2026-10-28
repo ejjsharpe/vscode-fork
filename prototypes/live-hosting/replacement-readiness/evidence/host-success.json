@@ -1,0 +1,100 @@
+{
+  "before": [
+    {
+      "id": 100000,
+      "contents": 2
+    },
+    {
+      "id": 100001,
+      "contents": 3
+    },
+    {
+      "id": 100002,
+      "contents": 4
+    }
+  ],
+  "notifications": [
+    100000,
+    100001,
+    100002
+  ],
+  "after": {
+    "remaining": 0,
+    "hostDestroyed": true,
+    "logicalDisposed": [
+      true,
+      true,
+      true
+    ],
+    "requests": [
+      {
+        "windowId": 100000,
+        "contents": 2,
+        "channel": "vscode:onBeforeUnload",
+        "before": true
+      },
+      {
+        "windowId": 100001,
+        "contents": 3,
+        "channel": "vscode:onBeforeUnload",
+        "before": true
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:onBeforeUnload",
+        "before": true
+      },
+      {
+        "windowId": 100000,
+        "contents": 2,
+        "channel": "vscode:onWillUnload",
+        "before": false
+      },
+      {
+        "windowId": 100001,
+        "contents": 3,
+        "channel": "vscode:onWillUnload",
+        "before": false
+      },
+      {
+        "windowId": 100002,
+        "contents": 4,
+        "channel": "vscode:onWillUnload",
+        "before": false
+      }
+    ],
+    "results": [
+      {
+        "windowId": 100000,
+        "channel": "vscode:onBeforeUnload",
+        "result": "ok"
+      },
+      {
+        "windowId": 100001,
+        "channel": "vscode:onBeforeUnload",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:onBeforeUnload",
+        "result": "ok"
+      },
+      {
+        "windowId": 100000,
+        "channel": "vscode:onWillUnload",
+        "result": "ok"
+      },
+      {
+        "windowId": 100001,
+        "channel": "vscode:onWillUnload",
+        "result": "ok"
+      },
+      {
+        "windowId": 100002,
+        "channel": "vscode:onWillUnload",
+        "result": "ok"
+      }
+    ]
+  }
+}

@@ -1,0 +1,3 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root.
+(async()=>{const s=globalThis.replyProbe.service,req=process.getBuiltinModule('module').createRequire(process.cwd()+'/package.json'),lifetime=req('./out/vs/base/parts/ipc/electron-main/prototypeLifetime.js');return {runtime:process.versions,windows:[...s.prototypeWindows.values()].map(w=>({id:w.id,ready:w.isReady,lifecycleReady:lifetime.prototypeLifecycleReady(w.webContents),loading:w.webContents.isLoading(),generation:lifetime.prototypeDocumentGeneration(w.webContents),failed:w.recoveryFailed,contents:w.webContents.id})),requests:globalThis.replyProbe.requests,results:globalThis.replyProbe.results};})()

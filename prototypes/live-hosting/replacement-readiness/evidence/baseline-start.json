@@ -1,0 +1,21 @@
+{
+  "host": 1,
+  "children": 3,
+  "windows": [
+    {
+      "id": 4,
+      "title": "Welcome — multi (Workspace)",
+      "generation": 3
+    },
+    {
+      "id": 3,
+      "title": "Welcome — single",
+      "generation": 1
+    },
+    {
+      "id": 2,
+      "title": "Agents",
+      "generation": 2
+    }
+  ]
+}

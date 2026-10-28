@@ -1,0 +1,33 @@
+{
+  "completed": [
+    100000,
+    100001
+  ],
+  "outcome": {
+    "ok": false,
+    "error": "Error: Close interrupted"
+  },
+  "hostAlive": true,
+  "states": [
+    {
+      "id": 100000,
+      "failed": true,
+      "ready": false
+    },
+    {
+      "id": 100001,
+      "failed": true,
+      "ready": false
+    },
+    {
+      "id": 100002,
+      "failed": true,
+      "ready": false
+    }
+  ],
+  "shell": "Agents (100000) Recovery failed Retry Close\nProject 1 (100001) Recovery failed Retry Close\nProject 2 (100002) Close interrupted Retry Close",
+  "completedCleanupReplay": 0,
+  "recovered": true,
+  "remaining": 0,
+  "hostAliveAfterLastClose": true
+}

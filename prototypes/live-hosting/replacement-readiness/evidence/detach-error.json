@@ -1,0 +1,25 @@
+{
+  "failure": {
+    "outcome": {
+      "ok": false,
+      "error": "AggregateError: Logical project disposal failed"
+    },
+    "directOutcome": {
+      "ok": false,
+      "error": "AggregateError: Logical project disposal failed"
+    },
+    "notifications": 1,
+    "detaches": 1,
+    "logs": 1,
+    "logicalDisposed": false,
+    "count": 1,
+    "children": 1
+  },
+  "retry": {
+    "logicalDisposed": true,
+    "count": 1,
+    "children": 1,
+    "phasesReplayed": 0,
+    "notifications": 1
+  }
+}

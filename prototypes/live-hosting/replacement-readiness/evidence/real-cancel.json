@@ -1,0 +1,60 @@
+{
+  "outcome": {
+    "resolved": true
+  },
+  "windows": [
+    100000,
+    100001,
+    100002
+  ],
+  "pending": [],
+  "requests": [
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100000,
+      "contents": 2,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100001,
+      "contents": 3,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    },
+    {
+      "windowId": 100002,
+      "contents": 4,
+      "channel": "vscode:onBeforeUnload",
+      "before": true
+    }
+  ],
+  "results": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "interrupted"
+    },
+    {
+      "windowId": 100000,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100001,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "cancel"
+    }
+  ],
+  "shell": "Agents (100000)\nProject 1 (100001)\nProject 2 (100002) Close cancelled Close"
+}

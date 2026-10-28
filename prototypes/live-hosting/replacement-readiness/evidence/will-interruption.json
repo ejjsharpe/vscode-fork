@@ -1,0 +1,58 @@
+{
+  "settled": [
+    {
+      "status": "rejected",
+      "error": "Error: Close interrupted"
+    },
+    {
+      "status": "rejected",
+      "error": "Error: Close interrupted"
+    }
+  ],
+  "samePromise": true,
+  "notifications": 0,
+  "ready": true,
+  "shell": "Agents (100000)\nProject 1 (100001) Close interrupted Close",
+  "results": [
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "interrupted"
+    },
+    {
+      "windowId": 100000,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100001,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "cancel"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100002,
+      "channel": "vscode:onWillUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100001,
+      "channel": "vscode:onBeforeUnload",
+      "result": "ok"
+    },
+    {
+      "windowId": 100001,
+      "channel": "vscode:onWillUnload",
+      "result": "interrupted"
+    }
+  ]
+}
