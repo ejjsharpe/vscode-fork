@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { extUriBiasedIgnorePathCase, isEqualAuthority } from '../../../base/common/resources.js';
+import { hasKey } from '../../../base/common/types.js';
 import { URI } from '../../../base/common/uri.js';
 import { ICodeWindow } from '../../window/electron-main/window.js';
 import { IResolvedWorkspace, ISingleFolderWorkspaceIdentifier, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, IWorkspaceIdentifier } from '../../workspace/common/workspace.js';
@@ -47,7 +48,7 @@ export function findWindowOnWorkspaceOrFolder(windows: ICodeWindow[], target: Pi
 			return false;
 		}
 		const workspace = window.openedWorkspace;
-		return 'configPath' in target
+		return hasKey(target, { configPath: true })
 			? isWorkspaceIdentifier(workspace) && extUriBiasedIgnorePathCase.isEqual(workspace.configPath, target.configPath)
 			: isSingleFolderWorkspaceIdentifier(workspace) && extUriBiasedIgnorePathCase.isEqual(workspace.uri, target.uri);
 	}).sort((a, b) => b.lastFocusTime - a.lastFocusTime)[0];
