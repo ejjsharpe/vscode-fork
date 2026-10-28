@@ -10,7 +10,6 @@ import { IUtilityProcessWorkerCreateConfiguration, IOnDidTerminateUtilityrocessW
 import { IWindowsMainService } from '../../windows/electron-main/windows.js';
 import { WindowUtilityProcess } from './utilityProcess.js';
 import { ITelemetryService } from '../../telemetry/common/telemetry.js';
-import { hash } from '../../../base/common/hash.js';
 import { Event, Emitter } from '../../../base/common/event.js';
 import { DeferredPromise } from '../../../base/common/async.js';
 import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
@@ -22,11 +21,14 @@ export interface IUtilityProcessWorkerMainService extends IUtilityProcessWorkerS
 	readonly _serviceBrand: undefined;
 }
 
+type NativeWorkerConfiguration = IUtilityProcessWorkerConfiguration & { readonly nativeConnectionContext?: string };
+type NativeWorkerCreateConfiguration = IUtilityProcessWorkerCreateConfiguration & NativeWorkerConfiguration;
+
 export class UtilityProcessWorkerMainService extends Disposable implements IUtilityProcessWorkerMainService {
 
 	declare readonly _serviceBrand: undefined;
 
-	private readonly workers = this._register(new DisposableMap<number /* id */, UtilityProcessWorker>());
+	private readonly workers = this._register(new DisposableMap<string, UtilityProcessWorker>());
 
 	constructor(
 		@ILogService private readonly logService: ILogService,
@@ -37,12 +39,12 @@ export class UtilityProcessWorkerMainService extends Disposable implements IUtil
 		super();
 	}
 
-	async createWorker(configuration: IUtilityProcessWorkerCreateConfiguration): Promise<IOnDidTerminateUtilityrocessWorkerProcess> {
+	async createWorker(configuration: NativeWorkerCreateConfiguration): Promise<IOnDidTerminateUtilityrocessWorkerProcess> {
 		const workerLogId = `window: ${configuration.reply.windowId}, moduleId: ${configuration.process.moduleId}`;
 		this.logService.trace(`[UtilityProcessWorker]: createWorker(${workerLogId})`);
 
 		// Ensure to dispose any existing process for config
-		const workerId = this.hash(configuration);
+		const workerId = this.workerKey(configuration);
 		if (this.workers.has(workerId)) {
 			this.logService.warn(`[UtilityProcessWorker]: createWorker() found an existing worker that will be terminated (${workerLogId})`);
 
@@ -77,15 +79,12 @@ export class UtilityProcessWorkerMainService extends Disposable implements IUtil
 		return onDidTerminate.p;
 	}
 
-	private hash(configuration: IUtilityProcessWorkerConfiguration): number {
-		return hash({
-			moduleId: configuration.process.moduleId,
-			windowId: configuration.reply.windowId
-		});
+	private workerKey(configuration: NativeWorkerConfiguration): string {
+		return JSON.stringify([configuration.process.moduleId, configuration.reply.windowId, configuration.nativeConnectionContext]);
 	}
 
-	async disposeWorker(configuration: IUtilityProcessWorkerConfiguration): Promise<void> {
-		const workerId = this.hash(configuration);
+	async disposeWorker(configuration: NativeWorkerConfiguration): Promise<void> {
+		const workerId = this.workerKey(configuration);
 		const worker = this.workers.get(workerId);
 		if (!worker) {
 			return;
@@ -108,7 +107,7 @@ class UtilityProcessWorker extends Disposable {
 		@IWindowsMainService private readonly windowsMainService: IWindowsMainService,
 		@ITelemetryService telemetryService: ITelemetryService,
 		@ILifecycleMainService lifecycleMainService: ILifecycleMainService,
-		private readonly configuration: IUtilityProcessWorkerCreateConfiguration
+		private readonly configuration: NativeWorkerCreateConfiguration
 	) {
 		super();
 
@@ -124,7 +123,7 @@ class UtilityProcessWorker extends Disposable {
 
 	spawn(): boolean {
 		const window = this.windowsMainService.getWindowById(this.configuration.reply.windowId);
-		const windowPid = window?.win?.webContents.getOSProcessId();
+		const windowPid = window?.webContents.getOSProcessId();
 
 		return this.utilityProcess.start({
 			type: this.configuration.process.type,
@@ -136,7 +135,8 @@ class UtilityProcessWorker extends Disposable {
 			correlationId: `${this.configuration.reply.windowId}`,
 			responseWindowId: this.configuration.reply.windowId,
 			responseChannel: this.configuration.reply.channel,
-			responseNonce: this.configuration.reply.nonce
+			responseNonce: this.configuration.reply.nonce,
+			nativeConnectionContext: this.configuration.nativeConnectionContext
 		});
 	}
 

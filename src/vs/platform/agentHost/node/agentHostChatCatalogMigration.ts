@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { CHAT_HOME_WORKSPACE_METADATA_KEY, readChatHomeWorkspace } from '../../workspace/common/chatHomeWorkspace.js';
 import { Limiter } from '../../../base/common/async.js';
 import { stableStringify } from '../../../base/common/objects.js';
 import { URI } from '../../../base/common/uri.js';
@@ -85,6 +86,7 @@ export async function migrateChatCatalogV2(
 					[CHAT_ORIGIN_METADATA_KEY]: true,
 					[CHAT_INHERITED_TURN_METADATA_KEY]: true,
 					[CHAT_WORKING_DIRECTORIES_METADATA_KEY]: true,
+					[CHAT_HOME_WORKSPACE_METADATA_KEY]: true,
 				}) : {};
 				const origin = metadata[CHAT_ORIGIN_METADATA_KEY] === undefined
 					? legacy?.origin ?? (chat.origin === undefined ? undefined : JSON.stringify(chat.origin))
@@ -127,7 +129,7 @@ export async function migrateChatCatalogV2(
 					workingDirectories,
 					isRead: chat.isRead,
 					archived: chat.archived,
-					metadata: { summary: chat.summary, titleSource: chat.titleSource, interactivity: chat.interactivity, changes: chat.changes },
+					metadata: { homeWorkspace: metadata[CHAT_HOME_WORKSPACE_METADATA_KEY] === undefined ? chat.homeWorkspace : readChatHomeWorkspace(JSON.parse(metadata[CHAT_HOME_WORKSPACE_METADATA_KEY])), summary: chat.summary, titleSource: chat.titleSource, interactivity: chat.interactivity, changes: chat.changes },
 				};
 			} finally {
 				reference?.dispose();

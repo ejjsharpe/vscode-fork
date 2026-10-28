@@ -7,6 +7,7 @@ import { createHash } from 'crypto';
 import { stableStringify } from '../../../base/common/objects.js';
 import { URI } from '../../../base/common/uri.js';
 import { IValidator, ValidationError, ValidatorBase, ValidatorType, vEnum, vNumber, vObj, vOptionalProp } from '../../../base/common/validation.js';
+import { chatHomeWorkspaceValidator } from '../../workspace/common/chatHomeWorkspace.js';
 import { ChatInteractivity } from '../common/state/protocol/channels-chat/state.js';
 import { AGENT_HOST_CATALOG_CHILD_LIMIT, AGENT_HOST_CATALOG_JSON_STRING_LENGTH_LIMIT, AGENT_HOST_CATALOG_PAYLOAD_BYTE_LIMIT, AGENT_HOST_CATALOG_TITLE_LENGTH_LIMIT, agentHostCatalogChangesValidator } from './agentHostCatalogProjection.js';
 
@@ -29,6 +30,7 @@ class BoundedStringValidator extends ValidatorBase<string> {
 }
 
 const metadataValidator = vObj({
+	homeWorkspace: vOptionalProp(chatHomeWorkspaceValidator),
 	summary: vOptionalProp(new BoundedStringValidator(AGENT_HOST_CATALOG_TITLE_LENGTH_LIMIT)),
 	titleSource: vOptionalProp(vEnum('user', 'agent', 'auto')),
 	interactivity: vOptionalProp(vEnum(ChatInteractivity.Full, ChatInteractivity.ReadOnly, ChatInteractivity.Hidden)),

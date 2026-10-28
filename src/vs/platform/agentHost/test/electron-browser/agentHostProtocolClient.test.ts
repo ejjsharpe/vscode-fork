@@ -2267,6 +2267,43 @@ suite('AgentHostProtocolClient', () => {
 		assert.strictEqual(transport.sentMessages.some(message => hasKey(message, { method: true }) && message.method === 'createSession'), false);
 	});
 
+	test('refuses explicit chat home creation when the host cannot persist it', async () => {
+		const { client, transport } = createClient();
+		await connectClient(client, transport);
+		assert.throws(() => client.createSession({ provider: 'copilot', _meta: { 'vscode.chatHomeWorkspace': null } }), /can't persist a chat's project/);
+		assert.strictEqual(transport.sentMessages.some(message => hasKey(message, { method: true }) && message.method === 'createSession'), false);
+	});
+
+	test('carries exact chat home creation and reassignment through a capable host', async () => {
+		const { client, transport } = createClient();
+		await connectClient(client, transport, { 'vscode.chatHomeWorkspacePersistence': true });
+		transport.sentMessages.length = 0;
+		const session = URI.parse('ahp-session:/home');
+		const chat = URI.parse('ahp-chat:/home');
+		const home = { kind: 'workspace' as const, uri: 'file:///project/exact.code-workspace', remoteAuthority: 'ssh-remote+host' };
+		const creation = client.createSession({ provider: 'copilot', session, _meta: { 'vscode.chatHomeWorkspace': home } });
+		const createRequest = transport.sentMessages[0];
+		assert.ok(hasKey(createRequest, { id: true, params: true }));
+		transport.fireMessage({ jsonrpc: '2.0', id: createRequest.id, result: null });
+		await creation;
+
+		const assignment = client.setChatHomeWorkspace(chat, null);
+		const setRequest = transport.sentMessages[1];
+		assert.ok(hasKey(setRequest, { id: true, method: true, params: true }));
+		transport.fireMessage({ jsonrpc: '2.0', id: setRequest.id, result: null });
+		await assignment;
+		const reading = client.getChatHomeWorkspace(chat);
+		const getRequest = transport.sentMessages[2];
+		assert.ok(hasKey(getRequest, { id: true, method: true, params: true }));
+		transport.fireMessage({ jsonrpc: '2.0', id: getRequest.id, result: { homeWorkspace: null } });
+
+		assert.deepStrictEqual({ initial: (createRequest.params as { _meta: unknown })._meta, set: { method: setRequest.method, params: setRequest.params }, get: { method: getRequest.method, params: getRequest.params, home: await reading } }, {
+			initial: { 'vscode.chatHomeWorkspace': home },
+			set: { method: 'vscode/setChatHomeWorkspace', params: { chat: chat.toString(), homeWorkspace: null } },
+			get: { method: 'vscode/getChatHomeWorkspace', params: { chat: chat.toString() }, home: null },
+		});
+	});
+
 	test('maps an imported conversation into createSession metadata when the host advertises support', async () => {
 		const { client, transport } = createClient();
 		await connectClient(client, transport, getAgentHostExtensionInitializeResultMeta());

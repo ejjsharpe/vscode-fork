@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { CancellationToken } from '../../../base/common/cancellation.js';
 import { Event } from '../../../base/common/event.js';
 import type { ConnectionDiagnosticObserver } from './connectionDiagnostics.js';
 import { createDecorator } from '../../instantiation/common/instantiation.js';
@@ -394,10 +395,10 @@ export interface ITunnelAgentHostMainService {
 	 * @param additionalTunnelNames Optional tunnel names to look up
 	 *   in addition to the account-wide enumeration.
 	 */
-	listTunnels(token: string, authProvider: 'github' | 'microsoft', additionalTunnelNames?: string[]): Promise<ITunnelInfo[]>;
+	listTunnels(token: string, authProvider: 'github' | 'microsoft', additionalTunnelNames?: string[], cancellationToken?: CancellationToken): Promise<ITunnelInfo[]>;
 
 	/** Delete a dev tunnel and close any associated relay connections. */
-	deleteTunnel(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string): Promise<void>;
+	deleteTunnel(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string, cancellationToken?: CancellationToken): Promise<void>;
 
 	/**
 	 * Connect to a tunnel's agent host via the dev tunnels relay and
@@ -408,7 +409,7 @@ export interface ITunnelAgentHostMainService {
 	 * @param tunnelId The tunnel ID to connect to.
 	 * @param clusterId The cluster region of the tunnel.
 	 */
-	connect(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string): Promise<ITunnelConnectResult>;
+	connect(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string, cancellationToken?: CancellationToken): Promise<ITunnelConnectResult>;
 
 	/**
 	 * Prepare a protocol-v6 registry-based endpoint selection: connects the
@@ -428,7 +429,7 @@ export interface ITunnelAgentHostMainService {
 	 * @param tunnelId The tunnel ID to connect to.
 	 * @param clusterId The cluster region of the tunnel.
 	 */
-	prepareSelection(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string): Promise<ITunnelGatewaySelectionSession | undefined>;
+	prepareSelection(token: string, authProvider: 'github' | 'microsoft', tunnelId: string, clusterId: string, cancellationToken?: CancellationToken): Promise<ITunnelGatewaySelectionSession | undefined>;
 
 	/**
 	 * Complete a selection previously started with {@link prepareSelection}:
@@ -442,7 +443,7 @@ export interface ITunnelAgentHostMainService {
 	 * pending session is consumed and disposed, so retrying requires a fresh
 	 * {@link prepareSelection}.
 	 */
-	completeSelection(selectionId: string, selection: ITunnelGatewaySelection): Promise<ITunnelConnectResult>;
+	completeSelection(selectionId: string, selection: ITunnelGatewaySelection, cancellationToken?: CancellationToken): Promise<ITunnelConnectResult>;
 
 	/**
 	 * Cancel and dispose a pending selection without completing it (e.g.

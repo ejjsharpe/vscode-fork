@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { CancellationToken } from '../../../base/common/cancellation.js';
 import { Event } from '../../../base/common/event.js';
 import { IDisposable } from '../../../base/common/lifecycle.js';
 import { URI } from '../../../base/common/uri.js';
@@ -191,7 +192,7 @@ export interface ISSHRemoteAgentHostService {
 	 * missing) and return its URI. The parent `~/.ssh` directory is created
 	 * with mode 0700 and the config file with mode 0600 on POSIX systems.
 	 */
-	ensureUserSSHConfig(): Promise<URI>;
+	ensureUserSSHConfig(token?: CancellationToken): Promise<URI>;
 
 	/**
 	 * List the known SSH configuration file URIs in priority order — typically the
@@ -572,7 +573,7 @@ export interface ISSHRemoteAgentHostMainService {
 	 * supplied, concurrent renewal of that lease coalesces and a stale lease
 	 * resolves to its current replacement.
 	 */
-	connect(config: ISSHAgentHostConfig, expectedConnectionId?: string): Promise<ISSHConnectResult>;
+	connect(config: ISSHAgentHostConfig, expectedConnectionId?: string, token?: CancellationToken): Promise<ISSHConnectResult>;
 
 	/**
 	 * Send a message to a remote agent host through the SSH relay.
@@ -594,7 +595,7 @@ export interface ISSHRemoteAgentHostMainService {
 	 * Ensure `~/.ssh/config` exists (creating it with the right permissions if
 	 * missing) and return its URI.
 	 */
-	ensureUserSSHConfig(): Promise<URI>;
+	ensureUserSSHConfig(token?: CancellationToken): Promise<URI>;
 
 	/** List the known SSH configuration file URIs (user config always included). */
 	listSSHConfigFiles(): Promise<URI[]>;
@@ -613,5 +614,5 @@ export interface ISSHRemoteAgentHostMainService {
 	 * The renderer computes this from its stored preference for this host's
 	 * {@link computeSSHConnectionKey stable key} before calling reconnect.
 	 */
-	reconnect(sshConfigHost: string, name: string, remoteAgentHostCommand?: string, agentForward?: boolean, userInitiated?: boolean, preferredAgentLocation?: RemoteAgentHostLocationPreference, expectedConnectionId?: string): Promise<ISSHConnectResult>;
+	reconnect(sshConfigHost: string, name: string, remoteAgentHostCommand?: string, agentForward?: boolean, userInitiated?: boolean, preferredAgentLocation?: RemoteAgentHostLocationPreference, expectedConnectionId?: string, token?: CancellationToken): Promise<ISSHConnectResult>;
 }

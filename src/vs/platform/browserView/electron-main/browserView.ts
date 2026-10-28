@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { screen, WebContentsView, webContents } from 'electron';
+import { screen, WebContentsView, webContents, type View } from 'electron';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { VSBuffer } from '../../../base/common/buffer.js';
@@ -60,6 +60,7 @@ export class BrowserView extends Disposable {
 	private _ownerWindow: ICodeWindow;
 	private _owner: IBrowserViewOwner;
 	private _currentWindow: ICodeWindow | IAuxiliaryWindow | undefined;
+	private _parentView: View | undefined;
 	private _isDisposed = false;
 	private _audiences: readonly IBrowserViewAudience[] = [];
 
@@ -183,7 +184,9 @@ export class BrowserView extends Disposable {
 		}));
 
 		this._view.setVisible(false);
-		this._ownerWindow.win?.contentView.addChildView(this._view);
+		this._currentWindow = this._ownerWindow;
+		this._parentView = this._ownerWindow.contentView;
+		this._parentView?.addChildView(this._view);
 
 		this._view.webContents.setWindowOpenHandler((details) => {
 			const { action, consumeUserGesture } = getBrowserViewPopupAction(this.presentation, details.url, this.hasRecentUserGesture());
@@ -695,12 +698,13 @@ export class BrowserView extends Disposable {
 	 * Update the layout bounds of this view
 	 */
 	layout(bounds: IBrowserViewBounds): void {
-		if (this._currentWindow?.win?.id !== bounds.windowId) {
+		if (this._currentWindow?.id !== bounds.windowId) {
 			const newWindow = this._windowById(bounds.windowId);
 			if (newWindow) {
-				this._currentWindow?.win?.contentView.removeChildView(this._view);
+				this._parentView?.removeChildView(this._view);
 				this._currentWindow = newWindow;
-				newWindow.win?.contentView.addChildView(this._view);
+				this._parentView = newWindow.contentView;
+				this._parentView?.addChildView(this._view);
 			}
 		}
 
@@ -739,7 +743,7 @@ export class BrowserView extends Disposable {
 
 		// If the view is focused, pass focus back to the window when hiding
 		if (!visible && this._view.webContents.isFocused()) {
-			this._currentWindow?.win?.webContents.focus();
+			this._currentWindow?.webContents.focus();
 		}
 
 		if (this._hasBeenLaidOut || !visible) {
@@ -1082,8 +1086,9 @@ export class BrowserView extends Disposable {
 		// Remove from parent window (guard against already-destroyed window)
 		const currentWin = this._currentWindow?.win;
 		if (currentWin && !currentWin.isDestroyed()) {
-			currentWin.contentView.removeChildView(this._view);
+			this._parentView?.removeChildView(this._view);
 		}
+		this._parentView = undefined;
 
 		// Fire close event BEFORE disposing emitters. This signals the view has been destroyed.
 		this._onDidClose.fire();

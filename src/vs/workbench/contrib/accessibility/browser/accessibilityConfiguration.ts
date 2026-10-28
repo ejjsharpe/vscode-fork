@@ -47,6 +47,7 @@ export const enum ViewDimUnfocusedOpacityProperties {
 }
 
 export const enum AccessibilityVerbositySettingId {
+	ProjectTabs = 'accessibility.verbosity.projectTabs',
 	Terminal = 'accessibility.verbosity.terminal',
 	DiffEditor = 'accessibility.verbosity.diffEditor',
 	MultiDiffEditorFileList = 'accessibility.verbosity.multiDiffEditorFileList',
@@ -149,6 +150,11 @@ const configuration: IConfigurationNode = {
 	...accessibilityConfigurationNodeBase,
 	scope: ConfigurationScope.RESOURCE,
 	properties: {
+		[AccessibilityVerbositySettingId.ProjectTabs]: {
+			...baseVerbosityProperty,
+			scope: ConfigurationScope.APPLICATION,
+			description: localize('projectTabsVerbosity', "Controls whether to announce how to open project navigation accessibility help.")
+		},
 		[AccessibilityVerbositySettingId.Terminal]: {
 			description: localize('verbosity.terminal.description', 'Provide information about how to access the terminal accessibility help menu when the terminal is focused.'),
 			...baseVerbosityProperty

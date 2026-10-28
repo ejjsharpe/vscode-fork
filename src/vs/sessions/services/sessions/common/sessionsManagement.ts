@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import type { ChatHomeWorkspace } from '../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { Event } from '../../../../base/common/event.js';
 import type { IAgentHostManagedWorktree, IAgentHostWorktreeCleanupStatus } from '../../../../platform/agentHost/common/agentHostWorktreeCleanup.js';
 
@@ -74,6 +75,8 @@ export interface IProviderSessionType {
  * Options for {@link ISessionsManagementService.createNewSession}.
  */
 export interface ICreateNewSessionOptions {
+	/** Exact selected home; null deliberately creates a chat with No Workspace. */
+	readonly homeWorkspace?: ChatHomeWorkspace;
 	/**
 	 * Force creation through a specific provider. When omitted, the service
 	 * iterates registered providers and picks the first one whose
@@ -494,6 +497,12 @@ export interface ISessionsManagementService {
 	 */
 	createNewChatInSession(session: ISession, options?: ICreateNewChatInSessionOptions): Promise<IChat | undefined>;
 
+	/** Reassigns the same chat to an explicit exact workspace or No Workspace. */
+	setChatHomeWorkspace(session: ISession, chat: IChat, home: ChatHomeWorkspace): Promise<void>;
+	/** Offers a non-blocking choice after explicit open/navigation, once required metadata has loaded. */
+	offerChatHomeWorkspace(session: ISession, chat: IChat): void;
+	/** Chooses an exact home for the existing conversation without creating or sending a chat. */
+	chooseChatHomeWorkspace(session: ISession, chat: IChat): Promise<void>;
 	/**
 	 * Gives `chat`, an untitled chat of `session` that has not sent a request, the chosen workspace via the session's
 	 * provider (see {@link ISessionsProvider.applyNestedChatWorkspace}); `prompt` names a new worktree. Rejects with a

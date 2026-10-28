@@ -1058,6 +1058,7 @@ export class SessionsService extends Disposable implements ISessionsService {
 				this.sessionOpenTelemetryService.sessionLoaded(telemetryAttempt);
 			}
 			if (chat && intent === 'explicit' && !token.isCancellationRequested) {
+				this.sessionsManagementService.offerChatHomeWorkspace(session, chat);
 				const reopening = this.sessionsPartService.getSessionView(session.sessionId)?.reopenChat(chat.resource);
 				if (reopening) {
 					// A retained grid view can keep loading after this navigation is superseded.
@@ -1246,7 +1247,7 @@ export class SessionsService extends Disposable implements ISessionsService {
 				if (token.isCancellationRequested) {
 					return;
 				}
-				await this._waitForOpenSessionToLoad(sessionData, token, telemetryAttempt);
+				await this._waitForOpenSessionToLoad(sessionData, token, telemetryAttempt, intent);
 			});
 		} finally {
 			navigation.cancel();
@@ -1257,7 +1258,12 @@ export class SessionsService extends Disposable implements ISessionsService {
 		this._cancelRestore();
 		this._beginNavigation('explicit');
 		this._startOpenSession();
-		this._showSession(this._getSession(sessionResource), options);
+		const session = this._getSession(sessionResource);
+		this._showSession(session, options);
+		const chat = this.activeSession.get()?.activeChat.get();
+		if (chat) {
+			this.sessionsManagementService.offerChatHomeWorkspace(session, chat);
+		}
 	}
 
 	async canOpenSession(session: ISession): Promise<boolean> {
@@ -1455,6 +1461,10 @@ export class SessionsService extends Disposable implements ISessionsService {
 				if (options?.activate !== false && !options?.preserveFocus) {
 					this.sessionsPartService.focusSession(this.activeSession.get());
 				}
+				const active = this.activeSession.get();
+				if (options?.activate !== false && active?.sessionId === primary.sessionId) {
+					this.sessionsManagementService.offerChatHomeWorkspace(primary, active.activeChat.get());
+				}
 				if (attempt) {
 					await this._waitForOpenSessionToLoad(primary, token, attempt);
 				}
@@ -1557,6 +1567,10 @@ export class SessionsService extends Disposable implements ISessionsService {
 			throw new Error(`Unable to open chat to the side because session view '${session.sessionId}' is not mounted`);
 		}
 		await sessionView.openChatToSide(chatResource, options?.referenceChatResource);
+		const chat = session.chats.get().find(chat => this.uriIdentityService.extUri.isEqual(chat.resource, chatResource));
+		if (chat) {
+			this.sessionsManagementService.offerChatHomeWorkspace(session, chat);
+		}
 	}
 
 	/**
@@ -1595,7 +1609,7 @@ export class SessionsService extends Disposable implements ISessionsService {
 		this.logService.trace(`[SessionsView] showSession done total=${Date.now() - t0}ms uri=${sessionData.resource.toString()}`);
 	}
 
-	private async _waitForOpenSessionToLoad(sessionData: ISession, token: CancellationToken, telemetryAttempt: ISessionOpenTelemetryAttempt): Promise<void> {
+	private async _waitForOpenSessionToLoad(sessionData: ISession, token: CancellationToken, telemetryAttempt: ISessionOpenTelemetryAttempt, intent: SessionNavigationIntent = 'explicit'): Promise<void> {
 		const t0 = Date.now();
 		if (!await this._waitForSessionToLoad(sessionData, token)) {
 			this.logService.trace(`[SessionsView] openSession cancelled while waiting for session to load uri=${sessionData.resource.toString()}`);
@@ -1606,6 +1620,9 @@ export class SessionsService extends Disposable implements ISessionsService {
 		const activeChat = activeSession?.sessionId === sessionData.sessionId ? activeSession.activeChat.get() : undefined;
 		if (activeChat) {
 			this.sessionOpenTelemetryService.sessionActivated(telemetryAttempt, activeChat.resource);
+			if (intent === 'explicit') {
+				this.sessionsManagementService.offerChatHomeWorkspace(sessionData, activeChat);
+			}
 		}
 		this.sessionOpenTelemetryService.sessionLoaded(telemetryAttempt);
 		this.logService.trace(`[SessionsView] openSession loaded total=${Date.now() - t0}ms uri=${sessionData.resource.toString()}`);

@@ -27,7 +27,7 @@ import { IExtensionHostManager } from './extensionHostManagers.js';
 import { IExtensionDescriptionDelta } from './extensionHostProtocol.js';
 import { IExtensionHostProxy, IResolveAuthorityResult } from './extensionHostProxy.js';
 import { ExtensionRunningLocation } from './extensionRunningLocation.js';
-import { ActivationKind, ExtensionActivationReason, ExtensionHostStartup, IExtensionHost, IExtensionInspectInfo, IInternalExtensionService } from './extensions.js';
+import { IExtensionHostRawProfileSession, ActivationKind, ExtensionActivationReason, ExtensionHostStartup, IExtensionHost, IExtensionInspectInfo, IInternalExtensionService } from './extensions.js';
 import { Proxied, ProxyIdentifier } from './proxyIdentifier.js';
 import { IRPCProtocolLogger, RPCProtocol, RequestInitiator, ResponsiveState } from './rpcProtocol.js';
 
@@ -354,6 +354,22 @@ export class ExtensionHostManager extends Disposable implements IExtensionHostMa
 
 		await proxy.activateByEvent(activationEvent, activationKind);
 		this._resolvedActivationEvents.add(activationEvent);
+	}
+
+	public async startProfile(): Promise<IExtensionHostRawProfileSession> {
+		const owner = this._extensionHost;
+		if (!owner.startProfile || this._store.isDisposed) { throw new Error('Extension host profiling unavailable'); }
+		const session = await owner.startProfile();
+		if (this._store.isDisposed) {
+			await session.stop().catch(() => undefined);
+			throw new Error('Extension host expired');
+		}
+		return { stop: async () => {
+			if (this._store.isDisposed) { throw new Error('Extension host expired'); }
+			const profile = await session.stop();
+			if (this._store.isDisposed) { throw new Error('Extension host expired'); }
+			return profile;
+		} };
 	}
 
 	public async getInspectPort(tryEnableInspector: boolean): Promise<IExtensionInspectInfo | undefined> {

@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { IV8Profile } from '../../profiling/common/profiling.js';
 import { Event } from '../../../base/common/event.js';
 import { createDecorator } from '../../instantiation/common/instantiation.js';
 
@@ -31,6 +32,8 @@ export interface IExtensionHostStarter {
 
 	createExtensionHost(): Promise<{ id: string }>;
 	start(id: string, opts: IExtensionHostProcessOptions): Promise<{ pid: number | undefined }>;
+	startCpuProfile(id: string): Promise<string>;
+	stopCpuProfile(id: string, handle: string): Promise<IV8Profile>;
 	enableInspectPort(id: string): Promise<boolean>;
 	waitForExit(id: string, maxWaitTimeMs: number): Promise<void>;
 	kill(id: string): Promise<void>;

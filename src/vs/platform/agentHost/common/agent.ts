@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import type { ChatHomeWorkspace } from '../../workspace/common/chatHomeWorkspace.js';
 import { Event } from '../../../base/common/event.js';
 import { CancellationToken } from '../../../base/common/cancellation.js';
 import { DisposableStore, IDisposable } from '../../../base/common/lifecycle.js';
@@ -199,6 +200,8 @@ export type IAgentKnownSessionsFilter = (sessions: readonly URI[]) => Promise<Re
 
 /** Lightweight ordered chat metadata for session-list presentation. */
 export interface IAgentSessionChatMetadata {
+	/** Explicit exact home; absence is unresolved and null is intentional No Workspace. */
+	readonly homeWorkspace?: ChatHomeWorkspace;
 	readonly chat: URI;
 	readonly summary?: string;
 	readonly kind: 'default' | 'peer';
@@ -1002,6 +1005,8 @@ export function getChatSurfaceOptions(surface: IChatSurfaceMeta['surface'] | und
  * {@link IAgentCreateChatOptions} and never receive side-chat provenance.
  */
 export interface IAgentCreateChatRequestOptions extends IAgentCreateChatOptions {
+	/** Explicit creation home takes precedence over working-directory/workspace inputs; never forwarded to a provider runtime. */
+	readonly homeWorkspace?: ChatHomeWorkspace;
 	/**
 	 * Host-owned first user message submitted after creating the chat. This is
 	 * intentionally excluded from {@link IAgentCreateChatOptions}: providers

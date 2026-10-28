@@ -55,6 +55,7 @@ export interface IWindowsMainService {
 
 	getWindowById(windowId: number): ICodeWindow | undefined;
 	getWindowByWebContents(webContents: electron.WebContents): ICodeWindow | undefined;
+	getWindowByBrowserWindow(window: electron.BrowserWindow): ICodeWindow | undefined;
 }
 
 export interface IWindowsCountChangedEvent {

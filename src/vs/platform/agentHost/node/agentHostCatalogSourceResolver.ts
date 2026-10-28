@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { readChatHomeWorkspaceFromMeta } from '../../workspace/common/chatHomeWorkspace.js';
 import { URI } from '../../../base/common/uri.js';
 import { AgentSession } from '../common/agent.js';
 import { AH_META_DEV_CONTAINER_WORKTREE_DB_KEY, readAgentDevContainerWorktreeMetadata } from '../common/meta/agentDevContainerWorktreeMeta.js';
@@ -317,6 +318,7 @@ export class AgentHostCatalogSourceResolver {
 					: chat.changes ?? persistedChatChanges;
 				return {
 					uri: chat.uri,
+					...(readChatHomeWorkspaceFromMeta(state.meta, chat.uri) !== undefined ? { homeWorkspace: readChatHomeWorkspaceFromMeta(state.meta, chat.uri) } : {}),
 					order,
 					kind: chat.kind,
 					summary: toCatalogSummary(summary),
@@ -424,6 +426,7 @@ export function chatCatalogV2ToCatalogChats(snapshot: IAgentHostDatabaseCatalogS
 		order: chat.order,
 		kind: snapshot.header?.defaultChatUri === chat.chat ? 'default' as const : 'peer' as const,
 		summary: chat.metadata?.summary,
+		...(chat.metadata?.homeWorkspace !== undefined ? { homeWorkspace: chat.metadata.homeWorkspace } : {}),
 		titleSource: chat.metadata?.titleSource,
 		interactivity: chat.metadata?.interactivity,
 		changes: chat.metadata?.changes,

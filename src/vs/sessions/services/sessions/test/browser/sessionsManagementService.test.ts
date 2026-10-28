@@ -28,7 +28,12 @@ import { SyncDescriptor } from '../../../../../platform/instantiation/common/des
 import { TestInstantiationService } from '../../../../../platform/instantiation/test/common/instantiationServiceMock.js';
 import { MockContextKeyService } from '../../../../../platform/keybinding/test/common/mockKeybindingService.js';
 import { ILogService, NullLogService } from '../../../../../platform/log/common/log.js';
-import { INotificationService, NotificationMessage } from '../../../../../platform/notification/common/notification.js';
+import { INotificationService, IPromptChoice, NoOpNotification, NotificationMessage } from '../../../../../platform/notification/common/notification.js';
+import { TestNotificationService } from '../../../../../platform/notification/test/common/testNotificationService.js';
+import { IQuickInputService, IQuickPickItem } from '../../../../../platform/quickinput/common/quickInput.js';
+import { IFileDialogService } from '../../../../../platform/dialogs/common/dialogs.js';
+import { IWorkspacesService } from '../../../../../platform/workspaces/common/workspaces.js';
+import { ChatHomeWorkspace } from '../../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { IProgress, IProgressService, IProgressStep } from '../../../../../platform/progress/common/progress.js';
 import { InMemoryStorageService, IStorageService, StorageScope, StorageTarget } from '../../../../../platform/storage/common/storage.js';
 import { IUriIdentityService } from '../../../../../platform/uriIdentity/common/uriIdentity.js';
@@ -268,10 +273,21 @@ function createSessionsManagementService(
 	partServiceOverride?: TestSessionsPartService,
 	storageOverride?: InMemoryStorageService,
 	openTelemetryService?: ISessionOpenTelemetryService,
-): { service: ISessionsManagementService; view: SessionsService; chatWidgetService: TestChatWidgetService; chatService: TestChatService; contextKeyService: MockContextKeyService; customViewService: ICustomViewService; focusSession: Emitter<string | undefined>; sessionsPartService: TestSessionsPartService; notifications: (NotificationMessage | NotificationMessage[])[] } {
+): { service: ISessionsManagementService; view: SessionsService; chatWidgetService: TestChatWidgetService; chatService: TestChatService; contextKeyService: MockContextKeyService; customViewService: ICustomViewService; focusSession: Emitter<string | undefined>; sessionsPartService: TestSessionsPartService; notifications: (NotificationMessage | NotificationMessage[])[]; homePrompts: IPromptChoice[][]; homePromptClosures: number[]; instantiationService: TestInstantiationService } {
 	const instantiationService = disposables.add(new TestInstantiationService());
 	const notifications: (NotificationMessage | NotificationMessage[])[] = [];
-	instantiationService.stub(INotificationService, { error: message => notifications.push(message) });
+	const homePrompts: IPromptChoice[][] = [];
+	const homePromptClosures: number[] = [];
+	instantiationService.stub(INotificationService, {
+		error: message => notifications.push(message),
+		prompt: (_severity, _message, choices) => {
+			const index = homePrompts.push(choices) - 1;
+			return new class extends NoOpNotification { override close(): void { homePromptClosures.push(index); } }();
+		},
+	});
+	instantiationService.stub(IQuickInputService, { pick: async () => undefined });
+	instantiationService.stub(IWorkspacesService, { getRecentlyOpened: async () => ({ workspaces: [], files: [] }) });
+	instantiationService.stub(IFileDialogService, { showOpenDialog: async () => undefined });
 	const chatWidgetService = new TestChatWidgetService();
 	const chatService = disposables.add(new TestChatService());
 	const providersService = provider instanceof TestSessionsProvidersService || provider instanceof SessionsProvidersService ? provider : new TestSessionsProvidersService(Array.isArray(provider) ? provider : [provider]);
@@ -302,7 +318,7 @@ function createSessionsManagementService(
 	const focusSession = disposables.add(new Emitter<string | undefined>());
 	const sessionsPartService = partServiceOverride ?? new TestSessionsPartService(focusSession.event);
 	const view = createView(instantiationService, service, disposables, customViewService, sessionsPartService, openTelemetryService);
-	return { service, view, chatWidgetService, chatService, contextKeyService, customViewService, focusSession, sessionsPartService, notifications };
+	return { service, view, chatWidgetService, chatService, contextKeyService, customViewService, focusSession, sessionsPartService, notifications, homePrompts, homePromptClosures, instantiationService };
 }
 
 /** Sessions part stub that records focus requests without rendering views. */
@@ -370,6 +386,88 @@ function createView(
 suite('SessionsManagementService', () => {
 
 	const disposables = ensureNoDisposablesAreLeakedInTestSuite();
+
+	test('chat home choice waits for metadata and preserves resolved No Workspace', () => {
+		const loading = observableValue('homeMetadataLoading', true);
+		const home = observableValue<ChatHomeWorkspace | undefined>('home', undefined);
+		const chat = { ...stubChat, status: constObservable(SessionStatus.Completed), homeWorkspace: home };
+		const session = stubSession({ sessionId: 'history', providerId: 'test', loading, chats: constObservable([chat]), mainChat: constObservable(chat) });
+		const { service, homePrompts } = createSessionsManagementService(session, disposables);
+		service.offerChatHomeWorkspace(session, chat);
+		const whileLoading = homePrompts.length;
+		home.set(null, undefined);
+		loading.set(false, undefined);
+		assert.deepStrictEqual({ whileLoading, afterResolution: homePrompts.length }, { whileLoading: 0, afterResolution: 0 });
+	});
+
+	test('explicit history open offers one non-blocking home choice after loading, without a startup wizard', async () => {
+		const loading = observableValue('historyLoading', true);
+		const chat = { ...stubChat, status: constObservable(SessionStatus.Completed) };
+		const session = stubSession({ sessionId: 'unresolved-history', providerId: 'test', loading, chats: constObservable([chat]), mainChat: constObservable(chat) });
+		const { view, homePrompts, homePromptClosures } = createSessionsManagementService(session, disposables);
+		const atStartup = homePrompts.length;
+		const opening = view.openSession(session.resource);
+		await timeout(0);
+		const whileLoading = homePrompts.length;
+		loading.set(false, undefined);
+		await opening;
+		await view.openSession(session.resource);
+		assert.deepStrictEqual({ atStartup, whileLoading, closedPrompts: homePromptClosures, choices: homePrompts.map(prompt => prompt.map(choice => choice.label)), chat: view.activeSession.get()?.activeChat.get().resource.toString() }, {
+			atStartup: 0, whileLoading: 0, closedPrompts: [], choices: [['Choose Project']], chat: 'test:/chat',
+		});
+	});
+
+	for (const noWorkspace of [false, true]) {
+		test(`Choose Project assigns the existing conversation to ${noWorkspace ? 'No Workspace' : 'an exact saved remote workspace'} without copying or sending`, async () => {
+			const home = observableValue<ChatHomeWorkspace | undefined>('home', undefined);
+			const chat = { ...stubChat, status: constObservable(SessionStatus.Completed), homeWorkspace: home };
+			const session = stubSession({ sessionId: 'choose-home', providerId: 'test', chats: constObservable([chat]), mainChat: constObservable(chat) });
+			const provider = new class extends TestSessionsProvider {
+				override async setChatHomeWorkspace(_sessionId: string, resource: URI, chosen: ChatHomeWorkspace): Promise<void> {
+					assert.strictEqual(resource.toString(), 'test:/chat');
+					home.set(chosen, undefined);
+				}
+				override async createNewChat(): Promise<IChat> { throw new Error('Unexpected conversation copy'); }
+				override async sendRequest(): Promise<ISession> { throw new Error('Unexpected send'); }
+			}(session);
+			const { view, homePrompts, notifications, instantiationService } = createSessionsManagementService(session, disposables, provider);
+			instantiationService.stub(IWorkspacesService, 'getRecentlyOpened', async () => ({ workspaces: [
+				{ workspace: { id: 'saved', configPath: URI.file('/overlap/chosen.code-workspace') }, remoteAuthority: 'ssh-remote+build', label: 'Saved Project' },
+				{ folderUri: URI.file('/overlap'), label: 'Containing Folder' },
+			], files: [] }));
+			instantiationService.stub(IQuickInputService, 'pick', async (items: IQuickPickItem[]) => items.find(item => item.label === (noWorkspace ? 'No Workspace' : 'Saved Project')));
+			await view.openSession(session.resource);
+			await homePrompts[0][0].run();
+			assert.deepStrictEqual({ home: home.get(), chat: view.activeSession.get()?.activeChat.get().resource.toString(), notifications }, {
+				home: noWorkspace ? null : { kind: 'workspace', uri: 'file:///overlap/chosen.code-workspace', remoteAuthority: 'ssh-remote+build' }, chat: 'test:/chat', notifications: [],
+			});
+		});
+	}
+
+	test('unsupported assignment reports failure and keeps provider history accessible', async () => {
+		const chat: IChat = { ...stubChat, status: constObservable(SessionStatus.Completed) };
+		const session = stubSession({ sessionId: 'unsupported-history', providerId: 'test', chats: constObservable([chat]), mainChat: constObservable(chat) });
+		const { service, view, homePrompts, notifications } = createSessionsManagementService(session, disposables);
+		await view.openSession(session.resource);
+		await homePrompts[0][0].run();
+		assert.deepStrictEqual({ visible: service.getSessions().includes(session), home: chat.homeWorkspace?.get(), errors: notifications.map(message => message instanceof Error ? message.message : message) }, {
+			visible: true, home: undefined, errors: ['This provider cannot change the chat\'s project.'],
+		});
+	});
+
+	for (const presentation of ['show', 'toSide']) {
+		test(`explicit ${presentation} presentation offers a home for the selected existing chat`, async () => {
+			const chat = { ...stubChat, status: constObservable(SessionStatus.Completed) };
+			const session = stubSession({ sessionId: 'presentation-home', providerId: 'test', chats: constObservable([chat]), mainChat: constObservable(chat) });
+			const { view, homePrompts } = createSessionsManagementService(session, disposables);
+			if (presentation === 'show') {
+				view.showSession(session.resource);
+			} else {
+				await view.openSessionToSide(session);
+			}
+			assert.deepStrictEqual(homePrompts.map(prompt => prompt.map(choice => choice.label)), [['Choose Project']]);
+		});
+	}
 
 	test('managed worktree inventory isolates provider failures and forwards only their known repositories', async () => {
 		const session = stubSession({ sessionId: 'session', providerId: 'healthy' });
@@ -4090,6 +4188,7 @@ suite('SessionsManagementService', () => {
 
 		const makeService = () => {
 			const instantiationService = disposables.add(new TestInstantiationService());
+			instantiationService.stub(INotificationService, new TestNotificationService());
 			instantiationService.stub(IStorageService, storage);
 			instantiationService.stub(ILogService, new NullLogService());
 			instantiationService.stub(IContextKeyService, disposables.add(new MockContextKeyService()));
@@ -5794,6 +5893,17 @@ suite('SessionsManagementService', () => {
 			permissionId: 'allowAll',
 			modeId: 'autopilot',
 		}]);
+	});
+
+	test('explicit home creation is refused when its provider cannot persist chat ownership', () => {
+		const session = stubSession({ sessionId: 's1', providerId: 'test' });
+		const provider = new class extends TestSessionsProvider {
+			override resolveWorkspace(): ISessionWorkspace {
+				return { uri: URI.parse('test:///folder'), label: 'Test', icon: Codicon.folder, folders: [], requiresWorkspaceTrust: false, isVirtualWorkspace: false };
+			}
+		}(session);
+		const { service } = createSessionsManagementService(session, disposables, provider);
+		assert.throws(() => service.createNewSession(URI.parse('test:///folder'), { homeWorkspace: { kind: 'folder', uri: 'test:///folder' } }), /cannot change the chat's project/);
 	});
 
 	test('createNewSession rejects permissions when the provider cannot apply them', () => {
@@ -7570,6 +7680,27 @@ suite('SessionsManagementService', () => {
 
 	suite('createNewChatInSession', () => {
 
+		test('an explicit home reaches creation instead of reusing an unrelated draft', async () => {
+			const untitledChat: IChat = { ...stubChat, resource: URI.parse('test:///untitled'), status: constObservable(SessionStatus.Untitled) };
+			const session = stubSession({ sessionId: 'exact-home', providerId: 'test', chats: constObservable([untitledChat]) });
+			const homeWorkspace = { kind: 'workspace' as const, uri: 'file:///project/shared.code-workspace', remoteAuthority: 'ssh-remote+host' };
+			const createdChat: IChat = { ...stubChat, resource: URI.parse('test:///created'), homeWorkspace: constObservable(homeWorkspace) };
+			let requestedHome;
+			const provider = new class extends TestSessionsProvider {
+				constructor() { super(session); }
+				override async setChatHomeWorkspace(): Promise<void> { }
+				override async createNewChat(_sessionId?: string, _prompt?: string, options?: ICreateNewChatOptions): Promise<IChat> {
+					requestedHome = options?.homeWorkspace;
+					return createdChat;
+				}
+			};
+			const { service } = createSessionsManagementService(session, disposables, provider);
+
+			const result = await service.createNewChatInSession(session, { homeWorkspace });
+
+			assert.deepStrictEqual({ resource: result?.resource.toString(), requestedHome }, { resource: createdChat.resource.toString(), requestedHome: homeWorkspace });
+		});
+
 		test('reuses an existing untitled chat instead of creating a new one', async () => {
 			const untitledChat: IChat = { ...stubChat, resource: URI.parse('test:///untitled'), status: constObservable(SessionStatus.Untitled) };
 			const session = stubSession({ sessionId: 'reuse', providerId: 'test', chats: constObservable([untitledChat]) });
@@ -8034,6 +8165,7 @@ suite('SessionsManagementService', () => {
 			};
 			const makeView = () => {
 				const instantiationService = disposables.add(new TestInstantiationService());
+				instantiationService.stub(INotificationService, new TestNotificationService());
 				instantiationService.stub(IStorageService, storage);
 				instantiationService.stub(ILogService, new NullLogService());
 				instantiationService.stub(IContextKeyService, disposables.add(new MockContextKeyService()));
@@ -8086,6 +8218,7 @@ suite('SessionsManagementService', () => {
 			};
 			const makeView = () => {
 				const instantiationService = disposables.add(new TestInstantiationService());
+				instantiationService.stub(INotificationService, new TestNotificationService());
 				instantiationService.stub(IStorageService, storage);
 				instantiationService.stub(ILogService, new NullLogService());
 				instantiationService.stub(IContextKeyService, disposables.add(new MockContextKeyService()));
@@ -8122,6 +8255,7 @@ suite('SessionsManagementService', () => {
 			const storage = disposables.add(new InMemoryStorageService());
 			const makeView = (session: ISession) => {
 				const instantiationService = disposables.add(new TestInstantiationService());
+				instantiationService.stub(INotificationService, new TestNotificationService());
 				instantiationService.stub(IStorageService, storage);
 				instantiationService.stub(ILogService, new NullLogService());
 				instantiationService.stub(IContextKeyService, disposables.add(new MockContextKeyService()));
@@ -8189,6 +8323,7 @@ suite('SessionsManagementService', () => {
 			const provider = new TestSessionsProvider(session);
 			const makeView = () => {
 				const instantiationService = disposables.add(new TestInstantiationService());
+				instantiationService.stub(INotificationService, new TestNotificationService());
 				instantiationService.stub(IStorageService, storage);
 				instantiationService.stub(ILogService, new NullLogService());
 				instantiationService.stub(IContextKeyService, disposables.add(new MockContextKeyService()));
@@ -8228,6 +8363,7 @@ suite('SessionsManagementService', () => {
 			const storage = disposables.add(new InMemoryStorageService());
 			const makeView = (session: ISession) => {
 				const instantiationService = disposables.add(new TestInstantiationService());
+				instantiationService.stub(INotificationService, new TestNotificationService());
 				instantiationService.stub(IStorageService, storage);
 				instantiationService.stub(ILogService, new NullLogService());
 				instantiationService.stub(IContextKeyService, disposables.add(new MockContextKeyService()));

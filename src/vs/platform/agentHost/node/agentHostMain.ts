@@ -8,7 +8,7 @@ import { ProxyChannel } from '../../../base/parts/ipc/common/ipc.js';
 import { Server as ChildProcessServer } from '../../../base/parts/ipc/node/ipc.cp.js';
 import { Server as UtilityProcessServer } from '../../../base/parts/ipc/node/ipc.mp.js';
 import { isUtilityProcess } from '../../../base/parts/sandbox/node/electronTypes.js';
-import { Emitter, type Event } from '../../../base/common/event.js';
+import { Emitter, Event } from '../../../base/common/event.js';
 import { DisposableStore, IDisposable, MutableDisposable, toDisposable } from '../../../base/common/lifecycle.js';
 import { isWindows } from '../../../base/common/platform.js';
 import { URI } from '../../../base/common/uri.js';
@@ -39,6 +39,7 @@ import { WebSocketProtocolServer } from './webSocketTransport.js';
 import { MessagePortProtocolServer } from './messagePortProtocolServer.js';
 import { cleanupLocalAgentHostEndpointMetadataSync, cleanupLocalAgentHostEndpointSocketSync, createLocalAgentHostEndpointMetadata, prepareLocalAgentHostEndpointMetadataDirectory, prepareLocalAgentHostEndpointSocketDirectory, publishLocalAgentHostEndpointMetadata, type ILocalAgentHostEndpointMetadata } from './localAgentHostMetadata.js';
 import { AgentHostManagementService } from './agentHostManagementService.js';
+import { createAgentHostManagementChannel } from './agentHostManagementChannel.js';
 import { NativeEnvironmentService } from '../../environment/node/environmentService.js';
 import { parseArgs, OPTIONS } from '../../environment/node/argv.js';
 import { getLogLevel, ILogService, isDevConsoleLogForwardingEnabled, registerDevConsoleLogForwarder } from '../../log/common/log.js';
@@ -280,7 +281,11 @@ async function startAgentHost(): Promise<void> {
 
 	if (server instanceof UtilityProcessServer) {
 		const localDataPlaneDisposables = protocolIngressDisposables.add(new DisposableStore());
-		const messagePortProtocolServer = localDataPlaneDisposables.add(new MessagePortProtocolServer<string>());
+		const messagePortProtocolServer = localDataPlaneDisposables.add(new MessagePortProtocolServer<string>(context => {
+			const scope = server.getConnectionScope(context);
+			if (!scope?.clientId) { throw new Error('Rejected non-renderer Agent Host protocol connection'); }
+			return scope.clientId;
+		}));
 		// Shared config for the local data-plane protocol handlers (renderer
 		// MessagePort + the external endpoint, which each get their own handler).
 		const localProtocolHandlerConfig = {
@@ -309,12 +314,13 @@ async function startAgentHost(): Promise<void> {
 				if (authorityRegistrations.has(connection)) {
 					return;
 				}
-				const clientId = connection.ctx;
-				if (typeof clientId !== 'string' || !clientId) {
+				const scope = server.getConnectionScope(connection.ctx);
+				const clientId = scope?.clientId;
+				if (!clientId) {
 					return;
 				}
 				const connectionStore = new DisposableStore();
-				const getChannel = (channelName: string) => server.getChannel(channelName, c => c.ctx === clientId);
+				const getChannel = (channelName: string) => server.getChannel(channelName, c => c.ctx === connection.ctx);
 				const proxyConnection = createAgentHostClientProxyConnection(getChannel(AGENT_HOST_CLIENT_PROXY_CHANNEL));
 				connectionStore.add(proxyResolver.register(clientId, proxyConnection));
 				if (byokLmBridgeRegistry) {
@@ -514,7 +520,9 @@ async function startAgentHost(): Promise<void> {
 		},
 	);
 	management.setMissionControl(missionControl.environment);
-	server.registerChannel(AgentHostIpcChannels.Management, ProxyChannel.fromService(management, disposables));
+	const managementChannel = ProxyChannel.fromService(management, disposables);
+	const utilityServer = server instanceof UtilityProcessServer ? server : undefined;
+	server.registerChannel(AgentHostIpcChannels.Management, utilityServer ? createAgentHostManagementChannel(managementChannel, context => utilityServer.getConnectionScope(context), Event.map(utilityServer.onDidRemoveConnection, connection => connection.ctx), disposables) : managementChannel);
 	if (!(server instanceof UtilityProcessServer)) {
 		server.registerChannel(AgentHostIpcChannels.ConnectionTracker, ProxyChannel.fromService(connectionTrackerService, disposables));
 	}

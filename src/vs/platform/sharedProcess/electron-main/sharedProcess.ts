@@ -20,6 +20,7 @@ import { parseSharedProcessDebugPort } from '../../environment/node/environmentS
 import { assertReturnsDefined } from '../../../base/common/types.js';
 import { SharedProcessChannelConnection, SharedProcessRawConnection, SharedProcessLifecycle } from '../common/sharedProcess.js';
 import { Emitter } from '../../../base/common/event.js';
+import { prototypeBinding, prototypeRequestContext, revokePrototypeConnection } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
 
 export class SharedProcess extends Disposable {
 
@@ -50,16 +51,20 @@ export class SharedProcess extends Disposable {
 	private registerListeners(): void {
 
 		// Shared process channel connections from workbench windows
-		validatedIpcMain.on(SharedProcessChannelConnection.request, (e, nonce: string) => this.onWindowConnection(e, nonce, SharedProcessChannelConnection.response));
+		validatedIpcMain.on(SharedProcessChannelConnection.request, (e, ...args: unknown[]) => { void this.onWindowConnection(e, args, SharedProcessChannelConnection.response).catch(error => this.logService.error(error)); });
 
 		// Shared process raw connections from workbench windows
-		validatedIpcMain.on(SharedProcessRawConnection.request, (e, nonce: string) => this.onWindowConnection(e, nonce, SharedProcessRawConnection.response));
+		validatedIpcMain.on(SharedProcessRawConnection.request, (e, ...args: unknown[]) => { void this.onWindowConnection(e, args, SharedProcessRawConnection.response).catch(error => this.logService.error(error)); });
 
 		// Lifecycle
 		this._register(this.lifecycleMainService.onWillShutdown(() => this.onWillShutdown()));
 	}
 
-	private async onWindowConnection(e: IpcMainEvent, nonce: string, responseChannel: string): Promise<void> {
+	private async onWindowConnection(e: IpcMainEvent, args: unknown[], responseChannel: string): Promise<void> {
+		if (args.length !== 2 || typeof args[0] !== 'string') { throw new Error('Rejected shared-process connection arguments'); }
+		const nonce = args[0];
+		const context = prototypeRequestContext(e, args[1]);
+		try {
 		this.logService.trace(`[SharedProcess] onWindowConnection for: ${responseChannel}`);
 
 		// release barrier if this is the first window connection
@@ -76,19 +81,19 @@ export class SharedProcess extends Disposable {
 		// connect to the shared process passing the responseChannel
 		// as payload to give a hint what the connection is about
 
-		const port = await this.connect(responseChannel);
+		prototypeBinding(context);
+		const port = await this.connect(responseChannel, context);
 
 		// Check back if the requesting window meanwhile closed
 		// Since shared process is delayed on startup there is
 		// a chance that the window close before the shared process
 		// was ready for a connection.
 
-		if (e.sender.isDestroyed()) {
-			return port.close();
-		}
+		try { prototypeBinding(context); } catch (error) { port.close(); throw error; }
 
 		// send the port back to the requesting window
 		e.sender.postMessage(responseChannel, nonce, [port]);
+		} catch (error) { revokePrototypeConnection(context); throw error; }
 	}
 
 	private onWillShutdown(): void {
@@ -197,13 +202,13 @@ export class SharedProcess extends Disposable {
 		};
 	}
 
-	async connect(payload?: unknown): Promise<MessagePortMain> {
+	async connect(payload?: unknown, context?: string): Promise<MessagePortMain> {
 
 		// Wait for shared process being ready to accept connection
 		await this.whenIpcReady;
 
 		// Connect and return message port
 		const utilityProcess = assertReturnsDefined(this.utilityProcess);
-		return utilityProcess.connect(payload);
+		return utilityProcess.connect(payload, context);
 	}
 }

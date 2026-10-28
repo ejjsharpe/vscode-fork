@@ -3,64 +3,61 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { onPrototypeConnectionRevoked, prototypeBinding, revokePrototypeConnection } from './prototypeLifetime.js';
 import { WebContents } from 'electron';
 import { validatedIpcMain } from './ipcMain.js';
 import { VSBuffer } from '../../../common/buffer.js';
-import { Emitter, Event } from '../../../common/event.js';
+import { Emitter } from '../../../common/event.js';
 import { IDisposable, toDisposable } from '../../../common/lifecycle.js';
 import { ClientConnectionEvent, IPCServer } from '../common/ipc.js';
 import { Protocol as ElectronProtocol } from '../common/ipc.electron.js';
 
-interface IIPCEvent {
-	event: { sender: WebContents };
-	message: Buffer | null;
-}
-
-function createScopedOnMessageEvent(senderId: number, eventName: string): Event<VSBuffer | null> {
-	const onMessage = Event.fromNodeEventEmitter<IIPCEvent>(validatedIpcMain, eventName, (event, message) => ({ event, message }));
-	const onMessageFromSender = Event.filter(onMessage, ({ event }) => event.sender.id === senderId);
-
-	return Event.map(onMessageFromSender, ({ message }) => message ? VSBuffer.wrap(message) : message);
-}
-
-/**
- * An implementation of `IPCServer` on top of Electron `ipcMain` API.
- */
 export class Server extends IPCServer {
+	private static readonly clients = new Map<number, IDisposable>();
 
-	private static readonly Clients = new Map<number, IDisposable>();
-
-	private static getOnDidClientConnect(): Event<ClientConnectionEvent> {
-		const onHello = Event.fromNodeEventEmitter<WebContents>(validatedIpcMain, 'vscode:hello', ({ sender }) => sender);
-
-		return Event.map(onHello, webContents => {
-			const id = webContents.id;
-			const client = Server.Clients.get(id);
-
-			client?.dispose();
-
-			const onDidClientReconnect = new Emitter<void>();
-			const reconnectDisposable = toDisposable(() => {
-				onDidClientReconnect.fire();
-			});
-			Server.Clients.set(id, reconnectDisposable);
-
-			const onMessage = createScopedOnMessageEvent(id, 'vscode:message') as Event<VSBuffer>;
-			const onDidClientDisconnect = Event.any(Event.signal(createScopedOnMessageEvent(id, 'vscode:disconnect')), onDidClientReconnect.event);
-			Event.once(onDidClientDisconnect)(() => {
-				if (Server.Clients.get(id) === reconnectDisposable) {
-					Server.Clients.delete(id);
+	constructor(resolveContext?: (contents: WebContents, nonce: unknown) => string | undefined) {
+		const onConnect = new Emitter<ClientConnectionEvent>();
+		super(onConnect.event);
+		validatedIpcMain.on('vscode:hello', (event, key: string, nonce: unknown) => {
+			const contents = event.sender;
+			const context = resolveContext?.(contents, nonce);
+			if (resolveContext && !context) { return; }
+			Server.clients.get(contents.id)?.dispose();
+			const disconnect = new Emitter<void>();
+			const messages = new Emitter<VSBuffer>();
+			let active = true;
+			const isCurrent = () => {
+				if (!active) { return false; }
+				try { if (context) { prototypeBinding(context); } return true; } catch { return false; }
+			};
+			const receive = (incoming: Electron.IpcMainEvent, message: Buffer, messageKey: string, messageNonce: unknown) => {
+				if (incoming.sender === contents && incoming.senderFrame === contents.mainFrame && messageKey === key && messageNonce === nonce && isCurrent()) {
+					messages.fire(VSBuffer.wrap(message));
 				}
-
-				onDidClientReconnect.dispose();
+			};
+			const dispose = toDisposable(() => {
+				if (!active) { return; }
+				active = false;
+				validatedIpcMain.removeListener('vscode:message', receive);
+				validatedIpcMain.removeListener('vscode:disconnect', goodbye);
+				revocation.dispose();
+				if (context) { revokePrototypeConnection(context); }
+				disconnect.fire();
+				disconnect.dispose();
+				messages.dispose();
+				if (Server.clients.get(contents.id) === dispose) { Server.clients.delete(contents.id); }
 			});
-			const protocol = new ElectronProtocol(webContents, onMessage);
-
-			return { protocol, onDidClientDisconnect };
+			const goodbye = (incoming: Electron.IpcMainEvent, _message: unknown, messageKey: string, messageNonce: unknown) => {
+				if (incoming.sender === contents && messageKey === key && messageNonce === nonce) { dispose.dispose(); }
+			};
+			const revocation = onPrototypeConnectionRevoked(revoked => { if (revoked === context) { dispose.dispose(); } });
+			validatedIpcMain.on('vscode:message', receive);
+			validatedIpcMain.on('vscode:disconnect', goodbye);
+			Server.clients.set(contents.id, dispose);
+			const protocol = new ElectronProtocol({ send: (channel, message) => {
+				if (isCurrent()) { contents.mainFrame.send(channel, message, key); }
+			} }, messages.event);
+			onConnect.fire({ protocol, onDidClientDisconnect: disconnect.event, context });
 		});
-	}
-
-	constructor() {
-		super(Server.getOnDidClientConnect());
 	}
 }

@@ -73,7 +73,7 @@ import { IWorkspaceEditingService } from '../../workbench/services/workspaces/co
 import { ConfigurationService } from '../services/configuration/browser/configurationService.js';
 import { ConfigurationCache } from '../../workbench/services/configuration/common/configurationCache.js';
 import { SessionsWorkspaceContextService } from '../services/workspace/browser/workspaceContextService.js';
-import { getWorkspaceIdentifier } from '../../platform/workspaces/common/workspaceIdentifier.js';
+import { isEqual } from '../../base/common/resources.js';
 
 export class SessionsMain extends Disposable {
 
@@ -306,7 +306,10 @@ export class SessionsMain extends Disposable {
 		//
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-		const workspaceIdentifier = getWorkspaceIdentifier(environmentService.agentSessionsWorkspace);
+		const workspaceIdentifier = this.configuration.workspace;
+		if (!isWorkspaceIdentifier(workspaceIdentifier) || !isEqual(workspaceIdentifier.configPath, environmentService.agentSessionsWorkspace)) {
+			throw new Error('Agents workspace does not match the main-owned native configuration');
+		}
 		const workspaceContextService = new SessionsWorkspaceContextService(workspaceIdentifier, uriIdentityService);
 
 		// Workspace

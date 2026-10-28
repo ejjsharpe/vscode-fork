@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import type { ChatHomeWorkspace } from '../../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { CancellationToken } from '../../../../../base/common/cancellation.js';
 import { Emitter } from '../../../../../base/common/event.js';
 import { IDisposable } from '../../../../../base/common/lifecycle.js';
@@ -187,6 +188,18 @@ export class MockChatSessionsService implements IChatSessionsService {
 			throw new Error(`No content provider for ${sessionType}`);
 		}
 		return provider.provideChatSessionContent(sessionResource, token);
+	}
+
+	async getChatHomeWorkspace(sessionResource: URI): Promise<ChatHomeWorkspace | undefined> {
+		return this.contentProviders.get(getChatSessionType(sessionResource))?.getChatHomeWorkspace?.(sessionResource);
+	}
+
+	async setChatHomeWorkspace(sessionResource: URI, home: ChatHomeWorkspace): Promise<void> {
+		const provider = this.contentProviders.get(getChatSessionType(sessionResource));
+		if (!provider?.setChatHomeWorkspace) {
+			throw new Error('Chat home assignment is unavailable');
+		}
+		await provider.setChatHomeWorkspace(sessionResource, home);
 	}
 
 	updateChatSessionMetadata(sessionResource: URI, metadata: Record<string, unknown>): boolean {

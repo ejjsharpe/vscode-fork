@@ -3,7 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { BrowserWindow, Details, MessageChannelMain, app, utilityProcess, UtilityProcess as ElectronUtilityProcess } from 'electron';
+import { onPrototypeConnectionRevoked, onPrototypeDocumentRevoked, prototypeBinding, prototypeDocumentGeneration, revokePrototypeConnection } from '../../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { ITrustedMessagePortConnection } from '../../../base/parts/ipc/common/ipc.mp.js';
+import { Details, MessageChannelMain, app, utilityProcess, UtilityProcess as ElectronUtilityProcess } from 'electron';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { ILogService } from '../../log/common/log.js';
@@ -91,6 +93,8 @@ export interface IWindowUtilityProcessConfiguration extends IUtilityProcessConfi
 	readonly responseWindowId: number;
 	readonly responseChannel: string;
 	readonly responseNonce: string;
+	/** Main-only origin injected by the authenticated native service adapter. */
+	readonly nativeConnectionContext?: string;
 
 	// --- utility process options
 
@@ -182,6 +186,7 @@ export class UtilityProcess extends Disposable {
 	private process: ElectronUtilityProcess | undefined = undefined;
 	private processPid: number | undefined = undefined;
 	private configuration: IUtilityProcessConfiguration | undefined = undefined;
+	private readonly rendererConnections = new Set<string>();
 
 	constructor(
 		@ILogService private readonly logService: ILogService,
@@ -189,6 +194,14 @@ export class UtilityProcess extends Disposable {
 		@ILifecycleMainService protected readonly lifecycleMainService: ILifecycleMainService
 	) {
 		super();
+		this._register(onPrototypeConnectionRevoked(context => {
+			if (this.rendererConnections.delete(context)) { this.postMessage({ type: 'vscode:ipc-revoke', context }); }
+		}));
+		this._register(this.onExit(() => this.rendererConnections.clear()));
+		this._register(this.onMessage(message => {
+			const closed = message as { type?: string; context?: string } | undefined;
+			if (closed?.type === 'vscode:ipc-closed' && typeof closed.context === 'string' && this.rendererConnections.delete(closed.context)) { revokePrototypeConnection(closed.context); }
+		}));
 	}
 
 	protected log(msg: string, severity: Severity): void {
@@ -394,9 +407,20 @@ export class UtilityProcess extends Disposable {
 		return true;
 	}
 
-	connect(payload?: unknown): Electron.MessagePortMain {
+	connect(payload?: unknown, context?: string, clientId?: string): Electron.MessagePortMain {
+		let message = payload;
+		if (context) {
+			const binding = prototypeBinding(context);
+			message = { type: 'vscode:ipc-connection', context, scope: { ...binding.scope, workbench: binding.workbench, generation: binding.generation, clientId }, payload } satisfies ITrustedMessagePortConnection;
+			this.rendererConnections.add(context);
+		}
 		const { port1: outPort, port2: utilityProcessPort } = new MessageChannelMain();
-		this.postMessage(payload, [utilityProcessPort]);
+		if (!this.postMessage(message, [utilityProcessPort])) {
+			outPort.close();
+			utilityProcessPort.close();
+			if (context) { this.rendererConnections.delete(context); }
+			throw new Error('Utility process is unavailable');
+		}
 
 		return outPort;
 	}
@@ -475,11 +499,14 @@ export class WindowUtilityProcess extends UtilityProcess {
 
 	override start(configuration: IWindowUtilityProcessConfiguration): boolean {
 		const responseWindow = this.windowsMainService.getWindowById(configuration.responseWindowId);
-		if (!responseWindow?.win || responseWindow.win.isDestroyed() || responseWindow.win.webContents.isDestroyed()) {
+		if (!responseWindow?.win || responseWindow.win.isDestroyed() || responseWindow.webContents.isDestroyed()) {
 			this.log('Refusing to start utility process because requesting window cannot be found or is destroyed...', Severity.Error);
 
 			return true;
 		}
+
+		const generation = prototypeDocumentGeneration(responseWindow.webContents);
+		if (generation === undefined) { return false; }
 
 		// Start utility process
 		const started = super.doStart(configuration);
@@ -488,16 +515,23 @@ export class WindowUtilityProcess extends UtilityProcess {
 		}
 
 		// Register to window events
-		this.registerWindowListeners(responseWindow.win, configuration);
+		this.registerWindowListeners(configuration);
 
 		// Establish & exchange message ports
-		const windowPort = this.connect(configuration.payload);
-		responseWindow.win.webContents.postMessage(configuration.responseChannel, configuration.responseNonce, [windowPort]);
+		let windowPort: Electron.MessagePortMain;
+		try { windowPort = this.connect(configuration.payload, configuration.nativeConnectionContext); }
+		catch (error) { this.kill(); throw error; }
+		if (prototypeDocumentGeneration(responseWindow.webContents) !== generation) {
+			windowPort.close();
+			this.kill();
+			return false;
+		}
+		responseWindow.webContents.postMessage(configuration.responseChannel, configuration.responseNonce, [windowPort]);
 
 		return true;
 	}
 
-	private registerWindowListeners(window: BrowserWindow, configuration: IWindowUtilityProcessConfiguration): void {
+	private registerWindowListeners(configuration: IWindowUtilityProcessConfiguration): void {
 
 		// If the lifecycle of the utility process is bound to the window,
 		// we terminate the process if the window closes or changes.
@@ -506,11 +540,22 @@ export class WindowUtilityProcess extends UtilityProcess {
 
 		if (configuration.windowLifecycleBound) {
 			const graceTime = configuration.windowLifecycleGraceTime;
-			const terminate = graceTime && graceTime > 0
-				? () => this.waitForExit(graceTime)
-				: () => this.kill();
-			this._register(Event.filter(this.lifecycleMainService.onWillLoadWindow, e => e.window.win === window)(terminate));
-			this._register(Event.fromNodeEventEmitter(window, 'closed')(terminate));
+			let terminated = false;
+			const terminate = () => {
+				if (terminated) { return; }
+				terminated = true;
+				if (graceTime && graceTime > 0) { void this.waitForExit(graceTime); }
+				else { this.kill(); }
+			};
+			this._register(Event.filter(this.lifecycleMainService.onWillLoadWindow, e => e.window.id === configuration.responseWindowId)(terminate));
+			const contents = this.windowsMainService.getWindowById(configuration.responseWindowId)?.webContents;
+			if (contents) {
+				this._register(Event.filter(onPrototypeDocumentRevoked, event => event.contents === contents)(terminate));
+				this._register(Event.fromNodeEventEmitter(contents, 'destroyed')(terminate));
+				this._register(Event.fromNodeEventEmitter(contents, 'render-process-gone')(terminate));
+			}
+			const owner = this.windowsMainService.getWindowById(configuration.responseWindowId);
+			if (owner) { this._register(owner.onDidClose(terminate)); }
 		}
 	}
 }

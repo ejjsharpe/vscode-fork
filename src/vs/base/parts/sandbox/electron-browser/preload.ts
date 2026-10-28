@@ -9,6 +9,16 @@
 
 	const { ipcRenderer, webFrame, contextBridge, webUtils } = require('electron');
 
+	let documentNonce: string | undefined;
+	const pendingTransport: Array<[string, unknown[]]> = [];
+	let authorizeDocument!: () => void;
+	const documentAuthorized = new Promise<void>(resolve => { authorizeDocument = resolve; });
+	ipcRenderer.once('vscode:prototype-bootstrap', (_event: Electron.IpcRendererEvent, nonce: string) => {
+		documentNonce = nonce;
+		authorizeDocument();
+		for (const [channel, args] of pendingTransport.splice(0)) { ipcRenderer.send(channel, ...args, documentNonce); }
+	});
+
 	type ISandboxConfiguration = import('../common/sandboxTypes.js').ISandboxConfiguration;
 
 	//#region Utilities
@@ -36,9 +46,9 @@
 	//#region Resolve Configuration
 
 	let configuration: ISandboxConfiguration | undefined = undefined;
+	const windowConfigIpcChannel = parseArgv('vscode-window-config');
 
 	const resolveConfiguration: Promise<ISandboxConfiguration> = (async () => {
-		const windowConfigIpcChannel = parseArgv('vscode-window-config');
 		if (!windowConfigIpcChannel) {
 			throw new Error('Preload: did not find expected vscode-window-config in renderer process arguments list.');
 		}
@@ -47,7 +57,8 @@
 			validateIPC(windowConfigIpcChannel);
 
 			// Resolve configuration from electron-main
-			const resolvedConfiguration: ISandboxConfiguration = configuration = await ipcRenderer.invoke(windowConfigIpcChannel);
+			await documentAuthorized;
+			const resolvedConfiguration: ISandboxConfiguration = configuration = await ipcRenderer.invoke(windowConfigIpcChannel, documentNonce);
 
 			// Apply `userEnv` directly
 			Object.assign(process.env, resolvedConfiguration.userEnv);
@@ -82,7 +93,10 @@
 		// `shellEnv` from the main side
 		const [userEnv, shellEnv] = await Promise.all([
 			(async () => (await resolveConfiguration).userEnv)(),
-			ipcRenderer.invoke('vscode:fetchShellEnv')
+			(async () => {
+				await documentAuthorized;
+				return ipcRenderer.invoke('vscode:fetchShellEnv', documentNonce);
+			})()
 		]);
 
 		return { ...process.env, ...shellEnv, ...userEnv };
@@ -111,13 +125,24 @@
 
 			send(channel: string, ...args: unknown[]): void {
 				if (validateIPC(channel)) {
-					ipcRenderer.send(channel, ...args);
+					if (channel === 'vscode:toggleDevTools' || channel === 'vscode:openDevTools' || channel === 'vscode:reloadWindow' || channel === 'vscode:contextmenu' || channel.startsWith('vscode:getDiagnosticInfoResponse')) {
+						// Never replay document-bound UI requests or replies after authorization.
+						ipcRenderer.send(channel, ...args, documentNonce);
+						return;
+					}
+					if ((['vscode:hello', 'vscode:message', 'vscode:disconnect', 'vscode:createSharedProcessChannelConnection', 'vscode:createSharedProcessRawConnection', 'vscode:createPtyHostMessageChannel', 'vscode:createAgentHostMessageChannel', 'vscode:createAgentHostProfilingMessageChannel', 'vscode:agentHostOTelPolicy', 'vscode:restartAgentHost'].includes(channel) || /^vscode:(ok|cancel|reply)/.test(channel))) {
+						if (!documentNonce) { pendingTransport.push([channel, args]); }
+						else { ipcRenderer.send(channel, ...args, documentNonce); }
+					} else { ipcRenderer.send(channel, ...args); }
 				}
 			},
 
 			invoke(channel: string, ...args: unknown[]): Promise<unknown> {
 				validateIPC(channel);
 
+				if (channel === windowConfigIpcChannel || channel === 'vscode:fetchShellEnv' || channel === 'vscode:notifyZoomLevel') {
+					return ipcRenderer.invoke(channel, ...args, documentNonce);
+				}
 				return ipcRenderer.invoke(channel, ...args);
 			},
 

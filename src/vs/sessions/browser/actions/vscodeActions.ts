@@ -20,6 +20,7 @@ import { IsPhoneLayoutContext, SessionsWelcomeVisibleContext } from '../../commo
 import { logSessionsInteraction } from '../../common/sessionsTelemetry.js';
 import { Menus } from '../../browser/menus.js';
 import { ISessionsService } from '../../services/sessions/browser/sessionsService.js';
+import { ISessionsManagementService } from '../../services/sessions/common/sessionsManagement.js';
 import { ISessionsProvidersService } from '../../services/sessions/browser/sessionsProvidersService.js';
 import { Disposable } from '../../../base/common/lifecycle.js';
 import { IActionViewItemService } from '../../../platform/actions/browser/actionViewItemService.js';
@@ -70,6 +71,10 @@ export class OpenInVSCodeAction extends Action2 {
 		const activeSession = sessionsService.activeSession.get();
 		if (!activeSession) {
 			await openerService.open(URI.from({ scheme, query: params.toString() }), { openExternal: true });
+			return;
+		}
+		if (activeSession.loading.get() || activeSession.activeChat.get().homeWorkspace?.get() === undefined) {
+			accessor.get(ISessionsManagementService).offerChatHomeWorkspace(activeSession, activeSession.activeChat.get());
 			return;
 		}
 

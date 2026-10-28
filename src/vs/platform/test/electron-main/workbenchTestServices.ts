@@ -42,6 +42,7 @@ export class TestLifecycleMainService implements ILifecycleMainService {
 	phase = LifecycleMainPhase.Ready;
 
 	registerWindow(window: ICodeWindow): void { }
+	async close(window: ICodeWindow): Promise<void> { }
 	registerAuxWindow(auxWindow: IAuxiliaryWindow): void { }
 	async reload(window: ICodeWindow, cli?: NativeParsedArgs): Promise<void> { }
 	async unload(window: ICodeWindow, reason: UnloadReason): Promise<boolean> { return true; }

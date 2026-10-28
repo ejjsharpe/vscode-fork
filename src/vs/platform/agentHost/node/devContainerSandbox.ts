@@ -3,6 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { CancellationToken } from '../../../base/common/cancellation.js';
+import { CancellationError } from '../../../base/common/errors.js';
 import { readFile, stat, writeFile } from 'fs/promises';
 import { ParseError, parse } from '../../../base/common/json.js';
 import { delimiter, dirname, join, resolve } from '../../../base/common/path.js';
@@ -89,7 +91,7 @@ async function discoverComposeFiles(workspaceFolder: string, environment: NodeJS
 }
 
 /** Writes an override while retaining the original config as the base for relative paths and identity. */
-export async function prepareDevContainerSandboxConfiguration(output: string, directory: string, workspaceFolder: string, environment: NodeJS.ProcessEnv): Promise<IDevContainerSandboxConfiguration> {
+export async function prepareDevContainerSandboxConfiguration(output: string, directory: string, workspaceFolder: string, environment: NodeJS.ProcessEnv, token: CancellationToken = CancellationToken.None): Promise<IDevContainerSandboxConfiguration> {
 	const { configPath, service: resolvedService, dockerComposeFile: resolvedComposeFiles } = parseDevContainerSandboxConfiguration(output);
 	const errors: ParseError[] = [];
 	const configuration: unknown = parse(await readFile(configPath, 'utf8'), errors);
@@ -112,6 +114,7 @@ export async function prepareDevContainerSandboxConfiguration(output: string, di
 		const compose = parseYaml(/^\s*(version:.*)$/m.exec(source)?.[1] ?? source);
 		const version = compose?.type === 'map' ? compose.properties.find(property => property.key.value === 'version')?.value : undefined;
 		const composePath = join(directory, 'compose.json');
+		if (token.isCancellationRequested) { throw new CancellationError(); }
 		await writeFile(composePath, JSON.stringify({
 			...(version?.type === 'scalar' ? { version: version.value } : {}),
 			services: {
@@ -136,6 +139,7 @@ export async function prepareDevContainerSandboxConfiguration(output: string, di
 		override.runArgs = [...(validated.content.runArgs ?? []), ...devContainerSandboxRunArgs];
 	}
 	const overridePath = join(directory, 'devcontainer.json');
+	if (token.isCancellationRequested) { throw new CancellationError(); }
 	await writeFile(overridePath, JSON.stringify(override), { mode: 0o600 });
 	return { args: ['--config', configPath, '--override-config', overridePath], environment: overrideEnvironment };
 }

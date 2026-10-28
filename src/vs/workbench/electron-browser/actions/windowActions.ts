@@ -408,6 +408,16 @@ export class SwitchToMainWindowAction extends Action2 {
 	}
 }
 
+export class FocusProjectTabsAction extends Action2 {
+	constructor() {
+		super({ id: 'workbench.action.focusProjectTabs', title: localize2('focusProjectTabs', "Focus Project Tabs"), f1: true });
+	}
+
+	override async run(accessor: ServicesAccessor): Promise<void> {
+		await accessor.get(INativeHostService).focusProjectTabs();
+	}
+}
+
 export class FocusWindowAction extends Action2 {
 
 	static readonly ID = 'workbench.action.focusWindow';

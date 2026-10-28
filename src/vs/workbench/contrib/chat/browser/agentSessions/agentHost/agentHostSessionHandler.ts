@@ -3,6 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { IWorkbenchEnvironmentService } from '../../../../../services/environment/common/environmentService.js';
+import { readInitialChatHomeWorkspaceMeta } from '../../../../../../platform/agentHost/common/meta/agentChatHomeWorkspaceMeta.js';
+import { CHAT_HOME_WORKSPACE_METADATA_KEY, ChatHomeWorkspace } from '../../../../../../platform/workspace/common/chatHomeWorkspace.js';
 import { isMessageHiddenFromTranscript, isMessageRequestHiddenFromTranscript, readMessageReplacedTurn, readMessageSystemInitiatedLabel, withMessageHiddenFromTranscript, readAgentMessageRoundTripMetadata } from '../../../../../../platform/agentHost/common/meta/agentMessageMeta.js';
 import { withoutAgentMessageDelegationMeta } from '../../../../../../platform/agentHost/common/meta/agentMessageDelegationMeta.js';
 import { readUsageInfoMeta, readAgentContextUsage, readChatUsage } from '../../../../../../platform/agentHost/common/meta/agentUsageMeta.js';
@@ -78,7 +81,7 @@ import { BackgroundWorkKind, ConfirmationOptionKind, CustomizationType, JsonPrim
 import { compareProtocolVersions } from '../../../../../../platform/agentHost/common/state/protocol/version/registry.js';
 import { ActionType, ChatTurnStartedAction, isChatAction, type ClientChatAction, type ClientSessionAction } from '../../../../../../platform/agentHost/common/state/sessionActions.js';
 import { AuthenticateTargetKind, AhpErrorCodes, AHP_AUTH_REQUIRED, AHP_NOT_FOUND, JsonRpcErrorCodes, ProtocolError } from '../../../../../../platform/agentHost/common/state/sessionProtocol.js';
-import { ChangesetStatus, ChatOriginKind, getSessionChatResource, getErrorResponsePart, getInlineToolInput, getTurnError, isChatReadOnly, MessageAttachmentKind, MessageKind, PendingMessageKind, ResponsePartKind, ChatInputAnswerState, ChatInputAnswerValueKind, ChatInputQuestionKind, ChatInputResponseKind, SessionStatus, StateComponents, ToolCallCancellationReason, ToolCallConfirmationReason, ToolCallStatus, TurnState, mergeSessionWithDefaultChat, readSessionScratchFolders, readSessionWorkspaceless, type ChatState, type ISessionFileDiff, type ISessionWithDefaultChat, type ICompletedToolCall, type InputRequestResponsePart, type MarkdownResponsePart, type Message, type MessageAttachment, type MessageAnnotationsAttachment, type MessageChatAttachment, type MessageResourceAttachment, type MessageEmbeddedResourceAttachment, type ModelSelection, type PendingMessage, type ReasoningResponsePart, type RootState, type ChatInputAnswer, type ChatInputQuestion, type ChatInputRequest, type ChatSummary, type SessionState, type StringOrMarkdown, type ToolCallPendingConfirmationState, type ToolCallResponsePart, type ToolCallRunningState, type ToolCallState, type ToolInput, type Turn, type UsageInfo } from '../../../../../../platform/agentHost/common/state/sessionState.js';
+import { readSessionMultiRootMetadata, ChangesetStatus, ChatOriginKind, getSessionChatResource, getErrorResponsePart, getInlineToolInput, getTurnError, isChatReadOnly, MessageAttachmentKind, MessageKind, PendingMessageKind, ResponsePartKind, ChatInputAnswerState, ChatInputAnswerValueKind, ChatInputQuestionKind, ChatInputResponseKind, SessionStatus, StateComponents, ToolCallCancellationReason, ToolCallConfirmationReason, ToolCallStatus, TurnState, mergeSessionWithDefaultChat, readSessionScratchFolders, readSessionWorkspaceless, type ChatState, type ISessionFileDiff, type ISessionWithDefaultChat, type ICompletedToolCall, type InputRequestResponsePart, type MarkdownResponsePart, type Message, type MessageAttachment, type MessageAnnotationsAttachment, type MessageChatAttachment, type MessageResourceAttachment, type MessageEmbeddedResourceAttachment, type ModelSelection, type PendingMessage, type ReasoningResponsePart, type RootState, type ChatInputAnswer, type ChatInputQuestion, type ChatInputRequest, type ChatSummary, type SessionState, type StringOrMarkdown, type ToolCallPendingConfirmationState, type ToolCallResponsePart, type ToolCallRunningState, type ToolCallState, type ToolInput, type Turn, type UsageInfo } from '../../../../../../platform/agentHost/common/state/sessionState.js';
 import { ExtensionIdentifier } from '../../../../../../platform/extensions/common/extensions.js';
 import { IInstantiationService } from '../../../../../../platform/instantiation/common/instantiation.js';
 import { IConfigurationService } from '../../../../../../platform/configuration/common/configuration.js';
@@ -1437,6 +1440,7 @@ export class AgentHostSessionHandler extends Disposable implements IChatSessionC
 		@IChatEditingService private readonly _chatEditingService: IChatEditingService,
 		@ILogService private readonly _logService: ILogService,
 		@IWorkspaceContextService private readonly _workspaceContextService: IWorkspaceContextService,
+		@IWorkbenchEnvironmentService private readonly _environmentService: IWorkbenchEnvironmentService,
 		@IInstantiationService private readonly _instantiationService: IInstantiationService,
 		@ITerminalChatService private readonly _terminalChatService: ITerminalChatService,
 		@IAgentHostTerminalService private readonly _agentHostTerminalService: IAgentHostTerminalService,
@@ -1712,6 +1716,34 @@ export class AgentHostSessionHandler extends Disposable implements IChatSessionC
 			default:
 				// Embedded resources will be added when the workbench grows first-class support for them.
 				return undefined; // unknown attachment type
+		}
+	}
+
+	async getChatHomeWorkspace(sessionResource: URI): Promise<ChatHomeWorkspace | undefined> {
+		const chat = await this._resolveChatHomeTarget(sessionResource);
+		return this._config.connection.getChatHomeWorkspace?.(chat);
+	}
+
+	async setChatHomeWorkspace(sessionResource: URI, home: ChatHomeWorkspace): Promise<void> {
+		if (!this._config.connection.setChatHomeWorkspace) {
+			throw new Error(localize('chatHomeAssignmentUnavailable', "This provider cannot change the chat's project."));
+		}
+		const chat = await this._resolveChatHomeTarget(sessionResource);
+		await this._config.connection.setChatHomeWorkspace(chat, home);
+	}
+
+	private async _resolveChatHomeTarget(sessionResource: URI): Promise<URI> {
+		const session = this._resolveSessionUri(sessionResource);
+		const ref = this._config.connection.getSubscription(StateComponents.Session, session, 'chatHomeWorkspace');
+		try {
+			await this._whenSubscriptionHydrated(ref.object, CancellationToken.None);
+			const state = ref.object.value;
+			if (!state || state instanceof Error) {
+				throw state ?? new Error('Chat home target is unavailable');
+			}
+			return URI.parse(this._resolveChatUriFromState(sessionResource, state));
+		} finally {
+			ref.dispose();
 		}
 	}
 
@@ -6935,7 +6967,18 @@ export class AgentHostSessionHandler extends Disposable implements IChatSessionC
 	/** Creates a new backend session and subscribes to its state. */
 	private async _createAndSubscribe(sessionResource: URI, model: ModelSelection | undefined, config?: Record<string, unknown>, importConversation?: IAgentHostImportConversation, onFailureStage?: (stage: AgentHostInvocationFailureStage) => void, cancellationToken: CancellationToken = CancellationToken.None): Promise<URI> {
 		const requestedSession = this._resolveSessionUri(sessionResource);
-		const meta = this._provisionalService.getInitialSessionMetadata(sessionResource);
+		const initialMetadata = this._provisionalService.getInitialSessionMetadata(sessionResource);
+		const workspace = this._workspaceContextService.getWorkspace();
+		const workspaceFile = readSessionMultiRootMetadata(initialMetadata)?.workspaceFile;
+		const target = workspaceFile ? URI.parse(workspaceFile) : workspace.configuration ?? (workspace.folders.length === 1 ? workspace.folders[0].uri : undefined);
+		const home = readInitialChatHomeWorkspaceMeta({ _meta: initialMetadata });
+		if (home === 'invalid') {
+			throw new Error(localize('invalidChatHomeWorkspace', "The chat's project metadata is invalid."));
+		}
+		const remoteAuthority = this._environmentService.remoteAuthority ?? (target?.scheme === Schemas.vscodeRemote ? target.authority : undefined);
+		const meta = home !== undefined ? initialMetadata : { ...initialMetadata, [CHAT_HOME_WORKSPACE_METADATA_KEY]: target ? {
+			kind: workspaceFile || workspace.configuration ? 'workspace' : 'folder', uri: target.toString(), ...(remoteAuthority ? { remoteAuthority } : {}),
+		} satisfies ChatHomeWorkspace : null };
 
 		this._logService.trace(`[AgentHost] Creating new session, model=${model?.id ?? '(default)'}, provider=${this._config.provider}`);
 

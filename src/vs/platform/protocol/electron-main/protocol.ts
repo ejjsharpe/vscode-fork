@@ -36,7 +36,7 @@ export interface IProtocolMainService {
 	 * Allows to make an object accessible to a renderer
 	 * via `ipcRenderer.invoke(resource.toString())`.
 	 */
-	createIPCObjectUrl<T>(): IIPCObjectUrl<T>;
+	createIPCObjectUrl<T>(owner: () => Electron.WebContents): IIPCObjectUrl<T>;
 
 	/**
 	 * Adds a path as root to the list of allowed

@@ -9,6 +9,7 @@
 // can subscribe to `rootState` etc. immediately; the actual transport
 // connection (and AHP handshake) happens asynchronously in the background.
 
+import type { ChatHomeWorkspace } from '../../../../platform/workspace/common/chatHomeWorkspace.js';
 import type { CancellationToken } from '../../../../base/common/cancellation.js';
 import { Emitter, Event } from '../../../../base/common/event.js';
 import { Disposable, IReference } from '../../../../base/common/lifecycle.js';
@@ -394,6 +395,14 @@ export class EditorRemoteAgentHostServiceClient extends Disposable implements IA
 
 	refreshSubscription(resource: URI): Promise<void> {
 		return this._requireClient().refreshSubscription(resource);
+	}
+
+	getChatHomeWorkspace(chat: URI): Promise<ChatHomeWorkspace | undefined> {
+		return this._requireClient().getChatHomeWorkspace(chat);
+	}
+
+	setChatHomeWorkspace(chat: URI, home: ChatHomeWorkspace): Promise<void> {
+		return this._requireClient().setChatHomeWorkspace(chat, home);
 	}
 
 	setChatWorkspace(chat: URI, workspace: IAgentCreateChatWorkspace): Promise<void> {

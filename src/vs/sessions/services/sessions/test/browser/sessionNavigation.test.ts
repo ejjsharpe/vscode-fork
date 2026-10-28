@@ -247,6 +247,9 @@ class MockSessionStore implements ISessionsManagementService {
 	usesCombinedNewSessionConfigPicker(): boolean { return false; }
 	createQuickChat(_options?: ICreateNewSessionOptions): ISession { throw new Error('not implemented'); }
 	createNewChatInSession(_session: ISession): Promise<IChat | undefined> { throw new Error('not implemented'); }
+	setChatHomeWorkspace(): Promise<void> { throw new Error('not implemented'); }
+	offerChatHomeWorkspace(): void { }
+	chooseChatHomeWorkspace(): Promise<void> { throw new Error('not implemented'); }
 	applyNestedChatWorkspace(_session: ISession, _chat: IChat, _workspace: INestedChatWorkspace, _prompt: string): Promise<void> { throw new Error('not implemented'); }
 	forkChatInSession(_session: ISession, _sourceChat: URI, _turnId: string): Promise<IChat> { throw new Error('not implemented'); }
 	createSideChatInSession(_session: ISession, _sourceChat: URI, _turnId: string, _selection?: ISideChatSelection): Promise<IChat> { throw new Error('not implemented'); }
