@@ -3,8 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { bindPrototypeConnection, prototypeDocumentGeneration, prototypeDocumentOwnsReply } from '../../base/parts/ipc/electron-main/prototypeLifetime.js';
+import { bindPrototypeConnection, onPrototypeConnectionRevoked, prototypeBinding, prototypeDocumentGeneration, prototypeDocumentOwnsReply } from '../../base/parts/ipc/electron-main/prototypeLifetime.js';
 import { prototypeNativeChannel, prototypeExtensionChannel, prototypeWorkerChannel } from '../../platform/windows/electron-main/prototypeNativeChannel.js';
+import { prototypeBrowserGroupChannel, prototypeBrowserViewChannel } from '../../platform/browserView/electron-main/prototypeBrowserChannel.js';
 
 
 import { app, BrowserWindow, desktopCapturer, globalShortcut, powerMonitor, protocol, screen as electronScreen, session, Session, systemPreferences, WebFrameMain } from 'electron';
@@ -109,7 +110,7 @@ import { getAllWindowsExcludingOffscreen, IWindowsMainService, OpenContext } fro
 import { ICodeWindow } from '../../platform/window/electron-main/window.js';
 import { WindowsMainService } from '../../platform/windows/electron-main/windowsMainService.js';
 import { ActiveWindowManager } from '../../platform/windows/node/windowTracker.js';
-import { hasWorkspaceFileExtension } from '../../platform/workspace/common/workspace.js';
+import { hasWorkspaceFileExtension, toWorkspaceIdentifier } from '../../platform/workspace/common/workspace.js';
 import { IWorkspacesService } from '../../platform/workspaces/common/workspaces.js';
 import { IWorkspacesHistoryMainService, WorkspacesHistoryMainService } from '../../platform/workspaces/electron-main/workspacesHistoryMainService.js';
 import { WorkspacesMainService } from '../../platform/workspaces/electron-main/workspacesMainService.js';
@@ -1464,12 +1465,22 @@ export class CodeApplication extends Disposable {
 		mainProcessElectronServer.registerChannel('encryption', encryptionChannel);
 
 		// Browser View
-		const browserViewChannel = ProxyChannel.fromService(accessor.get(IBrowserViewMainService), disposables, { unbufferedEvents: ['onDidCreateBrowserView'] });
+		const hostedWindowsMainService = accessor.get(IWindowsMainService);
+		const hostedAuxiliaryWindowsMainService = accessor.get(IAuxiliaryWindowsMainService);
+		const resolveNativeScope = (context: string) => {
+			if (context === 'main') { return undefined; }
+			const binding = prototypeBinding(context);
+			if (hostedWindowsMainService.getWindowById(binding.workbench)?.webContents !== binding.contents) { throw new Error('Rejected stale native resource owner'); }
+			return { ...binding.scope, workbench: binding.workbench, generation: binding.generation, auxiliaryWindowIds: hostedAuxiliaryWindowsMainService.getWindows().filter(window => window.parentId === binding.workbench).map(window => window.id) };
+		};
+		const browserViewService = accessor.get(IBrowserViewMainService);
+		const browserViewChannel = prototypeBrowserViewChannel(ProxyChannel.fromService(browserViewService, disposables, { unbufferedEvents: ['onDidCreateBrowserView'] }), browserViewService, resolveNativeScope, disposables);
 		mainProcessElectronServer.registerChannel(ipcBrowserViewChannelName, browserViewChannel);
 		sharedProcessClient.then(client => client.registerChannel(ipcBrowserViewChannelName, browserViewChannel));
 
 		// Browser View Group
-		const browserViewGroupChannel = ProxyChannel.fromService(accessor.get(IBrowserViewGroupMainService), disposables);
+		const browserViewGroupService = accessor.get(IBrowserViewGroupMainService);
+		const browserViewGroupChannel = prototypeBrowserGroupChannel(ProxyChannel.fromService(browserViewGroupService, disposables), browserViewGroupService, browserViewService, resolveNativeScope, disposables);
 		mainProcessElectronServer.registerChannel(ipcBrowserViewGroupChannelName, browserViewGroupChannel);
 		sharedProcessClient.then(client => client.registerChannel(ipcBrowserViewGroupChannelName, browserViewGroupChannel));
 
@@ -1519,7 +1530,15 @@ export class CodeApplication extends Disposable {
 		mainProcessElectronServer.registerChannel('webview', webviewChannel);
 
 		// Storage (main & shared process)
-		const storageChannel = disposables.add((new StorageDatabaseChannel(this.logService, accessor.get(IStorageMainService))));
+		const storageWindowsMainService = accessor.get(IWindowsMainService);
+		const storageChannel = disposables.add(new StorageDatabaseChannel(this.logService, accessor.get(IStorageMainService), context => {
+			if (context === 'main') { return undefined; } // Trusted shared-process management connection.
+			if (typeof context !== 'string') { throw new Error('Rejected unknown storage caller'); }
+			const binding = prototypeBinding(context);
+			const window = storageWindowsMainService.getWindowById(binding.workbench);
+			if (!window?.config || window.webContents !== binding.contents || !window.profile) { throw new Error('Rejected stale storage owner'); }
+			return { profile: window.profile, workspace: window.openedWorkspace ?? toWorkspaceIdentifier(window.config.backupPath, window.isExtensionDevelopmentHost) };
+		}));
 		mainProcessElectronServer.registerChannel('storage', storageChannel);
 		sharedProcessClient.then(client => client.registerChannel('storage', storageChannel));
 
@@ -1528,7 +1547,7 @@ export class CodeApplication extends Disposable {
 		sharedProcessClient.then(client => client.registerChannel('profileStorageListener', profileStorageListener));
 
 		// Terminal
-		const ptyHostChannel = createLocalPtyChannel(accessor.get(ILocalPtyService), disposables);
+		const ptyHostChannel = createLocalPtyChannel(accessor.get(ILocalPtyService), disposables, resolveNativeScope, onPrototypeConnectionRevoked);
 		mainProcessElectronServer.registerChannel(TerminalIpcChannels.LocalPty, ptyHostChannel);
 
 		// External Terminal
@@ -1556,11 +1575,11 @@ export class CodeApplication extends Disposable {
 
 		// Extension Host Starter
 		const extensionHostStarterChannel = ProxyChannel.fromService(accessor.get(IExtensionHostStarter), disposables);
-		mainProcessElectronServer.registerChannel(ipcExtensionHostStarterChannelName, prototypeExtensionChannel(extensionHostStarterChannel, accessor.get(IWindowsMainService)));
+		mainProcessElectronServer.registerChannel(ipcExtensionHostStarterChannelName, prototypeExtensionChannel(extensionHostStarterChannel, accessor.get(IWindowsMainService), disposables));
 
 		// Utility Process Worker
 		const utilityProcessWorkerChannel = ProxyChannel.fromService(accessor.get(IUtilityProcessWorkerMainService), disposables);
-		mainProcessElectronServer.registerChannel(ipcUtilityProcessWorkerChannelName, prototypeWorkerChannel(utilityProcessWorkerChannel, accessor.get(IWindowsMainService)));
+		mainProcessElectronServer.registerChannel(ipcUtilityProcessWorkerChannelName, prototypeWorkerChannel(utilityProcessWorkerChannel, accessor.get(IWindowsMainService), disposables));
 	}
 
 	private async openFirstWindow(accessor: ServicesAccessor, initialProtocolUrls: IInitialProtocolUrls | undefined): Promise<ICodeWindow[]> {

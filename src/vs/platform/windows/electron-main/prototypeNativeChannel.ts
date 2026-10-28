@@ -9,6 +9,7 @@ import { CancellationToken } from '../../../base/common/cancellation.js';
 import { Event } from '../../../base/common/event.js';
 import { IServerChannel } from '../../../base/parts/ipc/common/ipc.js';
 import { IWindowsMainService } from './windows.js';
+import { DisposableStore } from '../../../base/common/lifecycle.js';
 
 const ownMethods = new Set(`closeWindow reload getProcessId getNativeWindowHandle isFullScreen toggleFullScreen isMaximized maximizeWindow unmaximizeWindow minimizeWindow moveWindowTop isWindowAlwaysOnTop toggleWindowAlwaysOnTop setWindowAlwaysOnTop positionWindow updateWindowControls updateWindowAccentColor focusWindow focusProjectTabs setMinimumSize saveWindowSplash setBackgroundThrottling showMessageBox showSaveDialog showOpenDialog startFileDrag setRepresentedFilename setDocumentEdited setApplicationBadge getScreenshot triggerPaste updateTouchBar notifyReady resolveProxy openDevTools toggleDevTools profileRenderer getAgentHostEditorState updateAgentHostEditorState claimAgentsWindowInvitation markAgentsWindowInvitationShown releaseAgentsWindowInvitation syncSystemWideKeybindings`.split(' '));
 const appMethods = new Set(`getWindowCount getActiveWindowId getActiveWindowPosition getWindows getCursorScreenPoint showItemInFolder openExternal moveItemToTrash getMediaAccessStatus requestScreenCaptureAccess isAdmin getOSStatistics getFreeDiskSpace getOSProperties getOSVirtualMachineHint isGPUCompositingEnabled getOSColorScheme hasWSLFeatureInstalled readClipboardText readImage writeImage writeClipboardText readClipboardFindText writeClipboardFindText writeClipboardBuffer readClipboardBuffer hasClipboard resolveProxyWithPackage readProxyConfigWithPackage lookupAuthorization lookupKerberosAuthorization loadCertificates isPortFree findFreePort windowsGetStringRegKey getSystemIdleState getSystemIdleTime getCurrentThermalState isOnBatteryPower`.split(' '));
@@ -58,9 +59,9 @@ export function prototypeNativeChannel(channel: IServerChannel<string>, windows:
 	};
 }
 
-export function prototypeExtensionChannel(channel: IServerChannel<string>, windows: IWindowsMainService): IServerChannel<string> {
+export function prototypeExtensionChannel(channel: IServerChannel<string>, windows: IWindowsMainService, disposables?: DisposableStore): IServerChannel<string> {
 	const owners = new Map<string, string>();
-	onPrototypeConnectionRevoked(context => {
+	const revocation = onPrototypeConnectionRevoked(context => {
 		for (const [id, owner] of owners) {
 			if (owner === context) {
 				owners.delete(id);
@@ -68,6 +69,7 @@ export function prototypeExtensionChannel(channel: IServerChannel<string>, windo
 			}
 		}
 	});
+	disposables?.add(revocation);
 	function authorize(context: string, id: unknown) {
 		const window = caller(context, windows);
 		const owner = typeof id === 'string' ? owners.get(id) : undefined;
@@ -86,11 +88,12 @@ export function prototypeExtensionChannel(channel: IServerChannel<string>, windo
 				return result as never;
 			}
 			authorize(context, args?.[0]);
-			if (!['start', 'enableInspectPort', 'kill', 'waitForExit'].includes(command)) { throw new Error('Rejected extension-host operation'); }
+			if (!['start', 'enableInspectPort', 'kill', 'waitForExit', 'startCpuProfile', 'stopCpuProfile'].includes(command)) { throw new Error('Rejected extension-host operation'); }
 			checkTargets(args, window.id);
 			if (command === 'start') {
 				const options = args[1] as { responseWindowId?: number };
 				if (options?.responseWindowId !== window.id) { throw new Error('Rejected extension-host destination'); }
+				args = [args[0], { ...options, nativeConnectionContext: context }];
 			}
 			const result = await channel.call<T>(context, command, args, token);
 			prototypeBinding(context);
@@ -105,9 +108,9 @@ export function prototypeExtensionChannel(channel: IServerChannel<string>, windo
 }
 
 // Renderer workers have a separate owner from provider-owned agent processes.
-export function prototypeWorkerChannel(channel: IServerChannel<string>, windows: IWindowsMainService): IServerChannel<string> {
+export function prototypeWorkerChannel(channel: IServerChannel<string>, windows: IWindowsMainService, disposables?: DisposableStore): IServerChannel<string> {
 	const owners = new Map<string, { context: string; configuration: import('../../utilityProcess/common/utilityProcessWorkerService.js').IUtilityProcessWorkerConfiguration }>();
-	onPrototypeConnectionRevoked(context => {
+	const revocation = onPrototypeConnectionRevoked(context => {
 		for (const [key, owner] of owners) {
 			if (owner.context === context) {
 				owners.delete(key);
@@ -115,11 +118,12 @@ export function prototypeWorkerChannel(channel: IServerChannel<string>, windows:
 			}
 		}
 	});
+	disposables?.add(revocation);
 	return {
 		async call<T>(context: string, command: string, args: unknown[], token?: CancellationToken): Promise<T> {
 			const window = caller(context, windows);
 			if (!Array.isArray(args) || args.length !== 1) { throw new Error('Rejected worker arguments'); }
-			const configuration = args[0] as import('../../utilityProcess/common/utilityProcessWorkerService.js').IUtilityProcessWorkerCreateConfiguration;
+			const configuration = { ...args[0] as import('../../utilityProcess/common/utilityProcessWorkerService.js').IUtilityProcessWorkerCreateConfiguration, nativeConnectionContext: context };
 			if (!configuration || configuration.reply?.windowId !== window.id || !['vs/platform/files/node/watcher/watcherMain', 'vs/platform/localTranscription/node/localTranscriptionMain'].includes(configuration.process?.moduleId)) {
 				throw new Error('Rejected worker owner/module');
 			}
@@ -132,7 +136,7 @@ export function prototypeWorkerChannel(channel: IServerChannel<string>, windows:
 				if (!configuration.reply.channel?.startsWith('vscode:') || typeof configuration.reply.nonce !== 'string') { throw new Error('Rejected worker reply'); }
 				owners.set(key, { context, configuration });
 			} else { throw new Error('Rejected worker operation'); }
-			const result = await channel.call<T>(context, command, args, token);
+			const result = await channel.call<T>(context, command, [configuration], token);
 			prototypeBinding(context);
 			return result;
 		},

@@ -309,8 +309,16 @@ export interface ITerminalLaunchResult {
 /**
  * A service that communicates with a pty host.
 */
+export interface IPtyProcessOwner {
+	readonly workbench: number;
+	readonly workspaceId: string;
+}
+
 export interface IPtyService {
 	readonly _serviceBrand: undefined;
+	/** Native coordinator records ownership after creation, before publishing the process handle. */
+	setProcessOwner(id: number, owner: IPtyProcessOwner): Promise<void>;
+	getProcessOwner(id: number): Promise<IPtyProcessOwner | undefined>;
 
 	readonly onProcessData: Event<{ id: number; event: IProcessDataEvent | string }>;
 	readonly onProcessReady: Event<{ id: number; event: IProcessReadyEvent }>;
@@ -378,10 +386,10 @@ export interface IPtyService {
 	getRevivedPtyNewId(workspaceId: string, id: number): Promise<number | undefined>;
 	setTerminalLayoutInfo(args: ISetTerminalLayoutInfoArgs): Promise<void>;
 	getTerminalLayoutInfo(args: IGetTerminalLayoutInfoArgs): Promise<ITerminalsLayoutInfo | undefined>;
-	reduceConnectionGraceTime(): Promise<void>;
+	reduceConnectionGraceTime(workbench?: number): Promise<void>;
 	requestDetachInstance(workspaceId: string, instanceId: number): Promise<IProcessDetails | undefined>;
 	acceptDetachInstanceReply(requestId: number, persistentProcessId?: number): Promise<void>;
-	freePortKillProcess(port: string): Promise<{ port: string; processId: string }>;
+	freePortKillProcess(port: string, terminalId?: number, validateAuthority?: () => void): Promise<{ port: string; processId: string }>;
 	/**
 	 * Serializes and returns terminal state.
 	 * @param ids The persistent terminal IDs to serialize.
@@ -391,7 +399,7 @@ export interface IPtyService {
 	 * Revives a workspaces terminal processes, these can then be reconnected to using the normal
 	 * flow for restoring terminals after reloading.
 	 */
-	reviveTerminalProcesses(workspaceId: string, state: ISerializedTerminalState[], dateTimeFormatLocate: string): Promise<void>;
+	reviveTerminalProcesses(workspaceId: string, state: ISerializedTerminalState[], dateTimeFormatLocate: string, owner?: IPtyProcessOwner, validateAuthority?: () => void): Promise<void>;
 	refreshProperty<T extends ProcessPropertyType>(id: number, property: T): Promise<IProcessPropertyMap[T]>;
 	updateProperty<T extends ProcessPropertyType>(id: number, property: T, value: IProcessPropertyMap[T]): Promise<void>;
 
@@ -400,15 +408,15 @@ export interface IPtyService {
 
 	// #region Pty service contribution RPC calls
 
-	installAutoReply(match: string, reply: string): Promise<void>;
-	uninstallAllAutoReplies(): Promise<void>;
+	installAutoReply(match: string, reply: string, workbench?: number): Promise<void>;
+	uninstallAllAutoReplies(workbench?: number): Promise<void>;
 
 	// #endregion
 }
 export const IPtyService = createDecorator<IPtyService>('ptyService');
 
 export interface IPtyServiceContribution {
-	handleProcessReady(persistentProcessId: number, process: ITerminalChildProcess): void;
+	handleProcessReady(persistentProcessId: number, process: ITerminalChildProcess, workbench?: number): void;
 	handleProcessDispose(persistentProcessId: number): void;
 	handleProcessInput(persistentProcessId: number, data: string): void;
 	handleProcessResize(persistentProcessId: number, cols: number, rows: number, pixelWidth?: number, pixelHeight?: number): void;

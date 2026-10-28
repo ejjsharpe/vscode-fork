@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { deepStrictEqual, notStrictEqual, strictEqual } from 'assert';
+import { deepStrictEqual, notStrictEqual, rejects, strictEqual } from 'assert';
 import { Schemas } from '../../../../base/common/network.js';
 import { joinPath } from '../../../../base/common/resources.js';
 import { URI } from '../../../../base/common/uri.js';
@@ -17,7 +17,7 @@ import product from '../../../product/common/product.js';
 import { IProductService } from '../../../product/common/productService.js';
 import { SaveStrategy, StateService } from '../../../state/node/stateService.js';
 import { IS_NEW_KEY, StorageScope } from '../../common/storage.js';
-import { IBaseSerializableStorageRequest, ISerializableCompareAndSwapRequest, ISerializableCompareAndSwapResult, ISerializableUpdateRequest } from '../../common/storageIpc.js';
+import { IBaseSerializableStorageRequest, ISerializableCompareAndSwapRequest, ISerializableCompareAndSwapResult, ISerializableGetValueRequest, ISerializableUpdateRequest } from '../../common/storageIpc.js';
 import { IStorageChangeEvent, IStorageMain, IStorageMainOptions } from '../../electron-main/storageMain.js';
 import { StorageDatabaseChannel } from '../../electron-main/storageIpc.js';
 import { StorageMainService } from '../../electron-main/storageMainService.js';
@@ -161,6 +161,27 @@ suite('StorageMainService', function () {
 		const storageMainService = createStorageService();
 
 		return testStorage(storageMainService.workspaceStorage(workspace), StorageScope.WORKSPACE);
+	});
+
+	test('storage IPC rejects foreign and forged selectors and retired owners', async function () {
+		const storageMainService = createStorageService();
+		const workspace = { id: 'own-workspace', uri: URI.file('/own') };
+		let current = true;
+		const channel = disposables.add(new StorageDatabaseChannel(new NullLogService(), storageMainService, () => {
+			if (!current) { throw new Error('Retired owner'); }
+			return { profile: inMemoryProfile, workspace };
+		}));
+		await rejects(channel.call('owner', 'getItems', { profile: undefined, workspace: { id: 'foreign' } }), /foreign/);
+		await rejects(channel.call('owner', 'getItems', { workspace: undefined, profile: { ...inMemoryProfile, globalStorageHome: URI.file('/foreign') } }), /forged/);
+		await rejects(channel.call('owner', 'getItems', { profile: undefined, workspace: { ...workspace, uri: URI.file('/foreign') } }), /forged/);
+		const update: ISerializableUpdateRequest = { profile: undefined, workspace, insert: [['draft', 'own-content']] };
+		await channel.call('owner', 'updateItems', update);
+		const read: ISerializableGetValueRequest = { profile: undefined, workspace, key: 'draft' };
+		const own = await channel.call('owner', 'getValue', read);
+		current = false;
+		await rejects(channel.call('owner', 'getItems', { profile: undefined, workspace }), /Retired/);
+		strictEqual(own, 'own-content');
+		await storageMainService.workspaceStorage(workspace).close();
 	});
 
 	test('storage channel compareAndSwap isolates keys and storage scopes', async function () {

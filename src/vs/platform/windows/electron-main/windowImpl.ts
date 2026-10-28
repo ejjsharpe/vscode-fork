@@ -185,6 +185,7 @@ export abstract class BaseWindow extends Disposable implements IBaseWindow {
 	protected _win: electron.BrowserWindow | null = null;
 	get win() { return this._win; }
 	protected hostedView: electron.WebContentsView | undefined;
+	get contentView(): electron.View | undefined { return this.hostedView ?? this._win?.contentView; }
 	protected hostedContents: electron.WebContents | undefined;
 	private logicalCloseNotified = false;
 	private logicalDisposal: Promise<void> | undefined;

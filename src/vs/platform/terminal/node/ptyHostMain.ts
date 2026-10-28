@@ -23,6 +23,8 @@ import { isUtilityProcess } from '../../../base/parts/sandbox/node/electronTypes
 import { timeout } from '../../../base/common/async.js';
 import { DisposableStore } from '../../../base/common/lifecycle.js';
 import { markNodeCompileCacheReady } from '../../../base/node/nodeCompileCache.js';
+import { createLocalPtyChannel } from '../common/localPtyChannel.js';
+import { Event } from '../../../base/common/event.js';
 
 startPtyHost();
 
@@ -85,7 +87,8 @@ async function startPtyHost() {
 
 	// Init pty service
 	const ptyService = new PtyService(logService, productService, reconnectConstants, simulatedLatency);
-	const ptyServiceChannel = ProxyChannel.fromService(ptyService, disposables);
+	const utilityServer = server instanceof UtilityProcessServer ? server : undefined;
+	const ptyServiceChannel = createLocalPtyChannel(ptyService, disposables, utilityServer ? context => utilityServer.getConnectionScope(context) : undefined, utilityServer ? Event.map(utilityServer.onDidRemoveConnection, connection => connection.ctx) : Event.None, true);
 	server.registerChannel(TerminalIpcChannels.PtyHost, ptyServiceChannel);
 
 	// Register a channel for direct communication via Message Port

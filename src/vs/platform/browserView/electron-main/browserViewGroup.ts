@@ -50,6 +50,7 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 		readonly id: string,
 		private readonly filter: IBrowserViewGroupFilter,
 		private readonly targetContext: IBrowserViewCreationContext,
+		private readonly validateAuthority: () => void = () => { },
 		@IBrowserViewMainService private readonly browserViewMainService: IBrowserViewMainService,
 		@IProductService private readonly productService: IProductService,
 		@IInstantiationService private readonly instantiationService: IInstantiationService,
@@ -80,12 +81,14 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 	}
 
 	sendCDPMessage(msg: CDPRequest): Promise<void> {
+		this.validateAuthority();
 		return this.debugger.sendMessage(msg);
 	}
 
 	// #region View management
 
 	async activate(): Promise<void> {
+		this.validateAuthority();
 		if (this._isActive) {
 			return;
 		}
@@ -122,6 +125,7 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 	}
 
 	private async _reconcileView(view: BrowserView): Promise<void> {
+		this.validateAuthority();
 		const isolatedSessionId = this.filter.sandboxSessionId;
 		const isolated = matchesBrowserViewSandboxSession(view.owner, view.session.sandboxSessionId, isolatedSessionId);
 		const matches = isolated && matchesBrowserViewGroupFilter(view.id, view.audiences, this.filter);
@@ -159,6 +163,7 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 	}
 
 	private async _addView(viewId: string): Promise<void> {
+		this.validateAuthority();
 		const view = this.browserViewMainService.tryGetBrowserView(viewId);
 		if (!view) {
 			throw new Error(`Browser view ${viewId} not found`);
@@ -179,7 +184,15 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 			this.removeView(viewId);
 		});
 
-		const info = await view.debugger.getTargetInfo();
+		let info: CDPTargetInfo;
+		try {
+			info = await view.debugger.getTargetInfo();
+			this.validateAuthority();
+		} catch (error) {
+			closeListener.dispose();
+			await this.removeView(viewId);
+			throw error;
+		}
 
 		if (this.views.get(viewId) !== view) {
 			// View was removed while we were awaiting target info
@@ -286,6 +299,7 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 	}
 
 	async createTarget(url: string, browserContextId?: string): Promise<ICDPTarget> {
+		this.validateAuthority();
 		this._validateAgentGroupStorageScope();
 		if (browserContextId && !this.knownContextIds.has(browserContextId)) {
 			throw new Error(`Unknown browser context ${browserContextId}`);
@@ -302,8 +316,10 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 			...this.targetContext,
 			session: browserContextId ?? this.targetContext.session
 		});
+		try { this.validateAuthority(); } catch (error) { if (target instanceof BrowserView) { await this.browserViewMainService.destroyBrowserView(target.id); } throw error; }
 		if (target instanceof BrowserView) {
-			await this.addView(target.id);
+			try { await this.addView(target.id); this.validateAuthority(); }
+			catch (error) { await this.browserViewMainService.destroyBrowserView(target.id); throw error; }
 			return this.viewTargets.get(target.id)!;
 		}
 		return target;
@@ -317,11 +333,13 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 	}
 
 	async closeTarget(target: ICDPTarget): Promise<boolean> {
+		this.validateAuthority();
 		if (!(target instanceof BrowserViewCDPTarget)) {
 			throw new Error('Can only close BrowserView targets');
 		}
 
 		await this.removeView(target.view.id);
+		this.validateAuthority();
 		await this.browserViewMainService.destroyBrowserView(target.view.id);
 		return true;
 	}
@@ -337,6 +355,7 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 	}
 
 	async createBrowserContext(): Promise<string> {
+		this.validateAuthority();
 		this._validateAgentGroupStorageScope();
 		const contextId = generateUuid();
 		const sessionSelector = this.targetContext.session;
@@ -373,6 +392,7 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 	}
 
 	async disposeBrowserContext(browserContextId: string): Promise<void> {
+		this.validateAuthority();
 		if (!this.ownedContextIds.has(browserContextId)) {
 			throw new Error('Can only dispose browser contexts created by this group');
 		}
@@ -384,6 +404,7 @@ export class BrowserViewGroup extends Disposable implements ICDPBrowserTarget, I
 
 		for (const viewId of viewIds) {
 			await this.removeView(viewId);
+			this.validateAuthority();
 			await this.browserViewMainService.destroyBrowserView(viewId);
 		}
 
