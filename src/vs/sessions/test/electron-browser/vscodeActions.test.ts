@@ -8,10 +8,11 @@ import { mock, upcastPartial } from '../../../base/test/common/mock.js';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../base/test/common/utils.js';
 import { INativeHostService } from '../../../platform/native/common/native.js';
 import { IOpenedMainWindow, IOpenEmptyWindowOptions, IOpenWindowOptions, IWindowOpenable, isFolderToOpen } from '../../../platform/window/common/window.js';
-import { constObservable } from '../../../base/common/observable.js';
+import { constObservable, IObservable } from '../../../base/common/observable.js';
+import { ChatHomeWorkspace } from '../../../platform/workspace/common/chatHomeWorkspace.js';
 import { URI } from '../../../base/common/uri.js';
 import { getChatSessionToOpenInEditor, openSessionInVSCode, returnToVSCodeEditor, shouldShowReturnToVSCodeEditor } from '../../electron-browser/actions/vscodeActions.js';
-import { IActiveSession } from '../../services/sessions/common/sessionsManagement.js';
+import { IActiveSession, ISessionsManagementService } from '../../services/sessions/common/sessionsManagement.js';
 import { IChat } from '../../services/sessions/common/session.js';
 import { ISessionsProvidersService } from '../../services/sessions/browser/sessionsProvidersService.js';
 import { IRemoteAgentHostEntry, IRemoteAgentHostService, RemoteAgentHostEntryType } from '../../../platform/agentHost/common/remoteAgentHostService.js';
@@ -86,6 +87,16 @@ suite('VS Code Actions', () => {
 			materialized: 'test:/materialized',
 			missing: undefined,
 		});
+	});
+
+	test('unresolved project navigation offers choice without opening inferred chat folders', async () => {
+		const session = createSession('ambiguous', true, [URI.file('/overlap/one'), URI.file('/overlap/two')], constObservable(undefined));
+		let opened = false;
+		const offered: IChat[] = [];
+		instantiationService.stub(INativeHostService, { openWindow: async () => { opened = true; } });
+		instantiationService.stub(ISessionsManagementService, { offerChatHomeWorkspace: (_session, chat) => offered.push(chat) });
+		await instantiationService.invokeFunction(openSessionInVSCode, session);
+		assert.deepStrictEqual({ opened, offered }, { opened: false, offered: [session.activeChat.get()] });
 	});
 
 	test('opens every active chat workspace folder in one editor window', async () => {
@@ -265,7 +276,7 @@ function createWindow(id: number): IOpenedMainWindow {
 	};
 }
 
-function createSession(id: string, isCreated: boolean, folders?: URI[]): IActiveSession {
+function createSession(id: string, isCreated: boolean, folders?: URI[], home: IObservable<ChatHomeWorkspace | undefined> = constObservable(folders?.[0] ? { kind: 'folder', uri: folders[0].toString() } : null)): IActiveSession {
 	const workspace = constObservable(folders ? {
 		uri: URI.from({ scheme: 'test', path: `/${id}/workspace` }),
 		label: id,
@@ -281,11 +292,13 @@ function createSession(id: string, isCreated: boolean, folders?: URI[]): IActive
 	} : undefined);
 	const activeChat = new class extends mock<IChat>() {
 		override readonly workspace = workspace;
+		override readonly homeWorkspace = home;
 	}();
 	return new class extends mock<IActiveSession>() {
 		override readonly resource = URI.from({ scheme: 'test', path: `/${id}` });
 		override readonly providerId = 'test';
 		override readonly isCreated = constObservable(isCreated);
+		override readonly loading = constObservable(false);
 		override readonly activeChat = constObservable(activeChat);
 	}();
 }

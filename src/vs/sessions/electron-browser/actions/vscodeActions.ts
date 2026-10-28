@@ -34,7 +34,7 @@ import { INativeHostService } from '../../../platform/native/common/native.js';
 import { IFolderToOpen, IOpenedMainWindow } from '../../../platform/window/common/window.js';
 import { ILabelService, Verbosity } from '../../../platform/label/common/label.js';
 import { OPEN_VSCODE_WINDOW_COMMAND_ID, RETURN_TO_VSCODE_EDITOR_COMMAND_ID, SHOULD_SHOW_RETURN_TO_VSCODE_EDITOR_COMMAND_ID } from '../../common/sessionCommands.js';
-import { IActiveSession } from '../../services/sessions/common/sessionsManagement.js';
+import { IActiveSession, ISessionsManagementService } from '../../services/sessions/common/sessionsManagement.js';
 
 export class OpenSessionInVSCodeAction extends Action2 {
 	static readonly ID = 'agents.openSessionInVSCode';
@@ -70,6 +70,10 @@ export async function openSessionInVSCode(accessor: ServicesAccessor, session: I
 	const sessionsProvidersService = accessor.get(ISessionsProvidersService);
 	const remoteAgentHostService = accessor.get(IRemoteAgentHostService);
 	const labelService = accessor.get(ILabelService);
+	if (session && (session.loading.get() || session.activeChat.get().homeWorkspace?.get() === undefined)) {
+		accessor.get(ISessionsManagementService).offerChatHomeWorkspace(session, session.activeChat.get());
+		return;
+	}
 
 	const folders = session?.activeChat.get().workspace.get()?.folders;
 	if (!session || !folders?.length) {

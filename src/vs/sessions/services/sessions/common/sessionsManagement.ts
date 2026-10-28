@@ -497,13 +497,17 @@ export interface ISessionsManagementService {
 	 */
 	createNewChatInSession(session: ISession, options?: ICreateNewChatInSessionOptions): Promise<IChat | undefined>;
 
+	/** Reassigns the same chat to an explicit exact workspace or No Workspace. */
+	setChatHomeWorkspace(session: ISession, chat: IChat, home: ChatHomeWorkspace): Promise<void>;
+	/** Offers a non-blocking choice after explicit open/navigation, once required metadata has loaded. */
+	offerChatHomeWorkspace(session: ISession, chat: IChat): void;
+	/** Chooses an exact home for the existing conversation without creating or sending a chat. */
+	chooseChatHomeWorkspace(session: ISession, chat: IChat): Promise<void>;
 	/**
 	 * Gives `chat`, an untitled chat of `session` that has not sent a request, the chosen workspace via the session's
 	 * provider (see {@link ISessionsProvider.applyNestedChatWorkspace}); `prompt` names a new worktree. Rejects with a
 	 * {@link NestedChatWorkspaceError} when the workspace cannot be applied, including when the provider is unknown.
 	 */
-	/** Reassigns the same chat to an explicit exact workspace or No Workspace. */
-	setChatHomeWorkspace(session: ISession, chat: IChat, home: ChatHomeWorkspace): Promise<void>;
 	applyNestedChatWorkspace(session: ISession, chat: IChat, workspace: INestedChatWorkspace, prompt: string): Promise<void>;
 
 	/**
